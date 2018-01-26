@@ -5,12 +5,4 @@
 *.d
 *_cl.cpp
 *.buildflags
-*Makefile
-config.guess
-config.log
-config.status
-config.sub
-missing
-depcomp
 autom4te.cache
-
