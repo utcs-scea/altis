@@ -1,5 +1,5 @@
-#ifndef SHOC_PLATFORM_H
-#define SHOC_PLATFORM_H
+#ifndef MIROVIA_PLATFORM_H
+#define MIROVIA_PLATFORM_H
 
 #include <iostream>
 #include <string>
@@ -26,7 +26,7 @@ using namespace std;
 //
 // ****************************************************************************
 
-namespace SHOC {
+namespace Mirovia {
 
     template <typename DeviceType>
     class Platform : public SerializableObject

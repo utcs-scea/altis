@@ -30,7 +30,7 @@
 //
 // ****************************************************************************
 
-namespace SHOC {
+namespace Mirovia {
 
     template <typename NodeContainer>
     class MultiNodeContainer : public SerializableObject

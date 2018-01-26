@@ -27,7 +27,7 @@ using namespace std;
 //
 // ****************************************************************************
 
-namespace SHOC {
+namespace Mirovia {
 
     template <typename PlatformType>
     class NodePlatformContainer : public SerializableObject
