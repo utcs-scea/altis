@@ -1,4 +1,4 @@
-include ../../common/make.config
+include ../../make.config
 
 CC := $(CUDA_DIR)/bin/nvcc
 
