@@ -7,7 +7,7 @@ AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_CONFIG_SRCDIR([src/common/Timer.h])
 AC_CONFIG_HEADERS([config/config.h])
 
-# Mirovia is a collection of C++ programs
+# Mirovia is a collection of C++ programs AC_LANG([C++])
 AC_LANG([C++])
 
 # Set default installation location to the build location
@@ -65,7 +65,6 @@ AC_TYPE_SIZE_T
 # Check for library functions.
 AC_FUNC_ERROR_AT_LINE
 AC_CHECK_FUNCS([clock_gettime floor gethostname gettimeofday localtime_r memset pow sqrt strdup])
-
 
 AS_IF([test "x$ac_cv_func_clock_gettime" = xyes],
     [ AC_MSG_CHECKING([whether clock_gettime() supports CLOCK_PROCESS_CPUTIME_ID timer])
@@ -199,7 +198,6 @@ AS_IF([test "x$with_cuda" != xno],
         AS_IF([test "x$NVCC" != x],
             [with_cuda=yes
              USE_CUDA=yes
-             MPI_SUBDIRS="$MPI_SUBDIRS cuda"
              AC_SUBST([CUDA_INCDIR])],
             [AC_MSG_NOTICE([no usable CUDA installation found])
              with_cuda=no
@@ -219,6 +217,9 @@ AS_IF([test "x$with_cuda" != xno],
     ]
 )
 AM_CONDITIONAL([BUILD_CUDA], [test "x$with_cuda" = "xyes"])
+
+AC_SUBST([USE_CUDA])
+AC_SUBST([NVCXXFLAGS])
 
 AC_CONFIG_FILES([Makefile
                  config/common.mk
