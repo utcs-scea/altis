@@ -48,37 +48,37 @@ PATH: /snap/bin
 ## Core tests. ##
 ## ----------- ##
 
-configure:2320: checking build system type
-configure:2334: result: x86_64-unknown-linux-gnu
-configure:2354: checking host system type
-configure:2367: result: x86_64-unknown-linux-gnu
-configure:2387: checking target system type
-configure:2400: result: x86_64-unknown-linux-gnu
-configure:2443: checking for a BSD-compatible install
-configure:2511: result: /usr/bin/install -c
-configure:2522: checking whether build environment is sane
-configure:2577: result: yes
-configure:2728: checking for a thread-safe mkdir -p
-configure:2767: result: /bin/mkdir -p
-configure:2774: checking for gawk
-configure:2790: found /usr/bin/gawk
-configure:2801: result: gawk
-configure:2812: checking whether make sets $(MAKE)
-configure:2834: result: yes
-configure:2863: checking whether make supports nested variables
-configure:2880: result: yes
-configure:3080: checking for g++
-configure:3096: found /usr/bin/g++
-configure:3107: result: g++
-configure:3134: checking for C++ compiler version
-configure:3143: g++ --version >&5
+configure:2322: checking build system type
+configure:2336: result: x86_64-unknown-linux-gnu
+configure:2356: checking host system type
+configure:2369: result: x86_64-unknown-linux-gnu
+configure:2389: checking target system type
+configure:2402: result: x86_64-unknown-linux-gnu
+configure:2445: checking for a BSD-compatible install
+configure:2513: result: /usr/bin/install -c
+configure:2524: checking whether build environment is sane
+configure:2579: result: yes
+configure:2730: checking for a thread-safe mkdir -p
+configure:2769: result: /bin/mkdir -p
+configure:2776: checking for gawk
+configure:2792: found /usr/bin/gawk
+configure:2803: result: gawk
+configure:2814: checking whether make sets $(MAKE)
+configure:2836: result: yes
+configure:2865: checking whether make supports nested variables
+configure:2882: result: yes
+configure:3082: checking for g++
+configure:3098: found /usr/bin/g++
+configure:3109: result: g++
+configure:3136: checking for C++ compiler version
+configure:3145: g++ --version >&5
 g++ (Ubuntu 5.4.0-6ubuntu1~16.04.5) 5.4.0 20160609
 Copyright (C) 2015 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-configure:3154: $? = 0
-configure:3143: g++ -v >&5
+configure:3156: $? = 0
+configure:3145: g++ -v >&5
 Using built-in specs.
 COLLECT_GCC=g++
 COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-linux-gnu/5/lto-wrapper
@@ -86,61 +86,61 @@ Target: x86_64-linux-gnu
 Configured with: ../src/configure -v --with-pkgversion='Ubuntu 5.4.0-6ubuntu1~16.04.5' --with-bugurl=file:///usr/share/doc/gcc-5/README.Bugs --enable-languages=c,ada,c++,java,go,d,fortran,objc,obj-c++ --prefix=/usr --program-suffix=-5 --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --with-sysroot=/ --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-gnu-unique-object --disable-vtable-verify --enable-libmpx --enable-plugin --with-system-zlib --disable-browser-plugin --enable-java-awt=gtk --enable-gtk-cairo --with-java-home=/usr/lib/jvm/java-1.5.0-gcj-5-amd64/jre --enable-java-home --with-jvm-root-dir=/usr/lib/jvm/java-1.5.0-gcj-5-amd64 --with-jvm-jar-dir=/usr/lib/jvm-exports/java-1.5.0-gcj-5-amd64 --with-arch-directory=amd64 --with-ecj-jar=/usr/share/java/eclipse-ecj.jar --enable-objc-gc --enable-multiarch --disable-werror --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu
 Thread model: posix
 gcc version 5.4.0 20160609 (Ubuntu 5.4.0-6ubuntu1~16.04.5) 
-configure:3154: $? = 0
-configure:3143: g++ -V >&5
+configure:3156: $? = 0
+configure:3145: g++ -V >&5
 g++: error: unrecognized command line option '-V'
 g++: fatal error: no input files
 compilation terminated.
-configure:3154: $? = 1
-configure:3143: g++ -qversion >&5
+configure:3156: $? = 1
+configure:3145: g++ -qversion >&5
 g++: error: unrecognized command line option '-qversion'
 g++: fatal error: no input files
 compilation terminated.
-configure:3154: $? = 1
-configure:3174: checking whether the C++ compiler works
-configure:3196: g++  -I/opt/cuda/include  conftest.cpp  >&5
-configure:3200: $? = 0
-configure:3248: result: yes
-configure:3251: checking for C++ compiler default output file name
-configure:3253: result: a.out
-configure:3259: checking for suffix of executables
-configure:3266: g++ -o conftest  -I/opt/cuda/include  conftest.cpp  >&5
-configure:3270: $? = 0
-configure:3292: result: 
-configure:3314: checking whether we are cross compiling
-configure:3322: g++ -o conftest  -I/opt/cuda/include  conftest.cpp  >&5
-configure:3326: $? = 0
-configure:3333: ./conftest
-configure:3337: $? = 0
-configure:3352: result: no
-configure:3357: checking for suffix of object files
-configure:3379: g++ -c  -I/opt/cuda/include conftest.cpp >&5
-configure:3383: $? = 0
-configure:3404: result: o
-configure:3408: checking whether we are using the GNU C++ compiler
-configure:3427: g++ -c  -I/opt/cuda/include conftest.cpp >&5
-configure:3427: $? = 0
-configure:3436: result: yes
-configure:3445: checking whether g++ accepts -g
-configure:3465: g++ -c -g -I/opt/cuda/include conftest.cpp >&5
-configure:3465: $? = 0
-configure:3506: result: yes
-configure:3540: checking for style of include used by make
-configure:3568: result: GNU
-configure:3594: checking dependency style of g++
-configure:3705: result: gcc3
-configure:3768: checking for gcc
-configure:3784: found /usr/bin/gcc
-configure:3795: result: gcc
-configure:4024: checking for C compiler version
-configure:4033: gcc --version >&5
+configure:3156: $? = 1
+configure:3176: checking whether the C++ compiler works
+configure:3198: g++  -I/opt/cuda/include  conftest.cpp  >&5
+configure:3202: $? = 0
+configure:3250: result: yes
+configure:3253: checking for C++ compiler default output file name
+configure:3255: result: a.out
+configure:3261: checking for suffix of executables
+configure:3268: g++ -o conftest  -I/opt/cuda/include  conftest.cpp  >&5
+configure:3272: $? = 0
+configure:3294: result: 
+configure:3316: checking whether we are cross compiling
+configure:3324: g++ -o conftest  -I/opt/cuda/include  conftest.cpp  >&5
+configure:3328: $? = 0
+configure:3335: ./conftest
+configure:3339: $? = 0
+configure:3354: result: no
+configure:3359: checking for suffix of object files
+configure:3381: g++ -c  -I/opt/cuda/include conftest.cpp >&5
+configure:3385: $? = 0
+configure:3406: result: o
+configure:3410: checking whether we are using the GNU C++ compiler
+configure:3429: g++ -c  -I/opt/cuda/include conftest.cpp >&5
+configure:3429: $? = 0
+configure:3438: result: yes
+configure:3447: checking whether g++ accepts -g
+configure:3467: g++ -c -g -I/opt/cuda/include conftest.cpp >&5
+configure:3467: $? = 0
+configure:3508: result: yes
+configure:3542: checking for style of include used by make
+configure:3570: result: GNU
+configure:3596: checking dependency style of g++
+configure:3707: result: gcc3
+configure:3770: checking for gcc
+configure:3786: found /usr/bin/gcc
+configure:3797: result: gcc
+configure:4026: checking for C compiler version
+configure:4035: gcc --version >&5
 gcc (Ubuntu 5.4.0-6ubuntu1~16.04.5) 5.4.0 20160609
 Copyright (C) 2015 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-configure:4044: $? = 0
-configure:4033: gcc -v >&5
+configure:4046: $? = 0
+configure:4035: gcc -v >&5
 Using built-in specs.
 COLLECT_GCC=gcc
 COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-linux-gnu/5/lto-wrapper
@@ -148,56 +148,56 @@ Target: x86_64-linux-gnu
 Configured with: ../src/configure -v --with-pkgversion='Ubuntu 5.4.0-6ubuntu1~16.04.5' --with-bugurl=file:///usr/share/doc/gcc-5/README.Bugs --enable-languages=c,ada,c++,java,go,d,fortran,objc,obj-c++ --prefix=/usr --program-suffix=-5 --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --with-sysroot=/ --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-gnu-unique-object --disable-vtable-verify --enable-libmpx --enable-plugin --with-system-zlib --disable-browser-plugin --enable-java-awt=gtk --enable-gtk-cairo --with-java-home=/usr/lib/jvm/java-1.5.0-gcj-5-amd64/jre --enable-java-home --with-jvm-root-dir=/usr/lib/jvm/java-1.5.0-gcj-5-amd64 --with-jvm-jar-dir=/usr/lib/jvm-exports/java-1.5.0-gcj-5-amd64 --with-arch-directory=amd64 --with-ecj-jar=/usr/share/java/eclipse-ecj.jar --enable-objc-gc --enable-multiarch --disable-werror --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu
 Thread model: posix
 gcc version 5.4.0 20160609 (Ubuntu 5.4.0-6ubuntu1~16.04.5) 
-configure:4044: $? = 0
-configure:4033: gcc -V >&5
+configure:4046: $? = 0
+configure:4035: gcc -V >&5
 gcc: error: unrecognized command line option '-V'
 gcc: fatal error: no input files
 compilation terminated.
-configure:4044: $? = 1
-configure:4033: gcc -qversion >&5
+configure:4046: $? = 1
+configure:4035: gcc -qversion >&5
 gcc: error: unrecognized command line option '-qversion'
 gcc: fatal error: no input files
 compilation terminated.
-configure:4044: $? = 1
-configure:4048: checking whether we are using the GNU C compiler
-configure:4067: gcc -c  -I/opt/cuda/include conftest.c >&5
-configure:4067: $? = 0
-configure:4076: result: yes
-configure:4085: checking whether gcc accepts -g
-configure:4105: gcc -c -g -I/opt/cuda/include conftest.c >&5
-configure:4105: $? = 0
-configure:4146: result: yes
-configure:4163: checking for gcc option to accept ISO C89
-configure:4226: gcc  -c -g -O2 -I/opt/cuda/include conftest.c >&5
-configure:4226: $? = 0
-configure:4239: result: none needed
-configure:4264: checking whether gcc understands -c and -o together
-configure:4286: gcc -c conftest.c -o conftest2.o
-configure:4289: $? = 0
-configure:4286: gcc -c conftest.c -o conftest2.o
-configure:4289: $? = 0
-configure:4301: result: yes
-configure:4320: checking dependency style of gcc
-configure:4431: result: gcc3
-configure:4489: checking for ranlib
-configure:4505: found /usr/bin/ranlib
-configure:4516: result: ranlib
-configure:4581: checking for ar
-configure:4597: found /usr/bin/ar
-configure:4608: result: ar
-configure:4632: checking for perl
-configure:4650: found /usr/bin/perl
-configure:4662: result: /usr/bin/perl
-configure:4672: checking for unzip
-configure:4690: found /usr/bin/unzip
-configure:4702: result: /usr/bin/unzip
-configure:4754: checking how to run the C++ preprocessor
-configure:4781: g++ -E -I/opt/cuda/include conftest.cpp
-configure:4781: $? = 0
-configure:4795: g++ -E -I/opt/cuda/include conftest.cpp
+configure:4046: $? = 1
+configure:4050: checking whether we are using the GNU C compiler
+configure:4069: gcc -c  -I/opt/cuda/include conftest.c >&5
+configure:4069: $? = 0
+configure:4078: result: yes
+configure:4087: checking whether gcc accepts -g
+configure:4107: gcc -c -g -I/opt/cuda/include conftest.c >&5
+configure:4107: $? = 0
+configure:4148: result: yes
+configure:4165: checking for gcc option to accept ISO C89
+configure:4228: gcc  -c -g -O2 -I/opt/cuda/include conftest.c >&5
+configure:4228: $? = 0
+configure:4241: result: none needed
+configure:4266: checking whether gcc understands -c and -o together
+configure:4288: gcc -c conftest.c -o conftest2.o
+configure:4291: $? = 0
+configure:4288: gcc -c conftest.c -o conftest2.o
+configure:4291: $? = 0
+configure:4303: result: yes
+configure:4322: checking dependency style of gcc
+configure:4433: result: gcc3
+configure:4491: checking for ranlib
+configure:4507: found /usr/bin/ranlib
+configure:4518: result: ranlib
+configure:4583: checking for ar
+configure:4599: found /usr/bin/ar
+configure:4610: result: ar
+configure:4634: checking for perl
+configure:4652: found /usr/bin/perl
+configure:4664: result: /usr/bin/perl
+configure:4674: checking for unzip
+configure:4692: found /usr/bin/unzip
+configure:4704: result: /usr/bin/unzip
+configure:4756: checking how to run the C++ preprocessor
+configure:4783: g++ -E -I/opt/cuda/include conftest.cpp
+configure:4783: $? = 0
+configure:4797: g++ -E -I/opt/cuda/include conftest.cpp
 conftest.cpp:11:28: fatal error: ac_nonexistent.h: No such file or directory
 compilation terminated.
-configure:4795: $? = 1
+configure:4797: $? = 1
 configure: failed program was:
 | /* confdefs.h */
 | #define PACKAGE_NAME "MIROVIA"
@@ -210,13 +210,13 @@ configure: failed program was:
 | #define VERSION "1.0.0"
 | /* end confdefs.h.  */
 | #include <ac_nonexistent.h>
-configure:4820: result: g++ -E
-configure:4840: g++ -E -I/opt/cuda/include conftest.cpp
-configure:4840: $? = 0
-configure:4854: g++ -E -I/opt/cuda/include conftest.cpp
+configure:4822: result: g++ -E
+configure:4842: g++ -E -I/opt/cuda/include conftest.cpp
+configure:4842: $? = 0
+configure:4856: g++ -E -I/opt/cuda/include conftest.cpp
 conftest.cpp:11:28: fatal error: ac_nonexistent.h: No such file or directory
 compilation terminated.
-configure:4854: $? = 1
+configure:4856: $? = 1
 configure: failed program was:
 | /* confdefs.h */
 | #define PACKAGE_NAME "MIROVIA"
@@ -229,63 +229,63 @@ configure: failed program was:
 | #define VERSION "1.0.0"
 | /* end confdefs.h.  */
 | #include <ac_nonexistent.h>
-configure:4883: checking for grep that handles long lines and -e
-configure:4941: result: /bin/grep
-configure:4946: checking for egrep
-configure:5008: result: /bin/grep -E
-configure:5013: checking for ANSI C header files
-configure:5033: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
-configure:5033: $? = 0
-configure:5106: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
-configure:5106: $? = 0
-configure:5106: ./conftest
-configure:5106: $? = 0
-configure:5117: result: yes
-configure:5130: checking for sys/types.h
-configure:5130: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
-configure:5130: $? = 0
-configure:5130: result: yes
-configure:5130: checking for sys/stat.h
-configure:5130: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
-configure:5130: $? = 0
-configure:5130: result: yes
-configure:5130: checking for stdlib.h
-configure:5130: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
-configure:5130: $? = 0
-configure:5130: result: yes
-configure:5130: checking for string.h
-configure:5130: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
-configure:5130: $? = 0
-configure:5130: result: yes
-configure:5130: checking for memory.h
-configure:5130: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
-configure:5130: $? = 0
-configure:5130: result: yes
-configure:5130: checking for strings.h
-configure:5130: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
-configure:5130: $? = 0
-configure:5130: result: yes
-configure:5130: checking for inttypes.h
-configure:5130: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
-configure:5130: $? = 0
-configure:5130: result: yes
-configure:5130: checking for stdint.h
-configure:5130: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
-configure:5130: $? = 0
-configure:5130: result: yes
-configure:5130: checking for unistd.h
-configure:5130: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
-configure:5130: $? = 0
-configure:5130: result: yes
-configure:5142: checking for size_t
-configure:5142: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
-configure:5142: $? = 0
-configure:5142: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
+configure:4885: checking for grep that handles long lines and -e
+configure:4943: result: /bin/grep
+configure:4948: checking for egrep
+configure:5010: result: /bin/grep -E
+configure:5015: checking for ANSI C header files
+configure:5035: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
+configure:5035: $? = 0
+configure:5108: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
+configure:5108: $? = 0
+configure:5108: ./conftest
+configure:5108: $? = 0
+configure:5119: result: yes
+configure:5132: checking for sys/types.h
+configure:5132: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
+configure:5132: $? = 0
+configure:5132: result: yes
+configure:5132: checking for sys/stat.h
+configure:5132: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
+configure:5132: $? = 0
+configure:5132: result: yes
+configure:5132: checking for stdlib.h
+configure:5132: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
+configure:5132: $? = 0
+configure:5132: result: yes
+configure:5132: checking for string.h
+configure:5132: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
+configure:5132: $? = 0
+configure:5132: result: yes
+configure:5132: checking for memory.h
+configure:5132: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
+configure:5132: $? = 0
+configure:5132: result: yes
+configure:5132: checking for strings.h
+configure:5132: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
+configure:5132: $? = 0
+configure:5132: result: yes
+configure:5132: checking for inttypes.h
+configure:5132: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
+configure:5132: $? = 0
+configure:5132: result: yes
+configure:5132: checking for stdint.h
+configure:5132: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
+configure:5132: $? = 0
+configure:5132: result: yes
+configure:5132: checking for unistd.h
+configure:5132: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
+configure:5132: $? = 0
+configure:5132: result: yes
+configure:5144: checking for size_t
+configure:5144: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
+configure:5144: $? = 0
+configure:5144: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
 conftest.cpp: In function 'int main()':
 conftest.cpp:57:20: error: expected primary-expression before ')' token
  if (sizeof ((size_t)))
                     ^
-configure:5142: $? = 1
+configure:5144: $? = 1
 configure: failed program was:
 | /* confdefs.h */
 | #define PACKAGE_NAME "MIROVIA"
@@ -348,72 +348,72 @@ configure: failed program was:
 |   ;
 |   return 0;
 | }
-configure:5142: result: yes
-configure:5155: checking for working alloca.h
-configure:5172: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
-configure:5172: $? = 0
-configure:5180: result: yes
-configure:5188: checking for alloca
-configure:5225: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
-configure:5225: $? = 0
-configure:5233: result: yes
-configure:5342: checking float.h usability
-configure:5342: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
-configure:5342: $? = 0
-configure:5342: result: yes
-configure:5342: checking float.h presence
-configure:5342: g++ -E -I/opt/cuda/include conftest.cpp
-configure:5342: $? = 0
-configure:5342: result: yes
-configure:5342: checking for float.h
-configure:5342: result: yes
-configure:5342: checking for stdlib.h
-configure:5342: result: yes
-configure:5342: checking for string.h
-configure:5342: result: yes
-configure:5342: checking sys/time.h usability
-configure:5342: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
-configure:5342: $? = 0
-configure:5342: result: yes
-configure:5342: checking sys/time.h presence
-configure:5342: g++ -E -I/opt/cuda/include conftest.cpp
-configure:5342: $? = 0
-configure:5342: result: yes
-configure:5342: checking for sys/time.h
-configure:5342: result: yes
-configure:5342: checking sys/timeb.h usability
-configure:5342: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
-configure:5342: $? = 0
-configure:5342: result: yes
-configure:5342: checking sys/timeb.h presence
-configure:5342: g++ -E -I/opt/cuda/include conftest.cpp
-configure:5342: $? = 0
-configure:5342: result: yes
-configure:5342: checking for sys/timeb.h
-configure:5342: result: yes
-configure:5342: checking time.h usability
-configure:5342: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
-configure:5342: $? = 0
-configure:5342: result: yes
-configure:5342: checking time.h presence
-configure:5342: g++ -E -I/opt/cuda/include conftest.cpp
-configure:5342: $? = 0
-configure:5342: result: yes
-configure:5342: checking for time.h
-configure:5342: result: yes
-configure:5342: checking for unistd.h
-configure:5342: result: yes
-configure:5354: checking for stdbool.h that conforms to C99
-configure:5421: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
-configure:5421: $? = 0
-configure:5428: result: yes
-configure:5430: checking for _Bool
-configure:5430: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
+configure:5144: result: yes
+configure:5157: checking for working alloca.h
+configure:5174: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
+configure:5174: $? = 0
+configure:5182: result: yes
+configure:5190: checking for alloca
+configure:5227: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
+configure:5227: $? = 0
+configure:5235: result: yes
+configure:5344: checking float.h usability
+configure:5344: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
+configure:5344: $? = 0
+configure:5344: result: yes
+configure:5344: checking float.h presence
+configure:5344: g++ -E -I/opt/cuda/include conftest.cpp
+configure:5344: $? = 0
+configure:5344: result: yes
+configure:5344: checking for float.h
+configure:5344: result: yes
+configure:5344: checking for stdlib.h
+configure:5344: result: yes
+configure:5344: checking for string.h
+configure:5344: result: yes
+configure:5344: checking sys/time.h usability
+configure:5344: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
+configure:5344: $? = 0
+configure:5344: result: yes
+configure:5344: checking sys/time.h presence
+configure:5344: g++ -E -I/opt/cuda/include conftest.cpp
+configure:5344: $? = 0
+configure:5344: result: yes
+configure:5344: checking for sys/time.h
+configure:5344: result: yes
+configure:5344: checking sys/timeb.h usability
+configure:5344: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
+configure:5344: $? = 0
+configure:5344: result: yes
+configure:5344: checking sys/timeb.h presence
+configure:5344: g++ -E -I/opt/cuda/include conftest.cpp
+configure:5344: $? = 0
+configure:5344: result: yes
+configure:5344: checking for sys/timeb.h
+configure:5344: result: yes
+configure:5344: checking time.h usability
+configure:5344: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
+configure:5344: $? = 0
+configure:5344: result: yes
+configure:5344: checking time.h presence
+configure:5344: g++ -E -I/opt/cuda/include conftest.cpp
+configure:5344: $? = 0
+configure:5344: result: yes
+configure:5344: checking for time.h
+configure:5344: result: yes
+configure:5344: checking for unistd.h
+configure:5344: result: yes
+configure:5356: checking for stdbool.h that conforms to C99
+configure:5423: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
+configure:5423: $? = 0
+configure:5430: result: yes
+configure:5432: checking for _Bool
+configure:5432: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
 conftest.cpp: In function 'int main()':
 conftest.cpp:66:13: error: '_Bool' was not declared in this scope
  if (sizeof (_Bool))
              ^
-configure:5430: $? = 1
+configure:5432: $? = 1
 configure: failed program was:
 | /* confdefs.h */
 | #define PACKAGE_NAME "MIROVIA"
@@ -485,67 +485,67 @@ configure: failed program was:
 |   ;
 |   return 0;
 | }
-configure:5430: result: no
-configure:5447: checking for inline
-configure:5463: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
-configure:5463: $? = 0
-configure:5471: result: inline
-configure:5489: checking for C/C++ restrict keyword
-configure:5514: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
-configure:5514: $? = 0
-configure:5522: result: __restrict
-configure:5535: checking for size_t
-configure:5535: result: yes
-configure:5548: checking for error_at_line
-configure:5564: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
-configure:5564: $? = 0
-configure:5572: result: yes
-configure:5586: checking for clock_gettime
-configure:5586: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
-configure:5586: $? = 0
-configure:5586: result: yes
-configure:5586: checking for floor
-configure:5586: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
-configure:5586: $? = 0
-configure:5586: result: yes
-configure:5586: checking for gethostname
-configure:5586: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
-configure:5586: $? = 0
-configure:5586: result: yes
-configure:5586: checking for gettimeofday
-configure:5586: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
-configure:5586: $? = 0
-configure:5586: result: yes
-configure:5586: checking for localtime_r
-configure:5586: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
-configure:5586: $? = 0
-configure:5586: result: yes
-configure:5586: checking for memset
-configure:5586: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
-configure:5586: $? = 0
-configure:5586: result: yes
-configure:5586: checking for pow
-configure:5586: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
-configure:5586: $? = 0
-configure:5586: result: yes
-configure:5586: checking for sqrt
-configure:5586: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
-configure:5586: $? = 0
-configure:5586: result: yes
-configure:5586: checking for strdup
-configure:5586: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
-configure:5586: $? = 0
-configure:5586: result: yes
-configure:5598: checking whether clock_gettime() supports CLOCK_PROCESS_CPUTIME_ID timer
-configure:5611: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
-configure:5611: $? = 0
-configure:5612: result: yes
-configure:5644: checking for usable OpenCL opencl.h header
-configure:5646: checking OpenCL/opencl.h usability
-configure:5646: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
+configure:5432: result: no
+configure:5449: checking for inline
+configure:5465: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
+configure:5465: $? = 0
+configure:5473: result: inline
+configure:5491: checking for C/C++ restrict keyword
+configure:5516: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
+configure:5516: $? = 0
+configure:5524: result: __restrict
+configure:5537: checking for size_t
+configure:5537: result: yes
+configure:5550: checking for error_at_line
+configure:5566: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
+configure:5566: $? = 0
+configure:5574: result: yes
+configure:5588: checking for clock_gettime
+configure:5588: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
+configure:5588: $? = 0
+configure:5588: result: yes
+configure:5588: checking for floor
+configure:5588: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
+configure:5588: $? = 0
+configure:5588: result: yes
+configure:5588: checking for gethostname
+configure:5588: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
+configure:5588: $? = 0
+configure:5588: result: yes
+configure:5588: checking for gettimeofday
+configure:5588: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
+configure:5588: $? = 0
+configure:5588: result: yes
+configure:5588: checking for localtime_r
+configure:5588: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
+configure:5588: $? = 0
+configure:5588: result: yes
+configure:5588: checking for memset
+configure:5588: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
+configure:5588: $? = 0
+configure:5588: result: yes
+configure:5588: checking for pow
+configure:5588: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
+configure:5588: $? = 0
+configure:5588: result: yes
+configure:5588: checking for sqrt
+configure:5588: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
+configure:5588: $? = 0
+configure:5588: result: yes
+configure:5588: checking for strdup
+configure:5588: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
+configure:5588: $? = 0
+configure:5588: result: yes
+configure:5599: checking whether clock_gettime() supports CLOCK_PROCESS_CPUTIME_ID timer
+configure:5612: g++ -o conftest -g -O2 -I/opt/cuda/include  conftest.cpp  -lrt >&5
+configure:5612: $? = 0
+configure:5613: result: yes
+configure:5645: checking for usable OpenCL opencl.h header
+configure:5647: checking OpenCL/opencl.h usability
+configure:5647: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
 conftest.cpp:75:27: fatal error: OpenCL/opencl.h: No such file or directory
 compilation terminated.
-configure:5646: $? = 1
+configure:5647: $? = 1
 configure: failed program was:
 | /* confdefs.h */
 | #define PACKAGE_NAME "MIROVIA"
@@ -622,12 +622,12 @@ configure: failed program was:
 | # include <unistd.h>
 | #endif
 | #include <OpenCL/opencl.h>
-configure:5646: result: no
-configure:5646: checking OpenCL/opencl.h presence
-configure:5646: g++ -E -I/opt/cuda/include conftest.cpp
+configure:5647: result: no
+configure:5647: checking OpenCL/opencl.h presence
+configure:5647: g++ -E -I/opt/cuda/include conftest.cpp
 conftest.cpp:42:27: fatal error: OpenCL/opencl.h: No such file or directory
 compilation terminated.
-configure:5646: $? = 1
+configure:5647: $? = 1
 configure: failed program was:
 | /* confdefs.h */
 | #define PACKAGE_NAME "MIROVIA"
@@ -671,14 +671,14 @@ configure: failed program was:
 | #define HAVE_CLOCK_PROCESS_CPUTIME_ID 1
 | /* end confdefs.h.  */
 | #include <OpenCL/opencl.h>
-configure:5646: result: no
-configure:5646: checking for OpenCL/opencl.h
-configure:5646: result: no
-configure:5650: checking CL/opencl.h usability
-configure:5650: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
+configure:5647: result: no
+configure:5647: checking for OpenCL/opencl.h
+configure:5647: result: no
+configure:5651: checking CL/opencl.h usability
+configure:5651: g++ -c -g -O2 -I/opt/cuda/include conftest.cpp >&5
 conftest.cpp:75:23: fatal error: CL/opencl.h: No such file or directory
 compilation terminated.
-configure:5650: $? = 1
+configure:5651: $? = 1
 configure: failed program was:
 | /* confdefs.h */
 | #define PACKAGE_NAME "MIROVIA"
@@ -755,12 +755,12 @@ configure: failed program was:
 | # include <unistd.h>
 | #endif
 | #include <CL/opencl.h>
-configure:5650: result: no
-configure:5650: checking CL/opencl.h presence
-configure:5650: g++ -E -I/opt/cuda/include conftest.cpp
+configure:5651: result: no
+configure:5651: checking CL/opencl.h presence
+configure:5651: g++ -E -I/opt/cuda/include conftest.cpp
 conftest.cpp:42:23: fatal error: CL/opencl.h: No such file or directory
 compilation terminated.
-configure:5650: $? = 1
+configure:5651: $? = 1
 configure: failed program was:
 | /* confdefs.h */
 | #define PACKAGE_NAME "MIROVIA"
@@ -804,50 +804,50 @@ configure: failed program was:
 | #define HAVE_CLOCK_PROCESS_CPUTIME_ID 1
 | /* end confdefs.h.  */
 | #include <CL/opencl.h>
-configure:5650: result: no
-configure:5650: checking for CL/opencl.h
-configure:5650: result: no
-configure:5745: no usable OpenCL installation found
-configure:5778: checking for nvcc
-configure:5796: found /usr/local/cuda-8.0/bin/nvcc
-configure:5808: result: /usr/local/cuda-8.0/bin/nvcc
-configure:5879: checking cuda.h usability
-configure:5879: /usr/local/cuda-8.0/bin/nvcc -c -g -O2 -I/opt/cuda/include -I/usr/local/cuda-8.0/include conftest.cpp >&5
+configure:5651: result: no
+configure:5651: checking for CL/opencl.h
+configure:5651: result: no
+configure:5746: no usable OpenCL installation found
+configure:5779: checking for nvcc
+configure:5797: found /usr/local/cuda-8.0/bin/nvcc
+configure:5809: result: /usr/local/cuda-8.0/bin/nvcc
+configure:5880: checking cuda.h usability
+configure:5880: /usr/local/cuda-8.0/bin/nvcc -c -g -O2 -I/opt/cuda/include -I/usr/local/cuda-8.0/include conftest.cpp >&5
 nvcc warning : The 'compute_20', 'sm_20', and 'sm_21' architectures are deprecated, and may be removed in a future release (Use -Wno-deprecated-gpu-targets to suppress warning).
-configure:5879: $? = 0
-configure:5879: result: yes
-configure:5879: checking cuda.h presence
-configure:5879: g++ -E -I/opt/cuda/include -I/usr/local/cuda-8.0/include conftest.cpp
-configure:5879: $? = 0
-configure:5879: result: yes
-configure:5879: checking for cuda.h
-configure:5879: result: yes
-configure:5879: checking cuda_runtime.h usability
-configure:5879: /usr/local/cuda-8.0/bin/nvcc -c -g -O2 -I/opt/cuda/include -I/usr/local/cuda-8.0/include conftest.cpp >&5
+configure:5880: $? = 0
+configure:5880: result: yes
+configure:5880: checking cuda.h presence
+configure:5880: g++ -E -I/opt/cuda/include -I/usr/local/cuda-8.0/include conftest.cpp
+configure:5880: $? = 0
+configure:5880: result: yes
+configure:5880: checking for cuda.h
+configure:5880: result: yes
+configure:5880: checking cuda_runtime.h usability
+configure:5880: /usr/local/cuda-8.0/bin/nvcc -c -g -O2 -I/opt/cuda/include -I/usr/local/cuda-8.0/include conftest.cpp >&5
 nvcc warning : The 'compute_20', 'sm_20', and 'sm_21' architectures are deprecated, and may be removed in a future release (Use -Wno-deprecated-gpu-targets to suppress warning).
-configure:5879: $? = 0
-configure:5879: result: yes
-configure:5879: checking cuda_runtime.h presence
-configure:5879: g++ -E -I/opt/cuda/include -I/usr/local/cuda-8.0/include conftest.cpp
-configure:5879: $? = 0
-configure:5879: result: yes
-configure:5879: checking for cuda_runtime.h
-configure:5879: result: yes
-configure:5892: checking for cublasInit in -lcublas
-configure:5917: /usr/local/cuda-8.0/bin/nvcc -o conftest -g -O2 -I/opt/cuda/include -I/usr/local/cuda-8.0/include  conftest.cpp -lcublas   -lrt >&5
+configure:5880: $? = 0
+configure:5880: result: yes
+configure:5880: checking cuda_runtime.h presence
+configure:5880: g++ -E -I/opt/cuda/include -I/usr/local/cuda-8.0/include conftest.cpp
+configure:5880: $? = 0
+configure:5880: result: yes
+configure:5880: checking for cuda_runtime.h
+configure:5880: result: yes
+configure:5893: checking for cublasInit in -lcublas
+configure:5918: /usr/local/cuda-8.0/bin/nvcc -o conftest -g -O2 -I/opt/cuda/include -I/usr/local/cuda-8.0/include  conftest.cpp -lcublas   -lrt >&5
 nvcc warning : The 'compute_20', 'sm_20', and 'sm_21' architectures are deprecated, and may be removed in a future release (Use -Wno-deprecated-gpu-targets to suppress warning).
-configure:5917: $? = 0
-configure:5926: result: yes
-configure:5940: checking for cufftPlan1d in -lcufft
-configure:5965: /usr/local/cuda-8.0/bin/nvcc -o conftest -g -O2 -I/opt/cuda/include -I/usr/local/cuda-8.0/include  conftest.cpp -lcufft  -lcublas  -lrt >&5
+configure:5918: $? = 0
+configure:5927: result: yes
+configure:5941: checking for cufftPlan1d in -lcufft
+configure:5966: /usr/local/cuda-8.0/bin/nvcc -o conftest -g -O2 -I/opt/cuda/include -I/usr/local/cuda-8.0/include  conftest.cpp -lcufft  -lcublas  -lrt >&5
 nvcc warning : The 'compute_20', 'sm_20', and 'sm_21' architectures are deprecated, and may be removed in a future release (Use -Wno-deprecated-gpu-targets to suppress warning).
-configure:5965: $? = 0
-configure:5974: result: yes
+configure:5966: $? = 0
+configure:5975: result: yes
 configure:6022: using CUDA_CPPFLAGS=-gencode=arch=compute_60,code=sm_60
 configure:6024: WARNING: *** SHOC programs may fail if these -gencode values do not apply to your GPU.  If they don't apply, or if you want to shorten SHOC's compile time, determine the -gencode options that apply for your GPU and re-configure SHOC explicitly specifying only those options in CUDA_CPPFLAGS during the configure. ***
-configure:6156: checking that generated files are newer than configure
-configure:6162: result: done
-configure:6197: creating ./config.status
+configure:6159: checking that generated files are newer than configure
+configure:6165: result: done
+configure:6200: creating ./config.status
 
 ## ---------------------- ##
 ## Running config.status. ##
@@ -864,7 +864,7 @@ generated by GNU Autoconf 2.69.  Invocation command line was
 
 on zemaitis
 
-config.status:902: error: cannot find input file: `Makefile.in'
+config.status:904: error: cannot find input file: `Makefile.in'
 
 ## ---------------- ##
 ## Cache variables. ##
@@ -1012,6 +1012,7 @@ LTLIBOBJS=''
 MAKEINFO='${SHELL} /home/swang/mirovia/missing makeinfo'
 MKDIR_P='/bin/mkdir -p'
 NVCC='/usr/local/cuda-8.0/bin/nvcc'
+NVCXXFLAGS='-g -O2'
 OBJEXT='o'
 OPENCL_LIBS=''
 PACKAGE='mirovia'
@@ -1028,6 +1029,7 @@ SET_MAKE=''
 SHELL='/bin/bash'
 STRIP=''
 UNZIP='/usr/bin/unzip'
+USE_CUDA='yes'
 VERSION='1.0.0'
 ac_ct_CC='gcc'
 ac_ct_CXX='g++'
