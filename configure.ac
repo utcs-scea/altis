@@ -3,7 +3,7 @@
 AC_PREREQ([2.65])
 AC_INIT([MIROVIA], [1.0.0], [sarahgw@cs.utexas.edu])
 AC_CANONICAL_SYSTEM
-AM_INIT_AUTOMAKE([-Wall -Werror foreign]) 
+AM_INIT_AUTOMAKE([foreign]) 
 AC_CONFIG_SRCDIR([src/common/Timer.h])
 AC_CONFIG_HEADERS([config/config.h])
 
