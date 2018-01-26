@@ -626,6 +626,8 @@ ac_includes_default="\
 ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
+NVCXXFLAGS
+USE_CUDA
 BUILD_CUDA_FALSE
 BUILD_CUDA_TRUE
 CUDA_CPPFLAGS
@@ -3007,7 +3009,7 @@ fi
 ac_config_headers="$ac_config_headers config/config.h"
 
 
-# Mirovia is a collection of C++ programs
+# Mirovia is a collection of C++ programs AC_LANG([C++])
 ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -5593,7 +5595,6 @@ fi
 done
 
 
-
 if test "x$ac_cv_func_clock_gettime" = xyes; then :
    { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether clock_gettime() supports CLOCK_PROCESS_CPUTIME_ID timer" >&5
 $as_echo_n "checking whether clock_gettime() supports CLOCK_PROCESS_CPUTIME_ID timer... " >&6; }
@@ -6007,7 +6008,6 @@ fi
         if test "x$NVCC" != x; then :
   with_cuda=yes
              USE_CUDA=yes
-             MPI_SUBDIRS="$MPI_SUBDIRS cuda"
 
 else
   { $as_echo "$as_me:${as_lineno-$LINENO}: no usable CUDA installation found" >&5
@@ -6040,6 +6040,9 @@ else
   BUILD_CUDA_TRUE='#'
   BUILD_CUDA_FALSE=
 fi
+
+
+
 
 
 ac_config_files="$ac_config_files Makefile config/common.mk config/config.mk config/dirtargets.mk config/targets.mk src/Makefile src/common/Makefile src/cuda/Makefile src/cuda/level0/Makefile"
