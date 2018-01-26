@@ -80,7 +80,7 @@ AS_IF([test "x$ac_cv_func_clock_gettime" = xyes],
 # OpenCL support
 AC_ARG_WITH([opencl],
     [AS_HELP_STRING([--with-opencl],
-        [build OpenCL versions of SHOC benchmark programs @<:@default=check@:>@])],
+        [build OpenCL versions of MIROVIA benchmark programs @<:@default=check@:>@])],
     [],
     [with_opencl=check])
 
@@ -147,7 +147,7 @@ AM_CONDITIONAL([BUILD_OPENCL], [test "x$with_opencl" = "xyes"])
 # CUDA support
 AC_ARG_WITH([cuda],
     [AS_HELP_STRING([--with-cuda],
-        [build CUDA versions of SHOC benchmark programs @<:@default=check@:>@])],
+        [build CUDA versions of MIROVIA benchmark programs @<:@default=check@:>@])],
     [],
     [with_cuda=check])
 
@@ -157,8 +157,7 @@ AS_IF([test "x$with_cuda" != xno],
         # Check for the nvcc program
         AC_PATH_PROG([NVCC],[nvcc],[])
 
-        AS_IF([test "x$NVCC" != x],
-            [ savedCXX=$CXX
+        AS_IF([test "x$NVCC" != x], [ savedCXX=$CXX
               CXX=$NVCC
               savedLIBS=$LIBS
               savedCPPFLAGS=$CPPFLAGS
@@ -208,7 +207,7 @@ AS_IF([test "x$with_cuda" != xno],
                 [dnl generate CUDA code for broad spectrum of devices
                  CUDA_CPPFLAGS=["-gencode=arch=compute_60,code=sm_60"]
                  AC_MSG_NOTICE([using CUDA_CPPFLAGS=$CUDA_CPPFLAGS])
-                 AC_MSG_WARN([*** SHOC programs may fail if these -gencode values do not apply to your GPU.  If they don't apply, or if you want to shorten SHOC's compile time, determine the -gencode options that apply for your GPU and re-configure SHOC explicitly specifying only those options in CUDA_CPPFLAGS during the configure. ***])
+                 AC_MSG_WARN([*** MIROVIA programs may fail if these -gencode values do not apply to your GPU.  If they don't apply, or if you want to shorten MIROVIA's compile time, determine the -gencode options that apply for your GPU and re-configure MIROVIA explicitly specifying only those options in CUDA_CPPFLAGS during the configure. ***])
                 ]
              )
              AC_SUBST([CUDA_CPPFLAGS])
