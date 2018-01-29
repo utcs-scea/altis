@@ -19,6 +19,7 @@ ipch
 bin
 libexec
 share
+*~
 
 # Ignore some generated files for in-place build
 .deps
