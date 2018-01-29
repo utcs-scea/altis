@@ -24,10 +24,10 @@
 #define HAVE_CLOCK_PROCESS_CPUTIME_ID 1
 
 /* Define to 1 if you have the <cuda.h> header file. */
-#define HAVE_CUDA_H 1
+/* #undef HAVE_CUDA_H */
 
 /* Define to 1 if you have the <cuda_runtime.h> header file. */
-#define HAVE_CUDA_RUNTIME_H 1
+/* #undef HAVE_CUDA_RUNTIME_H */
 
 /* Define to 1 if you have the <float.h> header file. */
 #define HAVE_FLOAT_H 1
@@ -45,10 +45,10 @@
 #define HAVE_INTTYPES_H 1
 
 /* Define to 1 if you have the `cublas' library (-lcublas). */
-#define HAVE_LIBCUBLAS 1
+/* #undef HAVE_LIBCUBLAS */
 
 /* Define to 1 if you have the `cufft' library (-lcufft). */
-#define HAVE_LIBCUFFT 1
+/* #undef HAVE_LIBCUFFT */
 
 /* Define to 1 if you have the `localtime_r' function. */
 #define HAVE_LOCALTIME_R 1

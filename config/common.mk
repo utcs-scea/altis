@@ -25,17 +25,17 @@ MPI_CPPFLAGS	= -DPARALLEL
 
 OCL_CPPFLAGS    = -I$(top_srcdir)/src/opencl/common
 OCL_LDFLAGS		= -L$(top_builddir)/src/opencl/common
-OCL_LIBS        = -lMiroviaCommonOpenCL -lMiroviaCommon 
+OCL_LIBS        = -lMiroviaCommonOpenCL -lMiroviaCommon -lOpenCL
 
-NVCC            = /usr/local/cuda-8.0/bin/nvcc
-CUDA_CXX        = /usr/local/cuda-8.0/bin/nvcc
-CUDA_INC        = -I/usr/local/cuda-8.0/include -I$(top_srcdir)/src/cuda/common
+NVCC            = 
+CUDA_CXX        = 
+CUDA_INC        = -I -I$(top_srcdir)/src/cuda/common
 CUDA_LDFLAGS	= -L$(top_builddir)/src/cuda/common
-CUDA_CPPFLAGS   = -gencode=arch=compute_60,code=sm_60 -I$(top_srcdir)/src/cuda/common
+CUDA_CPPFLAGS   =  -I$(top_srcdir)/src/cuda/common
 
-USE_CUDA        = yes
+USE_CUDA        = no
 ifeq ($(USE_CUDA),yes)
-CUDA_LIBS		:= -lMiroviaCommon $(shell $(top_srcdir)/config/find_cuda_libs.sh /usr/local/cuda-8.0/bin/nvcc)
+CUDA_LIBS		:= -lMiroviaCommon $(shell $(top_srcdir)/config/find_cuda_libs.sh )
 else
 CUDA_LIBS       =
 endif
