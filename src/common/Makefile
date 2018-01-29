@@ -181,9 +181,9 @@ AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -g -O2
-CPPFLAGS = 
-CUDA_CPPFLAGS = 
-CUDA_INCDIR = 
+CPPFLAGS = -I/opt/cuda/include
+CUDA_CPPFLAGS = -gencode=arch=compute_60,code=sm_60
+CUDA_INCDIR = /usr/local/cuda-8.0/include
 CXX = g++
 CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
@@ -208,10 +208,10 @@ LIBS =  -lrt
 LTLIBOBJS = 
 MAKEINFO = ${SHELL} /home/swang/mirovia/missing makeinfo
 MKDIR_P = /bin/mkdir -p
-NVCC = 
+NVCC = /usr/local/cuda-8.0/bin/nvcc
 NVCXXFLAGS = -g -O2
 OBJEXT = o
-OPENCL_LIBS = -lOpenCL
+OPENCL_LIBS = 
 PACKAGE = mirovia
 PACKAGE_BUGREPORT = sarahgw@cs.utexas.edu
 PACKAGE_NAME = MIROVIA
@@ -226,7 +226,7 @@ SET_MAKE =
 SHELL = /bin/bash
 STRIP = 
 UNZIP = /usr/bin/unzip
-USE_CUDA = no
+USE_CUDA = yes
 VERSION = 1.0.0
 abs_builddir = /home/swang/mirovia/src/common
 abs_srcdir = /home/swang/mirovia/src/common
