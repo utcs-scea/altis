@@ -21,6 +21,10 @@ libexec
 share
 *~
 
+# ignore vim swap files
+*.swp
+*.swo
+
 # Ignore some generated files for in-place build
 .deps
 config/config.mk
