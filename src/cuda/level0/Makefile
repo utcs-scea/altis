@@ -217,6 +217,7 @@ LDFLAGS =
 LIBOBJS = 
 LIBS =  -lrt
 LTLIBOBJS = 
+MAINT = #
 MAKEINFO = makeinfo
 MKDIR_P = /bin/mkdir -p
 NVCC = /usr/local/cuda-8.0/bin/nvcc
@@ -239,10 +240,10 @@ STRIP =
 UNZIP = /usr/bin/unzip
 USE_CUDA = yes
 VERSION = 1.0.0
-abs_builddir = /home/cdenny/mirovia/src/cuda/level0
-abs_srcdir = /home/cdenny/mirovia/src/cuda/level0
-abs_top_builddir = /home/cdenny/mirovia
-abs_top_srcdir = /home/cdenny/mirovia
+abs_builddir = /home/swang/mirovia/src/cuda/level0
+abs_srcdir = /home/swang/mirovia/src/cuda/level0
+abs_top_builddir = /home/swang/mirovia
+abs_top_srcdir = /home/swang/mirovia
 ac_ct_CC = gcc
 ac_ct_CXX = g++
 am__include = include
@@ -270,7 +271,7 @@ host_vendor = unknown
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/cdenny/mirovia/build-aux/install-sh
+install_sh = ${SHELL} /home/swang/mirovia/build-aux/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -279,7 +280,7 @@ mandir = ${datarootdir}/man
 mkdir_p = $(MKDIR_P)
 oldincludedir = /usr/include
 pdfdir = ${docdir}
-prefix = /home/cdenny/mirovia
+prefix = /home/swang/mirovia
 program_transform_name = s,x,x,
 psdir = ${docdir}
 runstatedir = ${localstatedir}/run
@@ -312,7 +313,7 @@ all: all-am
 
 .SUFFIXES:
 .SUFFIXES: .cpp .o .obj
-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
+$(srcdir)/Makefile.in: # $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -336,9 +337,9 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 
-$(top_srcdir)/configure:  $(am__configure_deps)
+$(top_srcdir)/configure: # $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
-$(ACLOCAL_M4):  $(am__aclocal_m4_deps)
+$(ACLOCAL_M4): # $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
 install-cudaPROGRAMS: $(cuda_PROGRAMS)

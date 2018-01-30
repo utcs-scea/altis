@@ -168,10 +168,9 @@ am__DIST_COMMON = $(srcdir)/Makefile.in \
 	$(top_srcdir)/config/config.h.in \
 	$(top_srcdir)/config/config.mk.in \
 	$(top_srcdir)/config/dirtargets.mk.in \
-	$(top_srcdir)/config/targets.mk.in COPYING INSTALL \
-	build-aux/compile build-aux/config.guess build-aux/config.sub \
-	build-aux/depcomp build-aux/install-sh build-aux/missing \
-	compile config.guess config.sub depcomp install-sh missing
+	$(top_srcdir)/config/targets.mk.in build-aux/compile \
+	build-aux/config.guess build-aux/config.sub build-aux/depcomp \
+	build-aux/install-sh build-aux/missing
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -251,6 +250,7 @@ LDFLAGS =
 LIBOBJS = 
 LIBS =  -lrt
 LTLIBOBJS = 
+MAINT = #
 MAKEINFO = makeinfo
 MKDIR_P = /bin/mkdir -p
 NVCC = /usr/local/cuda-8.0/bin/nvcc
@@ -273,10 +273,10 @@ STRIP =
 UNZIP = /usr/bin/unzip
 USE_CUDA = yes
 VERSION = 1.0.0
-abs_builddir = /home/cdenny/mirovia
-abs_srcdir = /home/cdenny/mirovia
-abs_top_builddir = /home/cdenny/mirovia
-abs_top_srcdir = /home/cdenny/mirovia
+abs_builddir = /home/swang/mirovia
+abs_srcdir = /home/swang/mirovia
+abs_top_builddir = /home/swang/mirovia
+abs_top_srcdir = /home/swang/mirovia
 ac_ct_CC = gcc
 ac_ct_CXX = g++
 am__include = include
@@ -304,7 +304,7 @@ host_vendor = unknown
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/cdenny/mirovia/build-aux/install-sh
+install_sh = ${SHELL} /home/swang/mirovia/build-aux/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -313,7 +313,7 @@ mandir = ${datarootdir}/man
 mkdir_p = $(MKDIR_P)
 oldincludedir = /usr/include
 pdfdir = ${docdir}
-prefix = /home/cdenny/mirovia
+prefix = /home/swang/mirovia
 program_transform_name = s,x,x,
 psdir = ${docdir}
 runstatedir = ${localstatedir}/run
@@ -335,7 +335,7 @@ all: all-recursive
 .SUFFIXES:
 am--refresh: Makefile
 	@:
-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
+$(srcdir)/Makefile.in: # $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -361,9 +361,9 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
 
-$(top_srcdir)/configure:  $(am__configure_deps)
+$(top_srcdir)/configure: # $(am__configure_deps)
 	$(am__cd) $(srcdir) && $(AUTOCONF)
-$(ACLOCAL_M4):  $(am__aclocal_m4_deps)
+$(ACLOCAL_M4): # $(am__aclocal_m4_deps)
 	$(am__cd) $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 $(am__aclocal_m4_deps):
 
@@ -374,7 +374,7 @@ config/config.h: config/stamp-h1
 config/stamp-h1: $(top_srcdir)/config/config.h.in $(top_builddir)/config.status
 	@rm -f config/stamp-h1
 	cd $(top_builddir) && $(SHELL) ./config.status config/config.h
-$(top_srcdir)/config/config.h.in:  $(am__configure_deps) 
+$(top_srcdir)/config/config.h.in: # $(am__configure_deps) 
 	($(am__cd) $(top_srcdir) && $(AUTOHEADER))
 	rm -f config/stamp-h1
 	touch $@

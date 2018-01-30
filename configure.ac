@@ -7,6 +7,7 @@ AC_CANONICAL_SYSTEM
 AM_INIT_AUTOMAKE([foreign]) 
 AC_CONFIG_SRCDIR([src/common/Timer.h])
 AC_CONFIG_HEADERS([config/config.h])
+AM_MAINTAINER_MODE([disable])
 
 # Mirovia is a collection of C++ programs AC_LANG([C++])
 AC_LANG([C++])
