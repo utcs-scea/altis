@@ -85,9 +85,9 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = x86_64-pc-linux-gnu
-host_triplet = x86_64-pc-linux-gnu
-target_triplet = x86_64-pc-linux-gnu
+build_triplet = x86_64-unknown-linux-gnu
+host_triplet = x86_64-unknown-linux-gnu
+target_triplet = x86_64-unknown-linux-gnu
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -159,12 +159,19 @@ CTAGS = ctags
 CSCOPE = cscope
 DIST_SUBDIRS = $(SUBDIRS)
 am__DIST_COMMON = $(srcdir)/Makefile.in \
+	$(top_srcdir)/build-aux/compile \
+	$(top_srcdir)/build-aux/config.guess \
+	$(top_srcdir)/build-aux/config.sub \
+	$(top_srcdir)/build-aux/install-sh \
+	$(top_srcdir)/build-aux/missing \
 	$(top_srcdir)/config/common.mk.in \
 	$(top_srcdir)/config/config.h.in \
 	$(top_srcdir)/config/config.mk.in \
 	$(top_srcdir)/config/dirtargets.mk.in \
-	$(top_srcdir)/config/targets.mk.in compile config.guess \
-	config.sub depcomp install-sh missing
+	$(top_srcdir)/config/targets.mk.in COPYING INSTALL \
+	build-aux/compile build-aux/config.guess build-aux/config.sub \
+	build-aux/depcomp build-aux/install-sh build-aux/missing \
+	compile config.guess config.sub depcomp install-sh missing
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -207,19 +214,19 @@ distuninstallcheck_listfiles = find . -type f -print
 am__distuninstallcheck_listfiles = $(distuninstallcheck_listfiles) \
   | sed 's|^\./|$(prefix)/|' | grep -v '$(infodir)/dir$$'
 distcleancheck_listfiles = find . -type f -print
-ACLOCAL = ${SHELL} /home/swang/mirovia/missing aclocal-1.15
+ACLOCAL = aclocal-1.15
 ALLOCA = 
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 1
 AR = ar
-AUTOCONF = ${SHELL} /home/swang/mirovia/missing autoconf
-AUTOHEADER = ${SHELL} /home/swang/mirovia/missing autoheader
-AUTOMAKE = ${SHELL} /home/swang/mirovia/missing automake-1.15
+AUTOCONF = autoconf
+AUTOHEADER = autoheader
+AUTOMAKE = automake-1.15
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -g -O2
-CPPFLAGS = -I/opt/cuda/include
+CPPFLAGS = 
 CUDA_CPPFLAGS = -gencode=arch=compute_60,code=sm_60
 CUDA_INCDIR = /usr/local/cuda-8.0/include
 CXX = g++
@@ -244,7 +251,7 @@ LDFLAGS =
 LIBOBJS = 
 LIBS =  -lrt
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/swang/mirovia/missing makeinfo
+MAKEINFO = makeinfo
 MKDIR_P = /bin/mkdir -p
 NVCC = /usr/local/cuda-8.0/bin/nvcc
 NVCXXFLAGS = -g -O2
@@ -266,10 +273,10 @@ STRIP =
 UNZIP = /usr/bin/unzip
 USE_CUDA = yes
 VERSION = 1.0.0
-abs_builddir = /home/swang/mirovia
-abs_srcdir = /home/swang/mirovia
-abs_top_builddir = /home/swang/mirovia
-abs_top_srcdir = /home/swang/mirovia
+abs_builddir = /home/cdenny/mirovia
+abs_srcdir = /home/cdenny/mirovia
+abs_top_builddir = /home/cdenny/mirovia
+abs_top_srcdir = /home/cdenny/mirovia
 ac_ct_CC = gcc
 ac_ct_CXX = g++
 am__include = include
@@ -278,26 +285,26 @@ am__quote =
 am__tar = $${TAR-tar} chof - "$$tardir"
 am__untar = $${TAR-tar} xf -
 bindir = ${exec_prefix}/bin
-build = x86_64-pc-linux-gnu
+build = x86_64-unknown-linux-gnu
 build_alias = 
 build_cpu = x86_64
 build_os = linux-gnu
-build_vendor = pc
+build_vendor = unknown
 builddir = .
 datadir = ${datarootdir}
 datarootdir = ${prefix}/share
 docdir = ${datarootdir}/doc/${PACKAGE_TARNAME}
 dvidir = ${docdir}
 exec_prefix = ${prefix}
-host = x86_64-pc-linux-gnu
+host = x86_64-unknown-linux-gnu
 host_alias = 
 host_cpu = x86_64
 host_os = linux-gnu
-host_vendor = pc
+host_vendor = unknown
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/swang/mirovia/install-sh
+install_sh = ${SHELL} /home/cdenny/mirovia/build-aux/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -306,7 +313,7 @@ mandir = ${datarootdir}/man
 mkdir_p = $(MKDIR_P)
 oldincludedir = /usr/include
 pdfdir = ${docdir}
-prefix = /home/swang/mirovia
+prefix = /home/cdenny/mirovia
 program_transform_name = s,x,x,
 psdir = ${docdir}
 runstatedir = ${localstatedir}/run
@@ -314,11 +321,11 @@ sbindir = ${exec_prefix}/sbin
 sharedstatedir = ${prefix}/com
 srcdir = .
 sysconfdir = ${prefix}/etc
-target = x86_64-pc-linux-gnu
+target = x86_64-unknown-linux-gnu
 target_alias = 
 target_cpu = x86_64
 target_os = linux-gnu
-target_vendor = pc
+target_vendor = unknown
 top_build_prefix = 
 top_builddir = .
 top_srcdir = .

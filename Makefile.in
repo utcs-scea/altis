@@ -159,12 +159,19 @@ CTAGS = ctags
 CSCOPE = cscope
 DIST_SUBDIRS = $(SUBDIRS)
 am__DIST_COMMON = $(srcdir)/Makefile.in \
+	$(top_srcdir)/build-aux/compile \
+	$(top_srcdir)/build-aux/config.guess \
+	$(top_srcdir)/build-aux/config.sub \
+	$(top_srcdir)/build-aux/install-sh \
+	$(top_srcdir)/build-aux/missing \
 	$(top_srcdir)/config/common.mk.in \
 	$(top_srcdir)/config/config.h.in \
 	$(top_srcdir)/config/config.mk.in \
 	$(top_srcdir)/config/dirtargets.mk.in \
-	$(top_srcdir)/config/targets.mk.in compile config.guess \
-	config.sub depcomp install-sh missing
+	$(top_srcdir)/config/targets.mk.in COPYING INSTALL \
+	build-aux/compile build-aux/config.guess build-aux/config.sub \
+	build-aux/depcomp build-aux/install-sh build-aux/missing \
+	compile config.guess config.sub depcomp install-sh missing
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
