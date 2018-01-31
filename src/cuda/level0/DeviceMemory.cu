@@ -87,7 +87,7 @@ void RunBenchmark(ResultDatabase &resultDB,
     size_t minGroupSize = 32;
     size_t maxGroupSize = 512;
     size_t globalWorkSize = 32768;  // 64 * maxGroupSize = 64 * 512;
-    unsigned int memSize       = 64*1024*1024;  // 64MB buffer
+    unsigned int memSize       = 2*1024*1024*1024;  // 64MB buffer
     void *testmem;
     cudaMalloc(&testmem, memSize*2);
     while (cudaGetLastError() != cudaSuccess && memSize != 0)

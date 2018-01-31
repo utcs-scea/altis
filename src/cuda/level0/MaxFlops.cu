@@ -106,12 +106,18 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
     cudaDeviceProp deviceProp;
     cudaGetDeviceProperties(&deviceProp, device);
     bool doDouble = false;
+    bool doHalf = false;
     if ((deviceProp.major == 1 && deviceProp.minor >= 3) ||
             (deviceProp.major >= 2))
     {
         doDouble = true;
     }
+    if((deviceProp.major == 5 && deviceProp.minor >= 3) ||
+            (deviceProp.major >= 6)) {
+        doHalf = true;
+    }
 
+    // TODO: maybe use device memory scaling solution
     // determine the speed of the device first. This determines the number of
     // iterations for all kernels.
     const unsigned int halfBufSize = 1024*1024;
