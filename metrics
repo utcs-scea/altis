@@ -1,0 +1,31 @@
+warp_execution_efficiency:  Ratio of the average active threads per warp to the maximum number of threads per warp supported on a multiprocessor
+
+warp_nonpred_execution_efficiency:  Ratio of the average active threads per warp executing non-predicated instructions to the maximum number of threads per warp supported on a multiprocessor
+
+local_memory_overhead:  Ratio of local memory traffic to total memory traffic between the L1 and L2 caches
+
+gld_efficiency:  Ratio of requested global memory load throughput to required global memory load throughput.
+
+gst_efficiency:  Ratio of requested global memory store throughput to required global memory store throughput.
+
+shared_efficiency:  Ratio of requested shared memory throughput to required shared memory throughput
+
+stall_memory_throttle:  Percentage of stalls occurring because of memory throttle
+
+executed_ipc:  Instructions executed per cycle
+
+issued_ipc:  Instructions issued per cycle
+
+issue_slot_utilization:  Percentage of issue slots that issued at least one instruction, averaged across all cycles
+
+sm_activity:  The percentage of time at least one warp is active on a multiprocessor
+
+achieved_occupancy:  Ratio of the average active warps per active cycle to the maximum number of warps supported on a multiprocessor
+
+eligible_warps_per_cycle:  Average number of warps that are eligible to issue per active cycle
+
+flop_hp_efficiency:  Ratio of achieved to peak half-precision floating-point operations
+
+flop_sp_efficiency:  Ratio of achieved to peak single-precision floating-point operations
+
+flop_dp_efficiency:  Ratio of achieved to peak double-precision floating-point operations
