@@ -3,7 +3,8 @@
 ## To Install:
 1. ```git clone https://github.com/sarahgrace/mirovia.git```
 2. ```cd mirovia```
-3. ```bash configure``` 4. ```make```
+3. ```bash configure```
+4. ```make```
 5. ```make install```
 
 ## To Run Suite:
