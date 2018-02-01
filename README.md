@@ -12,13 +12,16 @@
 
 ```
 Options:
-  -h, --help            show this help message and exit
-  -p PREFIX, --prefix=PREFIX
-                        location of Mirovia root
-  -d DEVICE, --device=DEVICE
+  -h, --help            
+                        show this help message and exit
+  -p, --prefix=PREFIX
+                        location of Mirovia root, defaults to current working
+                        directory
+  -d, --device=DEVICE
                         device to run the benchmarks on
-  -s SIZE, --size=SIZE  problem size
-  -b BENCHMARK, --benchmark=BENCHMARK
+  -s, --size=SIZE       
+                        problem size
+  -b, --benchmark=BENCHMARK
                         comma-separated list of benchmarks to run, or 'all' to
-                        run all
+                        run entire suite, defaults to 'all'
 ```
