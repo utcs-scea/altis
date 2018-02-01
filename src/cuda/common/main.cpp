@@ -1,28 +1,13 @@
-#ifdef PARALLEL
-// When using MPICH and MPICH-derived MPI implementations, there is a
-// naming conflict between stdio.h and MPI's C++ binding.
-// Since we do not use the C++ MPI binding, we can avoid the ordering
-// issue by ignoring the C++ MPI binding headers.
-// This #define should be quietly ignored when using other MPI implementations.
-#define MPICH_SKIP_MPICXX
-#include <mpi.h>
-#endif
 #include <iostream>
 #include <cstdlib>
+#include <fstream>
 
-#include <cuda.h>
+#include <cuda.h> 
 #include <cuda_runtime.h>
 
 #include "ResultDatabase.h"
 #include "OptionParser.h"
 #include "Utility.h"
-
-#ifdef PARALLEL
-#include <ParallelResultDatabase.h>
-#include <ParallelHelpers.h>
-#include <ParallelMerge.h>
-#include <NodeInfo.h>
-#endif
 
 using namespace std;
 
@@ -138,14 +123,6 @@ int main(int argc, char *argv[])
 
     try
     {
-#ifdef PARALLEL
-        int rank, size;
-        MPI_Init(&argc,&argv);
-        MPI_Comm_size(MPI_COMM_WORLD, &size);
-        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-        cerr << "MPI Task " << rank << "/" << size - 1 << " starting....\n";
-#endif
-
         // Get args
         OptionParser op;
 
@@ -158,44 +135,22 @@ int main(int argc, char *argv[])
         op.addOption("infoDevices", OPT_BOOL, "",
                 "show info for available platforms and devices", 'i');
         op.addOption("quiet", OPT_BOOL, "", "write minimum necessary to standard output", 'q');
-#ifdef _WIN32
-        op.addOption("noprompt", OPT_BOOL, "", "don't wait for prompt at program exit");
-#endif
+        op.addOption("outfile", OPT_STRING, "", "specify output file", 'f');
 
         addBenchmarkSpecOptions(op);
 
         if (!op.parse(argc, argv))
         {
-#ifdef PARALLEL
-            if (rank == 0)
-                op.usage();
-            MPI_Finalize();
-#else
             op.usage();
-#endif
             return (op.HelpRequested() ? 0 : 1);
         }
 
         bool verbose = op.getOptionBool("verbose");
         bool infoDev = op.getOptionBool("infoDevices");
-#ifdef _WIN32
-        noprompt = op.getOptionBool("noprompt");
-#endif
+        string outfile = op.getOptionString("outfile");
 
         int device;
-#ifdef PARALLEL
-        NodeInfo ni;
-        int myNodeRank = ni.nodeRank();
-        vector<long long> deviceVec = op.getOptionVecInt("device");
-        if (myNodeRank >= deviceVec.size()) {
-            // Default is for task i to test device i
-            device = myNodeRank;
-        } else {
-            device = deviceVec[myNodeRank];
-        }
-#else
         device = op.getOptionVecInt("device")[0];
-#endif
         int deviceCount;
         cudaGetDeviceCount(&deviceCount);
         if (device >= deviceCount) {
@@ -215,18 +170,15 @@ int main(int argc, char *argv[])
         // Run the benchmark
         RunBenchmark(resultDB, op);
 
-#ifndef PARALLEL
-        resultDB.DumpDetailed(cout);
-#else
-        ParallelResultDatabase pardb;
-        pardb.MergeSerialDatabases(resultDB,MPI_COMM_WORLD);
-        if (rank==0)
-        {
-            pardb.DumpSummary(cout);
-            pardb.DumpOutliers(cout);
+        // Output results to output file or stdout
+        if(outfile.empty()) {
+            resultDB.DumpSummary(cout);
+        } else {
+            ofstream ofs;
+            ofs.open(outfile.c_str());
+            resultDB.DumpSummary(ofs);
+            ofs.close();
         }
-#endif
-
     }
     catch( std::exception& e )
     {
@@ -237,19 +189,6 @@ int main(int argc, char *argv[])
     {
         ret = 1;
     }
-
-
-#ifdef PARALLEL
-    MPI_Finalize();
-#endif
-
-#ifdef _WIN32
-    if (!noprompt)
-    {
-        cout << "Press return to exit\n";
-        cin.get();
-    }
-#endif
 
     return ret;
 }
