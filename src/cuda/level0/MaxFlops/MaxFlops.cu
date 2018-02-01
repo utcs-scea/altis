@@ -124,9 +124,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
     unsigned int halfNumFloats = halfBufSize / sizeof(float), numFloats = 2*halfNumFloats;
     float *gpu_mem, *hostMem;
     hostMem = new float[numFloats];
-    cudaMalloc((void**)&gpu_mem, halfBufSize*2);
-    CHECK_CUDA_ERROR();
-
+    cudaMalloc((void**)&gpu_mem, halfBufSize*2); CHECK_CUDA_ERROR(); 
     // Initialize host data, with the first half the same as the second
     for (int j=0; j<halfNumFloats; ++j)
     {
@@ -179,46 +177,74 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
     // double precision (if avaialble).
     int totalRuns = 18*passes;
     if (doDouble)
-       totalRuns <<= 1;  // multiply by 2
+       totalRuns += 18*passes;  // multiply by 2
+    if (doHalf)
+       totalRuns += 18*passes;  // multiply by 2
     ProgressBar pb(totalRuns);
     if (!verbose && !quiet)
        pb.Show(stdout);
 
     // Run single precision kernels
     RunTest<float> (resultDB, passes, verbose, quiet,
-             repeatF, pb, "-SP");
+             repeatF, pb, "SP-");
 
-    if (doDouble)
+    // Run double precision kernels
+    if (doDouble) {
         RunTest<double> (resultDB, passes, verbose, quiet,
-             repeatF, pb, "-DP");
-    else
-    {
+             repeatF, pb, "DP-");
+    } else {
         const char atts[] = "DP_Not_Supported";
         for (int pas=0 ; pas<passes ; ++pas)
         {
-            resultDB.AddResult("Add1-DP", atts, "GFLOPS", FLT_MAX);
-            resultDB.AddResult("Add2-DP", atts, "GFLOPS", FLT_MAX);
-            resultDB.AddResult("Add4-DP", atts, "GFLOPS", FLT_MAX);
-            resultDB.AddResult("Add8-DP", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("DP-Add1", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("DP-Add2", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("DP-Add4", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("DP-Add8", atts, "GFLOPS", FLT_MAX);
 
-            resultDB.AddResult("Mul1-DP", atts, "GFLOPS", FLT_MAX);
-            resultDB.AddResult("Mul2-DP", atts, "GFLOPS", FLT_MAX);
-            resultDB.AddResult("Mul4-DP", atts, "GFLOPS", FLT_MAX);
-            resultDB.AddResult("Mul8-DP", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("DP-Mul1", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("DP-Mul2", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("DP-Mul4", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("DP-Mul8", atts, "GFLOPS", FLT_MAX);
 
-            resultDB.AddResult("MAdd1-DP", atts, "GFLOPS", FLT_MAX);
-            resultDB.AddResult("MAdd2-DP", atts, "GFLOPS", FLT_MAX);
-            resultDB.AddResult("MAdd4-DP", atts, "GFLOPS", FLT_MAX);
-            resultDB.AddResult("MAdd8-DP", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("DP-MAdd1", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("DP-MAdd2", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("DP-MAdd4", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("DP-MAdd8", atts, "GFLOPS", FLT_MAX);
 
-            resultDB.AddResult("MulMAdd1-DP", atts, "GFLOPS", FLT_MAX);
-            resultDB.AddResult("MulMAdd2-DP", atts, "GFLOPS", FLT_MAX);
-            resultDB.AddResult("MulMAdd4-DP", atts, "GFLOPS", FLT_MAX);
-            resultDB.AddResult("MulMAdd8-DP", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("DP-MulMAdd1", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("DP-MulMAdd2", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("DP-MulMAdd4", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("DP-MulMAdd8", atts, "GFLOPS", FLT_MAX);
+        }
+    }
 
-            // we deal with these separately
-            //resultDB.AddResult("MulMAddU-DP", atts, "GFLOPS", FLT_MAX);
-            //resultDB.AddResult("MAddU-DP", atts, "GFLOPS", FLT_MAX);
+    // Run half precision kernels
+    if (doHalf) {
+        RunTest<short> (resultDB, passes, verbose, quiet,
+             repeatF, pb, "HP-");
+    } else {
+        const char atts[] = "HP_Not_Supported";
+        for (int pas=0 ; pas<passes ; ++pas)
+        {
+            resultDB.AddResult("HP-Add1", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("HP-Add2", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("HP-Add4", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("HP-Add8", atts, "GFLOPS", FLT_MAX);
+
+            resultDB.AddResult("HP-Mul1", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("HP-Mul2", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("HP-Mul4", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("HP-Mul8", atts, "GFLOPS", FLT_MAX);
+
+            resultDB.AddResult("HP-MAdd1", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("HP-MAdd2", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("HP-MAdd4", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("HP-MAdd8", atts, "GFLOPS", FLT_MAX);
+
+            resultDB.AddResult("HP-MulMAdd1", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("HP-MulMAdd2", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("HP-MulMAdd4", atts, "GFLOPS", FLT_MAX);
+            resultDB.AddResult("HP-MulMAdd8", atts, "GFLOPS", FLT_MAX);
         }
     }
 
@@ -274,7 +300,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
         char atts[1024];
         long int nflopsPerPixel = ((2*32)*10*10*5) + 61;
         sprintf(atts, "Size:%d", w*h);
-        resultDB.AddResult("MAddU-SP", atts, "GFLOPS",
+        resultDB.AddResult("SP-MAddU", atts, "GFLOPS",
                 (((double)nflopsPerPixel)*w*h) / (t*1.e9));
 
         // update progress bar
@@ -293,7 +319,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
         // Add result
         nflopsPerPixel = ((3*8)*10*10*5) + 13;
         sprintf(atts, "Size:%d",w*h);
-        resultDB.AddResult("MulMAddU-SP", atts, "GFLOPS",
+        resultDB.AddResult("SP-MulMAddU", atts, "GFLOPS",
                 (((double)nflopsPerPixel)*w*h) / (t*1.e9));
 
         // update progress bar
@@ -331,7 +357,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
             char atts[1024];
             long int nflopsPerPixel = ((2*32)*10*10*5) + 61;
             sprintf(atts, "Size:%d", w*h);
-            resultDB.AddResult("MAddU-DP", atts, "GFLOPS",
+            resultDB.AddResult("DP-MAddU", atts, "GFLOPS",
                     (((double)nflopsPerPixel)*w*h) / (t*1.e9));
 
             // update progress bar
@@ -350,7 +376,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
             // Add result
             nflopsPerPixel = ((3*8)*10*10*5) + 13;
             sprintf(atts, "Size:%d",w*h);
-            resultDB.AddResult("MulMAddU-DP", atts, "GFLOPS",
+            resultDB.AddResult("DP-MulMAddU", atts, "GFLOPS",
                     (((double)nflopsPerPixel)*w*h) / (t*1.e9));
 
             // update progress bar
@@ -465,7 +491,7 @@ RunTest(ResultDatabase &resultDB,
        double gflop = flopCount / (double)(t);
 
        sprintf (sizeStr, "Size:%07d", numFloats);
-       resultDB.AddResult(string("Add1")+precision, sizeStr, "GFLOPS", gflop);
+       resultDB.AddResult(precision+string("Add1"), sizeStr, "GFLOPS", gflop);
 
        // Zero out the test host memory
        for (int j=0 ; j<numFloats ; ++j)
@@ -525,7 +551,7 @@ RunTest(ResultDatabase &resultDB,
        gflop = flopCount / (double)(t);
 
        sprintf (sizeStr, "Size:%07d", numFloats);
-       resultDB.AddResult(string("Add2")+precision, sizeStr, "GFLOPS", gflop);
+       resultDB.AddResult(precision+string("Add2"), sizeStr, "GFLOPS", gflop);
 
        // Zero out the test host memory
        for (int j=0 ; j<numFloats ; ++j)
@@ -584,7 +610,7 @@ RunTest(ResultDatabase &resultDB,
        gflop = flopCount / (double)(t);
 
        sprintf (sizeStr, "Size:%07d", numFloats);
-       resultDB.AddResult(string("Add4")+precision, sizeStr, "GFLOPS", gflop);
+       resultDB.AddResult(precision+string("Add4"), sizeStr, "GFLOPS", gflop);
 
        // Zero out the test host memory
        for (int j=0 ; j<numFloats ; ++j)
@@ -643,7 +669,7 @@ RunTest(ResultDatabase &resultDB,
        gflop = flopCount / (double)(t);
 
        sprintf (sizeStr, "Size:%07d", numFloats);
-       resultDB.AddResult(string("Add8")+precision, sizeStr, "GFLOPS", gflop);
+       resultDB.AddResult(precision+string("Add8"), sizeStr, "GFLOPS", gflop);
 
        // Zero out the test host memory
        for (int j=0 ; j<numFloats ; ++j)
@@ -703,7 +729,7 @@ RunTest(ResultDatabase &resultDB,
        gflop = flopCount / (double)(t);
 
        sprintf (sizeStr, "Size:%07d", numFloats);
-       resultDB.AddResult(string("Mul1")+precision, sizeStr, "GFLOPS", gflop);
+       resultDB.AddResult(precision+string("Mul1"), sizeStr, "GFLOPS", gflop);
 
        // Zero out the test host memory
        for (int j=0 ; j<numFloats ; ++j)
@@ -763,7 +789,7 @@ RunTest(ResultDatabase &resultDB,
        gflop = flopCount / (double)(t);
 
        sprintf (sizeStr, "Size:%07d", numFloats);
-       resultDB.AddResult(string("Mul2")+precision, sizeStr, "GFLOPS", gflop);
+       resultDB.AddResult(precision+string("Mul2"), sizeStr, "GFLOPS", gflop);
 
        // Zero out the test host memory
        for (int j=0 ; j<numFloats ; ++j)
@@ -822,7 +848,7 @@ RunTest(ResultDatabase &resultDB,
        gflop = flopCount / (double)(t);
 
        sprintf (sizeStr, "Size:%07d", numFloats);
-       resultDB.AddResult(string("Mul4")+precision, sizeStr, "GFLOPS", gflop);
+       resultDB.AddResult(precision+string("Mul4"), sizeStr, "GFLOPS", gflop);
 
        // Zero out the test host memory
        for (int j=0 ; j<numFloats ; ++j)
@@ -881,7 +907,7 @@ RunTest(ResultDatabase &resultDB,
        gflop = flopCount / (double)(t);
 
        sprintf (sizeStr, "Size:%07d", numFloats);
-       resultDB.AddResult(string("Mul8")+precision, sizeStr, "GFLOPS", gflop);
+       resultDB.AddResult(precision+string("Mul8"), sizeStr, "GFLOPS", gflop);
 
        // Zero out the test host memory
        for (int j=0 ; j<numFloats ; ++j)
@@ -941,7 +967,7 @@ RunTest(ResultDatabase &resultDB,
        gflop = flopCount / (double)(t);
 
        sprintf (sizeStr, "Size:%07d", numFloats);
-       resultDB.AddResult(string("MAdd1")+precision, sizeStr, "GFLOPS", gflop);
+       resultDB.AddResult(precision+string("MAdd1"), sizeStr, "GFLOPS", gflop);
 
        // Zero out the test host memory
        for (int j=0 ; j<numFloats ; ++j)
@@ -1001,7 +1027,7 @@ RunTest(ResultDatabase &resultDB,
        gflop = flopCount / (double)(t);
 
        sprintf (sizeStr, "Size:%07d", numFloats);
-       resultDB.AddResult(string("MAdd2")+precision, sizeStr, "GFLOPS", gflop);
+       resultDB.AddResult(precision+string("MAdd2"), sizeStr, "GFLOPS", gflop);
 
        // Zero out the test host memory
        for (int j=0 ; j<numFloats ; ++j)
@@ -1060,7 +1086,7 @@ RunTest(ResultDatabase &resultDB,
        gflop = flopCount / (double)(t);
 
        sprintf (sizeStr, "Size:%07d", numFloats);
-       resultDB.AddResult(string("MAdd4")+precision, sizeStr, "GFLOPS", gflop);
+       resultDB.AddResult(precision+string("MAdd4"), sizeStr, "GFLOPS", gflop);
 
        // Zero out the test host memory
        for (int j=0 ; j<numFloats ; ++j)
@@ -1119,7 +1145,7 @@ RunTest(ResultDatabase &resultDB,
        gflop = flopCount / (double)(t);
 
        sprintf (sizeStr, "Size:%07d", numFloats);
-       resultDB.AddResult(string("MAdd8")+precision, sizeStr, "GFLOPS", gflop);
+       resultDB.AddResult(precision+string("MAdd8"), sizeStr, "GFLOPS", gflop);
 
        // Zero out the test host memory
        for (int j=0 ; j<numFloats ; ++j)
@@ -1179,7 +1205,7 @@ RunTest(ResultDatabase &resultDB,
        gflop = flopCount / (double)(t);
 
        sprintf (sizeStr, "Size:%07d", numFloats);
-       resultDB.AddResult(string("MulMAdd1")+precision, sizeStr, "GFLOPS", gflop);
+       resultDB.AddResult(precision+string("MulMAdd1"), sizeStr, "GFLOPS", gflop);
 
        // Zero out the test host memory
        for (int j=0 ; j<numFloats ; ++j)
@@ -1239,7 +1265,7 @@ RunTest(ResultDatabase &resultDB,
        gflop = flopCount / (double)(t);
 
        sprintf (sizeStr, "Size:%07d", numFloats);
-       resultDB.AddResult(string("MulMAdd2")+precision, sizeStr, "GFLOPS", gflop);
+       resultDB.AddResult(precision+string("MulMAdd2"), sizeStr, "GFLOPS", gflop);
 
        // Zero out the test host memory
        for (int j=0 ; j<numFloats ; ++j)
@@ -1298,7 +1324,7 @@ RunTest(ResultDatabase &resultDB,
        gflop = flopCount / (double)(t);
 
        sprintf (sizeStr, "Size:%07d", numFloats);
-       resultDB.AddResult(string("MulMAdd4")+precision, sizeStr, "GFLOPS", gflop);
+       resultDB.AddResult(precision+string("MulMAdd4"), sizeStr, "GFLOPS", gflop);
 
        // Zero out the test host memory
        for (int j=0 ; j<numFloats ; ++j)
@@ -1357,7 +1383,7 @@ RunTest(ResultDatabase &resultDB,
        gflop = flopCount / (double)(t);
 
        sprintf (sizeStr, "Size:%07d", numFloats);
-       resultDB.AddResult(string("MulMAdd8")+precision, sizeStr, "GFLOPS", gflop);
+       resultDB.AddResult(precision+string("MulMAdd8"), sizeStr, "GFLOPS", gflop);
 
        // Zero out the test host memory
        for (int j=0 ; j<numFloats ; ++j)
