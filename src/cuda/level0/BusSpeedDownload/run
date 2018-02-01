@@ -1,0 +1,2 @@
+#!/bin/bash
+./home/swang/mirovia/src/cuda/level0/BusSpeedDownload/BusSpeedDownload --outfile /home/swang/mirovia/results/BusSpeedDownload -s 1

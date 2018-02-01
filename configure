@@ -6087,7 +6087,7 @@ fi
 
 
 
-ac_config_files="$ac_config_files Makefile config/common.mk config/config.mk config/dirtargets.mk config/targets.mk src/Makefile src/common/Makefile src/cuda/Makefile src/cuda/level0/Makefile"
+ac_config_files="$ac_config_files Makefile config/common.mk config/config.mk config/dirtargets.mk config/targets.mk src/Makefile src/common/Makefile src/cuda/Makefile src/cuda/level0/Makefile src/cuda/level0/BusSpeedDownload/Makefile src/cuda/level0/BusSpeedReadback/Makefile src/cuda/level0/DeviceMemory/Makefile src/cuda/level0/MaxFlops/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -6841,6 +6841,10 @@ do
     "src/common/Makefile") CONFIG_FILES="$CONFIG_FILES src/common/Makefile" ;;
     "src/cuda/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/Makefile" ;;
     "src/cuda/level0/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level0/Makefile" ;;
+    "src/cuda/level0/BusSpeedDownload/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level0/BusSpeedDownload/Makefile" ;;
+    "src/cuda/level0/BusSpeedReadback/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level0/BusSpeedReadback/Makefile" ;;
+    "src/cuda/level0/DeviceMemory/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level0/DeviceMemory/Makefile" ;;
+    "src/cuda/level0/MaxFlops/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level0/MaxFlops/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

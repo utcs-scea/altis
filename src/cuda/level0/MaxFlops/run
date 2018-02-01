@@ -1,0 +1,2 @@
+#!/bin/bash
+./home/swang/mirovia/src/cuda/level0/MaxFlops/MaxFlops --outfile /home/swang/mirovia/results/MaxFlops -s 1
