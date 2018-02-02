@@ -1,0 +1,21 @@
+src/cuda/common/main.cpp
+- added -outfile option to write benchmark results to a file instead of stdout
+- changed the output from ResultDatabase.DumpDetailed to ResultDatabase.DumpSummary
+
+src/cuda/level0/MaxFlops/DeviceMemory.cu
+- when testing device memory capabilities, increased max size to 1GB (from 64MB)
+
+src/cuda/level0/MaxFlops/MaxFlops.cu
+- added if statement to see if compute capability supports half-precision operations
+- if so, run half precision tests using <short>
+- renamed tests so the type of precision is at the beginning of the name
+
+driver.py
+- can specify options
+    - prefix
+    - problem size
+    - device
+    - benchmarks
+- runs all or subset of benchmarks
+- write benchmark output to results/ folder
+
