@@ -1,8 +1,3 @@
-if BUILD_MPI
-    MAYBE_MPI = epmpi
-endif
-SUBDIRS = $(MAYBE_MPI)
-
 include $(top_builddir)/config/config.mk
 include $(top_builddir)/config/targets.mk
 
@@ -13,10 +8,10 @@ AM_LDFLAGS = $(CUDA_LDFLAGS)
 AM_CPPFLAGS = $(CUDA_INC)
 
 # What is the destination for programs built from this directory?
-serialcudadir = $(bindir)/Serial/CUDA
+cudadir = $(bindir)/CUDA
 
 # What programs should be installed to that destination?
-serialcuda_PROGRAMS = Sort
+cuda_PROGRAMS = Sort
 
 # How to build those programs?
 Sort_SOURCES = main.cpp

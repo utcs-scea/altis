@@ -3,8 +3,7 @@
 *.d
 *_cl.cpp
 *.buildflags
-
-# Makefile
+*Makefile
 config.log
 config.status
 config/common.mk
