@@ -235,6 +235,8 @@ AC_CONFIG_FILES([Makefile
                  src/cuda/level0/BusSpeedReadback/Makefile
                  src/cuda/level0/DeviceMemory/Makefile
                  src/cuda/level0/MaxFlops/Makefile
+                 src/cuda/level1/Makefile
+                 src/cuda/level1/Sort/Makefile
                  ])
 AC_OUTPUT
 
