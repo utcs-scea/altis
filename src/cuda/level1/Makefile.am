@@ -1,1 +1,1 @@
-SUBDIRS=Sort
+SUBDIRS=Sort Spmv Stencil2D
