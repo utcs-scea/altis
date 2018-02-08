@@ -26,15 +26,14 @@ Note: Results are written to ```$MIROVIA_ROOT/results/$BENCHMARK```
 
 ```
 Options: 
-    -h, --help                   show help message and exit
-    -i, --infoDevices            show info for available platforms and devices and exit
+    -h, --help                   print this usage
+    -p, --properties             show properties for available platforms and devices
     -d, --device                 specify device(s) to run on
     -s, --size                   specify problem size
     -n, --passes                 specify number of passes
-    -f, --outfile                specify output file for results
-    -p, --nopinned               disable usage of pinned (pagelocked) memory
-    -q, --quiet                  write minimum necessary to standard output
     -v, --verbose                enable verbose output
+    -q, --quiet                  write minimum necessary to standard output
+    -i, --infile                 specify input file
+    -o, --outfile                specify output file
 ```
-Note: Results are written to standard out unless an output file is specified
 
