@@ -2,7 +2,7 @@ include $(top_builddir)/config/config.mk
 include $(top_builddir)/config/targets.mk
 
 # How to find source files
-VPATH = $(srcdir):$(srcdir)/../../common:$(srcdir)/../../../common
+VPATH = $(srcdir):$(srcdir)/../../../common:$(srcdir)/../../../../common
 
 AM_LDFLAGS = $(CUDA_LDFLAGS)
 AM_CPPFLAGS = $(CUDA_INC)
@@ -15,3 +15,5 @@ cuda_PROGRAMS = dataGen
 
 # How to build those programs?
 dataGen_SOURCES = dataGen.cpp
+dataGen_LDADD = dataGen.o $(CUDA_LIBS) $(LIBS)
+
