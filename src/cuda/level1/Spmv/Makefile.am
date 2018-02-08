@@ -17,3 +17,4 @@ cuda_PROGRAMS = Spmv
 Spmv_SOURCES = main.cpp
 Spmv_LDADD = Spmv.o $(CUDA_LIBS) $(LIBS)
 
+SUBDIRS=data
