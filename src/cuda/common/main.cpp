@@ -127,15 +127,16 @@ int main(int argc, char *argv[])
         OptionParser op;
 
         //Add shared options to the parser
+        op.addOption("properties", OPT_BOOL, "",
+                "show properties for available platforms and devices", 'p');
         op.addOption("device", OPT_VECINT, "0",
                 "specify device(s) to run on", 'd');
-        op.addOption("verbose", OPT_BOOL, "", "enable verbose output", 'v');
         op.addOption("passes", OPT_INT, "10", "specify number of passes", 'n');
         op.addOption("size", OPT_INT, "1", "specify problem size", 's');
-        op.addOption("infoDevices", OPT_BOOL, "",
-                "show info for available platforms and devices", 'i');
+        op.addOption("verbose", OPT_BOOL, "", "enable verbose output", 'v');
         op.addOption("quiet", OPT_BOOL, "", "write minimum necessary to standard output", 'q');
-        op.addOption("outfile", OPT_STRING, "", "specify output file", 'f');
+        op.addOption("infile", OPT_STRING, "", "specify input file", 'i');
+        op.addOption("outfile", OPT_STRING, "", "specify output file", 'o');
 
         addBenchmarkSpecOptions(op);
 
@@ -145,8 +146,8 @@ int main(int argc, char *argv[])
             return (op.HelpRequested() ? 0 : 1);
         }
 
+        bool properties = op.getOptionBool("properties");
         bool verbose = op.getOptionBool("verbose");
-        bool infoDev = op.getOptionBool("infoDevices");
         string outfile = op.getOptionString("outfile");
 
         int device;
@@ -160,8 +161,8 @@ int main(int argc, char *argv[])
         }
 
         // Initialization
-        EnumerateDevicesAndChoose(device, infoDev);
-        if( infoDev )
+        EnumerateDevicesAndChoose(device, properties);
+        if(properties)
         {
             return 0;
         }

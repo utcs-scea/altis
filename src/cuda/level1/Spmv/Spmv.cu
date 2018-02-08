@@ -82,8 +82,6 @@ void addBenchmarkSpecOptions(OptionParser &op)
 {
     op.addOption("iterations", OPT_INT, "100", "Number of SpMV iterations "
                  "per pass");
-    op.addOption("mm_filename", OPT_STRING, "random", "Name of file "
-                 "which stores the matrix in Matrix Market format");
     op.addOption("maxval", OPT_FLOAT, "10", "Maximum value for random "
                  "matrices");
 }
@@ -485,7 +483,7 @@ void RunTest(ResultDatabase &resultDB, OptionParser &op, int nRows=0)
 
     // This benchmark either reads in a matrix market input file or
     // generates a random matrix
-    string inFileName = op.getOptionString("mm_filename");
+    string inFileName = op.getOptionString("infile");
     if (inFileName == "random")
     {
         numRows = nRows;
