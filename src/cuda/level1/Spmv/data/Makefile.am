@@ -11,9 +11,7 @@ AM_CPPFLAGS = $(CUDA_INC)
 cudadir = $(bindir)/CUDA/Spmv
 
 # What programs should be installed to that destination?
-cuda_PROGRAMS = Spmv
+cuda_PROGRAMS = dataGen
 
 # How to build those programs?
-Spmv_SOURCES = main.cpp
-Spmv_LDADD = Spmv.o $(CUDA_LIBS) $(LIBS)
-
+dataGen_SOURCES = dataGen.cpp
