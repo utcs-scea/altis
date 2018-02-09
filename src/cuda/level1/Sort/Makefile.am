@@ -8,7 +8,7 @@ AM_LDFLAGS = $(CUDA_LDFLAGS)
 AM_CPPFLAGS = $(CUDA_INC)
 
 # What is the destination for programs built from this directory?
-cudadir = $(bindir)/CUDA
+cudadir = $(bindir)/CUDA/Sort
 
 # What programs should be installed to that destination?
 cuda_PROGRAMS = Sort
