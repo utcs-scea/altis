@@ -7,6 +7,7 @@
 #include "cudacommon.h"
 #include <cassert>
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include "Sort.h"
 #include "sort_kernel.h"
@@ -45,7 +46,7 @@ void addBenchmarkSpecOptions(OptionParser &op)
 //
 // Arguments:
 //   resultDB: results from the benchmark are stored in this db
-//   op: the options parser / parameter database
+//   op: the options parsefilePathr / parameter database
 //
 // Returns:  nothing, results are stored in resultDB
 //
@@ -58,15 +59,22 @@ void addBenchmarkSpecOptions(OptionParser &op)
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
 {
 
-    //Number of key-value pairs to sort, must be a multiple of 1024
-    int probSizes[4] = { 1, 8, 48, 96 };
-
-    int size = probSizes[op.getOptionInt("size")-1];
-    // Convert to MB
-    size = (size * 1024 * 1024) / sizeof(uint);
-
-    // Size of the keys & vals buffers in bytes
-    uint bytes = size * sizeof(uint);
+    int size;
+    uint bytes;
+    string filePath = op.getOptionString("infile");
+    ifstream inputFile(filePath.c_str());
+    if(filePath == "") {
+        // Default input size of 8 million
+        size = 8 * 1024 * 1024;
+    } else {
+        inputFile >> size;
+    }
+    bytes = size * sizeof(uint);
+    
+    uint *sourceInput = (uint*)malloc(bytes);
+    for(int i = 0; i < size; i++) {
+        inputFile >> sourceInput[i];
+    }
 
     // create input data on CPU
     uint *hKeys;
@@ -145,7 +153,11 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
         // Initialize host memory to some pattern
         for (uint i = 0; i < size; i++)
         {
-            hKeys[i] = hVals[i] = i % 1024;
+            if(op.getOptionString("infile") == "") {
+                hKeys[i] = hVals[i] = i % 1024;
+            } else {
+                hKeys[i] = hVals[i] = sourceInput[i];
+            }
         }
 
         // Copy inputs to GPU
@@ -214,6 +226,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
     free(scanBlockSums);
     CUDA_SAFE_CALL(cudaFreeHost(hKeys));
     CUDA_SAFE_CALL(cudaFreeHost(hVals));
+    free(sourceInput);
 }
 
 // ****************************************************************************

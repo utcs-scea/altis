@@ -286,7 +286,7 @@ AM_LDFLAGS = $(CUDA_LDFLAGS)
 AM_CPPFLAGS = $(CUDA_INC)
 
 # What is the destination for programs built from this directory?
-cudadir = $(bindir)/CUDA
+cudadir = $(bindir)/CUDA/Sort
 
 # How to build those programs?
 Sort_SOURCES = main.cpp
