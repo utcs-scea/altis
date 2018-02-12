@@ -483,8 +483,8 @@ void RunTest(ResultDatabase &resultDB, OptionParser &op, int nRows=0)
 
     // This benchmark either reads in a matrix market input file or
     // generates a random matrix
-    string inFileName = op.getOptionString("infile");
-    if (inFileName == "")
+    string infile = op.getOptionString("inputFile");
+    if (infile  == "")
     {
         numRows = nRows;
         nItems = numRows * numRows / 100; // 1% of entries will be non-zero
@@ -498,7 +498,7 @@ void RunTest(ResultDatabase &resultDB, OptionParser &op, int nRows=0)
     else
     {
         char filename[FIELD_LENGTH];
-        strcpy(filename, inFileName.c_str());
+        strcpy(filename, infile.c_str());
         readMatrix(filename, &h_val, &h_cols, &h_rowDelimiters,
                 &nItems, &numRows);
     }

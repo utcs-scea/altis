@@ -134,9 +134,9 @@ int main(int argc, char *argv[])
         op.addOption("passes", OPT_INT, "10", "specify number of passes", 'n');
         op.addOption("size", OPT_INT, "1", "specify problem size", 's');
         op.addOption("verbose", OPT_BOOL, "", "enable verbose output", 'v');
-        op.addOption("quiet", OPT_BOOL, "", "write minimum necessary to standard output", 'q');
-        op.addOption("infile", OPT_STRING, "", "specify input file", 'i');
-        op.addOption("outfile", OPT_STRING, "", "specify output file", 'o');
+        op.addOption("quiet", OPT_BOOL, "", "enable concise output", 'q');
+        op.addOption("inputFile", OPT_STRING, "", "specify input file", 'i');
+        op.addOption("outputFile", OPT_STRING, "", "specify output file", 'o');
 
         addBenchmarkSpecOptions(op);
 
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
 
         bool properties = op.getOptionBool("properties");
         bool verbose = op.getOptionBool("verbose");
-        string outfile = op.getOptionString("outfile");
+        string outfile = op.getOptionString("outputFile");
 
         int device;
         device = op.getOptionVecInt("device")[0];

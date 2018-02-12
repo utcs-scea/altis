@@ -12,8 +12,6 @@ using namespace std;
 OptionParser::OptionParser()
   : helpRequested( false )
 {
-    addOption("configFile", OPT_STRING, "",
-              "specify configuration file", 'c');
     addOption("help", OPT_BOOL, "", "print this usage", 'h');
 }
 

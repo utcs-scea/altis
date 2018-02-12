@@ -9,6 +9,8 @@ template<class T>
 void
 Initialize<T>::operator()( Matrix2D<T>& mtx )
 {
+    std::cout << "HI" << std::endl;
+
     srand48( seed );
 
     int nTileRows = mtx.GetNumRows() - 2 * haloWidth;
