@@ -61,11 +61,11 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
 
     int size;
     uint bytes;
-    string filePath = op.getOptionString("infile");
+    string filePath = op.getOptionString("inputFile");
     ifstream inputFile(filePath.c_str());
     if(filePath == "") {
-        // Default input size of 8 million
-        size = 8 * 1024 * 1024;
+        int probSizes[4] = { 1, 8, 48, 96 };
+        size = probSizes[op.getOptionInt("size") - 1] * 1024 * 1024;
     } else {
         inputFile >> size;
     }
@@ -153,7 +153,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
         // Initialize host memory to some pattern
         for (uint i = 0; i < size; i++)
         {
-            if(op.getOptionString("infile") == "") {
+            if(op.getOptionString("inputFile") == "") {
                 hKeys[i] = hVals[i] = i % 1024;
             } else {
                 hKeys[i] = hVals[i] = sourceInput[i];
