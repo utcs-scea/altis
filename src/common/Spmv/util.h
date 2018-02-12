@@ -89,12 +89,13 @@ template <typename floatType>
 void readMatrix(char *filename, floatType **val_ptr, int **cols_ptr,
                 int **rowDelimiters_ptr, int *n, int *size)
 {
+    std::cout << "Reading matrix..." << std::endl;
+
     std::string line;
     char id[FIELD_LENGTH];
     char object[FIELD_LENGTH];
     char format[FIELD_LENGTH];
     char field[FIELD_LENGTH];
-    char symmetry[FIELD_LENGTH];
 
     std::ifstream mfs( filename );
     if( !mfs.good() )
@@ -103,7 +104,6 @@ void readMatrix(char *filename, floatType **val_ptr, int **cols_ptr,
         exit( 1 );
     }
 
-    int symmetric = 0;
     int pattern = 0;
 
     int nRows, nCols, nElements;
@@ -117,7 +117,7 @@ void readMatrix(char *filename, floatType **val_ptr, int **cols_ptr,
         exit( 1 );
     }
 
-    sscanf(line.c_str(), "%s %s %s %s %s", id, object, format, field, symmetry);
+    sscanf(line.c_str(), "%s %s %s %s", id, object, format, field);
 
     if (strcmp(object, "matrix") != 0)
     {
@@ -136,11 +136,6 @@ void readMatrix(char *filename, floatType **val_ptr, int **cols_ptr,
         pattern = 1;
     }
 
-    if (strcmp(symmetry, "symmetric") == 0)
-    {
-        symmetric = 1;
-    }
-
     while (!getline( mfs, line ).eof() )
     {
         if (line[0] != '%')
@@ -153,10 +148,6 @@ void readMatrix(char *filename, floatType **val_ptr, int **cols_ptr,
     sscanf(line.c_str(), "%d %d %d", &nRows, &nCols, &nElements);
 
     int valSize = nElements * sizeof(struct Coordinate);
-    if (symmetric)
-    {
-        valSize*=2;
-    }
     coords = new Coordinate[valSize];
 
     int index = 0;
@@ -176,19 +167,7 @@ void readMatrix(char *filename, floatType **val_ptr, int **cols_ptr,
                    &coords[index].val);
         }
 
-        // convert into index-0-as-start representation
-        coords[index].x--;
-        coords[index].y--;
         index++;
-
-        // add the mirror element if not on main diagonal
-        if (symmetric && coords[index-1].x != coords[index-1].y)
-        {
-            coords[index].x = coords[index-1].y;
-            coords[index].y = coords[index-1].x;
-            coords[index].val = coords[index-1].val;
-            index++;
-        }
     }
 
     nElements = index;
@@ -218,10 +197,11 @@ void readMatrix(char *filename, floatType **val_ptr, int **cols_ptr,
         val[i] = coords[i].val;
         cols[i] = coords[i].y;
     }
-
     r = 0;
 
     delete[] coords;
+
+    std::cout << "Done." << std::endl;
 }
 
 // ****************************************************************************

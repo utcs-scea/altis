@@ -484,7 +484,7 @@ void RunTest(ResultDatabase &resultDB, OptionParser &op, int nRows=0)
     // This benchmark either reads in a matrix market input file or
     // generates a random matrix
     string inFileName = op.getOptionString("infile");
-    if (inFileName == "random")
+    if (inFileName == "")
     {
         numRows = nRows;
         nItems = numRows * numRows / 100; // 1% of entries will be non-zero
