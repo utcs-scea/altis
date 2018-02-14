@@ -119,7 +119,7 @@ void readMatrix(char *filename, floatType **val_ptr, int **cols_ptr,
 
     sscanf(line.c_str(), "%s %s %s %s", id, object, format, field);
 
-    if (strcmp(object, "matrix") != 0)
+    if (strcmp(object, "spmv_matrix") != 0)
     {
         fprintf(stderr, "Error: file %s does not store a matrix\n", filename);
         exit(1);

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <fstream>
 #include "cuda.h"
 #include "cudacommon.h"
 #include "cublas.h"
@@ -9,9 +10,10 @@
 #include "ResultDatabase.h"
 #include "OptionParser.h"
 
-#ifndef _WIN32
-#include <sys/time.h>
-#endif
+// Constants
+
+// length of array for reading fields of mtx header
+static const int FIELD_LENGTH = 128;
 
 using namespace std;
 
@@ -74,8 +76,31 @@ void error(char *message)
 template <class T>
 void fill(T *A, int n, int maxi)
 {
-    for (int j = 0; j < n; j++)
+    std::cout << "fill: " << n << std::endl;
+    for (int j = 0; j < n; j++) {
         A[j] = T((rand() % (maxi * 2 + 1)) - maxi) / (maxi + 1.);
+    }
+}
+
+// ********************************************************
+// Function: readMatrix
+//
+// Purpose:
+//   Initialize input arrays from a data file
+//
+// Arguments:
+//   A: pointer to matrix A
+//   B: pointer to matrix B
+//   C: pointer to matrix C
+//   n: number of elements in the array
+//
+// ********************************************************
+template <class T>
+void readMatrix(T *A, T *B, T *C, int n, string filename)
+{
+    return;
+    //for (int j = 0; j < n; j++) {
+    //}
 }
 
 // ****************************************************************************
@@ -95,7 +120,6 @@ void fill(T *A, int n, int maxi)
 // ****************************************************************************
 void addBenchmarkSpecOptions(OptionParser &op)
 {
-    op.addOption("KiB", OPT_INT, "0", "data size (in Kibibytes)");
 }
 
 // ****************************************************************************
@@ -156,14 +180,36 @@ template <class T>
 void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op)
 {
     int passes = op.getOptionInt("passes");
-    int N;
-    if (op.getOptionInt("KiB") == 0)
-    {
+    int kib;
+
+    // Use preset problem size or read data from input file
+    string filename = op.getOptionString("inputFile");
+    if (filename == "") {
         int probSizes[4] = { 1, 4, 8, 16 };
-        N = probSizes[op.getOptionInt("size")-1] * 1024 / sizeof(T);
+        kib = probSizes[op.getOptionInt("size")-1];
     } else {
-        N = op.getOptionInt("KiB") * 1024 / sizeof(T);
+        std::ifstream mfs(filename.c_str());
+        std::string line;
+        if(!mfs.good()) {
+            std::cerr << "Error: unable to open matrix file " << filename << std::endl;
+            exit(1);
+        }
+        if(getline(mfs, line).eof()) {
+            std::cerr << "Error: file " << filename << " does not store a matrix" << std::endl;
+            exit(1);
+        }
+        char object[FIELD_LENGTH];
+        sscanf(line.c_str(), "%s %d", object, &kib);
+        if(object != "gemm_matrix") {
+            std::cerr << "Error: file " << filename << " does not store a matrix" << std::endl;
+            exit(1);
+        }
     }
+
+    // dimensions of matrix
+    int N = kib * 1024 / sizeof(T);
+
+    std::cout << "***n: " << N << std::endl;
 
     // Initialize the cublas library
     cublasInit();
@@ -183,9 +229,14 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op)
     CUDA_SAFE_CALL(cudaMallocHost(&B, N * N * sizeof(T)));
     CUDA_SAFE_CALL(cudaMallocHost(&C, N * N * sizeof(T)));
 
-    fill<T>(A, N * N, 31);
-    fill<T>(B, N * N, 31);
-    fill<T>(C, N * N, 31);
+    // Fill matrix or read from input file
+    if (filename == "") {
+        fill<T>(A, N * N, 31);
+        fill<T>(B, N * N, 31);
+        fill<T>(C, N * N, 31);
+    } else {
+        readMatrix(A, B, C, N * N, filename);
+    }
 
     // Copy input to GPU
     cudaEvent_t start, stop;

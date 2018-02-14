@@ -239,6 +239,7 @@ AC_CONFIG_FILES([Makefile
                  src/cuda/level1/Sort/Makefile
                  src/cuda/level1/Spmv/Makefile
                  src/cuda/level1/Stencil2D/Makefile
+                 src/cuda/level1/Gemm/Makefile
                  ])
 AC_OUTPUT
 
