@@ -22,8 +22,6 @@ HostStencilFactory<T>::CheckOptions( const OptionParser& options ) const
 {
     // let base class check its options
     StencilFactory<T>::CheckOptions( options );
-
-    // nothing else to do - we add no options
 }
 
 

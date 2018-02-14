@@ -11,10 +11,8 @@ StencilFactory<T>::CheckOptions( const OptionParser& options ) const
     unsigned int nIters = (unsigned int)options.getOptionInt( "num-iters" );
     if( nIters == 0 )
     {
-        throw InvalidArgValue( "number of iterations must be positive" );
+        throw InvalidArgValue( "Number of iterations must be positive" );
     }
-
-    // no restrictions on weight values, just that we have them
 }
 
 template<class T>

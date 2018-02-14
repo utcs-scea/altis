@@ -60,38 +60,39 @@ DoTest( const char* timerDesc, ResultDatabase& resultDB, OptionParser& opts )
         stdStencilFactory->CheckOptions( opts );
         testStencilFactory->CheckOptions( opts );
 
-        // extract and validate options
-        std::vector<long long> arrayDims = opts.getOptionVecInt( "customSize" );
-        if( arrayDims.size() != 2 )
-        {
-            cerr << "Dim size: " << arrayDims.size() << "\n";
-            throw InvalidArgValue( "all overall dimensions must be positive" );
-        }
-        if (arrayDims[0] == 0) // User has not specified a custom size
-        {
-            int sizeClass = opts.getOptionInt("size");
-            arrayDims = StencilFactory<T>::GetStandardProblemSize( sizeClass );
-        }
-        long int seed = (long)opts.getOptionInt( "seed" );
+        // extract options for running the benchmark
         bool beVerbose = opts.getOptionBool( "verbose" );
+        unsigned int nPasses = (unsigned int)opts.getOptionInt( "passes" );
         unsigned int nIters = (unsigned int)opts.getOptionInt( "num-iters" );
         double valErrThreshold = (double)opts.getOptionFloat( "val-threshold" );
         unsigned int nValErrsToPrint = (unsigned int)opts.getOptionInt( "val-print-limit" );
 
-        unsigned int haloWidth = 1;
+        // extract and validate properties of matrix
+        long long matrixRows = opts.getOptionInt("matrixRows");
+        long long matrixCols = opts.getOptionInt("matrixCols");
+        static const long long matrixArr[] = {matrixRows, matrixCols};
+        std::vector<long long> arrayDims(matrixArr, matrixArr+sizeof(matrixArr)/sizeof(long long));
+        if (arrayDims[0] == 0 || arrayDims[1] == 0) // User has not specified a custom size
+        {
+            std::cout << "Matrix dimensions not specified, using a preset problem size." << std::endl;
+            int sizeClass = opts.getOptionInt("size");
+            arrayDims = StencilFactory<T>::GetStandardProblemSize( sizeClass );
+        }
+
+        long int seed = (long)opts.getOptionInt( "seed" );
         float haloVal = (float)opts.getOptionFloat( "haloVal" );
+        unsigned int haloWidth = 1;
 
         // build a description of this experiment
-        std::vector<long long> lDims = opts.getOptionVecInt( "lsize" );
-        assert( lDims.size() == 2 );
+        long long blockRows = opts.getOptionInt("blockRows");
+        long long blockCols = opts.getOptionInt("blockCols");
+        static const long long blockArr[] = {blockRows, blockCols};
+        std::vector<long long> lDims(blockArr, blockArr+sizeof(blockArr)/sizeof(long long));
         std::ostringstream experimentDescriptionStr;
         experimentDescriptionStr
             << nIters << ':'
             << arrayDims[0] << 'x' << arrayDims[1] << ':'
             << lDims[0] << 'x' << lDims[1];
-
-        unsigned int nPasses = (unsigned int)opts.getOptionInt( "passes" );
-        unsigned int nWarmupPasses = (unsigned int)opts.getOptionInt( "warmupPasses" );
 
         // compute the expected result on the host
         // or read it from a pre-existing file
@@ -189,15 +190,6 @@ DoTest( const char* timerDesc, ResultDatabase& resultDB, OptionParser& opts )
         // we do this stencil operation 'nIters' times
         unsigned long nflops = npts * 11 * nIters;
 
-        std::cout << "Performing " << nWarmupPasses << " warmup passes...";
-
-        for( unsigned int pass = 0; pass < nWarmupPasses; pass++ )
-        {
-            init(data);
-            (*testStencil)( data, nIters );
-        }
-        std::cout << "done." << std::endl;
-
         std::cout << "\nPerforming stencil operation on chosen device, "
             << nPasses << " passes.\n"
             << "Depending on chosen device, this may take a while."
@@ -283,12 +275,12 @@ RunBenchmark( ResultDatabase& resultDB, OptionParser& opts )
         // a programming model-specific way.
         Matrix2D<double>::SetAllocator( new CUDAPMSMemMgr<double> );
 
-            std::cout << "\n\nDP supported" << std::endl;
+        std::cout << "\n\nDP supported" << std::endl;
         DoTest<double>( "DP_Sten2D", resultDB, opts );
     }
     else
     {
-            std::cout << "Double precision not supported - skipping" << std::endl;
+        std::cout << "Double precision not supported - skipping" << std::endl;
         // resultDB requires neg entry for every possible result
         int nPasses = (int)opts.getOptionInt( "passes" );
         for( int p = 0; p < nPasses; p++ )
@@ -296,7 +288,6 @@ RunBenchmark( ResultDatabase& resultDB, OptionParser& opts )
             resultDB.AddResult( (const char*)"DP_Sten2D", "N/A", "GFLOPS", FLT_MAX );
         }
     }
-
     std::cout << "\n" << std::endl;
 }
 
@@ -305,23 +296,21 @@ RunBenchmark( ResultDatabase& resultDB, OptionParser& opts )
 void
 addBenchmarkSpecOptions( OptionParser& opts )
 {
-    opts.addOption("customSize", OPT_VECINT, "0,0", "specify custom problem size");
-    opts.addOption("lsize", OPT_VECINT, "8,256", "block dimensions" );
+    opts.addOption("matrixRows", OPT_INT, "0", "specify number of rows in the matrix");
+    opts.addOption("matrixCols", OPT_INT, "0", "specify number of columns in the matrix");
+    opts.addOption("blockRows", OPT_INT, "8", "specify number of rows in the block");
+    opts.addOption("blockCols", OPT_INT, "256", "specify number of columns in the block");
     opts.addOption("num-iters", OPT_INT, "1000", "number of stencil iterations" );
     opts.addOption("weight-center", OPT_FLOAT, "0.25", "center value weight" );
     opts.addOption("weight-cardinal", OPT_FLOAT, "0.15", "cardinal values weight" );
     opts.addOption("weight-diagonal", OPT_FLOAT, "0.05", "diagonal values weight" );
     opts.addOption("seed", OPT_INT, "71594", "random number generator seed" );
+    opts.addOption("haloVal", OPT_FLOAT, "0.0", "value to use for halo data" );
     opts.addOption("val-threshold", OPT_FLOAT, "0.01", "validation error threshold" );
     opts.addOption("val-print-limit", OPT_INT, "15", "number of validation errors to print" );
-    opts.addOption("haloVal", OPT_FLOAT, "0.0", "value to use for halo data" );
 
     opts.addOption("expMatrixFile", OPT_STRING, "", "Basename for file(s) holding expected matrices" );
     opts.addOption("saveExpMatrixFile", OPT_STRING, "", "Basename for output file(s) that will hold expected matrices" );
-
-    opts.addOption("warmupPasses", OPT_INT, "1", "Number of warmup passes to do before starting timings", 'w' );
-
-
 }
 
 
@@ -330,34 +319,25 @@ void
 CheckOptions( const OptionParser& opts )
 {
     // check matrix dimensions - must be 2d, must be positive
-    std::vector<long long> arrayDims = opts.getOptionVecInt( "customSize" );
-    if( arrayDims.size() != 2 )
+    long long matrixRows = opts.getOptionInt("matrixRows");
+    long long matrixCols = opts.getOptionInt("matrixCols");
+    if( matrixRows < 0 || matrixCols < 0 )
     {
-        throw InvalidArgValue( "overall size must have two dimensions" );
-    }
-    if( (arrayDims[0] < 0) || (arrayDims[1] < 0) )
-    {
-        throw InvalidArgValue( "each size dimension must be positive" );
+        throw InvalidArgValue( "Each size dimension must be positive" );
     }
 
     // validation error threshold must be positive
     float valThreshold = opts.getOptionFloat( "val-threshold" );
     if( valThreshold <= 0.0f )
     {
-        throw InvalidArgValue( "validation threshold must be positive" );
+        throw InvalidArgValue( "Validation threshold must be positive" );
     }
 
     // number of validation errors to print must be non-negative
     int nErrsToPrint = opts.getOptionInt( "val-print-limit" );
     if( nErrsToPrint < 0 )
     {
-        throw InvalidArgValue( "number of validation errors to print must be non-negative" );
-    }
-
-    int nWarmupPasses = opts.getOptionInt( "warmupPasses" );
-    if( nWarmupPasses < 0 )
-    {
-        throw InvalidArgValue( "number of warmup passes must be non-negative" );
+        throw InvalidArgValue( "Number of validation errors to print must be non-negative" );
     }
 }
 

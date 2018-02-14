@@ -12,42 +12,37 @@ CommonCUDAStencilFactory<T>::CheckOptions( const OptionParser& opts ) const
     // let base class check its options first
     StencilFactory<T>::CheckOptions( opts );
 
-    // check our options
-    std::vector<long long> shDims = opts.getOptionVecInt( "lsize" );
-    if( shDims.size() != 2 )
+    // check options
+    long long blockRows = opts.getOptionInt("blockRows");
+    long long blockCols = opts.getOptionInt("blockCols");
+    if( blockRows <= 0 || blockCols <= 0 )
     {
-        throw InvalidArgValue( "lsize must have two dimensions" );
-    }
-    if( (shDims[0] <= 0) || (shDims[1] <= 0) )
-    {
-        throw InvalidArgValue( "all lsize values must be positive" );
+        throw InvalidArgValue( "All size values must be positive" );
     }
 
-    std::vector<long long> arrayDims = opts.getOptionVecInt( "customSize" );
-    assert( arrayDims.size() == 2 );
+    long long matrixRows = opts.getOptionInt("matrixRows");
+    long long matrixCols = opts.getOptionInt("matrixCols");
 
-    // If both of these are zero, we're using a non-custom size, skip this test
-    if (arrayDims[0] == 0 && arrayDims[0] == 0)
+    // if both are zero, we're using a non-custom size, skip this test
+    if (matrixRows == 0 || matrixCols == 0)
     {
         return;
     }
 
-    size_t gRows = (size_t)arrayDims[0];
-    size_t gCols = (size_t)arrayDims[1];
-    size_t lRows = (size_t)shDims[0];
-    size_t lCols = (size_t)shDims[1];
+    size_t gRows = (size_t)matrixRows;
+    size_t gCols = (size_t)matrixCols;
+    size_t lRows = (size_t)blockRows;
+    size_t lCols = (size_t)blockCols;
 
     // verify that local dimensions evenly divide global dimensions
     if( ((gRows % lRows) != 0) || (lRows > gRows) )
     {
-        throw InvalidArgValue( "number of rows must be even multiple of lsize rows" );
+        throw InvalidArgValue( "Number of rows must be even multiple of local rows" );
     }
     if( ((gCols % lCols) != 0) || (lCols > gCols) )
     {
-        throw InvalidArgValue( "number of columns must be even multiple of lsize columns" );
+        throw InvalidArgValue( "Number of columns must be even multiple of local columns" );
     }
-
-    // TODO ensure local dims are smaller than CUDA implementation limits
 }
 
 template<class T>
@@ -64,10 +59,10 @@ CommonCUDAStencilFactory<T>::ExtractOptions( const OptionParser& options,
     StencilFactory<T>::ExtractOptions( options, wCenter, wCardinal, wDiagonal );
 
     // extract our options
-    std::vector<long long> ldims = options.getOptionVecInt( "lsize" );
-    assert( ldims.size() == 2 );
-    lRows = (size_t)ldims[0];
-    lCols = (size_t)ldims[1];
+    long long blockRows = options.getOptionInt("blockRows");
+    long long blockCols = options.getOptionInt("blockCols");
+    lRows = (size_t)blockRows;
+    lCols = (size_t)blockCols;
 
     // determine which device to use
     // We would really prefer this to be done in main() but

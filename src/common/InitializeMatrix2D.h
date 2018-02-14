@@ -36,7 +36,6 @@ public:
         rowPeriod( _rowPeriod ),
         colPeriod( _colPeriod )
     {
-        std::cout << "Initialize" << std::endl;
         // nothing else to do
     }
 

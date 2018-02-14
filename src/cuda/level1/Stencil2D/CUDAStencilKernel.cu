@@ -56,7 +56,6 @@ struct SharedMemory<double>
     __device__ double* GetPointer( void )
     {
         extern __shared__ double sh_double[];
-        // printf( "sh_double=%p\n", sh_double );
         return sh_double;
     }
 };
