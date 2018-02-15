@@ -5,7 +5,7 @@ import sys
 if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option('-s', '--seed', type="int", default=0, help='Seed for random number generator')
-    parser.add_option('-k', '--kib', type="int", default=1, help='Size of data (in Kibibytes)')
+    parser.add_option('-k', '--kib', type="int", default=1, help='Size of matrix (in Kibibytes)')
     (options, args) = parser.parse_args()
 
     # check options
@@ -28,10 +28,10 @@ if __name__ == '__main__':
         f.write('gemm_matrix %d\n' % options.kib)
         # number of floats
         n = options.kib * 1024 // 4
-        for i in range(n):
-            val_a = ((random.uniform(0, maxi) % (maxi*2+1))-maxi)/(maxi+1.0)
-            val_b = ((random.uniform(0, maxi) % (maxi*2+1))-maxi)/(maxi+1.0)
-            val_c = ((random.uniform(0, maxi) % (maxi*2+1))-maxi)/(maxi+1.0)
+        for i in range(n*n):
+            val_a = ((random.uniform(0, 100) % (maxi*2+1))-maxi)/(maxi+1.0)
+            val_b = ((random.uniform(0, 100) % (maxi*2+1))-maxi)/(maxi+1.0)
+            val_c = ((random.uniform(0, 100) % (maxi*2+1))-maxi)/(maxi+1.0)
             f.write('%0.4f %0.4f %0.4f\n' % (val_a, val_b, val_c))
 
 

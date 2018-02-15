@@ -76,7 +76,6 @@ void error(char *message)
 template <class T>
 void fill(T *A, int n, int maxi)
 {
-    std::cout << "fill: " << n << std::endl;
     for (int j = 0; j < n; j++) {
         A[j] = T((rand() % (maxi * 2 + 1)) - maxi) / (maxi + 1.);
     }
@@ -98,9 +97,27 @@ void fill(T *A, int n, int maxi)
 template <class T>
 void readMatrix(T *A, T *B, T *C, int n, string filename)
 {
-    return;
-    //for (int j = 0; j < n; j++) {
-    //}
+    std::ifstream mfs(filename.c_str());
+    string line;
+    // If unable to open file
+    if(!mfs.good()) {
+        std::cerr << "Error: Unable to open matrix file " << filename << std::endl;
+        exit(1);
+    }
+    // Ignore header line because it was already checked
+    getline(mfs, line); 
+    float a, b, c;
+    for (int j = 0; j < n; j++) {
+        // If reached the end of the file
+        if(getline(mfs, line).eof()) {
+            std::cerr << "Error: Matrix in file" << filename << " does not contain enough elements" << std::endl;
+            exit(1);
+        }
+        sscanf(line.c_str(), "%f %f %f", &a, &b, &c);
+        A[j] = T(a);
+        B[j] = T(b);
+        C[j] = T(c);
+    }
 }
 
 // ****************************************************************************
@@ -190,26 +207,26 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op)
     } else {
         std::ifstream mfs(filename.c_str());
         std::string line;
+        // If can't open file
         if(!mfs.good()) {
             std::cerr << "Error: unable to open matrix file " << filename << std::endl;
             exit(1);
         }
+        // If file is empty
         if(getline(mfs, line).eof()) {
             std::cerr << "Error: file " << filename << " does not store a matrix" << std::endl;
             exit(1);
         }
         char object[FIELD_LENGTH];
         sscanf(line.c_str(), "%s %d", object, &kib);
-        if(object != "gemm_matrix") {
+        if(string(object) != "gemm_matrix") {
             std::cerr << "Error: file " << filename << " does not store a matrix" << std::endl;
             exit(1);
         }
     }
 
-    // dimensions of matrix
+    // Dimensions of matrix
     int N = kib * 1024 / sizeof(T);
-
-    std::cout << "***n: " << N << std::endl;
 
     // Initialize the cublas library
     cublasInit();
