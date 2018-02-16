@@ -11,10 +11,10 @@ AM_CPPFLAGS = $(CUDA_INC)
 cudadir = $(bindir)/CUDA
 
 # What programs should be installed to that destination?
-cuda_PROGRAMS = GEMM
+cuda_PROGRAMS = Gemm
 
 # How to build those programs?
-GEMM_SOURCES = GEMM.cpp \
+Gemm_SOURCES = Gemm.cpp \
                 main.cpp
-GEMM_LDADD = $(CUDA_LIBS) -lcublas $(LIBS)
+Gemm_LDADD = $(CUDA_LIBS) -lcublas $(LIBS)
 
