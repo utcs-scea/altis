@@ -3,7 +3,8 @@ import subprocess
 import sys
 from optparse import OptionParser
 
-suite = {'BusSpeedDownload':0, 'BusSpeedReadback':0, 'DeviceMemory':0, 'MaxFlops':0}
+suite = ['BusSpeedDownload', 'BusSpeedReadback', 'DeviceMemory', 'MaxFlops', 'Sort', 'Spmv', 'Stencil2D', 'Gemm']
+suite_map = {'BusSpeedDownload':0, 'BusSpeedReadback':0, 'DeviceMemory':0, 'MaxFlops':0, 'Sort':1, 'Spmv':1, 'Stencil2D':1, 'Gemm':1}
 
 # TODO: Get problem size based on device capabilities
 def get_problem_size():
@@ -15,9 +16,9 @@ def run_benchmark(options, b):
     # Path of results file
     result_path = os.path.join(options.prefix, 'results/%s' % (b))
     # Path of executble
-    exec_path = os.path.join(options.prefix, 'src/cuda/level%d/%s/%s' % (suite[b], b, b))
+    exec_path = os.path.join(options.prefix, 'src/cuda/level%d/%s/%s' % (suite_map[b], b, b))
     # Execute benchmark with options
-    p = subprocess.Popen([exec_path, '-s', str(options.size), '-f', result_path, '-d', str(options.device)])
+    p = subprocess.Popen([exec_path, '-s', str(options.size), '-o', result_path, '-d', str(options.device)])
     (stdoutdata, stderrdata) = p.communicate()
     print('Done.')
 
@@ -35,10 +36,13 @@ if __name__ == '__main__':
     # Problem size
     if int(options.size) == 0:
         options.size = get_problem_size()
+    if options.size > 4 or options.size < 1:
+        print('Error: Problem size must be between 1-4')
+        sys.exit(1)
     
     # Benchmarks
     if options.benchmark == 'all':
-        benchmarks = list(suite.keys())
+        benchmarks = suite
     else:
         benchmarks = options.benchmark.split(',')
 
@@ -48,5 +52,8 @@ if __name__ == '__main__':
     print('Device: %s' % (options.device))
     print('Problem size: %s' % (options.size))
     for b in benchmarks:
+        if b not in suite_map:
+            print('Error: Benchmark %s does not exist')
+            sys.exit(1)
         run_benchmark(options, b)
 

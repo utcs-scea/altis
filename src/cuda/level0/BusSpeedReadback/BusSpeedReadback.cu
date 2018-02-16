@@ -27,7 +27,7 @@
 // ****************************************************************************
 void addBenchmarkSpecOptions(OptionParser &op) {
   op.addOption("nopinned", OPT_BOOL, "",
-               "disable usage of pinned (pagelocked) memory", 'p');
+               "disable usage of pinned (pagelocked) memory");
 }
 
 // ****************************************************************************

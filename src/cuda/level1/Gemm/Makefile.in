@@ -88,7 +88,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-cuda_PROGRAMS = GEMM$(EXEEXT)
+cuda_PROGRAMS = Gemm$(EXEEXT)
 subdir = src/cuda/level1/Gemm
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -101,10 +101,10 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(cudadir)"
 PROGRAMS = $(cuda_PROGRAMS)
-am_GEMM_OBJECTS = GEMM.$(OBJEXT) main.$(OBJEXT)
-GEMM_OBJECTS = $(am_GEMM_OBJECTS)
+am_Gemm_OBJECTS = Gemm.$(OBJEXT) main.$(OBJEXT)
+Gemm_OBJECTS = $(am_Gemm_OBJECTS)
 am__DEPENDENCIES_1 =
-GEMM_DEPENDENCIES = $(am__DEPENDENCIES_1)
+Gemm_DEPENDENCIES = $(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -134,8 +134,8 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(GEMM_SOURCES)
-DIST_SOURCES = $(GEMM_SOURCES)
+SOURCES = $(Gemm_SOURCES)
+DIST_SOURCES = $(Gemm_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -289,10 +289,10 @@ AM_CPPFLAGS = $(CUDA_INC)
 cudadir = $(bindir)/CUDA
 
 # How to build those programs?
-GEMM_SOURCES = GEMM.cpp \
+Gemm_SOURCES = Gemm.cpp \
                 main.cpp
 
-GEMM_LDADD = $(CUDA_LIBS) -lcublas $(LIBS)
+Gemm_LDADD = $(CUDA_LIBS) -lcublas $(LIBS)
 all: all-am
 
 .SUFFIXES:
@@ -369,9 +369,9 @@ uninstall-cudaPROGRAMS:
 clean-cudaPROGRAMS:
 	-test -z "$(cuda_PROGRAMS)" || rm -f $(cuda_PROGRAMS)
 
-GEMM$(EXEEXT): $(GEMM_OBJECTS) $(GEMM_DEPENDENCIES) $(EXTRA_GEMM_DEPENDENCIES) 
-	@rm -f GEMM$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(GEMM_OBJECTS) $(GEMM_LDADD) $(LIBS)
+Gemm$(EXEEXT): $(Gemm_OBJECTS) $(Gemm_DEPENDENCIES) $(EXTRA_Gemm_DEPENDENCIES) 
+	@rm -f Gemm$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(Gemm_OBJECTS) $(Gemm_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -379,7 +379,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GEMM.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Gemm.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 
 .cpp.o:

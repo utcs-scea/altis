@@ -1,0 +1,7 @@
+test	atts	units	median	mean	stddev	min	max	
+Sort-Rate	1048576items	GB/s	9.32184	9.29187	0.0945446	9.0152	9.34926	
+Sort-Rate_PCIe	1048576items	GB/s	3.66784	3.65836	0.0267276	3.57964	3.67679	
+Sort-Rate_Parity	1048576items	N	1.54103	1.53984	0.00796488	1.51847	1.54878	
+
+Note: results marked with (*) had missing values such as
+might occur with a mixture of architectural capabilities.
