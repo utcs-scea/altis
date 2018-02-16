@@ -1,4 +1,3 @@
-// includes, system
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -8,131 +7,80 @@
 
 // includes, kernels
 #include "backprop.h"
+#include "ResultDatabase.h"
+#include "OptionParser.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
-__global__ void
-bpnn_layerforward_CUDA(float *input_cuda,
-	                   float *output_hidden_cuda,
-					   float *input_hidden_cuda,
-					   float *hidden_partial_sum,
-					   int in,
-					   int hid) 
+__global__ void bpnn_layerforward_CUDA(float *input_cuda, float *output_hidden_cuda, float *input_hidden_cuda, float *hidden_partial_sum, int in, int hid) 
 {
-   int by = blockIdx.y;
-   int tx = threadIdx.x;
-   int ty = threadIdx.y;
-
-   int index =  ( hid + 1 ) * HEIGHT * by + ( hid + 1 ) * ty + tx + 1 + ( hid + 1 ) ;  
-
-   int index_in = HEIGHT * by + ty + 1;
+    int by = blockIdx.y;
+    int tx = threadIdx.x;
+    int ty = threadIdx.y;
+    int index =  (hid + 1) * HEIGHT * by + (hid + 1) * ty + tx + 1 + (hid + 1);
+    int index_in = HEIGHT * by + ty + 1;
    
    __shared__ float input_node[HEIGHT];
    __shared__ float weight_matrix[HEIGHT][WIDTH];
 
-
    if ( tx == 0 )
    input_node[ty] = input_cuda[index_in] ;
-   
    __syncthreads();
-
    weight_matrix[ty][tx] = input_hidden_cuda[index];
-
    __syncthreads();
-   
    weight_matrix[ty][tx] = weight_matrix[ty][tx] * input_node[ty];
-
    __syncthreads();   
    
    for ( int i = 1 ; i <= __log2f(HEIGHT) ; i++){
- 
 	   int power_two = __powf(2, i);
-
 	   if( ty % power_two == 0 )
 	   weight_matrix[ty][tx] = weight_matrix[ty][tx] + weight_matrix[ty + power_two/2][tx];
-
 	   __syncthreads();
-
    }
-   
-   //__syncthreads();
 
    input_hidden_cuda[index] = weight_matrix[ty][tx];
-   
-/*
-   for ( unsigned int i = 2 ; i <= HEIGHT ; i *= 2){
- 
-	   unsigned int power_two = i - 1;
-
-	   if( (ty & power_two) == 0 ) {
-		weight_matrix[ty][tx] = weight_matrix[ty][tx] + weight_matrix[ty + power_two/2][tx];
-	   }
-
-   }
-   */
-
    __syncthreads();
 
    if ( tx == 0 ) {
 	   hidden_partial_sum[by * hid + ty] = weight_matrix[tx][ty];
    }
-
 }
 
 
-__global__ void bpnn_adjust_weights_cuda(float * delta,   
-										 int hid,         
-										 float * ly,      
-										 int in,          
-										 float * w,       
-										 float * oldw)  									
+__global__ void bpnn_adjust_weights_cuda(float * delta, int hid, float * ly, int in, float * w, float * oldw)  									
 {
-  
-  
    int by = blockIdx.y;
-
    int tx = threadIdx.x;
    int ty = threadIdx.y;
-	
-   int index =  ( hid + 1 ) * HEIGHT * by + ( hid + 1 ) * ty + tx + 1 + ( hid + 1 ) ;  
+   int index =  (hid + 1) * HEIGHT * by + (hid + 1) * ty + tx + 1 + (hid + 1);  
    int index_y = HEIGHT * by + ty + 1;
    int index_x = tx + 1;
-   //eta = 0.3;
-   //momentum = 0.3;
 
    w[index] += ((ETA * delta[index_x] * ly[index_y]) + (MOMENTUM * oldw[index]));
    oldw[index] = ((ETA * delta[index_x] * ly[index_y]) + (MOMENTUM * oldw[index]));
 
-
    __syncthreads();
 
-   if (ty == 0 && by ==0){
-   w[index_x] += ((ETA * delta[index_x]) + (MOMENTUM * oldw[index_x]));
-   oldw[index_x] = ((ETA * delta[index_x]) + (MOMENTUM * oldw[index_x]));
+   if (ty == 0 && by ==0)
+   {
+    w[index_x] += ((ETA * delta[index_x]) + (MOMENTUM * oldw[index_x]));
+    oldw[index_x] = ((ETA * delta[index_x]) + (MOMENTUM * oldw[index_x]));
    }
-
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-extern "C"
-void bpnn_layerforward(float *l1, float *l2, float **conn, int n1, int n2);
+extern void bpnn_layerforward(float *l1, float *l2, float **conn, int n1, int n2);
 
-extern "C"
-void bpnn_output_error(float *delta, float *target, float *output, int nj, float *err);
+extern void bpnn_output_error(float *delta, float *target, float *output, int nj, float *err);
 
-extern "C"
-void bpnn_hidden_error(float *delta_h, int nh, float *delta_o, int no, float **who, float *hidden, float *err);
+extern void bpnn_hidden_error(float *delta_h, int nh, float *delta_o, int no, float **who, float *hidden, float *err);
 
-extern "C" 
-void bpnn_adjust_weights(float *delta, int ndelta, float *ly, int nly, float **w, float **oldw);
+extern void bpnn_adjust_weights(float *delta, int ndelta, float *ly, int nly, float **w, float **oldw);
 
-extern "C"
-int setup(int argc, char** argv);
+extern int setup(ResultDatabase &resultDB, OptionParser &op);
 
-extern "C"
-float **alloc_2d_dbl(int m, int n);
+extern float **alloc_2d_dbl(int m, int n);
 
 extern "C"
 float squash(float x);
@@ -146,18 +94,41 @@ double gettime() {
 unsigned int num_threads = 0;
 unsigned int num_blocks = 0;
 
+// ****************************************************************************
+// Function: addBenchmarkSpecOptions
+//
+// Purpose:
+//   Add benchmark specific options parsing.  The user is allowed to specify
+//   the size of the input data in kiB.
+//
+// Arguments:
+//   op: the options parser / parameter database
+//
+// Programmer: Anthony Danalis
+// Creation: September 08, 2009
+// Returns:  nothing
+//
+// ****************************************************************************
+void addBenchmarkSpecOptions(OptionParser &op)
+{
+    op.addOption("layerSize", OPT_INT, "4096", "specify layer size (must be a multiple of 16)");
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
 ////////////////////////////////////////////////////////////////////////////////
-int
-main( int argc, char** argv) 
+void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
 {
-	setup(argc, argv);
+    int device;
+    cudaGetDevice(&device);
+    cudaDeviceProp deviceProp;
+    cudaGetDeviceProperties(&deviceProp, device);
+
+	setup(resultDB, op);
 }
 
 
-extern "C"
-void bpnn_train_cuda(BPNN *net, float *eo, float *eh)
+extern void bpnn_train_cuda(BPNN *net, float *eo, float *eh)
 {
   int in, hid, out;
   float out_err, hid_err;

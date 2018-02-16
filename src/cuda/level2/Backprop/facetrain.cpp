@@ -1,17 +1,19 @@
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include "backprop.h"
 #include "omp.h"
+#include "ResultDatabase.h"
+#include "OptionParser.h"
 
 extern char *strcpy();
 extern void exit();
+extern void load(BPNN *net);
+extern void bpnn_train_cuda(BPNN *net, float *eo, float *eh);
 
 int layer_size = 0;
 
-backprop_face()
+void backprop_face()
 {
   BPNN *net;
   int i;
@@ -27,24 +29,17 @@ backprop_face()
   printf("Training done\n");
 }
 
-int setup(argc, argv)
-int argc;
-char *argv[];
+int setup(ResultDatabase &resultDB, OptionParser &op)
 {
-	
   int seed;
 
-  if (argc!=2){
-  fprintf(stderr, "usage: backprop <num of input elements>\n");
-  exit(0);
-  }
-  layer_size = atoi(argv[1]);
-  if (layer_size%16!=0){
-  fprintf(stderr, "The number of input points must be divided by 16\n");
-  exit(0);
+  layer_size = op.getOptionInt("layerSize");
+
+  if (layer_size % 16 != 0) {
+    fprintf(stderr, "The number of input points must be divided by 16\n");
+    exit(0);
   }
   
-
   seed = 7;   
   bpnn_initialize(seed);
   backprop_face();
