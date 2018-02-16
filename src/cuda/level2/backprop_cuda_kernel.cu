@@ -1,5 +1,3 @@
-
-
 #ifndef _BACKPROP_CUDA_KERNEL_H_
 #define _BACKPROP_CUDA_KERNEL_H_
 

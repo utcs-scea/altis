@@ -81,7 +81,6 @@ void convertToPadded(floatType *A, int *cols, int dim, int *rowDelimiters,
 // Programmer: Lukasz Wesolowski
 // Creation: July 2, 2010
 // Returns:  nothing directly
-    return;
 //           allocates and returns *val_ptr, *cols_ptr, and
 //           *rowDelimiters_ptr indirectly
 //           returns n and size indirectly through pointers

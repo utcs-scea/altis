@@ -1,1 +1,1 @@
-SUBDIRS=level0 level1
+SUBDIRS=level0 level1 level2
