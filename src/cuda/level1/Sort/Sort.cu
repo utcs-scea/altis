@@ -55,6 +55,7 @@ void addBenchmarkSpecOptions(OptionParser &op) {}
 // ****************************************************************************
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 
+  // Determine size of the array to sort
   int size;
   uint bytes;
   string filePath = op.getOptionString("inputFile");
@@ -67,9 +68,12 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   }
   bytes = size * sizeof(uint);
 
+  // If input file given, populate array
   uint *sourceInput = (uint *)malloc(bytes);
-  for (int i = 0; i < size; i++) {
-    inputFile >> sourceInput[i];
+  if (filePath != "") {
+      for (int i = 0; i < size; i++) {
+          inputFile >> sourceInput[i];
+      }
   }
 
   // create input data on CPU
@@ -140,8 +144,8 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   for (int it = 0; it < iterations; it++) {
     // Initialize host memory to some pattern
     for (uint i = 0; i < size; i++) {
-      if (op.getOptionString("inputFile") == "") {
-        hKeys[i] = hVals[i] = i % 1024;
+      if (filePath == "") {
+        hKeys[i] = hVals[i] = rand() % 1024;
       } else {
         hKeys[i] = hVals[i] = sourceInput[i];
       }
