@@ -1,2 +1,0 @@
-#!/bin/bash
-./home/swang/mirovia/src/cuda/level0/DeviceMemory/DeviceMemory --outfile /home/swang/mirovia/results/DeviceMemory -s 1
