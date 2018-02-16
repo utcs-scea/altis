@@ -69,21 +69,7 @@ __global__ void bpnn_adjust_weights_cuda(float * delta, int hid, float * ly, int
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-extern void bpnn_layerforward(float *l1, float *l2, float **conn, int n1, int n2);
-
-extern void bpnn_output_error(float *delta, float *target, float *output, int nj, float *err);
-
-extern void bpnn_hidden_error(float *delta_h, int nh, float *delta_o, int no, float **who, float *hidden, float *err);
-
-extern void bpnn_adjust_weights(float *delta, int ndelta, float *ly, int nly, float **w, float **oldw);
-
 extern int setup(ResultDatabase &resultDB, OptionParser &op);
-
-extern float **alloc_2d_dbl(int m, int n);
-
-extern "C"
-float squash(float x);
 
 double gettime() {
   struct timeval t;

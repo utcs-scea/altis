@@ -41,7 +41,6 @@ float dpn1()
 }
 
 /*** The squashing function.  Currently, it's a sigmoid. ***/
-
 float squash(float x)
 {
   float m;
@@ -244,7 +243,6 @@ void bpnn_layerforward(float* l1, float* l2, float** conn, int n1, int n2)
   }
 }
 
-//extern "C"
 void bpnn_output_error(float *delta, float *target, float *output, int nj, float *err)  
 {
   int j;
