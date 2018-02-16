@@ -1,5 +1,6 @@
 #ifndef MATRIX2DFILESUPPORT_H
 #define MATRIX2DFILESUPPORT_H
+#include <fstream>
 
 template<class T>
 std::string
@@ -25,7 +26,7 @@ GetMatrixFileName<double>( std::string baseName )
 }
 
 
- template<class T>
+template<class T>
 bool
 SaveMatrixToFile( const Matrix2D<T>& m, std::string fileName )
 {

@@ -334,7 +334,6 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 
     const unsigned int passes = op.getOptionInt("passes");
     for (int p = 0; p < passes; p++) {
-
       cudaEventRecord(start, 0);
       MAddU_DP<<<blocks, threads>>>(target_dp, val1, val2);
       cudaEventRecord(stop, 0);
