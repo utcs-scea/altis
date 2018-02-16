@@ -5,6 +5,6 @@
 static const int BLOCK_SIZE = 128;
 static const int WARP_SIZE = 32;
 
-enum kernelType{CSR_SCALAR, CSR_VECTOR, ELLPACKR};
+enum kernelType { CSR_SCALAR, CSR_VECTOR, ELLPACKR };
 
 #endif // SPMV_H_

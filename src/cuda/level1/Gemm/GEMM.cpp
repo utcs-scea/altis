@@ -1,14 +1,14 @@
+#include "OptionParser.h"
+#include "ResultDatabase.h"
+#include "Timer.h"
+#include "cublas.h"
+#include "cuda.h"
+#include "cuda_runtime.h"
+#include "cudacommon.h"
+#include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <fstream>
-#include "cuda.h"
-#include "cudacommon.h"
-#include "cublas.h"
-#include "cuda_runtime.h"
-#include "Timer.h"
-#include "ResultDatabase.h"
-#include "OptionParser.h"
 
 // Constants
 
@@ -22,7 +22,8 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op);
 
 template <class T>
 inline void devGEMM(char transa, char transb, int m, int n, int k, T alpha,
-        const T *A, int lda, const T *B, int ldb, T beta, T *C, int ldc);
+                    const T *A, int lda, const T *B, int ldb, T beta, T *C,
+                    int ldc);
 
 // ********************************************************
 // Function: toString
@@ -39,11 +40,10 @@ inline void devGEMM(char transa, char transb, int m, int n, int k, T alpha,
 // Modifications:
 //
 // ********************************************************
-template<class T> inline std::string toString(const T& t)
-{
-    stringstream ss;
-    ss << t;
-    return ss.str();
+template <class T> inline std::string toString(const T &t) {
+  stringstream ss;
+  ss << t;
+  return ss.str();
 }
 
 // ********************************************************
@@ -56,10 +56,9 @@ template<class T> inline std::string toString(const T& t)
 //   message: an error message to print before exiting
 //
 // ********************************************************
-void error(char *message)
-{
-    cerr << "ERROR: " << message << endl;
-    exit(1);
+void error(char *message) {
+  cerr << "ERROR: " << message << endl;
+  exit(1);
 }
 
 // ********************************************************
@@ -73,12 +72,10 @@ void error(char *message)
 //   n: number of elements in the array
 //
 // ********************************************************
-template <class T>
-void fill(T *A, int n, int maxi)
-{
-    for (int j = 0; j < n; j++) {
-        A[j] = T((rand() % (maxi * 2 + 1)) - maxi) / (maxi + 1.);
-    }
+template <class T> void fill(T *A, int n, int maxi) {
+  for (int j = 0; j < n; j++) {
+    A[j] = T((rand() % (maxi * 2 + 1)) - maxi) / (maxi + 1.);
+  }
 }
 
 // ********************************************************
@@ -94,30 +91,29 @@ void fill(T *A, int n, int maxi)
 //   n: number of elements in the array
 //
 // ********************************************************
-template <class T>
-void readMatrix(T *A, T *B, T *C, int n, string filename)
-{
-    std::ifstream mfs(filename.c_str());
-    string line;
-    // If unable to open file
-    if(!mfs.good()) {
-        std::cerr << "Error: Unable to open matrix file " << filename << std::endl;
-        exit(1);
+template <class T> void readMatrix(T *A, T *B, T *C, int n, string filename) {
+  std::ifstream mfs(filename.c_str());
+  string line;
+  // If unable to open file
+  if (!mfs.good()) {
+    std::cerr << "Error: Unable to open matrix file " << filename << std::endl;
+    exit(1);
+  }
+  // Ignore header line because it was already checked
+  getline(mfs, line);
+  float a, b, c;
+  for (int j = 0; j < n; j++) {
+    // If reached the end of the file
+    if (getline(mfs, line).eof()) {
+      std::cerr << "Error: Matrix in file" << filename
+                << " does not contain enough elements" << std::endl;
+      exit(1);
     }
-    // Ignore header line because it was already checked
-    getline(mfs, line); 
-    float a, b, c;
-    for (int j = 0; j < n; j++) {
-        // If reached the end of the file
-        if(getline(mfs, line).eof()) {
-            std::cerr << "Error: Matrix in file" << filename << " does not contain enough elements" << std::endl;
-            exit(1);
-        }
-        sscanf(line.c_str(), "%f %f %f", &a, &b, &c);
-        A[j] = T(a);
-        B[j] = T(b);
-        C[j] = T(c);
-    }
+    sscanf(line.c_str(), "%f %f %f", &a, &b, &c);
+    A[j] = T(a);
+    B[j] = T(b);
+    C[j] = T(c);
+  }
 }
 
 // ****************************************************************************
@@ -135,9 +131,7 @@ void readMatrix(T *A, T *B, T *C, int n, string filename)
 // Returns:  nothing
 //
 // ****************************************************************************
-void addBenchmarkSpecOptions(OptionParser &op)
-{
-}
+void addBenchmarkSpecOptions(OptionParser &op) {}
 
 // ****************************************************************************
 // Function: runBenchmark
@@ -159,212 +153,207 @@ void addBenchmarkSpecOptions(OptionParser &op)
 // Modifications:
 //
 // ****************************************************************************
-void
-RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
-{
-    int device;
-    cudaGetDevice(&device);
-    cudaDeviceProp deviceProp;
-    cudaGetDeviceProperties(&deviceProp, device);
+void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
+  int device;
+  cudaGetDevice(&device);
+  cudaDeviceProp deviceProp;
+  cudaGetDeviceProperties(&deviceProp, device);
 
-    cout << "Running single precision test" << endl;
-    RunTest<float>("SGEMM", resultDB, op);
+  cout << "Running single precision test" << endl;
+  RunTest<float>("SGEMM", resultDB, op);
 
-    // Test to see if this device supports double precision
-    if ((deviceProp.major == 1 && deviceProp.minor >= 3) ||
-               (deviceProp.major >= 2))
-    {
-        cout << "Running double precision test" << endl;
-        RunTest<double>("DGEMM", resultDB, op);
-    } else {
-        cout << "Skipping double precision test" << endl;
-        char atts[1024] = "DP_Not_Supported";
-        // resultDB requires neg entry for every possible result
-        int passes = op.getOptionInt("passes");
-        for (; passes > 0; --passes) {
-            for (int i = 0; i < 2; i++) {
-                const char transb = i ? 'T' : 'N';
-                string testName="DGEMM";
-                resultDB.AddResult(testName+"-"+transb, atts, "GFlops", FLT_MAX);
-                resultDB.AddResult(testName+"-"+transb+"_PCIe", atts, "GFlops", FLT_MAX);
-                resultDB.AddResult(testName+"-"+transb+"_Parity", atts, "N", FLT_MAX);
-            }
-        }
+  // Test to see if this device supports double precision
+  if ((deviceProp.major == 1 && deviceProp.minor >= 3) ||
+      (deviceProp.major >= 2)) {
+    cout << "Running double precision test" << endl;
+    RunTest<double>("DGEMM", resultDB, op);
+  } else {
+    cout << "Skipping double precision test" << endl;
+    char atts[1024] = "DP_Not_Supported";
+    // resultDB requires neg entry for every possible result
+    int passes = op.getOptionInt("passes");
+    for (; passes > 0; --passes) {
+      for (int i = 0; i < 2; i++) {
+        const char transb = i ? 'T' : 'N';
+        string testName = "DGEMM";
+        resultDB.AddResult(testName + "-" + transb, atts, "GFlops", FLT_MAX);
+        resultDB.AddResult(testName + "-" + transb + "_PCIe", atts, "GFlops",
+                           FLT_MAX);
+        resultDB.AddResult(testName + "-" + transb + "_Parity", atts, "N",
+                           FLT_MAX);
+      }
     }
+  }
 }
 
 template <class T>
-void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op)
-{
-    int passes = op.getOptionInt("passes");
-    int kib;
+void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
+  int passes = op.getOptionInt("passes");
+  int kib;
 
-    // Use preset problem size or read data from input file
-    string filename = op.getOptionString("inputFile");
-    if (filename == "") {
-        int probSizes[4] = { 1, 4, 8, 16 };
-        kib = probSizes[op.getOptionInt("size")-1];
-    } else {
-        std::ifstream mfs(filename.c_str());
-        std::string line;
-        // If can't open file
-        if(!mfs.good()) {
-            std::cerr << "Error: unable to open matrix file " << filename << std::endl;
-            exit(1);
-        }
-        // If file is empty
-        if(getline(mfs, line).eof()) {
-            std::cerr << "Error: file " << filename << " does not store a matrix" << std::endl;
-            exit(1);
-        }
-        char object[FIELD_LENGTH];
-        sscanf(line.c_str(), "%s %d", object, &kib);
-        if(string(object) != "gemm_matrix") {
-            std::cerr << "Error: file " << filename << " does not store a matrix" << std::endl;
-            exit(1);
-        }
+  // Use preset problem size or read data from input file
+  string filename = op.getOptionString("inputFile");
+  if (filename == "") {
+    int probSizes[4] = {1, 4, 8, 16};
+    kib = probSizes[op.getOptionInt("size") - 1];
+  } else {
+    std::ifstream mfs(filename.c_str());
+    std::string line;
+    // If can't open file
+    if (!mfs.good()) {
+      std::cerr << "Error: unable to open matrix file " << filename
+                << std::endl;
+      exit(1);
     }
-
-    // Dimensions of matrix
-    int N = kib * 1024 / sizeof(T);
-
-    // Initialize the cublas library
-    cublasInit();
-
-    // Allocate GPU memory
-    T *dA, *dB, *dC;
-    CUDA_SAFE_CALL(cudaMalloc(&dA, N * N * sizeof(T)));
-    CUDA_SAFE_CALL(cudaMalloc(&dB, N * N * sizeof(T)));
-    CUDA_SAFE_CALL(cudaMalloc(&dC, N * N * sizeof(T)));
-
-    // Initialize host memory
-    T *A;
-    T *B;
-    T *C;
-
-    CUDA_SAFE_CALL(cudaMallocHost(&A, N * N * sizeof(T)));
-    CUDA_SAFE_CALL(cudaMallocHost(&B, N * N * sizeof(T)));
-    CUDA_SAFE_CALL(cudaMallocHost(&C, N * N * sizeof(T)));
-
-    // Fill matrix or read from input file
-    if (filename == "") {
-        fill<T>(A, N * N, 31);
-        fill<T>(B, N * N, 31);
-        fill<T>(C, N * N, 31);
-    } else {
-        readMatrix(A, B, C, N * N, filename);
+    // If file is empty
+    if (getline(mfs, line).eof()) {
+      std::cerr << "Error: file " << filename << " does not store a matrix"
+                << std::endl;
+      exit(1);
     }
-
-    // Copy input to GPU
-    cudaEvent_t start, stop;
-    CUDA_SAFE_CALL(cudaEventCreate(&start));
-    CUDA_SAFE_CALL(cudaEventCreate(&stop));
-    CUDA_SAFE_CALL(cudaEventRecord(start, 0));
-    CUDA_SAFE_CALL(cudaMemcpy(dA, A, N * N * sizeof(T),
-            cudaMemcpyHostToDevice));
-    CUDA_SAFE_CALL(cudaMemcpy(dB, B, N * N * sizeof(T),
-            cudaMemcpyHostToDevice));
-    cudaEventRecord(stop, 0);
-    CUDA_SAFE_CALL(cudaEventSynchronize(stop));
-
-    // Get elapsed time
-    float transferTime = 0.0f;
-    cudaEventElapsedTime(&transferTime, start, stop);
-    transferTime *= 1.e-3;
-
-    bool first = true;
-    for (; passes > 0; --passes)
-    {
-        for (int i = 0; i < 2; i++)
-        {
-            const char transa = 'N';
-            const char transb = i ? 'T' : 'N';
-            const int nb = 128;
-            const int idim = N / nb;
-
-            int dim = idim * nb;
-
-            const int m = dim;
-            const int n = dim;
-            const int k = dim;
-            const int lda = dim;
-            const int ldb = dim;
-            const int ldc = dim;
-            const float alpha = 1;
-            const float beta = 0;//-1;
-
-            // Warm Up
-            devGEMM<T>(transa, transb, m, n, k, alpha, dA, lda, dB, ldb, beta,
-                    dC, ldc);
-            CUDA_SAFE_CALL(cudaThreadSynchronize());
-
-            double cublas_time;
-            float kernel_time = 0.0f;
-            for (int ii = 0; ii < 4; ++ii)
-            {
-                CUDA_SAFE_CALL(cudaEventRecord(start, 0));
-                devGEMM<T>(transa, transb, m, n, k, alpha, dA, lda, dB, ldb,
-                        beta, dC, ldc);
-                CHECK_CUDA_ERROR();
-                cudaEventRecord(stop, 0);
-                CUDA_SAFE_CALL(cudaEventSynchronize(stop));
-                float currTime = 0.0f;
-                cudaEventElapsedTime(&currTime, start, stop);
-                kernel_time += currTime;
-            }
-            cublas_time = (kernel_time / 4.0) * 1.e-3;
-
-            CUDA_SAFE_CALL(cudaEventRecord(start, 0));
-            CUDA_SAFE_CALL(cudaMemcpy(C, dC, N * N * sizeof(float),
-                    cudaMemcpyDeviceToHost));
-            cudaEventRecord(stop, 0);
-            CUDA_SAFE_CALL(cudaEventSynchronize(stop));
-
-            float oTransferTime = 0.0f;
-            cudaEventElapsedTime(&oTransferTime, start, stop);
-            oTransferTime *= 1.e-3;
-
-            // Add the PCIe transfer time to total transfer time only once
-            if (first)
-            {
-                transferTime += oTransferTime;
-                first = false;
-            }
-
-            double cublas_gflops = 2. * m * n * k / cublas_time / 1e9;
-            double pcie_gflops = 2. * m * n * k / (cublas_time + transferTime)
-                    / 1e9;
-            resultDB.AddResult(testName+"-"+transb, toString(dim), "GFlops",
-                    cublas_gflops);
-            resultDB.AddResult(testName+"-"+transb+"_PCIe", toString(dim),
-                    "GFlops", pcie_gflops);
-            resultDB.AddResult(testName+"-"+transb+"_Parity", toString(dim),
-                    "N", transferTime / cublas_time);
-        }
+    char object[FIELD_LENGTH];
+    sscanf(line.c_str(), "%s %d", object, &kib);
+    if (string(object) != "gemm_matrix") {
+      std::cerr << "Error: file " << filename << " does not store a matrix"
+                << std::endl;
+      exit(1);
     }
+  }
 
-    // Clean Up
-    CUDA_SAFE_CALL(cudaFree(dA));
-    CUDA_SAFE_CALL(cudaFree(dB));
-    CUDA_SAFE_CALL(cudaFree(dC));
-    CUDA_SAFE_CALL(cudaFreeHost(A));
-    CUDA_SAFE_CALL(cudaFreeHost(B));
-    CUDA_SAFE_CALL(cudaFreeHost(C));
-    CUDA_SAFE_CALL(cudaEventDestroy(start));
-    CUDA_SAFE_CALL(cudaEventDestroy(stop));
-    cublasShutdown();
+  // Dimensions of matrix
+  int N = kib * 1024 / sizeof(T);
+
+  // Initialize the cublas library
+  cublasInit();
+
+  // Allocate GPU memory
+  T *dA, *dB, *dC;
+  CUDA_SAFE_CALL(cudaMalloc(&dA, N * N * sizeof(T)));
+  CUDA_SAFE_CALL(cudaMalloc(&dB, N * N * sizeof(T)));
+  CUDA_SAFE_CALL(cudaMalloc(&dC, N * N * sizeof(T)));
+
+  // Initialize host memory
+  T *A;
+  T *B;
+  T *C;
+
+  CUDA_SAFE_CALL(cudaMallocHost(&A, N * N * sizeof(T)));
+  CUDA_SAFE_CALL(cudaMallocHost(&B, N * N * sizeof(T)));
+  CUDA_SAFE_CALL(cudaMallocHost(&C, N * N * sizeof(T)));
+
+  // Fill matrix or read from input file
+  if (filename == "") {
+    fill<T>(A, N * N, 31);
+    fill<T>(B, N * N, 31);
+    fill<T>(C, N * N, 31);
+  } else {
+    readMatrix(A, B, C, N * N, filename);
+  }
+
+  // Copy input to GPU
+  cudaEvent_t start, stop;
+  CUDA_SAFE_CALL(cudaEventCreate(&start));
+  CUDA_SAFE_CALL(cudaEventCreate(&stop));
+  CUDA_SAFE_CALL(cudaEventRecord(start, 0));
+  CUDA_SAFE_CALL(cudaMemcpy(dA, A, N * N * sizeof(T), cudaMemcpyHostToDevice));
+  CUDA_SAFE_CALL(cudaMemcpy(dB, B, N * N * sizeof(T), cudaMemcpyHostToDevice));
+  cudaEventRecord(stop, 0);
+  CUDA_SAFE_CALL(cudaEventSynchronize(stop));
+
+  // Get elapsed time
+  float transferTime = 0.0f;
+  cudaEventElapsedTime(&transferTime, start, stop);
+  transferTime *= 1.e-3;
+
+  bool first = true;
+  for (; passes > 0; --passes) {
+    for (int i = 0; i < 2; i++) {
+      const char transa = 'N';
+      const char transb = i ? 'T' : 'N';
+      const int nb = 128;
+      const int idim = N / nb;
+
+      int dim = idim * nb;
+
+      const int m = dim;
+      const int n = dim;
+      const int k = dim;
+      const int lda = dim;
+      const int ldb = dim;
+      const int ldc = dim;
+      const float alpha = 1;
+      const float beta = 0; //-1;
+
+      // Warm Up
+      devGEMM<T>(transa, transb, m, n, k, alpha, dA, lda, dB, ldb, beta, dC,
+                 ldc);
+      CUDA_SAFE_CALL(cudaThreadSynchronize());
+
+      double cublas_time;
+      float kernel_time = 0.0f;
+      for (int ii = 0; ii < 4; ++ii) {
+        CUDA_SAFE_CALL(cudaEventRecord(start, 0));
+        devGEMM<T>(transa, transb, m, n, k, alpha, dA, lda, dB, ldb, beta, dC,
+                   ldc);
+        CHECK_CUDA_ERROR();
+        cudaEventRecord(stop, 0);
+        CUDA_SAFE_CALL(cudaEventSynchronize(stop));
+        float currTime = 0.0f;
+        cudaEventElapsedTime(&currTime, start, stop);
+        kernel_time += currTime;
+      }
+      cublas_time = (kernel_time / 4.0) * 1.e-3;
+
+      CUDA_SAFE_CALL(cudaEventRecord(start, 0));
+      CUDA_SAFE_CALL(
+          cudaMemcpy(C, dC, N * N * sizeof(float), cudaMemcpyDeviceToHost));
+      cudaEventRecord(stop, 0);
+      CUDA_SAFE_CALL(cudaEventSynchronize(stop));
+
+      float oTransferTime = 0.0f;
+      cudaEventElapsedTime(&oTransferTime, start, stop);
+      oTransferTime *= 1.e-3;
+
+      // Add the PCIe transfer time to total transfer time only once
+      if (first) {
+        transferTime += oTransferTime;
+        first = false;
+      }
+
+      double cublas_gflops = 2. * m * n * k / cublas_time / 1e9;
+      double pcie_gflops = 2. * m * n * k / (cublas_time + transferTime) / 1e9;
+      resultDB.AddResult(testName + "-" + transb, toString(dim), "GFlops",
+                         cublas_gflops);
+      resultDB.AddResult(testName + "-" + transb + "_PCIe", toString(dim),
+                         "GFlops", pcie_gflops);
+      resultDB.AddResult(testName + "-" + transb + "_Parity", toString(dim),
+                         "N", transferTime / cublas_time);
+    }
+  }
+
+  // Clean Up
+  CUDA_SAFE_CALL(cudaFree(dA));
+  CUDA_SAFE_CALL(cudaFree(dB));
+  CUDA_SAFE_CALL(cudaFree(dC));
+  CUDA_SAFE_CALL(cudaFreeHost(A));
+  CUDA_SAFE_CALL(cudaFreeHost(B));
+  CUDA_SAFE_CALL(cudaFreeHost(C));
+  CUDA_SAFE_CALL(cudaEventDestroy(start));
+  CUDA_SAFE_CALL(cudaEventDestroy(stop));
+  cublasShutdown();
 }
 
-template<>
+template <>
 inline void devGEMM<double>(char transa, char transb, int m, int n, int k,
-        double alpha, const double *A, int lda, const double *B, int ldb,
-        double beta, double *C, int ldc) {
-    cublasDgemm(transa, transb, m, n, k, alpha, A, lda, B, ldb, beta, C, ldc);
+                            double alpha, const double *A, int lda,
+                            const double *B, int ldb, double beta, double *C,
+                            int ldc) {
+  cublasDgemm(transa, transb, m, n, k, alpha, A, lda, B, ldb, beta, C, ldc);
 }
 
 template <>
 inline void devGEMM<float>(char transa, char transb, int m, int n, int k,
-        float alpha, const float *A, int lda, const float *B, int ldb,
-        float beta, float *C, int ldc) {
-    cublasSgemm(transa, transb, m, n, k, alpha, A, lda, B, ldb, beta, C, ldc);
+                           float alpha, const float *A, int lda, const float *B,
+                           int ldb, float beta, float *C, int ldc) {
+  cublasSgemm(transa, transb, m, n, k, alpha, A, lda, B, ldb, beta, C, ldc);
 }
