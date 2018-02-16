@@ -16,7 +16,7 @@ if __name__ == '__main__':
         print("Error: Data size must be positive.")
         sys.exit()
 
-    # seed random number generator (if given)
+    # if provided, seed random number generator
     if options.seed > 0:
         random.seed(options.seed)
 

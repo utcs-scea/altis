@@ -39,9 +39,7 @@ General Options:
 Note: Run benchmark with --help to see full list of options available for that specific benchmark
 
 ## To Run a Benchmark with Custom Data:
-1. ```cd data/$BENCHMARK```
-2. ```python datagen.py [options]```
-3. Run benchmark using the path of the generated data file as --inputFile
+1. ```python data/$BENCHMARK/datagen.py [options]```
+2. Run benchmark with ```--inputFile $DATA_FILEPATH```
 
-* Run datagen.py with --help to see list of options available
-* Not all benchmarks have a datagen
+Note: Not all benchmarks have a datagen

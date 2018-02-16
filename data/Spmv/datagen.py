@@ -22,6 +22,10 @@ if __name__ == '__main__':
         print("Error: Max value must be positive.")
         sys.exit()
 
+    # if provided, seed random number generator
+    if options.seed > 0:
+        random.seed(options.seed)
+
     n = options.rows * options.cols // 10
     with open('spmv_%dx%d' % (options.rows, options.cols), 'w') as f:
         field = 'pattern' if options.pattern else 'no_pattern'
