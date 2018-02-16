@@ -11,9 +11,12 @@ AM_CPPFLAGS = $(CUDA_INC)
 cudadir = $(bindir)/CUDA
 
 # What programs should be installed to that destination?
-cuda_PROGRAMS = Spmv
+cuda_PROGRAMS = Backprop
 
 # How to build those programs?
-Spmv_SOURCES = main.cpp
-Spmv_LDADD = Spmv.o $(CUDA_LIBS) $(LIBS)
+Backprop_SOURCES = backprop.c \
+				facetrain.c \
+				imagenet.c
+Backprop_LDADD = backprop_cuda.o $(CUDA_LIBS) $(LIBS) -lm
+
 
