@@ -180,11 +180,21 @@ extern void bpnn_train_cuda(BPNN *net, float *eo, float *eh) {
   cudaMemcpy(input_hidden_cuda, input_weights_one_dim,
              (in + 1) * (hid + 1) * sizeof(float), cudaMemcpyHostToDevice);
 
+  cudaEvent_t start, stop;
+  cudaEventCreate(&start);
+  cudaEventCreate(&stop);
+  cudaEventRecord(start, 0);
   bpnn_layerforward_CUDA<<<grid, threads>>>(input_cuda, output_hidden_cuda,
                                             input_hidden_cuda,
                                             hidden_partial_sum, in, hid);
+  cudaEventRecord(stop, 0);
+  cudaEventSynchronize(stop);
+  float elapsedTime;
+  cudaEventElapsedTime(&elapsedTime, start, stop);
+  double kernelTime = elapsedTime * 1.e-3;
+  printf("kernel time: %f\n", kernelTime);
 
-  cudaThreadSynchronize();
+  //cudaThreadSynchronize();
 
   cudaError_t error = cudaGetLastError();
   if (error != cudaSuccess) {
@@ -250,6 +260,12 @@ extern void bpnn_train_cuda(BPNN *net, float *eo, float *eh) {
   cudaFree(input_prev_weights_cuda);
   cudaFree(hidden_delta_cuda);
 
+  /*
+  for(int i = 0; i < (in+1)*(hid+1); i++) {
+      printf("%f\n", input_weights_one_dim[i]);
+  }
+  printf("\n");
+  */
   free(partial_sum);
   free(input_weights_one_dim);
   free(input_weights_prev_one_dim);
