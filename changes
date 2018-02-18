@@ -62,4 +62,7 @@ Backprop (originally Rodinia)
 - incorporated benchmark into existing build and run framework
 - changed file extensions to .cpp, refactored "extern" functions into an #include statement
 - updated deprecated syntax from 1994
-- added option in OptionParser: layer size
+- added options to OptionParser
+    - layer size
+    - seed
+- added preset problem sizes (layer_size)

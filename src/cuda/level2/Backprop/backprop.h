@@ -12,6 +12,21 @@
 #define MOMENTUM 0.3 // momentum value
 #define NUM_THREAD 4 // OpenMP threads
 
+#define ABS(x) (((x) > 0.0) ? (x) : (-(x)))
+
+#define fastcopy(to, from, len)                                                \
+  \
+{                                                                         \
+    register char *_to, *_from;                                                \
+    register int _i, _l;                                                       \
+    _to = (char *)(to);                                                        \
+    _from = (char *)(from);                                                    \
+    _l = (len);                                                                \
+    for (_i = 0; _i < _l; _i++)                                                \
+      *_to++ = *_from++;                                                       \
+  \
+}
+
 typedef struct {
   int input_n;  /* number of input units */
   int hidden_n; /* number of hidden units */
@@ -56,5 +71,7 @@ void bpnn_adjust_weights(float *delta, int ndelta, float *ly, int nly,
                          float **w, float **oldw);
 float **alloc_2d_dbl(int m, int n);
 float squash(float x);
+
+void load(BPNN *net, int layer_size);
 
 #endif

@@ -7,29 +7,13 @@
  ******************************************************************
  */
 
-#include "backprop.h"
 #include <fcntl.h>
 #include <math.h>
 #include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-//#define OPEN
-
-#define ABS(x) (((x) > 0.0) ? (x) : (-(x)))
-
-#define fastcopy(to, from, len)                                                \
-  \
-{                                                                         \
-    register char *_to, *_from;                                                \
-    register int _i, _l;                                                       \
-    _to = (char *)(to);                                                        \
-    _from = (char *)(from);                                                    \
-    _l = (len);                                                                \
-    for (_i = 0; _i < _l; _i++)                                                \
-      *_to++ = *_from++;                                                       \
-  \
-}
+#include "backprop.h"
 
 /*** Return random number between 0.0 and 1.0 ***/
 float drnd() { return ((float)rand() / (float)BIGRND); }
@@ -432,3 +416,20 @@ BPNN *bpnn_read(char *filename) {
 
   return (nnew);
 }
+
+void load(BPNN *net, int layer_size) {
+  float *units;
+  int nr, nc, imgsize, i, j, k;
+
+  nr = layer_size;
+
+  imgsize = nr * nc;
+  units = net->input_units;
+
+  k = 1;
+  for (i = 0; i < nr; i++) {
+    units[k] = (float)rand() / RAND_MAX;
+    k++;
+  }
+}
+

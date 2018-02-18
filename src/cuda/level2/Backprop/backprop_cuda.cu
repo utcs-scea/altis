@@ -5,13 +5,15 @@
 #include <string.h>
 #include <sys/time.h>
 
-// includes, kernels
 #include "OptionParser.h"
 #include "ResultDatabase.h"
 #include "backprop.h"
+#include "backprop_cuda.h"
+
+unsigned int num_threads = 0;
+unsigned int num_blocks = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
-
 __global__ void bpnn_layerforward_CUDA(float *input_cuda,
                                        float *output_hidden_cuda,
                                        float *input_hidden_cuda,
@@ -70,18 +72,7 @@ __global__ void bpnn_adjust_weights_cuda(float *delta, int hid, float *ly,
     oldw[index_x] = ((ETA * delta[index_x]) + (MOMENTUM * oldw[index_x]));
   }
 }
-
 ////////////////////////////////////////////////////////////////////////////////
-extern int setup(ResultDatabase &resultDB, OptionParser &op);
-
-double gettime() {
-  struct timeval t;
-  gettimeofday(&t, NULL);
-  return t.tv_sec + t.tv_usec * 1e-6;
-}
-
-unsigned int num_threads = 0;
-unsigned int num_blocks = 0;
 
 // ****************************************************************************
 // Function: addBenchmarkSpecOptions
@@ -99,8 +90,9 @@ unsigned int num_blocks = 0;
 //
 // ****************************************************************************
 void addBenchmarkSpecOptions(OptionParser &op) {
-  op.addOption("layerSize", OPT_INT, "4096",
+  op.addOption("layerSize", OPT_INT, "0",
                "specify layer size (must be a multiple of 16)");
+  op.addOption("seed", OPT_INT, "0", "seed for random number generator");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -115,7 +107,46 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   setup(resultDB, op);
 }
 
-extern void bpnn_train_cuda(BPNN *net, float *eo, float *eh) {
+int setup(ResultDatabase &resultDB, OptionParser &op) {
+  int seed = op.getOptionInt("seed");
+  int layer_size = op.getOptionInt("layerSize");
+
+  // if no seed specified, default to 7
+  if(seed == 0) {
+      seed = 7;
+  }
+  // if no layer size specified, default to using a preset problem size
+  if(layer_size == 0) {
+    int probSizes[4] = {1, 8, 48, 96};
+    layer_size = probSizes[op.getOptionInt("size") - 1] * 1024 * 8;
+  }
+
+  if (layer_size % 16 != 0) {
+    fprintf(stderr, "The number of input points must be divided by 16\n");
+    exit(0);
+  }
+
+  bpnn_initialize(seed);
+  backprop_face(layer_size);
+
+  exit(0);
+}
+
+void backprop_face(int layer_size) {
+  BPNN *net;
+  float out_err, hid_err;
+  net = bpnn_create(layer_size, 16, 1); // (16, 1 can not be changed)
+
+  printf("Input layer size : %d\n", layer_size);
+  load(net, layer_size);
+  // entering the training kernel, only one iteration
+  printf("Starting training kernel\n");
+  bpnn_train_cuda(net, &out_err, &hid_err);
+  bpnn_free(net);
+  printf("Training done\n");
+}
+
+void bpnn_train_cuda(BPNN *net, float *eo, float *eh) {
   int in, hid, out;
   float out_err, hid_err;
 
@@ -260,12 +291,11 @@ extern void bpnn_train_cuda(BPNN *net, float *eo, float *eh) {
   cudaFree(input_prev_weights_cuda);
   cudaFree(hidden_delta_cuda);
 
-  /*
-  for(int i = 0; i < (in+1)*(hid+1); i++) {
+  /*for(int i = 0; i < (in+1)*(hid+1); i++) {
       printf("%f\n", input_weights_one_dim[i]);
   }
-  printf("\n");
-  */
+  printf("\n");*/
+
   free(partial_sum);
   free(input_weights_one_dim);
   free(input_weights_prev_one_dim);

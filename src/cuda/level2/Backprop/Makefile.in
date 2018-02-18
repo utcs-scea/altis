@@ -101,8 +101,7 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(cudadir)"
 PROGRAMS = $(cuda_PROGRAMS)
-am_Backprop_OBJECTS = backprop.$(OBJEXT) facetrain.$(OBJEXT) \
-	imagenet.$(OBJEXT) main.$(OBJEXT)
+am_Backprop_OBJECTS = backprop.$(OBJEXT) main.$(OBJEXT)
 Backprop_OBJECTS = $(am_Backprop_OBJECTS)
 am__DEPENDENCIES_1 =
 Backprop_DEPENDENCIES = backprop_cuda.o $(am__DEPENDENCIES_1)
@@ -291,8 +290,6 @@ cudadir = $(bindir)/CUDA
 
 # How to build those programs?
 Backprop_SOURCES = backprop.cpp \
-				facetrain.cpp \
-				imagenet.cpp \
                 main.cpp
 
 Backprop_LDADD = backprop_cuda.o $(CUDA_LIBS) $(LIBS) -lm
@@ -383,8 +380,6 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/backprop.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/facetrain.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imagenet.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 
 .cpp.o:
