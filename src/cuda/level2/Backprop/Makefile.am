@@ -15,8 +15,6 @@ cuda_PROGRAMS = Backprop
 
 # How to build those programs?
 Backprop_SOURCES = backprop.cpp \
-				facetrain.cpp \
-				imagenet.cpp \
                 main.cpp
 Backprop_LDADD = backprop_cuda.o $(CUDA_LIBS) $(LIBS) -lm
 
