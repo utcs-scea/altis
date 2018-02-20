@@ -242,6 +242,7 @@ AC_CONFIG_FILES([Makefile
                  src/cuda/level1/Gemm/Makefile
                  src/cuda/level2/Makefile
                  src/cuda/level2/Backprop/Makefile
+                 src/cuda/level2/lavaMD/Makefile
                  ])
 AC_OUTPUT
 

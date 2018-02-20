@@ -6,7 +6,7 @@
 //	MAIN FUNCTION HEADER
 //======================================================================================================================================================150
 
-#include "./../main.h"								// (in the main program folder)	needed to recognized input parameters
+#include "./../lavaMD.h"								// (in the main program folder)	needed to recognized input parameters
 
 //======================================================================================================================================================150
 //	UTILITIES
@@ -222,7 +222,7 @@ kernel_gpu_cuda_wrapper(par_str par_cpu,
 	//======================================================================================================================================================150
 	//	DISPLAY TIMING
 	//======================================================================================================================================================150
-
+/*
 	printf("Time spent in different stages of GPU_CUDA KERNEL:\n");
 
 	printf("%15.12f s, %15.12f % : GPU: SET DEVICE / DRIVER INIT\n",	(float) (time1-time0) / 1000000, (float) (time1-time0) / (float) (time6-time0) * 100);
@@ -236,5 +236,6 @@ kernel_gpu_cuda_wrapper(par_str par_cpu,
 
 	printf("Total time:\n");
 	printf("%.12f s\n", 												(float) (time6-time0) / 1000000);
+*/
 
 }
