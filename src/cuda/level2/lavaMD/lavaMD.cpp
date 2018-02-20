@@ -42,7 +42,7 @@
 //========================================================================================================================================================================================================200
 
 void addBenchmarkSpecOptions(OptionParser &op) {
-  op.addOption("boxes1d", OPT_INT, "10",
+  op.addOption("boxes1d", OPT_INT, "0",
                "specify number of boxes in single dimension, total box number is that^3");
 }
 
@@ -81,6 +81,10 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 
 	// get boxes1d arg value
 	dim_cpu.boxes1d_arg = op.getOptionInt("boxes1d");
+    if(dim_cpu.boxes1d_arg == 0) {
+        int probSizes[4] = {10, 40, 100, 200};
+        dim_cpu.boxes1d_arg = probSizes[op.getOptionInt("size") - 1];
+    }
 
 	// Print configuration
 	printf("Configuration used: boxes1d = %d\n", dim_cpu.boxes1d_arg);
