@@ -186,9 +186,7 @@ AS_IF([test "x$with_cuda" != xno],
               CPPFLAGS=$savedCPPFLAGS
               LIBS=$savedLIBS
               CXX=$savedCXX
-              CXXFLAGS=$savedCXXFLAGS
-              LDFLAGS=$savedLDFLAGS
-            ],
+              CXXFLAGS=$savedCXXFLAGS LDFLAGS=$savedLDFLAGS ],
             [ if test "x$with_cuda" != xcheck; then
                 AC_MSG_FAILURE([CUDA support was requested, but no usable CUDA installation found])
               fi
@@ -207,7 +205,7 @@ AS_IF([test "x$with_cuda" != xno],
         AS_IF([test "x$with_cuda" = xyes],
             [AS_IF([test "x$CUDA_CPPFLAGS" = x],
                 [dnl generate CUDA code for broad spectrum of devices
-                 CUDA_CPPFLAGS=["-gencode=arch=compute_60,code=sm_60"]
+                 CUDA_CPPFLAGS=["-gencode=arch=compute_30,code=sm_30"]
                  AC_MSG_NOTICE([using CUDA_CPPFLAGS=$CUDA_CPPFLAGS])
                  AC_MSG_WARN([*** MIROVIA programs may fail if these -gencode values do not apply to your GPU.  If they don't apply, or if you want to shorten MIROVIA's compile time, determine the -gencode options that apply for your GPU and re-configure MIROVIA explicitly specifying only those options in CUDA_CPPFLAGS during the configure. ***])
                 ]
