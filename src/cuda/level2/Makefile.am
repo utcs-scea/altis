@@ -1,1 +1,1 @@
-SUBDIRS=backprop lavaMD
+SUBDIRS=backprop lavamd

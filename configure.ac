@@ -240,7 +240,7 @@ AC_CONFIG_FILES([Makefile
                  src/cuda/level1/gemm/Makefile
                  src/cuda/level2/Makefile
                  src/cuda/level2/backprop/Makefile
-                 src/cuda/level2/lavaMD/Makefile
+                 src/cuda/level2/lavamd/Makefile
                  ])
 AC_OUTPUT
 

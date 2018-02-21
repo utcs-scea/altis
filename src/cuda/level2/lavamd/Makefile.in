@@ -88,8 +88,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-cuda_PROGRAMS = lavaMD$(EXEEXT)
-subdir = src/cuda/level2/lavaMD
+cuda_PROGRAMS = lavamd$(EXEEXT)
+subdir = src/cuda/level2/lavamd
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -101,10 +101,10 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(cudadir)"
 PROGRAMS = $(cuda_PROGRAMS)
-am_lavaMD_OBJECTS = lavaMD.$(OBJEXT) main.$(OBJEXT) timer.$(OBJEXT)
-lavaMD_OBJECTS = $(am_lavaMD_OBJECTS)
+am_lavamd_OBJECTS = lavaMD.$(OBJEXT) main.$(OBJEXT) timer.$(OBJEXT)
+lavamd_OBJECTS = $(am_lavamd_OBJECTS)
 am__DEPENDENCIES_1 =
-lavaMD_DEPENDENCIES = device.o kernel_gpu_cuda_wrapper.o \
+lavamd_DEPENDENCIES = device.o kernel_gpu_cuda_wrapper.o \
 	$(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -151,8 +151,8 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(lavaMD_SOURCES)
-DIST_SOURCES = $(lavaMD_SOURCES)
+SOURCES = $(lavamd_SOURCES)
+DIST_SOURCES = $(lavamd_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -306,13 +306,13 @@ AM_CPPFLAGS = $(CUDA_INC)
 cudadir = $(bindir)/CUDA
 
 # How to build those programs?
-lavaMD_SOURCES = \
+lavamd_SOURCES = \
 lavaMD.cpp \
 lavaMD.h \
 main.cpp \
 util/timer/timer.c
 
-lavaMD_LDADD = \
+lavamd_LDADD = \
 device.o \
 kernel_gpu_cuda_wrapper.o \
 $(CUDA_LIBS) $(LIBS) -lm
@@ -330,9 +330,9 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__confi
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/cuda/level2/lavaMD/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/cuda/level2/lavamd/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign src/cuda/level2/lavaMD/Makefile
+	  $(AUTOMAKE) --foreign src/cuda/level2/lavamd/Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
 	  *config.status*) \
@@ -393,9 +393,9 @@ uninstall-cudaPROGRAMS:
 clean-cudaPROGRAMS:
 	-test -z "$(cuda_PROGRAMS)" || rm -f $(cuda_PROGRAMS)
 
-lavaMD$(EXEEXT): $(lavaMD_OBJECTS) $(lavaMD_DEPENDENCIES) $(EXTRA_lavaMD_DEPENDENCIES) 
-	@rm -f lavaMD$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(lavaMD_OBJECTS) $(lavaMD_LDADD) $(LIBS)
+lavamd$(EXEEXT): $(lavamd_OBJECTS) $(lavamd_DEPENDENCIES) $(EXTRA_lavamd_DEPENDENCIES) 
+	@rm -f lavamd$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(lavamd_OBJECTS) $(lavamd_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
