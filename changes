@@ -66,3 +66,6 @@ Backprop (originally Rodinia)
     - layer size
     - seed
 - added preset problem sizes (layer_size)
+
+Rodinia is heavily fragmented with each benchmark living in it's own bubble (specifies its own arch value, own location for /usr/local/cuda)
+we're bringing the uniformity of shoc (get all config info from universal source) over to rodinia

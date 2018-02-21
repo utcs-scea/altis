@@ -6085,7 +6085,7 @@ fi
 
 
 
-ac_config_files="$ac_config_files Makefile config/common.mk config/config.mk config/dirtargets.mk config/targets.mk src/Makefile src/common/Makefile src/cuda/Makefile src/cuda/level0/Makefile src/cuda/level0/BusSpeedDownload/Makefile src/cuda/level0/BusSpeedReadback/Makefile src/cuda/level0/DeviceMemory/Makefile src/cuda/level0/MaxFlops/Makefile src/cuda/level1/Makefile src/cuda/level1/Sort/Makefile src/cuda/level1/Spmv/Makefile src/cuda/level1/Stencil2D/Makefile src/cuda/level1/Gemm/Makefile src/cuda/level2/Makefile src/cuda/level2/Backprop/Makefile src/cuda/level2/lavaMD/Makefile"
+ac_config_files="$ac_config_files Makefile config/common.mk config/config.mk config/dirtargets.mk config/targets.mk src/Makefile src/common/Makefile src/cuda/Makefile src/cuda/level0/Makefile src/cuda/level0/BusSpeedDownload/Makefile src/cuda/level0/BusSpeedReadback/Makefile src/cuda/level0/DeviceMemory/Makefile src/cuda/level0/MaxFlops/Makefile src/cuda/level1/Makefile src/cuda/level1/Sort/Makefile src/cuda/level1/Spmv/Makefile src/cuda/level1/Stencil2D/Makefile src/cuda/level1/Gemm/Makefile src/cuda/level2/Makefile src/cuda/level2/Backprop/Makefile src/cuda/level2/lavamd/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -6850,7 +6850,7 @@ do
     "src/cuda/level1/Gemm/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level1/Gemm/Makefile" ;;
     "src/cuda/level2/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level2/Makefile" ;;
     "src/cuda/level2/Backprop/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level2/Backprop/Makefile" ;;
-    "src/cuda/level2/lavaMD/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level2/lavaMD/Makefile" ;;
+    "src/cuda/level2/lavamd/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level2/lavamd/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
