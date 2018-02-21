@@ -11,16 +11,16 @@ AM_CPPFLAGS = $(CUDA_INC)
 cudadir = $(bindir)/CUDA
 
 # What programs should be installed to that destination?
-cuda_PROGRAMS = lavaMD
+cuda_PROGRAMS = lavamd
 
 # How to build those programs?
-lavaMD_SOURCES = \
+lavamd_SOURCES = \
 lavaMD.cpp \
 lavaMD.h \
 main.cpp \
 util/timer/timer.c
 
-lavaMD_LDADD = \
+lavamd_LDADD = \
 device.o \
 kernel_gpu_cuda_wrapper.o \
 $(CUDA_LIBS) $(LIBS) -lm
