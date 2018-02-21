@@ -182,7 +182,7 @@ am__DIST_COMMON = $(srcdir)/Makefile.in \
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 
 # How to find source files
-VPATH = $(srcdir):$(srcdir)/../../common:$(srcdir)/../../../common
+VPATH = $(srcdir):$(srcdir)/../../common:$(srcdir)/../../../common:$(srcdir)/util/timer:$(srcdir)/util/device:$(srcdir)/kernel
 ACLOCAL = @ACLOCAL@
 ALLOCA = @ALLOCA@
 AMTAR = @AMTAR@
@@ -309,10 +309,6 @@ cudadir = $(bindir)/CUDA
 lavaMD_SOURCES = \
 lavaMD.cpp \
 lavaMD.h \
-util/device/device.cu \
-util/device/device.h \
-kernel/kernel_gpu_cuda_wrapper.cu \
-kernel/kernel_gpu_cuda_wrapper.h \
 main.cpp \
 util/timer/timer.c
 

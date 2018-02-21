@@ -2,7 +2,7 @@ include $(top_builddir)/config/config.mk
 include $(top_builddir)/config/targets.mk
 
 # How to find source files
-VPATH = $(srcdir):$(srcdir)/../../common:$(srcdir)/../../../common
+VPATH = $(srcdir):$(srcdir)/../../common:$(srcdir)/../../../common:$(srcdir)/util/timer:$(srcdir)/util/device:$(srcdir)/kernel
 
 AM_LDFLAGS = $(CUDA_LDFLAGS)
 AM_CPPFLAGS = $(CUDA_INC)
@@ -17,10 +17,6 @@ cuda_PROGRAMS = lavaMD
 lavaMD_SOURCES = \
 lavaMD.cpp \
 lavaMD.h \
-util/device/device.cu \
-util/device/device.h \
-kernel/kernel_gpu_cuda_wrapper.cu \
-kernel/kernel_gpu_cuda_wrapper.h \
 main.cpp \
 util/timer/timer.c
 
