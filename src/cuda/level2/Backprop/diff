@@ -1,0 +1,70 @@
+0a1
+> Chose device: name='Tesla P100-SXM2-16GB' index=0
+5c6
+< kernel time: 0.000095
+---
+> kernel time: 0.000091
+*******************
+0a1
+> Chose device: name='Tesla P100-SXM2-16GB' index=0
+5c6
+< kernel time: 0.000167
+---
+> kernel time: 0.000171
+*******************
+0a1
+> Chose device: name='Tesla P100-SXM2-16GB' index=0
+5c6
+< kernel time: 0.000252
+---
+> kernel time: 0.000271
+*******************
+0a1
+> Chose device: name='Tesla P100-SXM2-16GB' index=0
+5c6
+< kernel time: 0.000321
+---
+> kernel time: 0.000326
+*******************
+0a1
+> Chose device: name='Tesla P100-SXM2-16GB' index=0
+5c6
+< kernel time: 0.000428
+---
+> kernel time: 0.000403
+*******************
+0a1
+> Chose device: name='Tesla P100-SXM2-16GB' index=0
+5c6
+< kernel time: 0.000483
+---
+> kernel time: 0.000477
+*******************
+0a1
+> Chose device: name='Tesla P100-SXM2-16GB' index=0
+5c6
+< kernel time: 0.000592
+---
+> kernel time: 0.000585
+*******************
+0a1
+> Chose device: name='Tesla P100-SXM2-16GB' index=0
+5c6
+< kernel time: 0.000632
+---
+> kernel time: 0.000633
+*******************
+0a1
+> Chose device: name='Tesla P100-SXM2-16GB' index=0
+5c6
+< kernel time: 0.000737
+---
+> kernel time: 0.000703
+*******************
+0a1
+> Chose device: name='Tesla P100-SXM2-16GB' index=0
+5c6
+< kernel time: 0.000780
+---
+> kernel time: 0.000787
+*******************
