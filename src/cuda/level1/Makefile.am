@@ -1,1 +1,1 @@
-SUBDIRS=Sort Spmv Stencil2D Gemm
+SUBDIRS=sort spmv stencil2d gemm

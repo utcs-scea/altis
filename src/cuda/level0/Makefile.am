@@ -1,1 +1,1 @@
-SUBDIRS=BusSpeedDownload BusSpeedReadback DeviceMemory MaxFlops
+SUBDIRS=busspeeddownload busspeedreadback devicememory maxflops

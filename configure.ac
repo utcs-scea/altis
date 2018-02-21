@@ -35,7 +35,7 @@ then
 elif test $ac_cv_prog_cxx_g = yes
 then
     if test "$GXX" = yes; then
-        NVCXXFLAGS="-g -O2 --resource-usage --keep"
+        NVCXXFLAGS="-g -O2"
     else
         NVCXXFLAGS="-g"
     fi
@@ -229,17 +229,17 @@ AC_CONFIG_FILES([Makefile
                  src/common/Makefile
                  src/cuda/Makefile
                  src/cuda/level0/Makefile
-                 src/cuda/level0/BusSpeedDownload/Makefile
-                 src/cuda/level0/BusSpeedReadback/Makefile
-                 src/cuda/level0/DeviceMemory/Makefile
-                 src/cuda/level0/MaxFlops/Makefile
+                 src/cuda/level0/busspeeddownload/Makefile
+                 src/cuda/level0/busspeedreadback/Makefile
+                 src/cuda/level0/devicememory/Makefile
+                 src/cuda/level0/maxflops/Makefile
                  src/cuda/level1/Makefile
-                 src/cuda/level1/Sort/Makefile
-                 src/cuda/level1/Spmv/Makefile
-                 src/cuda/level1/Stencil2D/Makefile
-                 src/cuda/level1/Gemm/Makefile
+                 src/cuda/level1/sort/Makefile
+                 src/cuda/level1/spmv/Makefile
+                 src/cuda/level1/stencil2d/Makefile
+                 src/cuda/level1/gemm/Makefile
                  src/cuda/level2/Makefile
-                 src/cuda/level2/Backprop/Makefile
+                 src/cuda/level2/backprop/Makefile
                  src/cuda/level2/lavaMD/Makefile
                  ])
 AC_OUTPUT

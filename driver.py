@@ -3,8 +3,8 @@ import subprocess
 import sys
 from optparse import OptionParser
 
-suite = ['BusSpeedDownload', 'BusSpeedReadback', 'DeviceMemory', 'MaxFlops', 'Sort', 'Spmv', 'Stencil2D', 'Gemm', 'Backprop', 'lavaMD']
-suite_map = {'BusSpeedDownload':0, 'BusSpeedReadback':0, 'DeviceMemory':0, 'MaxFlops':0, 'Sort':1, 'Spmv':1, 'Stencil2D':1, 'Gemm':1, 'Backprop':2, 'lavaMD': 2}
+suite = ['busspeeddownload', 'busspeedreadback', 'devicememory', 'maxflops', 'sort', 'spmv', 'stencil2d', 'gemm', 'backprop', 'lavamd']
+suite_map = {'busspeeddownload':0, 'busspeedreadback':0, 'devicememory':0, 'maxflops':0, 'sort':1, 'spmv':1, 'stencil2d':1, 'gemm':1, 'backprop':2, 'lavamd': 2}
 
 # TODO: Get problem size based on device capabilities
 def get_problem_size():
