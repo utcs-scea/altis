@@ -185,12 +185,21 @@ kernel_gpu_cuda_wrapper(par_str par_cpu,
 	//======================================================================================================================================================150
 
 	// launch kernel - all boxes
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    cudaEventRecord(start, 0);
 	kernel_gpu_cuda<<<blocks, threads>>>(	par_cpu,
 											dim_cpu,
 											d_box_gpu,
 											d_rv_gpu,
 											d_qv_gpu,
 											d_fv_gpu);
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    float elapsedTime;
+    cudaEventElapsedTime(&elapsedTime, start, stop);
+    printf("kernel time: %f\n", elapsedTime * 1.e-3);
 
 	checkCUDAError("Start");
 	cudaThreadSynchronize();
@@ -222,7 +231,6 @@ kernel_gpu_cuda_wrapper(par_str par_cpu,
 	//======================================================================================================================================================150
 	//	DISPLAY TIMING
 	//======================================================================================================================================================150
-/*
 	printf("Time spent in different stages of GPU_CUDA KERNEL:\n");
 
 	printf("%15.12f s, %15.12f % : GPU: SET DEVICE / DRIVER INIT\n",	(float) (time1-time0) / 1000000, (float) (time1-time0) / (float) (time6-time0) * 100);
@@ -236,6 +244,5 @@ kernel_gpu_cuda_wrapper(par_str par_cpu,
 
 	printf("Total time:\n");
 	printf("%.12f s\n", 												(float) (time6-time0) / 1000000);
-*/
 
 }
