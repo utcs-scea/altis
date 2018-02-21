@@ -1,0 +1,22 @@
+test	atts	units	median	mean	stddev	min	max	
+CSR-Scalar-DP	10485_elements_1024_rows	Gflop/s	1.85077	1.84902	0.00783317	1.83028	1.85836	
+CSR-Scalar-DP_PCIe	10485_elements_1024_rows	Gflop/s	0.19193	0.191578	0.00181783	0.188708	0.194429	
+CSR-Scalar-SP	10485_elements_1024_rows	Gflop/s	2.03633	2.02718	0.0378686	1.91601	2.05253	
+CSR-Scalar-SP_PCIe	10485_elements_1024_rows	Gflop/s	0.205015	0.203317	0.00424358	0.191052	0.205671	
+CSR-Vector-DP	10485_elements_1024_rows	Gflop/s	2.27334	2.273	0.0100128	2.25721	2.28802	
+CSR-Vector-DP_PCIe	10485_elements_1024_rows	Gflop/s	0.19719	0.197187	7.53881e-05	0.197068	0.197299	
+CSR-Vector-SP	10485_elements_1024_rows	Gflop/s	2.23614	2.23627	0.00868906	2.21967	2.25333	
+CSR-Vector-SP_PCIe	10485_elements_1024_rows	Gflop/s	0.206134	0.206135	7.38124e-05	0.205993	0.206279	
+ELLPACKR-DP	10485_elements_1024_rows	Gflop/s	1.56916	1.56777	0.00619995	1.55144	1.57557	
+ELLPACKR-SP	10485_elements_1024_rows	Gflop/s	1.60016	1.59844	0.0064306	1.57956	1.6029	
+Padded_CSR-Scalar-DP	16832_elements_1024_rows	Gflop/s	2.40339	2.40159	0.0069945	2.38192	2.40765	
+Padded_CSR-Scalar-DP_PCIe	16832_elements_1024_rows	Gflop/s	0.297424	0.297415	0.001615	0.294839	0.30049	
+Padded_CSR-Scalar-SP	16832_elements_1024_rows	Gflop/s	2.74448	2.74166	0.00835461	2.72843	2.7553	
+Padded_CSR-Scalar-SP_PCIe	16832_elements_1024_rows	Gflop/s	0.315488	0.314185	0.00326788	0.307371	0.318414	
+Padded_CSR-Vector-DP	16832_elements_1024_rows	Gflop/s	3.63468	3.63546	0.0139767	3.61065	3.65913	
+Padded_CSR-Vector-DP_PCIe	16832_elements_1024_rows	Gflop/s	0.310743	0.310748	0.000102127	0.310566	0.310921	
+Padded_CSR-Vector-SP	16832_elements_1024_rows	Gflop/s	3.59984	3.60555	0.0262836	3.57495	3.67024	
+Padded_CSR-Vector-SP_PCIe	16832_elements_1024_rows	Gflop/s	0.324367	0.324412	0.000211011	0.324164	0.324929	
+
+Note: results marked with (*) had missing values such as
+might occur with a mixture of architectural capabilities.

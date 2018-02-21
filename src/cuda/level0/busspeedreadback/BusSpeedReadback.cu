@@ -113,15 +113,14 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     cudaMalloc((void **)&device, sizeof(float) * numMaxFloats);
   }
 
-  cudaMemcpy(device, hostMem1, numMaxFloats * sizeof(float),
-             cudaMemcpyHostToDevice);
-  cudaThreadSynchronize();
+  CUDA_SAFE_CALL(cudaMemcpy(device, hostMem1, numMaxFloats * sizeof(float),
+             cudaMemcpyHostToDevice));
+  CUDA_SAFE_CALL(cudaThreadSynchronize());
   const unsigned int passes = op.getOptionInt("passes");
 
   cudaEvent_t start, stop;
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
-  CHECK_CUDA_ERROR();
 
   // Three passes, forward and backward both
   for (int pass = 0; pass < passes; pass++) {
@@ -156,26 +155,17 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
       resultDB.AddResult("ReadbackSpeed", sizeStr, "GB/sec", speed);
       resultDB.AddResult("ReadbackTime", sizeStr, "ms", t);
     }
-    // resultDB.AddResult("ReadbackLatencyEstimate", "1-2kb", "ms",
-    // times[0]-(times[1]-times[0])/1.);
-    // resultDB.AddResult("ReadbackLatencyEstimate", "1-4kb", "ms",
-    // times[0]-(times[2]-times[0])/3.);
-    // resultDB.AddResult("ReadbackLatencyEstimate", "2-4kb", "ms",
-    // times[1]-(times[2]-times[1])/1.);
   }
 
   // Cleanup
-  cudaFree((void *)device);
-  CHECK_CUDA_ERROR();
+  CUDA_SAFE_CALL(cudaFree((void *)device));
   if (pinned) {
-    cudaFreeHost((void *)hostMem1);
-    CHECK_CUDA_ERROR();
-    cudaFreeHost((void *)hostMem2);
-    CHECK_CUDA_ERROR();
+    CUDA_SAFE_CALL(cudaFreeHost((void *)hostMem1));
+    CUDA_SAFE_CALL(cudaFreeHost((void *)hostMem2));
   } else {
     delete[] hostMem1;
     delete[] hostMem2;
-    cudaEventDestroy(start);
-    cudaEventDestroy(stop);
+    CUDA_SAFE_CALL(cudaEventDestroy(start));
+    CUDA_SAFE_CALL(cudaEventDestroy(stop));
   }
 }

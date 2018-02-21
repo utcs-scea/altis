@@ -7,8 +7,8 @@
 
 // Forward Declarations for benchmark kernels
 __global__ void MAddU(float *target, float val1, float val2);
-__global__ void MulMAddU(float *target, float val1, float val2);
 __global__ void MAddU_DP(double *target, double val1, double val2);
+__global__ void MulMAddU(float *target, float val1, float val2);
 __global__ void MulMAddU_DP(double *target, double val1, double val2);
 
 // Add kernels
@@ -44,6 +44,15 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
 // Block size to use in measurements
 #define BLOCK_SIZE_SP 256
 #define BLOCK_SIZE_DP 128
+
+void updateProgressBar(ProgressBar& pb, bool verbose, bool quiet) {
+  pb.addItersDone();
+  if (verbose || quiet) {
+    return;
+  }
+  pb.Show(stdout);
+
+}
 
 // ****************************************************************************
 // Function: addBenchmarkSpecOptions
@@ -101,6 +110,8 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   cudaGetDevice(&device);
   cudaDeviceProp deviceProp;
   cudaGetDeviceProperties(&deviceProp, device);
+  
+  // Determine if compute capability supports double and half precision operations
   bool doDouble = false;
   bool doHalf = false;
   if ((deviceProp.major == 1 && deviceProp.minor >= 3) ||
@@ -120,8 +131,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
                numFloats = 2 * halfNumFloats;
   float *gpu_mem, *hostMem;
   hostMem = new float[numFloats];
-  cudaMalloc((void **)&gpu_mem, halfBufSize * 2);
-  CHECK_CUDA_ERROR();
+  CUDA_SAFE_CALL(cudaMalloc((void **)&gpu_mem, halfBufSize * 2));
   // Initialize host data, with the first half the same as the second
   for (int j = 0; j < halfNumFloats; ++j) {
     hostMem[j] = hostMem[numFloats - j - 1] = (float)(drand48() * 10.0);
@@ -132,11 +142,10 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   cudaEvent_t start, stop;
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
-  CHECK_CUDA_ERROR();
 
   // copy host memory to GPU memory
   cudaEventRecord(start, 0); // do I even need this if I do not need the time?
-  cudaMemcpy(gpu_mem, hostMem, halfBufSize * 2, cudaMemcpyHostToDevice);
+  CUDA_SAFE_CALL(cudaMemcpy(gpu_mem, hostMem, halfBufSize * 2, cudaMemcpyHostToDevice));
   cudaEventRecord(stop, 0);
   cudaEventSynchronize(stop);
 
@@ -164,8 +173,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   fprintf(stdout, "Adjust repeat factor = %lg\n", repeatF);
 
   delete[] hostMem;
-  cudaFree((void *)gpu_mem);
-  CHECK_CUDA_ERROR();
+  CUDA_SAFE_CALL(cudaFree((void *)gpu_mem));
 
   // Initialize progress bar. We have 16 generic kernels and 2 hand tuned
   // kernels.
@@ -173,13 +181,13 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   // and
   // double precision (if avaialble).
   int totalRuns = 18 * passes;
-  if (doDouble)
+  if (doDouble) {
     totalRuns += 18 * passes; // multiply by 2
-  if (doHalf)
+  }
+  if (doHalf) {
     totalRuns += 18 * passes; // multiply by 2
+  }
   ProgressBar pb(totalRuns);
-  if (!verbose && !quiet)
-    pb.Show(stdout);
 
   // Run single precision kernels
   RunTest<float>(resultDB, passes, verbose, quiet, repeatF, pb, "SP-");
@@ -268,8 +276,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 
   // Allocate gpu memory
   float *target_sp;
-  cudaMalloc((void **)&target_sp, nbytes_sp);
-  CHECK_CUDA_ERROR();
+  CUDA_SAFE_CALL(cudaMalloc((void **)&target_sp, nbytes_sp));
 
   // Get a couple non-zero random numbers
   float val1 = 0, val2 = 0;
@@ -296,9 +303,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
                        (((double)nflopsPerPixel) * w * h) / (t * 1.e9));
 
     // update progress bar
-    pb.addItersDone();
-    if (!verbose && !quiet)
-      pb.Show(stdout);
+    updateProgressBar(pb, verbose, quiet);
 
     cudaEventRecord(start, 0);
     MulMAddU<<<blocks, threads>>>(target_sp, val1, val2);
@@ -315,18 +320,14 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
                        (((double)nflopsPerPixel) * w * h) / (t * 1.e9));
 
     // update progress bar
-    pb.addItersDone();
-    if (!verbose && !quiet)
-      pb.Show(stdout);
+    updateProgressBar(pb, verbose, quiet);
   }
-  cudaFree((void *)target_sp);
-  CHECK_CUDA_ERROR();
+  CUDA_SAFE_CALL(cudaFree((void *)target_sp));
 
   if (doDouble) {
     const int nbytes_dp = w * h * sizeof(double);
     double *target_dp;
-    cudaMalloc((void **)&target_dp, nbytes_dp);
-    CHECK_CUDA_ERROR();
+    CUDA_SAFE_CALL(cudaMalloc((void **)&target_dp, nbytes_dp));
 
     // Thread block configuration
     dim3 threads(BLOCK_SIZE_DP, 1, 1);
@@ -350,9 +351,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
                          (((double)nflopsPerPixel) * w * h) / (t * 1.e9));
 
       // update progress bar
-      pb.addItersDone();
-      if (!verbose && !quiet)
-        pb.Show(stdout);
+      updateProgressBar(pb, verbose, quiet);
 
       cudaEventRecord(start, 0);
       MulMAddU_DP<<<blocks, threads>>>(target_dp, val1, val2);
@@ -369,12 +368,9 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
                          (((double)nflopsPerPixel) * w * h) / (t * 1.e9));
 
       // update progress bar
-      pb.addItersDone();
-      if (!verbose && !quiet)
-        pb.Show(stdout);
+      updateProgressBar(pb, verbose, quiet);
     }
-    cudaFree((void *)target_dp);
-    CHECK_CUDA_ERROR();
+    CUDA_SAFE_CALL(cudaFree((void *)target_dp));
   } else {
     // Add result
     char atts[1024];
@@ -390,8 +386,8 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   if (!verbose)
     fprintf(stdout, "\n\n");
 
-  cudaEventDestroy(start);
-  cudaEventDestroy(stop);
+  CUDA_SAFE_CALL(cudaEventDestroy(start));
+  CUDA_SAFE_CALL(cudaEventDestroy(stop));
 }
 
 // ****************************************************************************
@@ -418,8 +414,9 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
   T *hostMem, *hostMem2;
 
   int realRepeats = (int)::round(repeatF * 20);
-  if (realRepeats < 2)
+  if (realRepeats < 2) {
     realRepeats = 2;
+  }
 
   // Alloc host memory
   int halfNumFloats = 1024 * 1024;
@@ -427,15 +424,13 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
   hostMem = new T[numFloats];
   hostMem2 = new T[numFloats];
 
-  cudaMalloc((void **)&gpu_mem, numFloats * sizeof(T));
-  CHECK_CUDA_ERROR();
+  CUDA_SAFE_CALL(cudaMalloc((void **)&gpu_mem, numFloats * sizeof(T)));
 
   // Variables used for timing
   float t = 0.0f;
   cudaEvent_t start, stop;
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
-  CHECK_CUDA_ERROR();
 
   // Thread block configuration
   dim3 threads(128, 1, 1);
@@ -497,9 +492,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     }
 
     // update progress bar
-    pb.addItersDone();
-    if (!verbose && !quiet)
-      pb.Show(stdout);
+    updateProgressBar(pb, verbose, quiet);
 
     ////////// Add2 //////////
     // Initialize host data, with the first half the same as the second
@@ -555,9 +548,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     }
 
     // update progress bar
-    pb.addItersDone();
-    if (!verbose && !quiet)
-      pb.Show(stdout);
+    updateProgressBar(pb, verbose, quiet);
 
     ////////// Add4 //////////
     // Initialize host data, with the first half the same as the second
@@ -613,9 +604,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     }
 
     // update progress bar
-    pb.addItersDone();
-    if (!verbose && !quiet)
-      pb.Show(stdout);
+    updateProgressBar(pb, verbose, quiet);
 
     ////////// Add8 //////////
     // Initialize host data, with the first half the same as the second
@@ -671,9 +660,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     }
 
     // update progress bar
-    pb.addItersDone();
-    if (!verbose && !quiet)
-      pb.Show(stdout);
+    updateProgressBar(pb, verbose, quiet);
 
     ////////// Mul1 //////////
     // Initialize host data, with the first half the same as the second
@@ -729,9 +716,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     }
 
     // update progress bar
-    pb.addItersDone();
-    if (!verbose && !quiet)
-      pb.Show(stdout);
+    updateProgressBar(pb, verbose, quiet);
 
     ////////// Mul2 //////////
     // Initialize host data, with the first half the same as the second
@@ -787,9 +772,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     }
 
     // update progress bar
-    pb.addItersDone();
-    if (!verbose && !quiet)
-      pb.Show(stdout);
+    updateProgressBar(pb, verbose, quiet);
 
     ////////// Mul4 //////////
     // Initialize host data, with the first half the same as the second
@@ -845,9 +828,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     }
 
     // update progress bar
-    pb.addItersDone();
-    if (!verbose && !quiet)
-      pb.Show(stdout);
+    updateProgressBar(pb, verbose, quiet);
 
     ////////// Mul8 //////////
     // Initialize host data, with the first half the same as the second
@@ -903,9 +884,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     }
 
     // update progress bar
-    pb.addItersDone();
-    if (!verbose && !quiet)
-      pb.Show(stdout);
+    updateProgressBar(pb, verbose, quiet);
 
     ////////// MAdd1 //////////
     // Initialize host data, with the first half the same as the second
@@ -961,9 +940,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     }
 
     // update progress bar
-    pb.addItersDone();
-    if (!verbose && !quiet)
-      pb.Show(stdout);
+    updateProgressBar(pb, verbose, quiet);
 
     ////////// MAdd2 //////////
     // Initialize host data, with the first half the same as the second
@@ -1019,9 +996,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     }
 
     // update progress bar
-    pb.addItersDone();
-    if (!verbose && !quiet)
-      pb.Show(stdout);
+    updateProgressBar(pb, verbose, quiet);
 
     ////////// MAdd4 //////////
     // Initialize host data, with the first half the same as the second
@@ -1077,9 +1052,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     }
 
     // update progress bar
-    pb.addItersDone();
-    if (!verbose && !quiet)
-      pb.Show(stdout);
+    updateProgressBar(pb, verbose, quiet);
 
     ////////// MAdd8 //////////
     // Initialize host data, with the first half the same as the second
@@ -1135,9 +1108,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     }
 
     // update progress bar
-    pb.addItersDone();
-    if (!verbose && !quiet)
-      pb.Show(stdout);
+    updateProgressBar(pb, verbose, quiet);
 
     ////////// MulMAdd1 //////////
     // Initialize host data, with the first half the same as the second
@@ -1194,9 +1165,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     }
 
     // update progress bar
-    pb.addItersDone();
-    if (!verbose && !quiet)
-      pb.Show(stdout);
+    updateProgressBar(pb, verbose, quiet);
 
     ////////// MulMAdd2 //////////
     // Initialize host data, with the first half the same as the second
@@ -1253,9 +1222,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     }
 
     // update progress bar
-    pb.addItersDone();
-    if (!verbose && !quiet)
-      pb.Show(stdout);
+    updateProgressBar(pb, verbose, quiet);
 
     ////////// MulMAdd4 //////////
     // Initialize host data, with the first half the same as the second
@@ -1312,9 +1279,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     }
 
     // update progress bar
-    pb.addItersDone();
-    if (!verbose && !quiet)
-      pb.Show(stdout);
+    updateProgressBar(pb, verbose, quiet);
 
     ////////// MulMAdd8 //////////
     // Initialize host data, with the first half the same as the second
@@ -1371,18 +1336,15 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     }
 
     // update progress bar
-    pb.addItersDone();
-    if (!verbose && !quiet)
-      pb.Show(stdout);
+    updateProgressBar(pb, verbose, quiet);
   }
 
   delete[] hostMem;
   delete[] hostMem2;
-  cudaFree((void *)gpu_mem);
-  CHECK_CUDA_ERROR();
+  CUDA_SAFE_CALL(cudaFree((void *)gpu_mem));
 
-  cudaEventDestroy(start);
-  cudaEventDestroy(stop);
+  CUDA_SAFE_CALL(cudaEventDestroy(start));
+  CUDA_SAFE_CALL(cudaEventDestroy(stop));
 }
 
 // Macros used to construct MaxFlops kernels

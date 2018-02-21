@@ -80,7 +80,10 @@ void addBenchmarkSpecOptions(OptionParser &op) { ; }
 //
 // ****************************************************************************
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
-  int npasses = op.getOptionInt("passes");
+  // Enable verbose output
+  bool verbose = op.getOptionBool("verbose");
+  // Number of times to repeat each test
+  const unsigned int passes = op.getOptionInt("passes");
   size_t minGroupSize = 32;
   size_t maxGroupSize = 512;
   size_t globalWorkSize = 32768;              // 64 * maxGroupSize = 64 * 512;
@@ -91,7 +94,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     memSize >>= 1; // keept it a power of 2
     cudaMalloc(&testmem, memSize * 2);
   }
-  cudaFree(testmem);
+  CUDA_SAFE_CALL(cudaFree(testmem));
   if (memSize == 0) {
     printf("Not able to allocate device memory. Exiting!\n");
     exit(-1);
@@ -111,15 +114,12 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   float *d_mem1, *d_mem2;
   char sizeStr[128];
 
-  cudaMalloc((void **)&d_mem1, sizeof(float) * (numWordsFloat));
-  CHECK_CUDA_ERROR();
-  cudaMalloc((void **)&d_mem2, sizeof(float) * (numWordsFloat));
-  CHECK_CUDA_ERROR();
+  CUDA_SAFE_CALL(cudaMalloc((void **)&d_mem1, sizeof(float) * (numWordsFloat)));
+  CUDA_SAFE_CALL(cudaMalloc((void **)&d_mem2, sizeof(float) * (numWordsFloat)));
 
   cudaEvent_t start, stop;
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
-  CHECK_CUDA_ERROR();
 
   cudaEventRecord(start, 0);
   readGlobalMemoryCoalesced<<<512, 64>>>(d_mem1, d_mem2, numWordsFloat, 256);
@@ -137,7 +137,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   const unsigned int maxRepeatsUnit = 16 * scalet;
   const unsigned int maxRepeatsLocal = 300 * scalet;
 
-  for (int p = 0; p < npasses; p++) {
+  for (int p = 0; p < passes; p++) {
     // Run the kernel for each group size
     cout << "Running benchmarks, pass: " << p << "\n";
     for (int threads = minGroupSize; threads <= maxGroupSize; threads *= 2) {
@@ -277,6 +277,8 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 //
 // ****************************************************************************
 void TestTextureMem(ResultDatabase &resultDB, OptionParser &op, double scalet) {
+  // Enable verbose output
+  bool verbose = op.getOptionBool("verbose");
   // Number of times to repeat each test
   const unsigned int passes = op.getOptionInt("passes");
   // Sizes of textures tested (in kb)
@@ -290,7 +292,6 @@ void TestTextureMem(ResultDatabase &resultDB, OptionParser &op, double scalet) {
   cudaEvent_t start, stop;
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
-  CHECK_CUDA_ERROR();
 
   // make sure our texture behaves like we want....
   texA.normalized = false;
@@ -318,8 +319,7 @@ void TestTextureMem(ResultDatabase &resultDB, OptionParser &op, double scalet) {
     float *h_in = new float[numFloat];
     float *h_out = new float[numFloat4];
     float *d_out;
-    cudaMalloc((void **)&d_out, numFloat4 * sizeof(float));
-    CHECK_CUDA_ERROR();
+    CUDA_SAFE_CALL(cudaMalloc((void **)&d_out, numFloat4 * sizeof(float)));
 
     // Fill input data with some pattern
     for (unsigned int i = 0; i < numFloat; i++) {
@@ -331,16 +331,13 @@ void TestTextureMem(ResultDatabase &resultDB, OptionParser &op, double scalet) {
 
     // Allocate a cuda array
     cudaArray *cuArray;
-    cudaMallocArray(&cuArray, &texA.channelDesc, width, height);
-    CHECK_CUDA_ERROR();
+    CUDA_SAFE_CALL(cudaMallocArray(&cuArray, &texA.channelDesc, width, height));
 
     // Copy in source data
-    cudaMemcpyToArray(cuArray, 0, 0, h_in, size, cudaMemcpyHostToDevice);
-    CHECK_CUDA_ERROR();
+    CUDA_SAFE_CALL(cudaMemcpyToArray(cuArray, 0, 0, h_in, size, cudaMemcpyHostToDevice));
 
     // Bind texture to the array
-    cudaBindTextureToArray(texA, cuArray);
-    CHECK_CUDA_ERROR();
+    CUDA_SAFE_CALL(cudaBindTextureToArray(texA, cuArray));
 
     for (int p = 0; p < passes; p++) {
       // Test 1: Repeated Linear Access
@@ -352,7 +349,6 @@ void TestTextureMem(ResultDatabase &resultDB, OptionParser &op, double scalet) {
         readTexels<<<gridSize, blockSize>>>(kernelRepFactor, d_out, width);
       }
       cudaEventRecord(stop, 0);
-      CHECK_CUDA_ERROR();
       cudaEventSynchronize(stop);
       CHECK_CUDA_ERROR();
       cudaEventElapsedTime(&t, start, stop);
@@ -364,7 +360,7 @@ void TestTextureMem(ResultDatabase &resultDB, OptionParser &op, double scalet) {
 
       char sizeStr[256];
       sprintf(sizeStr, "% 6dkB", size / 1024);
-      resultDB.AddResult("TextureRepeatedLinearAccess", sizeStr, "GB/sec",
+      resultDB.AddResult("TextureRepeatedLinearAccess", sizeStr, "GB/s",
                          speed);
 
       // Verify results
@@ -387,7 +383,7 @@ void TestTextureMem(ResultDatabase &resultDB, OptionParser &op, double scalet) {
               ((double)size / (1000. * 1000. * 1000.)) / (t);
 
       sprintf(sizeStr, "% 6dkB", size / 1024);
-      resultDB.AddResult("TextureRepeatedCacheHit", sizeStr, "GB/sec", speed);
+      resultDB.AddResult("TextureRepeatedCacheHit", sizeStr, "GB/s", speed);
 
       // Verify results
       cudaMemcpy(h_out, d_out, numFloat4 * sizeof(float),
@@ -413,17 +409,17 @@ void TestTextureMem(ResultDatabase &resultDB, OptionParser &op, double scalet) {
               ((double)size / (1000. * 1000. * 1000.)) / (t);
 
       sprintf(sizeStr, "% 6dkB", size / 1024);
-      resultDB.AddResult("TextureRepeatedRandomAccess", sizeStr, "GB/sec",
+      resultDB.AddResult("TextureRepeatedRandomAccess", sizeStr, "GB/s",
                          speed);
     }
     delete[] h_in;
     delete[] h_out;
-    cudaFree(d_out);
-    cudaFreeArray(cuArray);
-    cudaUnbindTexture(texA);
+    CUDA_SAFE_CALL(cudaFree(d_out));
+    CUDA_SAFE_CALL(cudaFreeArray(cuArray));
+    CUDA_SAFE_CALL(cudaUnbindTexture(texA));
   }
-  cudaEventDestroy(start);
-  cudaEventDestroy(stop);
+  CUDA_SAFE_CALL(cudaEventDestroy(start));
+  CUDA_SAFE_CALL(cudaEventDestroy(stop));
 }
 
 // Begin benchmark kernels

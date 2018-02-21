@@ -296,11 +296,7 @@ target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-<<<<<<< HEAD
-SUBDIRS = backprop lavaMD
-=======
-SUBDIRS = Backprop lavamd
->>>>>>> 180d7a72d83e9f8f6ee8626d3b416c2ab57b1ce2
+SUBDIRS = backprop lavamd
 all: all-recursive
 
 .SUFFIXES:

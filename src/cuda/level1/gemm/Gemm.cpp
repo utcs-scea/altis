@@ -172,7 +172,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     char atts[1024] = "DP_Not_Supported";
     // resultDB requires neg entry for every possible result
     int passes = op.getOptionInt("passes");
-    for (; passes > 0; --passes) {
+    for (int i = 0; i < passes; i++) {
       for (int i = 0; i < 2; i++) {
         const char transb = i ? 'T' : 'N';
         string testName = "DGEMM";
@@ -252,21 +252,22 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
 
   // Copy input to GPU
   cudaEvent_t start, stop;
-  CUDA_SAFE_CALL(cudaEventCreate(&start));
-  CUDA_SAFE_CALL(cudaEventCreate(&stop));
-  CUDA_SAFE_CALL(cudaEventRecord(start, 0));
+  cudaEventCreate(&start);
+  cudaEventCreate(&stop);
+  float elapsedTime;
+
+  // Copy inputs to GPU
+  double transferTime = 0;
+  cudaEventRecord(start, 0);
   CUDA_SAFE_CALL(cudaMemcpy(dA, A, N * N * sizeof(T), cudaMemcpyHostToDevice));
   CUDA_SAFE_CALL(cudaMemcpy(dB, B, N * N * sizeof(T), cudaMemcpyHostToDevice));
   cudaEventRecord(stop, 0);
-  CUDA_SAFE_CALL(cudaEventSynchronize(stop));
-
-  // Get elapsed time
-  float transferTime = 0.0f;
-  cudaEventElapsedTime(&transferTime, start, stop);
-  transferTime *= 1.e-3;
+  cudaEventSynchronize(stop);
+  cudaEventElapsedTime(&elapsedTime, start, stop);
+  transferTime += elapsedTime * 1.e-3;
 
   bool first = true;
-  for (; passes > 0; --passes) {
+  for (int j = 0; j < passes; j++) {
     for (int i = 0; i < 2; i++) {
       const char transa = 'N';
       const char transb = i ? 'T' : 'N';
@@ -287,28 +288,29 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
       // Warm Up
       devGEMM<T>(transa, transb, m, n, k, alpha, dA, lda, dB, ldb, beta, dC,
                  ldc);
-      CUDA_SAFE_CALL(cudaThreadSynchronize());
+      cudaThreadSynchronize();
+      CHECK_CUDA_ERROR();
 
-      double cublas_time;
-      float kernel_time = 0.0f;
+      double cublasTime;
+      float kernelTime = 0.0f;
       for (int ii = 0; ii < 4; ++ii) {
-        CUDA_SAFE_CALL(cudaEventRecord(start, 0));
+        cudaEventRecord(start, 0);
         devGEMM<T>(transa, transb, m, n, k, alpha, dA, lda, dB, ldb, beta, dC,
                    ldc);
-        CHECK_CUDA_ERROR();
         cudaEventRecord(stop, 0);
-        CUDA_SAFE_CALL(cudaEventSynchronize(stop));
+        cudaEventSynchronize(stop);
+        CHECK_CUDA_ERROR();
         float currTime = 0.0f;
         cudaEventElapsedTime(&currTime, start, stop);
-        kernel_time += currTime;
+        kernelTime += currTime;
       }
-      cublas_time = (kernel_time / 4.0) * 1.e-3;
+      cublasTime = (kernelTime / 4.0) * 1.e-3;
 
-      CUDA_SAFE_CALL(cudaEventRecord(start, 0));
+      cudaEventRecord(start, 0);
       CUDA_SAFE_CALL(
           cudaMemcpy(C, dC, N * N * sizeof(float), cudaMemcpyDeviceToHost));
       cudaEventRecord(stop, 0);
-      CUDA_SAFE_CALL(cudaEventSynchronize(stop));
+      cudaEventSynchronize(stop);
 
       float oTransferTime = 0.0f;
       cudaEventElapsedTime(&oTransferTime, start, stop);
@@ -320,14 +322,18 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
         first = false;
       }
 
-      double cublas_gflops = 2. * m * n * k / cublas_time / 1e9;
-      double pcie_gflops = 2. * m * n * k / (cublas_time + transferTime) / 1e9;
-      resultDB.AddResult(testName + "-" + transb, toString(dim), "GFlops",
-                         cublas_gflops);
-      resultDB.AddResult(testName + "-" + transb + "_PCIe", toString(dim),
-                         "GFlops", pcie_gflops);
-      resultDB.AddResult(testName + "-" + transb + "_Parity", toString(dim),
-                         "N", transferTime / cublas_time);
+      double cublasGflops = 2. * m * n * k / cublasTime / 1e9;
+      double pcieGflops = 2. * m * n * k / (cublasTime + transferTime) / 1e9;
+      resultDB.AddResult(testName + "-" + transb, "dim:" + toString(dim), "GFlops",
+                         cublasGflops);
+      resultDB.AddResult(testName + "-" + transb + "_PCIe", "dim:" + toString(dim),
+                         "GFlops", pcieGflops);
+      resultDB.AddResult(testName + "-" + transb + "_Parity", "dim:" + toString(dim),
+                         "N", transferTime / cublasTime);
+      resultDB.AddResult(testName + "-" + transb + "_Transfer Time", "dim:" + toString(dim), 
+                         "sec", transferTime);
+      resultDB.AddResult(testName + "-" + transb + "_Kernel Time", "dim:" + toString(dim), 
+                         "sec", cublasTime);
     }
   }
 

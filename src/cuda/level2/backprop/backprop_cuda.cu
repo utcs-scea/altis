@@ -7,6 +7,7 @@
 
 #include "OptionParser.h"
 #include "ResultDatabase.h"
+#include "cudacommon.h"
 #include "backprop.h"
 #include "backprop_cuda.h"
 
@@ -126,8 +127,11 @@ int setup(ResultDatabase &resultDB, OptionParser &op) {
     exit(0);
   }
 
-  bpnn_initialize(seed);
-  backprop_face(layer_size);
+  int passes = op.getOptionInt("passes");
+  for(int i = 0; i < passes; i++) {
+    bpnn_initialize(seed);
+    backprop_face(layer_size);
+  }
 
   exit(0);
 }
@@ -185,10 +189,10 @@ void bpnn_train_cuda(BPNN *net, float *eo, float *eh) {
     }
   }
 
-  cudaMalloc((void **)&input_cuda, (in + 1) * sizeof(float));
-  cudaMalloc((void **)&output_hidden_cuda, (hid + 1) * sizeof(float));
-  cudaMalloc((void **)&input_hidden_cuda, (in + 1) * (hid + 1) * sizeof(float));
-  cudaMalloc((void **)&hidden_partial_sum, num_blocks * WIDTH * sizeof(float));
+  CUDA_SAFE_CALL(cudaMalloc((void **)&input_cuda, (in + 1) * sizeof(float)));
+  CUDA_SAFE_CALL(cudaMalloc((void **)&output_hidden_cuda, (hid + 1) * sizeof(float)));
+  CUDA_SAFE_CALL(cudaMalloc((void **)&input_hidden_cuda, (in + 1) * (hid + 1) * sizeof(float)));
+  CUDA_SAFE_CALL(cudaMalloc((void **)&hidden_partial_sum, num_blocks * WIDTH * sizeof(float)));
 
 #endif
 
@@ -204,37 +208,42 @@ void bpnn_train_cuda(BPNN *net, float *eo, float *eh) {
 
   printf("Performing GPU computation\n");
 
-  // printf("in= %d, hid = %d, numblocks = %d\n", in, hid, num_blocks);
-
-  cudaMemcpy(input_cuda, net->input_units, (in + 1) * sizeof(float),
-             cudaMemcpyHostToDevice);
-  cudaMemcpy(input_hidden_cuda, input_weights_one_dim,
-             (in + 1) * (hid + 1) * sizeof(float), cudaMemcpyHostToDevice);
-
+  // Cuda events
   cudaEvent_t start, stop;
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
+  float elapsedTime;
+
+  // Copy inputs to GPU
+  double transferTime = 0.;
+  cudaEventRecord(start, 0);
+  CUDA_SAFE_CALL(cudaMemcpy(input_cuda, net->input_units, (in + 1) * sizeof(float),
+             cudaMemcpyHostToDevice));
+  CUDA_SAFE_CALL(cudaMemcpy(input_hidden_cuda, input_weights_one_dim,
+             (in + 1) * (hid + 1) * sizeof(float), cudaMemcpyHostToDevice));
+  cudaEventRecord(stop, 0);
+  cudaEventSynchronize(stop);
+  cudaEventElapsedTime(&elapsedTime, start, stop);
+  transferTime += elapsedTime * 1.e-3; // convert to seconds
+
+  // Perform bpnn layer forward
   cudaEventRecord(start, 0);
   bpnn_layerforward_CUDA<<<grid, threads>>>(input_cuda, output_hidden_cuda,
                                             input_hidden_cuda,
                                             hidden_partial_sum, in, hid);
   cudaEventRecord(stop, 0);
   cudaEventSynchronize(stop);
-  float elapsedTime;
+  CHECK_CUDA_ERROR();
   cudaEventElapsedTime(&elapsedTime, start, stop);
   double kernelTime = elapsedTime * 1.e-3;
-  printf("kernel time: %f\n", kernelTime);
 
-  //cudaThreadSynchronize();
-
-  cudaError_t error = cudaGetLastError();
-  if (error != cudaSuccess) {
-    printf("bpnn kernel error: %s\n", cudaGetErrorString(error));
-    exit(EXIT_FAILURE);
-  }
-
+  cudaEventRecord(start, 0);
   cudaMemcpy(partial_sum, hidden_partial_sum,
              num_blocks * WIDTH * sizeof(float), cudaMemcpyDeviceToHost);
+  cudaEventRecord(stop, 0);
+  cudaEventSynchronize(stop);
+  cudaEventElapsedTime(&elapsedTime, start, stop);
+  transferTime += elapsedTime * 1.e-3; // convert to seconds
 
   for (int j = 1; j <= hid; j++) {
     sum = 0.0;

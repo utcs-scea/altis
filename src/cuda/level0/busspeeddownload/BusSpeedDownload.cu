@@ -108,7 +108,6 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   cudaEvent_t start, stop;
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
-  CHECK_CUDA_ERROR();
 
   // Three passes, forward and backward both
   for (int pass = 0; pass < passes; pass++) {
@@ -125,7 +124,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
       int nbytes = sizes[sizeIndex] * 1024;
 
       cudaEventRecord(start, 0);
-      cudaMemcpy(device, hostMem, nbytes, cudaMemcpyHostToDevice);
+      CUDA_SAFE_CALL(cudaMemcpy(device, hostMem, nbytes, cudaMemcpyHostToDevice));
       cudaEventRecord(stop, 0);
       cudaEventSynchronize(stop);
       float t = 0;
@@ -143,23 +142,15 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
       resultDB.AddResult("DownloadSpeed", sizeStr, "GB/sec", speed);
       resultDB.AddResult("DownloadTime", sizeStr, "ms", t);
     }
-    // resultDB.AddResult("DownloadLatencyEstimate", "1-2kb", "ms",
-    // times[0]-(times[1]-times[0])/1.);
-    // resultDB.AddResult("DownloadLatencyEstimate", "1-4kb", "ms",
-    // times[0]-(times[2]-times[0])/3.);
-    // resultDB.AddResult("DownloadLatencyEstimate", "2-4kb", "ms",
-    // times[1]-(times[2]-times[1])/1.);
   }
 
   // Cleanup
-  cudaFree((void *)device);
-  CHECK_CUDA_ERROR();
+  CUDA_SAFE_CALL(cudaFree((void *)device));
   if (pinned) {
-    cudaFreeHost((void *)hostMem);
-    CHECK_CUDA_ERROR();
+    CUDA_SAFE_CALL(cudaFreeHost((void *)hostMem));
   } else {
     delete[] hostMem;
   }
-  cudaEventDestroy(start);
-  cudaEventDestroy(stop);
+  CUDA_SAFE_CALL(cudaEventDestroy(start));
+  CUDA_SAFE_CALL(cudaEventDestroy(stop));
 }

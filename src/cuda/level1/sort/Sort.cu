@@ -1,7 +1,7 @@
 #include "OptionParser.h"
 #include "ResultDatabase.h"
-#include "Sort.h"
 #include "cudacommon.h"
+#include "Sort.h"
 #include "sort_kernel.h"
 #include <cassert>
 #include <cuda.h>
