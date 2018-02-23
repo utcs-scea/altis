@@ -11,7 +11,8 @@ void kernel_gpu_cuda_wrapper(	par_str parms_cpu,
 								box_str* box_cpu,
 								FOUR_VECTOR* rv_cpu,
 								fp* qv_cpu,
-								FOUR_VECTOR* fv_cpu);
+								FOUR_VECTOR* fv_cpu,
+                                ResultDatabase &resultDB);
 
 #ifdef __cplusplus
 }
