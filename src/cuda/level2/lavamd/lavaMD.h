@@ -95,4 +95,4 @@ typedef struct dim_str
 //	FUNCTION PROTOTYPES
 //===============================================================================================================================================================================================================200
 
-void runTest(ResultDatabase &resultDB, OptionParser &op);
+void runTest(ResultDatabase &resultDB, int boxes1d);
