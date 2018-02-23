@@ -2,6 +2,10 @@
 //	DEFINE / INCLUDE
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------200
 
+#include "OptionParser.h"
+#include "ResultDatabase.h"
+#include "cuda.h"
+
 #define fp double
 
 #define NUMBER_PAR_PER_BOX 100							// keep this low to allow more blocks that share shared memory to run concurrently, code does not work for larger than 110, more speedup can be achieved with larger number and no shared memory used
@@ -91,6 +95,4 @@ typedef struct dim_str
 //	FUNCTION PROTOTYPES
 //===============================================================================================================================================================================================================200
 
-int 
-main(	int argc, 
-		char *argv []);
+void runTest(ResultDatabase &resultDB, OptionParser &op);
