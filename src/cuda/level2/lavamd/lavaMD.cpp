@@ -21,9 +21,6 @@
 //======================================================================================================================================================150
 
 #include "./util/num/num.h"				// (in path specified here)
-#include "OptionParser.h"
-#include "ResultDatabase.h"
-#include "cuda.h"
 
 //======================================================================================================================================================150
 //	MAIN FUNCTION HEADER
@@ -47,19 +44,28 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 }
 
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
-    /*
-    int device;
-    cudaGetDevice(&device);
-    cudaDeviceProp deviceProp;
-    cudaGetDeviceProperties(&deviceProp, device);
-    */
-
 	printf("thread block size of kernel = %d \n", NUMBER_THREADS);
+	// get boxes1d arg value
+    int boxes1d = op.getOptionInt("boxes1d");
+    if(boxes1d == 0) {
+        int probSizes[4] = {10, 40, 100, 200};
+        boxes1d = probSizes[op.getOptionInt("size") - 1];
+    }
+	printf("Configuration used: boxes1d = %d\n", boxes1d);
+
+    int passes = op.getOptionInt("passes");
+    for(int i = 0; i < passes; i++) {
+        printf("Pass %d: ", i);
+        runTest(resultDB, boxes1d);
+        printf("Done.\n");
+    }
+}
+
+void runTest(ResultDatabase &resultDB, int boxes1d) {
+
 	//======================================================================================================================================================150
 	//	CPU/MCPU VARIABLES
 	//======================================================================================================================================================150
-
-	//time0 = get_time();
 
 	// counters
 	int i, j, k, l, m, n;
@@ -73,31 +79,17 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 	FOUR_VECTOR* fv_cpu;
 	int nh;
 
-	//time1 = get_time();
-
 	//======================================================================================================================================================150
 	//	CHECK INPUT ARGUMENTS
 	//======================================================================================================================================================150
 
-	// get boxes1d arg value
-	dim_cpu.boxes1d_arg = op.getOptionInt("boxes1d");
-    if(dim_cpu.boxes1d_arg == 0) {
-        int probSizes[4] = {10, 40, 100, 200};
-        dim_cpu.boxes1d_arg = probSizes[op.getOptionInt("size") - 1];
-    }
-
-	// Print configuration
-	printf("Configuration used: boxes1d = %d\n", dim_cpu.boxes1d_arg);
-
-	//time2 = get_time();
+	dim_cpu.boxes1d_arg = boxes1d;
 
 	//======================================================================================================================================================150
 	//	INPUTS
 	//======================================================================================================================================================150
 
 	par_cpu.alpha = 0.5;
-
-	//time3 = get_time();
 
 	//======================================================================================================================================================150
 	//	DIMENSIONS
@@ -113,8 +105,6 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 
 	// box array
 	dim_cpu.box_mem = dim_cpu.number_boxes * sizeof(box_str);
-
-	//time4 = get_time();
 
 	//======================================================================================================================================================150
 	//	SYSTEM MEMORY
@@ -214,8 +204,6 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 		fv_cpu[i].z = 0;								// set to 0, because kernels keeps adding to initial value
 	}
 
-	//time5 = get_time();
-
 	//======================================================================================================================================================150
 	//	KERNEL
 	//======================================================================================================================================================150
@@ -229,9 +217,9 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 							box_cpu,
 							rv_cpu,
 							qv_cpu,
-							fv_cpu);
+							fv_cpu,
+                            resultDB);
 
-	//time6 = get_time();
 
 	//======================================================================================================================================================150
 	//	SYSTEM MEMORY DEALLOCATION
@@ -247,36 +235,9 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 	fclose(fptr);
 #endif       	
 
-
-
 	free(rv_cpu);
 	free(qv_cpu);
 	free(fv_cpu);
 	free(box_cpu);
-
-	//time7 = get_time();
-
-	//======================================================================================================================================================150
-	//	DISPLAY TIMING
-	//======================================================================================================================================================150
-
-	// printf("Time spent in different stages of the application:\n");
-
-	// printf("%15.12f s, %15.12f % : VARIABLES\n",						(float) (time1-time0) / 1000000, (float) (time1-time0) / (float) (time7-time0) * 100);
-	// printf("%15.12f s, %15.12f % : INPUT ARGUMENTS\n", 					(float) (time2-time1) / 1000000, (float) (time2-time1) / (float) (time7-time0) * 100);
-	// printf("%15.12f s, %15.12f % : INPUTS\n",							(float) (time3-time2) / 1000000, (float) (time3-time2) / (float) (time7-time0) * 100);
-	// printf("%15.12f s, %15.12f % : dim_cpu\n", 							(float) (time4-time3) / 1000000, (float) (time4-time3) / (float) (time7-time0) * 100);
-	// printf("%15.12f s, %15.12f % : SYS MEM: ALO\n",						(float) (time5-time4) / 1000000, (float) (time5-time4) / (float) (time7-time0) * 100);
-
-	// printf("%15.12f s, %15.12f % : KERNEL: COMPUTE\n",					(float) (time6-time5) / 1000000, (float) (time6-time5) / (float) (time7-time0) * 100);
-
-	// printf("%15.12f s, %15.12f % : SYS MEM: FRE\n", 					(float) (time7-time6) / 1000000, (float) (time7-time6) / (float) (time7-time0) * 100);
-
-	// printf("Total time:\n");
-	// printf("%.12f s\n", 												(float) (time7-time0) / 1000000);
-
-	//======================================================================================================================================================150
-	//	RETURN
-	//======================================================================================================================================================150
 
 }
