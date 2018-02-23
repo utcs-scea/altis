@@ -77,6 +77,27 @@ inline vector<string> SplitValues(const std::string &buff, char delim)
     return output;
 }
 
+// ********************************************************
+// Function: toString
+//
+// Purpose:
+//   Simple templated function to convert objects into
+//   strings using stringstream
+//
+// Arguments:
+//   t: the object to convert to a string
+//
+// Returns:  a string representation of t
+//
+// Modifications:
+//
+// ********************************************************
+template <class T> inline std::string toString(const T &t) {
+  stringstream ss;
+  ss << t;
+  return ss.str();
+}
+
 #ifdef _WIN32
 
 // On Windows, srand48 and drand48 don't exist.

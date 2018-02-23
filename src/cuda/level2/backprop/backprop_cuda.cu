@@ -7,9 +7,12 @@
 
 #include "OptionParser.h"
 #include "ResultDatabase.h"
+#include "Utility.h"
 #include "cudacommon.h"
 #include "backprop.h"
 #include "backprop_cuda.h"
+
+using namespace std;
 
 unsigned int num_threads = 0;
 unsigned int num_blocks = 0;
@@ -108,7 +111,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   setup(resultDB, op);
 }
 
-int setup(ResultDatabase &resultDB, OptionParser &op) {
+void setup(ResultDatabase &resultDB, OptionParser &op) {
   int seed = op.getOptionInt("seed");
   int layer_size = op.getOptionInt("layerSize");
 
@@ -126,31 +129,39 @@ int setup(ResultDatabase &resultDB, OptionParser &op) {
     fprintf(stderr, "The number of input points must be divided by 16\n");
     exit(0);
   }
+  printf("Input layer size: %d\n", layer_size);
+  printf("Random number generator seed: %d\n", seed);
+
+#ifdef CPU
+  printf("Performing CPU computation\n");
+#endif
+
+#ifdef GPU
+  printf("Performing GPU computation\n");
+#endif
 
   int passes = op.getOptionInt("passes");
   for(int i = 0; i < passes; i++) {
+    printf("Pass %d: ", i);
     bpnn_initialize(seed);
-    backprop_face(layer_size);
+    backprop_face(layer_size, resultDB);
+    printf("Done.\n");
   }
 
-  exit(0);
 }
 
-void backprop_face(int layer_size) {
+void backprop_face(int layer_size, ResultDatabase &resultDB) {
   BPNN *net;
   float out_err, hid_err;
   net = bpnn_create(layer_size, 16, 1); // (16, 1 can not be changed)
 
-  printf("Input layer size : %d\n", layer_size);
   load(net, layer_size);
   // entering the training kernel, only one iteration
-  printf("Starting training kernel\n");
-  bpnn_train_cuda(net, &out_err, &hid_err);
+  bpnn_train_cuda(net, &out_err, &hid_err, resultDB);
   bpnn_free(net);
-  printf("Training done\n");
 }
 
-void bpnn_train_cuda(BPNN *net, float *eo, float *eh) {
+void bpnn_train_cuda(BPNN *net, float *eo, float *eh, ResultDatabase &resultDB) {
   int in, hid, out;
   float out_err, hid_err;
 
@@ -198,24 +209,21 @@ void bpnn_train_cuda(BPNN *net, float *eo, float *eh) {
 
 #ifdef CPU
 
-  printf("Performing CPU computation\n");
   bpnn_layerforward(net->input_units, net->hidden_units, net->input_weights, in,
-                    hid);
 
 #endif
 
 #ifdef GPU
-
-  printf("Performing GPU computation\n");
 
   // Cuda events
   cudaEvent_t start, stop;
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
   float elapsedTime;
+  double transferTime = 0.;
+  double kernelTime = 0;
 
   // Copy inputs to GPU
-  double transferTime = 0.;
   cudaEventRecord(start, 0);
   CUDA_SAFE_CALL(cudaMemcpy(input_cuda, net->input_units, (in + 1) * sizeof(float),
              cudaMemcpyHostToDevice));
@@ -235,7 +243,7 @@ void bpnn_train_cuda(BPNN *net, float *eo, float *eh) {
   cudaEventSynchronize(stop);
   CHECK_CUDA_ERROR();
   cudaEventElapsedTime(&elapsedTime, start, stop);
-  double kernelTime = elapsedTime * 1.e-3;
+  kernelTime += elapsedTime * 1.e-3;
 
   cudaEventRecord(start, 0);
   cudaMemcpy(partial_sum, hidden_partial_sum,
@@ -277,21 +285,37 @@ void bpnn_train_cuda(BPNN *net, float *eo, float *eh) {
   cudaMalloc((void **)&input_prev_weights_cuda,
              (in + 1) * (hid + 1) * sizeof(float));
 
+  cudaEventRecord(start, 0);
   cudaMemcpy(hidden_delta_cuda, net->hidden_delta, (hid + 1) * sizeof(float),
              cudaMemcpyHostToDevice);
   cudaMemcpy(input_prev_weights_cuda, input_weights_prev_one_dim,
              (in + 1) * (hid + 1) * sizeof(float), cudaMemcpyHostToDevice);
   cudaMemcpy(input_hidden_cuda, input_weights_one_dim,
              (in + 1) * (hid + 1) * sizeof(float), cudaMemcpyHostToDevice);
+  cudaEventRecord(stop, 0);
+  cudaEventSynchronize(stop);
+  cudaEventElapsedTime(&elapsedTime, start, stop);
+  transferTime += elapsedTime * 1.e-3; // convert to seconds
 
+  cudaEventRecord(start, 0);
   bpnn_adjust_weights_cuda<<<grid, threads>>>(hidden_delta_cuda, hid,
                                               input_cuda, in, input_hidden_cuda,
                                               input_prev_weights_cuda);
+  cudaEventRecord(stop, 0);
+  cudaEventSynchronize(stop);
+  CHECK_CUDA_ERROR();
+  cudaEventElapsedTime(&elapsedTime, start, stop);
+  kernelTime += elapsedTime * 1.e-3;
 
+  cudaEventRecord(start, 0);
   cudaMemcpy(net->input_units, input_cuda, (in + 1) * sizeof(float),
              cudaMemcpyDeviceToHost);
   cudaMemcpy(input_weights_one_dim, input_hidden_cuda,
              (in + 1) * (hid + 1) * sizeof(float), cudaMemcpyDeviceToHost);
+  cudaEventRecord(stop, 0);
+  cudaEventSynchronize(stop);
+  cudaEventElapsedTime(&elapsedTime, start, stop);
+  transferTime += elapsedTime * 1.e-3; // convert to seconds
 
   cudaFree(input_cuda);
   cudaFree(output_hidden_cuda);
@@ -300,14 +324,14 @@ void bpnn_train_cuda(BPNN *net, float *eo, float *eh) {
   cudaFree(input_prev_weights_cuda);
   cudaFree(hidden_delta_cuda);
 
-  /*for(int i = 0; i < (in+1)*(hid+1); i++) {
-      printf("%f\n", input_weights_one_dim[i]);
-  }
-  printf("\n");*/
-
   free(partial_sum);
   free(input_weights_one_dim);
   free(input_weights_prev_one_dim);
+
+  string testName = "Backprop-";
+  resultDB.AddResult(testName+"Transfer_Time", "layersize:"+toString(in), "sec", transferTime);
+  resultDB.AddResult(testName+"Kernel_Time", "layersize:"+toString(in), "sec", kernelTime);
+  resultDB.AddResult(testName+"Rate_Parity", "layersize:"+toString(in), "N", transferTime/kernelTime);
 
 #endif
 }

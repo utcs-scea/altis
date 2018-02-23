@@ -1,6 +1,7 @@
 #include "OptionParser.h"
 #include "ResultDatabase.h"
 #include "Timer.h"
+#include "Utility.h"
 #include "cublas.h"
 #include "cuda.h"
 #include "cuda_runtime.h"
@@ -24,27 +25,6 @@ template <class T>
 inline void devGEMM(char transa, char transb, int m, int n, int k, T alpha,
                     const T *A, int lda, const T *B, int ldb, T beta, T *C,
                     int ldc);
-
-// ********************************************************
-// Function: toString
-//
-// Purpose:
-//   Simple templated function to convert objects into
-//   strings using stringstream
-//
-// Arguments:
-//   t: the object to convert to a string
-//
-// Returns:  a string representation of t
-//
-// Modifications:
-//
-// ********************************************************
-template <class T> inline std::string toString(const T &t) {
-  stringstream ss;
-  ss << t;
-  return ss.str();
-}
 
 // ********************************************************
 // Function: error
@@ -311,7 +291,6 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
           cudaMemcpy(C, dC, N * N * sizeof(float), cudaMemcpyDeviceToHost));
       cudaEventRecord(stop, 0);
       cudaEventSynchronize(stop);
-
       float oTransferTime = 0.0f;
       cudaEventElapsedTime(&oTransferTime, start, stop);
       oTransferTime *= 1.e-3;
@@ -324,16 +303,16 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
 
       double cublasGflops = 2. * m * n * k / cublasTime / 1e9;
       double pcieGflops = 2. * m * n * k / (cublasTime + transferTime) / 1e9;
+      resultDB.AddResult(testName + "-" + transb + "_Transfer_Time", "dim:" + toString(dim), 
+                         "sec", transferTime);
+      resultDB.AddResult(testName + "-" + transb + "_Kernel_Time", "dim:" + toString(dim), 
+                         "sec", cublasTime);
       resultDB.AddResult(testName + "-" + transb, "dim:" + toString(dim), "GFlops",
                          cublasGflops);
       resultDB.AddResult(testName + "-" + transb + "_PCIe", "dim:" + toString(dim),
                          "GFlops", pcieGflops);
       resultDB.AddResult(testName + "-" + transb + "_Parity", "dim:" + toString(dim),
                          "N", transferTime / cublasTime);
-      resultDB.AddResult(testName + "-" + transb + "_Transfer Time", "dim:" + toString(dim), 
-                         "sec", transferTime);
-      resultDB.AddResult(testName + "-" + transb + "_Kernel Time", "dim:" + toString(dim), 
-                         "sec", cublasTime);
     }
   }
 
