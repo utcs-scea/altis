@@ -69,3 +69,5 @@ Backprop (originally Rodinia)
 
 Rodinia is heavily fragmented with each benchmark living in it's own bubble (specifies its own arch value, own location for /usr/local/cuda)
 we're bringing the uniformity of shoc (get all config info from universal source) over to rodinia
+
+We did our best to choose benchmarks that not only cover all 9 primitives, but also cover a wide variety of application domains where GPUs are dominating.
