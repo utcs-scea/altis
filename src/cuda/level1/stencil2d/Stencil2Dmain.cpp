@@ -102,12 +102,11 @@ void DoTest(const char *timerDesc, ResultDatabase &resultDB,
         (std::string)opts.getOptionString("expMatrixFile");
     if (!matrixFilenameBase.empty()) {
       std::cout << "\nReading expected stencil operation result from file for "
-                   "later comparison with CUDA output\n"
+                   "later comparison with CUDA output.\n"
                 << std::endl;
     } else {
       std::cout << "\nPerforming stencil operation on host for later "
-                   "comparison with CUDA output\n"
-                << "Depending on host capabilities, this may take a while."
+                   "comparison with CUDA output.\n"
                 << std::endl;
     }
     Matrix2D<T> expected(arrayDims[0] + 2 * haloWidth,
@@ -134,10 +133,8 @@ void DoTest(const char *timerDesc, ResultDatabase &resultDB,
       }
 
       if (!haveExpectedData) {
-        std::cout << "\nSince we could not read the expected matrix "
-                     "values,\nperforming stencil operation on host for later "
+        std::cout << "\nPerforming stencil operation on host for later "
                      "comparison with CUDA output.\n"
-                  << "Depending on host capabilities, this may take a while."
                   << std::endl;
       }
     }
@@ -145,13 +142,13 @@ void DoTest(const char *timerDesc, ResultDatabase &resultDB,
       init(expected);
       haveExpectedData = true;
       if (beVerbose) {
-        std::cout << "initial state:\n" << expected << std::endl;
+        std::cout << "Initial state:\n" << expected << std::endl;
       }
       stdStencil = stdStencilFactory->BuildStencil(opts);
       (*stdStencil)(expected, nIters);
     }
     if (beVerbose) {
-      std::cout << "expected result:\n" << expected << std::endl;
+      std::cout << "Expected result:\n" << expected << std::endl;
     }
 
     // determine whether we are to save the expected matrix values to a file
@@ -186,17 +183,8 @@ void DoTest(const char *timerDesc, ResultDatabase &resultDB,
     // we do this stencil operation 'nIters' times
     unsigned long nflops = npts * 11 * nIters;
 
-    std::cout << "\nPerforming stencil operation on chosen device, " << nPasses
-              << " passes.\n"
-              << "Depending on chosen device, this may take a while."
-              << std::endl;
-
-    std::cout << "At the end of each pass the number of validation\nerrors "
-                 "observed will be printed to the standard output."
-              << std::endl;
-
     for (unsigned int pass = 0; pass < nPasses; pass++) {
-      std::cout << "pass " << pass << ": ";
+      std::cout << "Pass " << pass << ": ";
       init(data);
 
       int timerHandle = Timer::Start();

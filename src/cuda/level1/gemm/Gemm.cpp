@@ -156,6 +156,8 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
       for (int i = 0; i < 2; i++) {
         const char transb = i ? 'T' : 'N';
         string testName = "DGEMM";
+        resultDB.AddResult(testName + "-" + transb + "_Transfer_Time", atts, "sec", FLT_MAX);
+        resultDB.AddResult(testName + "-" + transb + "_Kernel_Time", atts, "sec", FLT_MAX);
         resultDB.AddResult(testName + "-" + transb, atts, "GFlops", FLT_MAX);
         resultDB.AddResult(testName + "-" + transb + "_PCIe", atts, "GFlops",
                            FLT_MAX);
@@ -303,16 +305,12 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
 
       double cublasGflops = 2. * m * n * k / cublasTime / 1e9;
       double pcieGflops = 2. * m * n * k / (cublasTime + transferTime) / 1e9;
-      resultDB.AddResult(testName + "-" + transb + "_Transfer_Time", "dim:" + toString(dim), 
-                         "sec", transferTime);
-      resultDB.AddResult(testName + "-" + transb + "_Kernel_Time", "dim:" + toString(dim), 
-                         "sec", cublasTime);
-      resultDB.AddResult(testName + "-" + transb, "dim:" + toString(dim), "GFlops",
-                         cublasGflops);
-      resultDB.AddResult(testName + "-" + transb + "_PCIe", "dim:" + toString(dim),
-                         "GFlops", pcieGflops);
-      resultDB.AddResult(testName + "-" + transb + "_Parity", "dim:" + toString(dim),
-                         "N", transferTime / cublasTime);
+      string atts = "dim:" + toString(dim);
+      resultDB.AddResult(testName + "-" + transb + "_Transfer_Time", atts, "sec", transferTime);
+      resultDB.AddResult(testName + "-" + transb + "_Kernel_Time", atts, "sec", cublasTime);
+      resultDB.AddResult(testName + "-" + transb, atts, "GFlops", cublasGflops);
+      resultDB.AddResult(testName + "-" + transb + "_PCIe", atts, "GFlops", pcieGflops);
+      resultDB.AddResult(testName + "-" + transb + "_Parity", atts, "N", transferTime / cublasTime);
     }
   }
 

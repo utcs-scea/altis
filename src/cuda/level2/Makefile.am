@@ -1,1 +1,1 @@
-SUBDIRS=backprop lavamd particlefilter
+SUBDIRS=backprop lavamd pathfinder particlefilter

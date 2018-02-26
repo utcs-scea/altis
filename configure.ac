@@ -242,6 +242,7 @@ AC_CONFIG_FILES([Makefile
                  src/cuda/level2/backprop/Makefile
                  src/cuda/level2/lavamd/Makefile
                  src/cuda/level2/particlefilter/Makefile
+                 src/cuda/level2/pathfinder/Makefile
                  ])
 AC_OUTPUT
 

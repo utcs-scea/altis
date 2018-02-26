@@ -174,6 +174,7 @@ int main(int argc, char *argv[])
 
         // Output results to output file or stdout
         if(outfile.empty()) {
+            cout << endl;
             resultDB.DumpSummary(cout);
         } else {
             ofstream ofs;

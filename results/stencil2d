@@ -1,6 +1,6 @@
 test	atts	units	median	mean	stddev	min	max	
-DP_Sten2D	1000:512x512:8x256	GFLOPS	230.262	216.909	23.6533	172.508	234.559	
-SP_Sten2D	1000:512x512:8x256	GFLOPS	272.179	271.913	1.18763	268.563	273.183	
+DP_Sten2D	1000:512x512:8x256	GFLOPS	39.7364	39.2536	3.12704	34.5528	42.9908	
+SP_Sten2D	1000:512x512:8x256	GFLOPS	127.327	123.802	4.7469	117.669	127.923	
 
 Note: results marked with (*) had missing values such as
 might occur with a mixture of architectural capabilities.
