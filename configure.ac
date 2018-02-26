@@ -235,14 +235,12 @@ AC_CONFIG_FILES([Makefile
                  src/cuda/level0/maxflops/Makefile
                  src/cuda/level1/Makefile
                  src/cuda/level1/sort/Makefile
-                 src/cuda/level1/spmv/Makefile
-                 src/cuda/level1/stencil2d/Makefile
                  src/cuda/level1/gemm/Makefile
+                 src/cuda/level1/pathfinder/Makefile
                  src/cuda/level2/Makefile
                  src/cuda/level2/backprop/Makefile
                  src/cuda/level2/lavamd/Makefile
                  src/cuda/level2/particlefilter/Makefile
-                 src/cuda/level2/pathfinder/Makefile
                  ])
 AC_OUTPUT
 

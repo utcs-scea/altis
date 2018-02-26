@@ -1,1 +1,1 @@
-SUBDIRS=sort spmv stencil2d gemm
+SUBDIRS=gemm sort pathfinder

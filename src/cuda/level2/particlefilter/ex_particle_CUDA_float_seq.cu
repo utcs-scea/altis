@@ -7,8 +7,10 @@
 #include <fcntl.h>
 #include <float.h>
 #include <sys/time.h>
+
 #include "Particlefilter/common.h"
 #include "ex_particle_CUDA_float_seq.h"
+
 #define BLOCK_X 16
 #define BLOCK_Y 16
 #define PI 3.1415926535897932
