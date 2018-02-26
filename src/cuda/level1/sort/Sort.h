@@ -15,7 +15,7 @@ void radixSortStep(uint nbits, uint startbit, uint4 *keys, uint4 *values,
 void scanArrayRecursive(uint *outArray, uint *inArray, int numElements,
                         int level, uint **blockSums);
 
-bool verifySort(uint *keys, uint *vals, const size_t size);
+bool verifySort(uint *keys, uint *vals, const size_t size, bool verbose);
 
 #ifdef __DEVICE_EMULATION__
 #define __SYNC __syncthreads();

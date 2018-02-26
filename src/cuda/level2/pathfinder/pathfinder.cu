@@ -11,8 +11,7 @@
 
 #define BLOCK_SIZE 256
 #define STR_SIZE 256
-#define HALO \
-  1  // halo width along one direction when advancing to the next iteration
+#define HALO 1  // halo width along one direction when advancing to the next iteration
 #define M_SEED 9
 
 void run(ResultDatabase &resultDB, OptionParser &op);
@@ -45,9 +44,24 @@ void addBenchmarkSpecOptions(OptionParser &op) {
   op.addOption("logfile", OPT_STRING, "", "file to write results to");
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Program main
-////////////////////////////////////////////////////////////////////////////////
+// ****************************************************************************
+// Function: RunBenchmark
+//
+// Purpose:
+//   Executes the pathfinder benchmark
+//
+// Arguments:
+//   resultDB: results from the benchmark are stored in this db
+//   op: the options parser / parameter database
+//
+// Returns:  nothing, results are stored in resultDB
+//
+// Programmer: Kyle Spafford
+// Creation: August 13, 2009
+//
+// Modifications:
+//
+// ****************************************************************************
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   int device;
   cudaGetDevice(&device);
@@ -62,10 +76,10 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
       printf("Parameters not fully specified, using preset problem size\n");
       int rowSizes[4] = {1, 8, 48, 96};
       int colSizes[4] = {1, 8, 48, 96};
-      int pyramidSizes[4] = {1, 8, 48, 96};
+      int pyramidSizes[4] = {20, 40, 60, 80};
       rows = rowSizes[op.getOptionInt("size") - 1] * 1024;
       cols = colSizes[op.getOptionInt("size") - 1] * 1024;
-      pyramid_height = pyramidSizes[op.getOptionInt("size") - 1] * 1024;
+      pyramid_height = pyramidSizes[op.getOptionInt("size") - 1];
   } else {
       rows = rowLen;
       cols = colLen;
@@ -82,7 +96,6 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     run(resultDB, op);
     printf("Done.\n");
   }
-  printf("\n");
 }
 
 void init(OptionParser &op) {
