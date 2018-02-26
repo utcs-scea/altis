@@ -12,50 +12,14 @@
 #include <fcntl.h>
 #include <float.h>
 #include <sys/time.h>
+#include "Particlefilter/common.h"
 #include "ex_particle_CUDA_naive_seq.h"
 #define PI 3.1415926535897932
 #define BLOCK_X 16
 #define BLOCK_Y 16
 
-/**
-@var M value for Linear Congruential Generator (LCG); use GCC's value
-*/
-long M = INT_MAX;
-/**
-@var A value for LCG
-*/
-int A = 1103515245;
-/**
-@var C value for LCG
-*/
-int C = 12345;
-
 const int threads_per_block = 128;
 
-/*****************************
-*GET_TIME
-*returns a long int representing the time
-*****************************/
-long long get_time() {
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	return (tv.tv_sec * 1000000) + tv.tv_usec;
-}
-// Returns the number of seconds elapsed between the two specified times
-float elapsed_time(long long start_time, long long end_time) {
-        return (float) (end_time - start_time) / (1000 * 1000);
-}
-/*****************************
-* CHECK_ERROR
-* Checks for CUDA errors and prints them to the screen to help with
-* debugging of CUDA related programming
-*****************************/
-void check_error(cudaError e) {
-     if (e != cudaSuccess) {
-     	printf("\nCUDA error: %s\n", cudaGetErrorString(e));
-	    exit(1);
-     }
-}
 __device__ int findIndexSeq(double * CDF, int lengthCDF, double value)
 {
 	int index = -1;
