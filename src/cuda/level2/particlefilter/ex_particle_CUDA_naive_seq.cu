@@ -12,6 +12,7 @@
 #include <fcntl.h>
 #include <float.h>
 #include <sys/time.h>
+#include "ex_particle_CUDA_naive_seq.h"
 #define PI 3.1415926535897932
 #define BLOCK_X 16
 #define BLOCK_Y 16
@@ -612,8 +613,9 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 	free(u);
 	free(ind);
 }
-int main(int argc, char * argv[]){
-	
+void particlefilter_naive(ResultDatabase &resultDB, OptionParser &op){
+    printf("hello there\n");
+/*	
 	char* usage = "naive.out -x <dimX> -y <dimY> -z <Nfr> -np <Nparticles>";
 	//check number of arguments
 	if(argc != 9)
@@ -693,4 +695,5 @@ int main(int argc, char * argv[]){
 	free(seed);
 	free(I);
 	return 0;
+    */
 }

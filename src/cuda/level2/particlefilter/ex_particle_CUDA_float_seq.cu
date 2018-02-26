@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <float.h>
 #include <sys/time.h>
+#include "ex_particle_CUDA_float_seq.h"
 #define BLOCK_X 16
 #define BLOCK_Y 16
 #define PI 3.1415926535897932
@@ -796,8 +797,8 @@ void particleFilter(unsigned char * I, int IszX, int IszY, int Nfr, int * seed, 
     free(u);
 }
 
-int main(int argc, char * argv[]) {
-
+void particlefilter_float(ResultDatabase &resultDB, OptionParser &op) {
+/*
     char* usage = "double.out -x <dimX> -y <dimY> -z <Nfr> -np <Nparticles>";
     //check number of arguments
     if (argc != 9) {
@@ -876,4 +877,5 @@ int main(int argc, char * argv[]) {
     free(seed);
     free(I);
     return 0;
+    */
 }
