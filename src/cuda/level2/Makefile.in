@@ -296,11 +296,7 @@ target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-<<<<<<< HEAD
-SUBDIRS = backprop lavamd particlefilter
-=======
-SUBDIRS = backprop lavamd pathfinder
->>>>>>> 6c7c838620c5df9c37f68407b5990875c4da448e
+SUBDIRS = backprop lavamd pathfinder particlefilter
 all: all-recursive
 
 .SUFFIXES:
