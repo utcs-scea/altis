@@ -1,5 +1,7 @@
 #include "ex_particle_CUDA_naive_seq.h"
 #include "ex_particle_CUDA_float_seq.h"
+#include "OptionParser.h"
+#include "ResultDatabase.h"
 
 void addBenchmarkSpecOptions(OptionParser &op) {
   //op.addOption("boxes1d", OPT_INT, "0",
