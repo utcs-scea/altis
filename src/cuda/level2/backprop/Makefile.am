@@ -18,4 +18,3 @@ backprop_SOURCES = backprop.cpp \
                 main.cpp
 backprop_LDADD = backprop_cuda.o $(CUDA_LIBS) $(LIBS) -lm
 
-

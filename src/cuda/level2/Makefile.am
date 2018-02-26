@@ -1,1 +1,1 @@
-SUBDIRS=backprop lavamd
+SUBDIRS=backprop lavamd pathfinder
