@@ -17,69 +17,142 @@
  ************************************************************************************/
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
+#include <string>
+#include <cassert>
 #include <math.h>
 #include <cuda.h>
 
+#include "cudacommon.h"
+#include "ResultDatabase.h"
+#include "OptionParser.h"
+
 #define MAX_THREADS_PER_BLOCK 512
+
+using namespace std;
 
 int no_of_nodes;
 int edge_list_size;
 FILE *fp;
 
-//Structure to hold a node information
 struct Node
 {
 	int starting;
 	int no_of_edges;
 };
 
-#include "kernel.cu"
-#include "kernel2.cu"
-
-void BFSGraph(int argc, char** argv);
+void BFSGraph(ResultDatabase &resultDB, OptionParser &op);
 
 ////////////////////////////////////////////////////////////////////////////////
-// Main Program
-////////////////////////////////////////////////////////////////////////////////
-int main( int argc, char** argv) 
+__global__ void Kernel( Node* g_graph_nodes, int* g_graph_edges, bool* g_graph_mask, bool* g_updating_graph_mask, bool *g_graph_visited, int* g_cost, int no_of_nodes) 
 {
-	no_of_nodes=0;
-	edge_list_size=0;
-	BFSGraph( argc, argv);
+	int tid = blockIdx.x*MAX_THREADS_PER_BLOCK + threadIdx.x;
+	if( tid<no_of_nodes && g_graph_mask[tid])
+	{
+		g_graph_mask[tid]=false;
+		for(int i=g_graph_nodes[tid].starting; i<(g_graph_nodes[tid].no_of_edges + g_graph_nodes[tid].starting); i++)
+			{
+			int id = g_graph_edges[i];
+			if(!g_graph_visited[id])
+				{
+				g_cost[id]=g_cost[tid]+1;
+				g_updating_graph_mask[id]=true;
+				}
+			}
+	}
 }
 
-void Usage(int argc, char**argv){
+__global__ void Kernel2( bool* g_graph_mask, bool *g_updating_graph_mask, bool* g_graph_visited, bool *g_over, int no_of_nodes)
+{
+	int tid = blockIdx.x*MAX_THREADS_PER_BLOCK + threadIdx.x;
+	if( tid<no_of_nodes && g_updating_graph_mask[tid])
+	{
 
-fprintf(stderr,"Usage: %s <input_file>\n", argv[0]);
-
+		g_graph_mask[tid]=true;
+		g_graph_visited[tid]=true;
+		*g_over=true;
+		g_updating_graph_mask[tid]=false;
+	}
 }
+////////////////////////////////////////////////////////////////////////////////
+
+// ****************************************************************************
+// Function: addBenchmarkSpecOptions
+//
+// Purpose:
+//   Add benchmark specific options parsing
+//
+// Arguments:
+//   op: the options parser / parameter database
+//
+// Returns:  nothing
+//
+// Programmer: Kyle Spafford
+// Creation: August 13, 2009
+//
+// Modifications:
+//
+// ****************************************************************************
+void addBenchmarkSpecOptions(OptionParser &op) {
+  op.addOption("resultsfile", OPT_STRING, "", "file to write results to");
+}
+
+// ****************************************************************************
+// Function: RunBenchmark
+//
+// Purpose:
+//   Executes the radix sort benchmark
+//
+// Arguments:
+//   resultDB: results from the benchmark are stored in this db
+//   op: the options parser / parameter database
+//
+// Returns:  nothing, results are stored in resultDB
+//
+// Programmer: Kyle Spafford
+// Creation: August 13, 2009
+//
+// Modifications:
+//
+// ****************************************************************************
+void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
+    int device;
+    cudaGetDevice(&device);
+    cudaDeviceProp deviceProp;
+    cudaGetDeviceProperties(&deviceProp, device);
+
+    int passes = op.getOptionInt("passes");
+    for(int i = 0; i < passes; i++) {
+        printf("Pass %d: ", i);
+        no_of_nodes=0;
+        edge_list_size=0;
+        BFSGraph(resultDB, op);
+        printf("Done.\n");
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //Apply BFS on a Graph using CUDA
 ////////////////////////////////////////////////////////////////////////////////
-void BFSGraph( int argc, char** argv) 
+void BFSGraph(ResultDatabase &resultDB, OptionParser &op) 
 {
+    bool verbose = op.getOptionBool("verbose");
+    string infile = op.getOptionString("inputFile");
 
-    char *input_f;
-	if(argc!=2){
-	Usage(argc, argv);
-	exit(0);
-	}
-	
-	input_f = argv[1];
-	printf("Reading File\n");
 	//Read in Graph from a file
-	fp = fopen(input_f,"r");
+	fp = fopen(infile.c_str(),"r");
 	if(!fp)
 	{
-		printf("Error Reading graph file\n");
+		printf("Error: Unable to read graph file\n");
 		return;
 	}
 
-	int source = 0;
+    if(verbose) {
+	    printf("Reading graph file\n");
+    }
 
 	fscanf(fp,"%d",&no_of_nodes);
 
+	int source = 0;
 	int num_of_blocks = 1;
 	int num_of_threads_per_block = no_of_nodes;
 
@@ -128,58 +201,72 @@ void BFSGraph( int argc, char** argv)
 		h_graph_edges[i] = id;
 	}
 
-	if(fp)
+	if(fp) {
 		fclose(fp);    
-
-	printf("Read File\n");
-
-	//Copy the Node list to device memory
-	Node* d_graph_nodes;
-	cudaMalloc( (void**) &d_graph_nodes, sizeof(Node)*no_of_nodes) ;
-	cudaMemcpy( d_graph_nodes, h_graph_nodes, sizeof(Node)*no_of_nodes, cudaMemcpyHostToDevice) ;
-
-	//Copy the Edge List to device Memory
-	int* d_graph_edges;
-	cudaMalloc( (void**) &d_graph_edges, sizeof(int)*edge_list_size) ;
-	cudaMemcpy( d_graph_edges, h_graph_edges, sizeof(int)*edge_list_size, cudaMemcpyHostToDevice) ;
-
-	//Copy the Mask to device memory
-	bool* d_graph_mask;
-	cudaMalloc( (void**) &d_graph_mask, sizeof(bool)*no_of_nodes) ;
-	cudaMemcpy( d_graph_mask, h_graph_mask, sizeof(bool)*no_of_nodes, cudaMemcpyHostToDevice) ;
-
-	bool* d_updating_graph_mask;
-	cudaMalloc( (void**) &d_updating_graph_mask, sizeof(bool)*no_of_nodes) ;
-	cudaMemcpy( d_updating_graph_mask, h_updating_graph_mask, sizeof(bool)*no_of_nodes, cudaMemcpyHostToDevice) ;
-
-	//Copy the Visited nodes array to device memory
-	bool* d_graph_visited;
-	cudaMalloc( (void**) &d_graph_visited, sizeof(bool)*no_of_nodes) ;
-	cudaMemcpy( d_graph_visited, h_graph_visited, sizeof(bool)*no_of_nodes, cudaMemcpyHostToDevice) ;
+    }
+    if(verbose) {
+	    printf("Done reading graph file\n");
+    }
 
 	// allocate mem for the result on host side
 	int* h_cost = (int*) malloc( sizeof(int)*no_of_nodes);
 	for(int i=0;i<no_of_nodes;i++)
 		h_cost[i]=-1;
 	h_cost[source]=0;
-	
-	// allocate device memory for result
-	int* d_cost;
-	cudaMalloc( (void**) &d_cost, sizeof(int)*no_of_nodes);
-	cudaMemcpy( d_cost, h_cost, sizeof(int)*no_of_nodes, cudaMemcpyHostToDevice) ;
 
-	//make a bool to check if the execution is over
+	// node list
+	Node* d_graph_nodes;
+	// edge list
+	int* d_graph_edges;
+	// mask
+	bool* d_graph_mask;
+	bool* d_updating_graph_mask;
+	// visited nodes
+	bool* d_graph_visited;
+    // result
+	int* d_cost;
+	// bool if execution is over
 	bool *d_over;
+
+	cudaMalloc( (void**) &d_graph_nodes, sizeof(Node)*no_of_nodes) ;
+	cudaMalloc( (void**) &d_graph_edges, sizeof(int)*edge_list_size) ;
+	cudaMalloc( (void**) &d_graph_mask, sizeof(bool)*no_of_nodes) ;
+	cudaMalloc( (void**) &d_updating_graph_mask, sizeof(bool)*no_of_nodes) ;
+	cudaMalloc( (void**) &d_graph_visited, sizeof(bool)*no_of_nodes) ;
+	cudaMalloc( (void**) &d_cost, sizeof(int)*no_of_nodes);
 	cudaMalloc( (void**) &d_over, sizeof(bool));
 
-	printf("Copied Everything to GPU memory\n");
+    cudaEvent_t tstart, tstop;
+    cudaEventCreate(&tstart);
+    cudaEventCreate(&tstop);
+    float elapsedTime;
+
+    double transferTime = 0.;
+    cudaEventRecord(tstart, 0);
+	cudaMemcpy( d_graph_nodes, h_graph_nodes, sizeof(Node)*no_of_nodes, cudaMemcpyHostToDevice) ;
+	cudaMemcpy( d_graph_edges, h_graph_edges, sizeof(int)*edge_list_size, cudaMemcpyHostToDevice) ;
+	cudaMemcpy( d_graph_mask, h_graph_mask, sizeof(bool)*no_of_nodes, cudaMemcpyHostToDevice) ;
+	cudaMemcpy( d_updating_graph_mask, h_updating_graph_mask, sizeof(bool)*no_of_nodes, cudaMemcpyHostToDevice) ;
+	cudaMemcpy( d_graph_visited, h_graph_visited, sizeof(bool)*no_of_nodes, cudaMemcpyHostToDevice) ;
+	cudaMemcpy( d_cost, h_cost, sizeof(int)*no_of_nodes, cudaMemcpyHostToDevice) ;
+    cudaEventRecord(tstop, 0);
+    cudaEventSynchronize(tstop);
+    cudaEventElapsedTime(&elapsedTime, tstart, tstop);
+    transferTime += elapsedTime * 1.e-3; // convert to seconds
+
+    if(verbose) {
+	    printf("Copied everything to device memory\n");
+    }
 
 	// setup execution parameters
 	dim3  grid( num_of_blocks, 1, 1);
 	dim3  threads( num_of_threads_per_block, 1, 1);
 
+    if(verbose) {
+	    printf("Start traversing the tree\n");
+    }
+    double kernelTime = 0;
 	int k=0;
-	printf("Start traversing the tree\n");
 	bool stop;
 	//Call the Kernel untill all the elements of Frontier are not false
 	do
@@ -187,32 +274,54 @@ void BFSGraph( int argc, char** argv)
 		//if no thread changes this value then the loop stops
 		stop=false;
 		cudaMemcpy( d_over, &stop, sizeof(bool), cudaMemcpyHostToDevice) ;
-		Kernel<<< grid, threads, 0 >>>( d_graph_nodes, d_graph_edges, d_graph_mask, d_updating_graph_mask, d_graph_visited, d_cost, no_of_nodes);
-		// check if kernel execution generated and error
-		
 
-		Kernel2<<< grid, threads, 0 >>>( d_graph_mask, d_updating_graph_mask, d_graph_visited, d_over, no_of_nodes);
-		// check if kernel execution generated and error
-		
+        cudaEventRecord(tstart, 0);
+        Kernel<<< grid, threads, 0 >>>( d_graph_nodes, d_graph_edges, d_graph_mask, d_updating_graph_mask, d_graph_visited, d_cost, no_of_nodes);
+        cudaEventRecord(tstop, 0);
+        cudaEventSynchronize(tstop);
+        cudaEventElapsedTime(&elapsedTime, tstart, tstop);
+        kernelTime += elapsedTime * 1.e-3;
+        CHECK_CUDA_ERROR()
 
-		cudaMemcpy( &stop, d_over, sizeof(bool), cudaMemcpyDeviceToHost) ;
+        // check if kernel execution generated an error
+        cudaEventRecord(tstart, 0);
+        Kernel2<<< grid, threads, 0 >>>( d_graph_mask, d_updating_graph_mask, d_graph_visited, d_over, no_of_nodes);
+        cudaEventRecord(tstop, 0);
+        cudaEventSynchronize(tstop);
+        cudaEventElapsedTime(&elapsedTime, tstart, tstop);
+        kernelTime += elapsedTime * 1.e-3;
+        CHECK_CUDA_ERROR()
+
+        cudaMemcpy( &stop, d_over, sizeof(bool), cudaMemcpyDeviceToHost) ;
+
 		k++;
 	}
 	while(stop);
 
-
-	printf("Kernel Executed %d times\n",k);
+    if(verbose) {
+	    printf("Kernel Executed %d times\n",k);
+    }
 
 	// copy result from device to host
+    cudaEventRecord(tstart, 0);
 	cudaMemcpy( h_cost, d_cost, sizeof(int)*no_of_nodes, cudaMemcpyDeviceToHost) ;
+    cudaEventRecord(tstop, 0);
+    cudaEventSynchronize(tstop);
+    cudaEventElapsedTime(&elapsedTime, tstart, tstop);
+    transferTime += elapsedTime * 1.e-3; // convert to seconds
 
 	//Store the result into a file
-	FILE *fpo = fopen("result.txt","w");
-	for(int i=0;i<no_of_nodes;i++)
-		fprintf(fpo,"%d) cost:%d\n",i,h_cost[i]);
-	fclose(fpo);
-	printf("Result stored in result.txt\n");
-
+    string resultsfile = op.getOptionString("resultsfile");
+    if(resultsfile != "") {
+        FILE *fpo = fopen(resultsfile.c_str(),"w");
+        for(int i=0;i<no_of_nodes;i++) {
+            fprintf(fpo,"%d) cost:%d\n",i,h_cost[i]);
+        }
+        fclose(fpo);
+        if(verbose) {
+            printf("Result stored in %s\n", resultsfile.c_str());
+        }
+    }
 
 	// cleanup memory
 	free( h_graph_nodes);
@@ -227,4 +336,14 @@ void BFSGraph( int argc, char** argv)
 	cudaFree(d_updating_graph_mask);
 	cudaFree(d_graph_visited);
 	cudaFree(d_cost);
+
+    char atts[64];
+    sprintf(atts, "%dV,%dE", no_of_nodes, edge_list_size);
+    resultDB.AddResult("BFS-TransferTime", atts, "sec", transferTime);
+    resultDB.AddResult("BFS-KernelTime", atts, "sec", kernelTime);
+    resultDB.AddResult("BFS-Rate_Nodes", atts, "Nodes/s", no_of_nodes/kernelTime);
+    resultDB.AddResult("BFS-Rate_Edges", atts, "Edges/s", edge_list_size/kernelTime);
+    resultDB.AddResult("BFS-Rate_PCIe_Nodes", atts, "Nodes/s", no_of_nodes/(kernelTime + transferTime));
+    resultDB.AddResult("BFS-Rate_PCIe_Edges", atts, "Edges/s", edge_list_size/(kernelTime + transferTime));
+    resultDB.AddResult("BFS-Rate_Parity", atts, "N", transferTime / kernelTime);
 }

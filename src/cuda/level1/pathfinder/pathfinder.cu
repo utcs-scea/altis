@@ -41,7 +41,7 @@ void addBenchmarkSpecOptions(OptionParser &op) {
   op.addOption("rows", OPT_INT, "0", "number of rows");
   op.addOption("cols", OPT_INT, "0", "number of cols");
   op.addOption("pyramidHeight", OPT_INT, "0", "pyramid height");
-  op.addOption("logfile", OPT_STRING, "", "file to write results to");
+  op.addOption("resultsfile", OPT_STRING, "", "file to write results to");
 }
 
 // ****************************************************************************
@@ -112,17 +112,10 @@ void init(OptionParser &op) {
       wall[i][j] = rand() % 10;
     }
   }
-  string logfile = op.getOptionString("logfile");
-  if(logfile != "") {
+  string resultsfile = op.getOptionString("resultsfile");
+  if(resultsfile != "") {
     std::fstream fs;
-    fs.open(logfile.c_str(), std::fstream::in);
-    for (int i = 0; i < rows; i++) {
-      fs << "***WALL***" << std::endl;
-      for (int j = 0; j < cols; j++) {
-        fs << wall[i][j] << " ";
-      }
-      fs << std::endl;
-    }
+    fs.open(resultsfile.c_str(), std::fstream::in);
     fs.close();
   }
 }
@@ -290,10 +283,10 @@ void run(ResultDatabase &resultDB, OptionParser &op) {
   transferTime += elapsedTime * 1.e-3; // convert to seconds
 
 
-  string logfile = op.getOptionString("logfile");
-  if(!logfile.empty()) {
+  string resultsfile = op.getOptionString("resultsfile");
+  if(!resultsfile.empty()) {
     std::fstream fs;
-    fs.open(logfile.c_str(), std::fstream::app);
+    fs.open(resultsfile.c_str(), std::fstream::app);
     fs << "***DATA***" << std::endl;
     for (int i = 0; i < cols; i++) {
       fs << data[i] << " ";
@@ -314,8 +307,8 @@ void run(ResultDatabase &resultDB, OptionParser &op) {
   delete[] wall;
   delete[] result;
 
-  string testName = "Pathfinder-";
-  resultDB.AddResult(testName+"Transfer_Time", toString(rows) + "x" + toString(cols), "sec", transferTime);
-  resultDB.AddResult(testName+"Kernel_Time", toString(rows) + "x" + toString(cols), "sec", kernelTime);
-  resultDB.AddResult(testName+"Rate_Parity", toString(rows) + "x" + toString(cols), "N", transferTime/kernelTime);
+  string atts = toString(rows) + "x" + toString(cols);
+  resultDB.AddResult("Pathfinder-TransferTime", atts, "sec", transferTime);
+  resultDB.AddResult("Pathfinder-KernelTime", atts, "sec", kernelTime);
+  resultDB.AddResult("Pathfinder-Rate_Parity", atts, "N", transferTime/kernelTime);
 }

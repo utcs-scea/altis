@@ -234,9 +234,10 @@ AC_CONFIG_FILES([Makefile
                  src/cuda/level0/devicememory/Makefile
                  src/cuda/level0/maxflops/Makefile
                  src/cuda/level1/Makefile
-                 src/cuda/level1/sort/Makefile
+                 src/cuda/level1/bfs/Makefile
                  src/cuda/level1/gemm/Makefile
                  src/cuda/level1/pathfinder/Makefile
+                 src/cuda/level1/sort/Makefile
                  src/cuda/level2/Makefile
                  src/cuda/level2/backprop/Makefile
                  src/cuda/level2/lavamd/Makefile
