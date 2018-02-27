@@ -1,1 +1,1 @@
-SUBDIRS=gemm sort pathfinder
+SUBDIRS=bfs gemm sort pathfinder
