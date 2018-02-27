@@ -192,12 +192,13 @@ void BFSGraph(ResultDatabase &resultDB, OptionParser &op)
 
 	fscanf(fp,"%d",&edge_list_size);
 
-	int id,cost;
+	//int id,cost;
+    int id;
 	int* h_graph_edges = (int*) malloc(sizeof(int)*edge_list_size);
 	for(int i=0; i < edge_list_size ; i++)
 	{
 		fscanf(fp,"%d",&id);
-		fscanf(fp,"%d",&cost);
+		//fscanf(fp,"%d",&cost);
 		h_graph_edges[i] = id;
 	}
 
