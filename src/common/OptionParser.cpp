@@ -341,11 +341,11 @@ void OptionParser::usage() const {
    else if (jo.type == OPT_BOOL)
       type = "";
    else if (jo.type == OPT_STRING)
-      type = "value";
+      type = "string";
    else if (jo.type == OPT_VECFLOAT || jo.type == OPT_VECINT)
-      type = "n1,n2,...";
+      type = "number1,number2,...";
    else if (jo.type == OPT_VECSTRING)
-      type = "value1,value2,...";
+      type = "string1,string2,...";
    cout << type << "]" << endl;
 
    while (++j !=optionMap.end()) {

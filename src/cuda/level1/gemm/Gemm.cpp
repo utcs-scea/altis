@@ -11,9 +11,7 @@
 #include <sstream>
 #include <string>
 
-// Constants
-
-// length of array for reading fields of mtx header
+#define SEED 7
 static const int FIELD_LENGTH = 128;
 
 using namespace std;
@@ -138,6 +136,8 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   cudaGetDevice(&device);
   cudaDeviceProp deviceProp;
   cudaGetDeviceProperties(&deviceProp, device);
+
+  srand(SEED);
 
   cout << "Running single precision test" << endl;
   RunTest<float>("SGEMM", resultDB, op);
@@ -306,8 +306,8 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
       double cublasGflops = 2. * m * n * k / cublasTime / 1e9;
       double pcieGflops = 2. * m * n * k / (cublasTime + transferTime) / 1e9;
       string atts = "dim:" + toString(dim);
-      resultDB.AddResult(testName + "-" + transb + "_Transfer_Time", atts, "sec", transferTime);
-      resultDB.AddResult(testName + "-" + transb + "_Kernel_Time", atts, "sec", cublasTime);
+      resultDB.AddResult(testName + "-" + transb + "-TransferTime", atts, "sec", transferTime);
+      resultDB.AddResult(testName + "-" + transb + "-KernelTime", atts, "sec", cublasTime);
       resultDB.AddResult(testName + "-" + transb, atts, "GFlops", cublasGflops);
       resultDB.AddResult(testName + "-" + transb + "_PCIe", atts, "GFlops", pcieGflops);
       resultDB.AddResult(testName + "-" + transb + "_Parity", atts, "N", transferTime / cublasTime);

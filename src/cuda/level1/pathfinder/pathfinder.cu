@@ -12,7 +12,7 @@
 #define BLOCK_SIZE 256
 #define STR_SIZE 256
 #define HALO 1  // halo width along one direction when advancing to the next iteration
-#define M_SEED 9
+#define SEED 7
 
 void run(ResultDatabase &resultDB, OptionParser &op);
 
@@ -104,8 +104,7 @@ void init(OptionParser &op) {
   for (int n = 0; n < rows; n++) wall[n] = data + cols * n;
   result = new int[cols];
 
-  int seed = M_SEED;
-  srand(seed);
+  srand(SEED);
 
   for (int i = 0; i < rows; i++) {
     for (int j = 0; j < cols; j++) {

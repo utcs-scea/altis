@@ -15,6 +15,8 @@
 #include "Sort.h"
 #include "sort_kernel.h"
 
+#define SEED 7
+
 using namespace std;
 
 // ****************************************************************************
@@ -35,8 +37,7 @@ using namespace std;
 //
 // ****************************************************************************
 void addBenchmarkSpecOptions(OptionParser &op) {
-    op.addOption("elements", OPT_INT, "0", "number of elements in the array (must be a multiple of 1024");
-    op.addOption("seed", OPT_INT, "0", "specify seed for random number generator");
+    op.addOption("elements", OPT_INT, "0", "number of elements in the array (in millions)");
 }
 
 // ****************************************************************************
@@ -58,26 +59,10 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 //
 // ****************************************************************************
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
-
-  // Verify options
   bool verbose = op.getOptionBool("verbose");
   int elements = op.getOptionInt("elements");
-  int seed = op.getOptionInt("seed");
-  if(elements != 0) {
-      if(elements % 1024 != 0) {
-          cout << "Error: Array size must be a multiple of 1024" << endl;
-          return;
-      }
-  }
-  if(seed != 0) {
-      if(seed < 0) {
-          cout << "Error: Seed must be a positive value" << endl;
-          return;
-      } else {
-          cout << "Seeding random number generator: " << seed << endl;
-          srand(seed);
-      }
-  }
+
+  srand(SEED);
 
   // Determine size of the array to sort
   int size;
@@ -86,7 +71,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     int probSizes[4] = {1, 8, 48, 96};
     size = probSizes[op.getOptionInt("size") - 1] * 1024 * 1024;
   } else {
-    size = elements;
+    size = elements * 1024 * 1024;
   }
   bytes = size * sizeof(uint);
   cout << "Array size: " << bytes << " bytes, " << size << " elements" << endl;
@@ -203,8 +188,8 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     char atts[1024];
     sprintf(atts, "%ditems", size);
     double gb = (bytes * 2.) / (1000. * 1000. * 1000.);
-    resultDB.AddResult("Sort_KernelTime", atts, "sec", kernelTime);
-    resultDB.AddResult("Sort_TransferTime", atts, "sec", transferTime);
+    resultDB.AddResult("Sort-KernelTime", atts, "sec", kernelTime);
+    resultDB.AddResult("Sort-TransferTime", atts, "sec", transferTime);
     resultDB.AddResult("Sort-Rate", atts, "GB/s", gb / kernelTime);
     resultDB.AddResult("Sort-Rate_PCIe", atts, "GB/s",
                        gb / (kernelTime + transferTime));

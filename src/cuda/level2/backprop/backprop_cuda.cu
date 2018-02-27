@@ -12,6 +12,8 @@
 #include "backprop.h"
 #include "backprop_cuda.h"
 
+#define SEED 7
+
 using namespace std;
 
 unsigned int num_threads = 0;
@@ -35,7 +37,6 @@ unsigned int num_blocks = 0;
 void addBenchmarkSpecOptions(OptionParser &op) {
   op.addOption("layerSize", OPT_INT, "0",
                "specify layer size (must be a multiple of 16)");
-  op.addOption("seed", OPT_INT, "0", "seed for random number generator");
 }
 
 // ****************************************************************************
@@ -66,13 +67,8 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 }
 
 void setup(ResultDatabase &resultDB, OptionParser &op) {
-  int seed = op.getOptionInt("seed");
   int layer_size = op.getOptionInt("layerSize");
 
-  // if no seed specified, default to 7
-  if(seed == 0) {
-      seed = 7;
-  }
   // if no layer size specified, default to using a preset problem size
   if(layer_size == 0) {
     int probSizes[4] = {1, 8, 48, 96};
@@ -84,7 +80,6 @@ void setup(ResultDatabase &resultDB, OptionParser &op) {
     exit(0);
   }
   printf("Input layer size: %d\n", layer_size);
-  printf("Random number generator seed: %d\n", seed);
 
 #ifdef CPU
   printf("Performing CPU computation\n");
@@ -97,7 +92,7 @@ void setup(ResultDatabase &resultDB, OptionParser &op) {
   int passes = op.getOptionInt("passes");
   for(int i = 0; i < passes; i++) {
     printf("Pass %d: ", i);
-    bpnn_initialize(seed);
+    bpnn_initialize(SEED);
     backprop_face(layer_size, resultDB);
     printf("Done.\n");
   }
@@ -282,10 +277,10 @@ void bpnn_train_cuda(BPNN *net, float *eo, float *eh, ResultDatabase &resultDB) 
   free(input_weights_one_dim);
   free(input_weights_prev_one_dim);
 
-  string testName = "Backprop-";
-  resultDB.AddResult(testName+"Transfer_Time", "layersize:"+toString(in), "sec", transferTime);
-  resultDB.AddResult(testName+"Kernel_Time", "layersize:"+toString(in), "sec", kernelTime);
-  resultDB.AddResult(testName+"Rate_Parity", "layersize:"+toString(in), "N", transferTime/kernelTime);
+  string atts = "layersize:" + toString(in);
+  resultDB.AddResult("Backprop-Transfer_Time", atts, "sec", transferTime);
+  resultDB.AddResult("Backprop-Kernel_Time", atts, "sec", kernelTime);
+  resultDB.AddResult("Backprop-Rate_Parity", atts, "N", transferTime/kernelTime);
 
 #endif
 }

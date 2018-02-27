@@ -135,9 +135,9 @@ int main(int argc, char *argv[])
         op.addOption("size", OPT_INT, "1", "specify problem size", 's');
         op.addOption("verbose", OPT_BOOL, "", "enable verbose output", 'v');
         op.addOption("quiet", OPT_BOOL, "", "enable concise output", 'q');
-        op.addOption("configFile", OPT_STRING, "", "specify configuration file", 'c');
-        op.addOption("inputFile", OPT_STRING, "", "specify input file", 'i');
-        op.addOption("outputFile", OPT_STRING, "", "specify output file", 'o');
+        op.addOption("configFile", OPT_STRING, "", "path of configuration file", 'c');
+        op.addOption("inputFile", OPT_STRING, "", "path of input file", 'i');
+        op.addOption("outputFile", OPT_STRING, "", "path of output file", 'o');
 
         addBenchmarkSpecOptions(op);
 
