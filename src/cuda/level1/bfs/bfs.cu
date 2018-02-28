@@ -26,13 +26,17 @@
 #include "ResultDatabase.h"
 #include "OptionParser.h"
 
+#define MIN_NODES 20
+#define MAX_NODES ULONG_MAX
+#define MIN_EDGES 2
+#define MAX_INIT_EDGES 4 // Nodes will have, on average, 2*MAX_INIT_EDGES edges
+#define MIN_WEIGHT 1
+#define MAX_WEIGHT 10
+#define SEED 7
+
 #define MAX_THREADS_PER_BLOCK 512
 
 using namespace std;
-
-int no_of_nodes;
-int edge_list_size;
-FILE *fp;
 
 struct Node
 {
@@ -40,7 +44,8 @@ struct Node
 	int no_of_edges;
 };
 
-void BFSGraph(ResultDatabase &resultDB, OptionParser &op);
+void initGraph(OptionParser &op, int &no_of_nodes, int &edge_list_size, int &source, Node* &h_graph_nodes, int* &h_graph_edges);
+void BFSGraph(ResultDatabase &resultDB, OptionParser &op, int no_of_nodes, int edge_list_size, int source, Node* &h_graph_nodes, int* &h_graph_edges);
 
 ////////////////////////////////////////////////////////////////////////////////
 __global__ void Kernel( Node* g_graph_nodes, int* g_graph_edges, bool* g_graph_mask, bool* g_updating_graph_mask, bool *g_graph_visited, int* g_cost, int no_of_nodes) 
@@ -120,42 +125,131 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     cudaDeviceProp deviceProp;
     cudaGetDeviceProperties(&deviceProp, device);
 
+	srand(SEED);
+
+    int no_of_nodes = 0;
+    int edge_list_size = 0;
+    int source = 0;
+	Node* h_graph_nodes;
+	int* h_graph_edges;
+    initGraph(op, no_of_nodes, edge_list_size, source, h_graph_nodes, h_graph_edges);
+
     int passes = op.getOptionInt("passes");
     for(int i = 0; i < passes; i++) {
         printf("Pass %d: ", i);
-        no_of_nodes=0;
-        edge_list_size=0;
-        BFSGraph(resultDB, op);
-        printf("Done.\n");
+        BFSGraph(resultDB, op, no_of_nodes, edge_list_size, source, h_graph_nodes, h_graph_edges);
+        //printf("Done.\n");
+    }
+
+	free( h_graph_nodes);
+	free( h_graph_edges);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//Generate uniform distribution
+////////////////////////////////////////////////////////////////////////////////
+int uniform_distribution(int rangeLow, int rangeHigh) {
+    double myRand = rand()/(1.0 + RAND_MAX); 
+    int range = rangeHigh - rangeLow + 1;
+    int myRand_scaled = (myRand * range) + rangeLow;
+    return myRand_scaled;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//Initialize Graph
+////////////////////////////////////////////////////////////////////////////////
+void initGraph(OptionParser &op, int &no_of_nodes, int &edge_list_size, int &source, Node* &h_graph_nodes, int* &h_graph_edges) {
+    // open input file for reading
+    FILE *fp;
+    string infile = op.getOptionString("inputFile");
+    if(infile != "") {
+        fp = fopen(infile.c_str(),"r");
+        if(!fp)
+        {
+            printf("Error: Unable to read graph file %s.\n", infile.c_str());
+        }
+    }
+
+    if(fp) {
+        printf("Reading graph file\n");
+    } else {
+        printf("Generating graph with a preset problem size\n");
+    }
+
+    // initialize number of nodes
+    if(fp) {
+	    int n = fscanf(fp,"%d",&no_of_nodes);
+        assert(n == 1);
+    } else {
+        int problemSizes[4] = {1, 4, 8, 16};
+        no_of_nodes = problemSizes[op.getOptionInt("size") - 1] * 1024 * 1024;
+    }
+
+	// initalize the nodes & number of edges
+	h_graph_nodes = (Node*) malloc(sizeof(Node)*no_of_nodes);
+	int start, edgeno;   
+    for( unsigned int i = 0; i < no_of_nodes; i++) 
+    {
+        if(fp) {
+            int n = fscanf(fp,"%d %d",&start,&edgeno);
+            assert(n == 2);
+        } else {
+            start = edge_list_size;
+            edgeno = rand() % (MAX_INIT_EDGES - MIN_EDGES + 1) + MIN_EDGES;
+        }
+        h_graph_nodes[i].starting = start;
+        h_graph_nodes[i].no_of_edges = edgeno;
+        edge_list_size += edgeno;
+    }
+
+	// initialize the source node
+    if(fp) {
+	    int n = fscanf(fp,"%d",&source);
+        assert(n == 1);
+    } else {
+        source = uniform_distribution(0, no_of_nodes - 1);
+    }
+    source = 0;
+
+    if(fp) {
+        int edges;
+        int n = fscanf(fp,"%d",&edges);
+        assert(n == 1);
+        assert(edges == edge_list_size);
+    }
+
+    // initialize the edges
+	int id,cost;
+	h_graph_edges = (int*) malloc(sizeof(int)*edge_list_size);
+	for(int i=0; i < edge_list_size ; i++)
+	{
+        if(fp) {
+            int n = fscanf(fp,"%d %d",&id, &cost);
+            assert(n == 2);
+        } else {
+			id = uniform_distribution(0, no_of_nodes - 1);
+			//cost = rand() % (MAX_WEIGHT - MIN_WEIGHT + 1) + MIN_WEIGHT;
+        }
+		h_graph_edges[i] = id;
+	}
+
+    if(fp) {
+        fclose(fp);    
+        printf("Done reading graph file\n");
+    } else {
+        printf("Done generating graph\n");
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //Apply BFS on a Graph using CUDA
 ////////////////////////////////////////////////////////////////////////////////
-void BFSGraph(ResultDatabase &resultDB, OptionParser &op) 
+void BFSGraph(ResultDatabase &resultDB, OptionParser &op, int no_of_nodes, int edge_list_size, int source, Node* &h_graph_nodes, int* &h_graph_edges) 
 {
     bool verbose = op.getOptionBool("verbose");
-    string infile = op.getOptionString("inputFile");
 
-	//Read in Graph from a file
-	fp = fopen(infile.c_str(),"r");
-	if(!fp)
-	{
-		printf("Error: Unable to read graph file\n");
-		return;
-	}
-
-    if(verbose) {
-	    printf("Reading graph file\n");
-    }
-
-	fscanf(fp,"%d",&no_of_nodes);
-
-	int source = 0;
 	int num_of_blocks = 1;
 	int num_of_threads_per_block = no_of_nodes;
-
 	//Make execution Parameters according to the number of nodes
 	//Distribute threads across multiple Blocks if necessary
 	if(no_of_nodes>MAX_THREADS_PER_BLOCK)
@@ -165,54 +259,27 @@ void BFSGraph(ResultDatabase &resultDB, OptionParser &op)
 	}
 
 	// allocate host memory
-	Node* h_graph_nodes = (Node*) malloc(sizeof(Node)*no_of_nodes);
 	bool *h_graph_mask = (bool*) malloc(sizeof(bool)*no_of_nodes);
 	bool *h_updating_graph_mask = (bool*) malloc(sizeof(bool)*no_of_nodes);
 	bool *h_graph_visited = (bool*) malloc(sizeof(bool)*no_of_nodes);
 
-	int start, edgeno;   
 	// initalize the memory
-	for( unsigned int i = 0; i < no_of_nodes; i++) 
-	{
-		fscanf(fp,"%d %d",&start,&edgeno);
-		h_graph_nodes[i].starting = start;
-		h_graph_nodes[i].no_of_edges = edgeno;
-		h_graph_mask[i]=false;
-		h_updating_graph_mask[i]=false;
-		h_graph_visited[i]=false;
-	}
-
-	//read the source node from the file
-	fscanf(fp,"%d",&source);
-	source=0;
+    for( unsigned int i = 0; i < no_of_nodes; i++) 
+    {
+        h_graph_mask[i]=false;
+        h_updating_graph_mask[i]=false;
+        h_graph_visited[i]=false;
+    }
 
 	//set the source node as true in the mask
 	h_graph_mask[source]=true;
 	h_graph_visited[source]=true;
 
-	fscanf(fp,"%d",&edge_list_size);
-
-	//int id,cost;
-    int id;
-	int* h_graph_edges = (int*) malloc(sizeof(int)*edge_list_size);
-	for(int i=0; i < edge_list_size ; i++)
-	{
-		fscanf(fp,"%d",&id);
-		//fscanf(fp,"%d",&cost);
-		h_graph_edges[i] = id;
-	}
-
-	if(fp) {
-		fclose(fp);    
-    }
-    if(verbose) {
-	    printf("Done reading graph file\n");
-    }
-
 	// allocate mem for the result on host side
 	int* h_cost = (int*) malloc( sizeof(int)*no_of_nodes);
-	for(int i=0;i<no_of_nodes;i++)
+	for(int i=0;i<no_of_nodes;i++) {
 		h_cost[i]=-1;
+    }
 	h_cost[source]=0;
 
 	// node list
@@ -254,9 +321,9 @@ void BFSGraph(ResultDatabase &resultDB, OptionParser &op)
     cudaEventSynchronize(tstop);
     cudaEventElapsedTime(&elapsedTime, tstart, tstop);
     transferTime += elapsedTime * 1.e-3; // convert to seconds
-
     if(verbose) {
-	    printf("Copied everything to device memory\n");
+        printf("Transfer Time: %f\n", transferTime);
+	    printf("Copied Everything to GPU memory\n");
     }
 
 	// setup execution parameters
@@ -266,6 +333,7 @@ void BFSGraph(ResultDatabase &resultDB, OptionParser &op)
     if(verbose) {
 	    printf("Start traversing the tree\n");
     }
+
     double kernelTime = 0;
 	int k=0;
 	bool stop;
@@ -300,6 +368,7 @@ void BFSGraph(ResultDatabase &resultDB, OptionParser &op)
 	while(stop);
 
     if(verbose) {
+        printf("Kernel Time: %f\n", kernelTime);
 	    printf("Kernel Executed %d times\n",k);
     }
 
@@ -325,8 +394,6 @@ void BFSGraph(ResultDatabase &resultDB, OptionParser &op)
     }
 
 	// cleanup memory
-	free( h_graph_nodes);
-	free( h_graph_edges);
 	free( h_graph_mask);
 	free( h_updating_graph_mask);
 	free( h_graph_visited);
@@ -338,8 +405,9 @@ void BFSGraph(ResultDatabase &resultDB, OptionParser &op)
 	cudaFree(d_graph_visited);
 	cudaFree(d_cost);
 
-    char atts[64];
-    sprintf(atts, "%dV,%dE", no_of_nodes, edge_list_size);
+    char tmp[64];
+    sprintf(tmp, "%dV,%dE", no_of_nodes, edge_list_size);
+    string atts = string(tmp);
     resultDB.AddResult("BFS-TransferTime", atts, "sec", transferTime);
     resultDB.AddResult("BFS-KernelTime", atts, "sec", kernelTime);
     resultDB.AddResult("BFS-Rate_Nodes", atts, "Nodes/s", no_of_nodes/kernelTime);
