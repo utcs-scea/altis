@@ -7,15 +7,53 @@
 #include <fcntl.h>
 #include <float.h>
 #include <sys/time.h>
-
-#include "Particlefilter/common.h"
-#include "ex_particle_CUDA_float_seq.h"
-
+#include "OptionParser.h"
+#include "ResultDatabase.h"
 #define BLOCK_X 16
 #define BLOCK_Y 16
 #define PI 3.1415926535897932
 
 const int threads_per_block = 512;
+
+/**
+@var M value for Linear Congruential Generator (LCG); use GCC's value
+ */
+long M = INT_MAX;
+/**
+@var A value for LCG
+ */
+int A = 1103515245;
+/**
+@var C value for LCG
+ */
+int C = 12345;
+
+/*****************************
+ *GET_TIME
+ *returns a long int representing the time
+ *****************************/
+long long get_time() {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (tv.tv_sec * 1000000) +tv.tv_usec;
+}
+// Returns the number of seconds elapsed between the two specified times
+
+double elapsed_time(long long start_time, long long end_time) {
+    return (double) (end_time - start_time) / (1000 * 1000);
+}
+
+/*****************************
+ * CHECK_ERROR
+ * Checks for CUDA errors and prints them to the screen to help with
+ * debugging of CUDA related programming
+ *****************************/
+void check_error(cudaError e) {
+    if (e != cudaSuccess) {
+        printf("\nCUDA error: %s\n", cudaGetErrorString(e));
+        exit(1);
+    }
+}
 
 void cuda_print_double_array(double *array_GPU, size_t size) {
     //allocate temporary array for printing
@@ -758,6 +796,30 @@ void particleFilter(unsigned char * I, int IszX, int IszY, int Nfr, int * seed, 
     free(CDF);
     free(ind);
     free(u);
+}
+
+void addBenchmarkSpecOptions(OptionParser &op) {
+  //op.addOption("boxes1d", OPT_INT, "0",
+  //             "specify number of boxes in single dimension, total box number is that^3");
+}
+
+void particlefilter_float(ResultDatabase &resultDB, OptionParser &op);
+
+void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
+    particlefilter_float(resultDB, op);
+    /*
+    int boxes1d = op.getOptionInt("boxes1d");
+    if(boxes1d == 0) {
+        int probSizes[4] = {10, 40, 100, 200};
+        boxes1d = probSizes[op.getOptionInt("size") - 1];
+    }
+    int passes = op.getOptionInt("passes");
+    for(int i = 0; i < passes; i++) {
+        printf("Pass %d: ", i);
+        particlefilter_float(resultDB, op);
+        printf("Done.\n");
+    }
+    */
 }
 
 void particlefilter_float(ResultDatabase &resultDB, OptionParser &op) {

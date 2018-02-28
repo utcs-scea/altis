@@ -88,7 +88,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-cuda_PROGRAMS = particlefilter$(EXEEXT)
+cuda_PROGRAMS = particlefilter_naive$(EXEEXT) \
+	particlefilter_float$(EXEEXT)
 subdir = src/cuda/level2/particlefilter
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -101,11 +102,15 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(cudadir)"
 PROGRAMS = $(cuda_PROGRAMS)
-am_particlefilter_OBJECTS = main.$(OBJEXT) harness.$(OBJEXT)
-particlefilter_OBJECTS = $(am_particlefilter_OBJECTS)
+am_particlefilter_float_OBJECTS = main.$(OBJEXT)
+particlefilter_float_OBJECTS = $(am_particlefilter_float_OBJECTS)
 am__DEPENDENCIES_1 =
-particlefilter_DEPENDENCIES = ex_particle_CUDA_naive_seq.o \
-	ex_particle_CUDA_float_seq.o $(am__DEPENDENCIES_1)
+particlefilter_float_DEPENDENCIES = ex_particle_CUDA_float_seq.o \
+	$(am__DEPENDENCIES_1)
+am_particlefilter_naive_OBJECTS = main.$(OBJEXT)
+particlefilter_naive_OBJECTS = $(am_particlefilter_naive_OBJECTS)
+particlefilter_naive_DEPENDENCIES = ex_particle_CUDA_naive_seq.o \
+	$(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -135,8 +140,10 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(particlefilter_SOURCES)
-DIST_SOURCES = $(particlefilter_SOURCES)
+SOURCES = $(particlefilter_float_SOURCES) \
+	$(particlefilter_naive_SOURCES)
+DIST_SOURCES = $(particlefilter_float_SOURCES) \
+	$(particlefilter_naive_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -290,12 +297,17 @@ AM_CPPFLAGS = $(CUDA_INC)
 cudadir = $(bindir)/CUDA
 
 # How to build those programs?
-particlefilter_SOURCES = \
-main.cpp \
-harness.cpp
+particlefilter_naive_SOURCES = \
+main.cpp
 
-particlefilter_LDADD = \
+particlefilter_naive_LDADD = \
 ex_particle_CUDA_naive_seq.o \
+$(CUDA_LIBS) $(LIBS) -lm
+
+particlefilter_float_SOURCES = \
+main.cpp
+
+particlefilter_float_LDADD = \
 ex_particle_CUDA_float_seq.o \
 $(CUDA_LIBS) $(LIBS) -lm
 
@@ -375,9 +387,13 @@ uninstall-cudaPROGRAMS:
 clean-cudaPROGRAMS:
 	-test -z "$(cuda_PROGRAMS)" || rm -f $(cuda_PROGRAMS)
 
-particlefilter$(EXEEXT): $(particlefilter_OBJECTS) $(particlefilter_DEPENDENCIES) $(EXTRA_particlefilter_DEPENDENCIES) 
-	@rm -f particlefilter$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(particlefilter_OBJECTS) $(particlefilter_LDADD) $(LIBS)
+particlefilter_float$(EXEEXT): $(particlefilter_float_OBJECTS) $(particlefilter_float_DEPENDENCIES) $(EXTRA_particlefilter_float_DEPENDENCIES) 
+	@rm -f particlefilter_float$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(particlefilter_float_OBJECTS) $(particlefilter_float_LDADD) $(LIBS)
+
+particlefilter_naive$(EXEEXT): $(particlefilter_naive_OBJECTS) $(particlefilter_naive_DEPENDENCIES) $(EXTRA_particlefilter_naive_DEPENDENCIES) 
+	@rm -f particlefilter_naive$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(particlefilter_naive_OBJECTS) $(particlefilter_naive_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -385,7 +401,6 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/harness.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 
 .cpp.o:
