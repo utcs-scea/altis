@@ -118,8 +118,7 @@ int main( int argc, char ** argv )
 	outf << totalEdges << "\n";
 	for ( ulong i = 0; i < numNodes; i++ )
 		for ( uint j = 0; j < graph[i].size(); j++ )
-			//outf << graph[i][j].dest << " " << graph[i][j].weight << "\n";
-			outf << graph[i][j].dest << "\n";
+			outf << graph[i][j].dest << " " << graph[i][j].weight << "\n";
 	outf.close();
 
 	delete[] graph;
