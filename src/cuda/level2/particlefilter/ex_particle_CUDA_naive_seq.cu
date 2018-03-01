@@ -14,9 +14,12 @@
 #include <sys/time.h>
 #include "OptionParser.h"
 #include "ResultDatabase.h"
+#include "cudacommon.h"
 #define PI 3.1415926535897932
 #define BLOCK_X 16
 #define BLOCK_Y 16
+
+bool verbose = false;
 
 /**
 @var M value for Linear Congruential Generator (LCG); use GCC's value
@@ -33,19 +36,6 @@ int C = 12345;
 
 const int threads_per_block = 128;
 
-/*****************************
-*GET_TIME
-*returns a long int representing the time
-*****************************/
-long long get_time() {
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	return (tv.tv_sec * 1000000) + tv.tv_usec;
-}
-// Returns the number of seconds elapsed between the two specified times
-float elapsed_time(long long start_time, long long end_time) {
-        return (float) (end_time - start_time) / (1000 * 1000);
-}
 /*****************************
 * CHECK_ERROR
 * Checks for CUDA errors and prints them to the screen to help with
@@ -227,8 +217,11 @@ void strelDisk(int * disk, int radius)
 	for(x = 0; x < diameter; x++){
 		for(y = 0; y < diameter; y++){
 			double distance = sqrt(pow((double)(x-radius+1),2) + pow((double)(y-radius+1),2));
-			if(distance < radius)
-			disk[x*diameter + y] = 1;
+			if(distance < radius) {
+			    disk[x*diameter + y] = 1;
+            } else {
+			    disk[x*diameter + y] = 0;
+            }
 		}
 	}
 }
@@ -408,9 +401,16 @@ int findIndex(double * CDF, int lengthCDF, double value){
 * @param seed The seed array used for random number generation
 * @param Nparticles The number of particles to be used
 */
-void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparticles){
+void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparticles, ResultDatabase &resultDB) {
+
+    float kernelTime = 0.0f;
+    float transferTime = 0.0f;
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    float elapsedTime;
+
 	int max_size = IszX*IszY*Nfr;
-	long long start = get_time();
 	//original particle centroid
 	double xe = roundDouble(IszY/2.0);
 	double ye = roundDouble(IszX/2.0);
@@ -431,15 +431,11 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 	double * objxy = (double *)malloc(countOnes*2*sizeof(double));
 	getneighbors(disk, countOnes, objxy, radius);
 	
-	long long get_neighbors = get_time();
-	printf("TIME TO GET NEIGHBORS TOOK: %f\n", elapsed_time(start, get_neighbors));
 	//initial weights are all equal (1/Nparticles)
 	double * weights = (double *)malloc(sizeof(double)*Nparticles);
 	for(x = 0; x < Nparticles; x++){
 		weights[x] = 1/((double)(Nparticles));
 	}
-	long long get_weights = get_time();
-	printf("TIME TO GET WEIGHTSTOOK: %f\n", elapsed_time(get_neighbors, get_weights));
 	//initial likelihood to 0.0
 	double * likelihood = (double *)malloc(sizeof(double)*Nparticles);
 	double * arrayX = (double *)malloc(sizeof(double)*Nparticles);
@@ -475,8 +471,6 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 	//double * Ik = (double *)malloc(sizeof(double)*IszX*IszY);
 	int indX, indY;
 	for(k = 1; k < Nfr; k++){
-		long long set_arrays = get_time();
-		//printf("TIME TO SET ARRAYS TOOK: %f\n", elapsed_time(get_weights, set_arrays));
 		//apply motion model
 		//draws sample from motion model (random walk). The only prior information
 		//is that the object moves 2x as fast as in the y direction
@@ -486,8 +480,6 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 			arrayY[x] = arrayY[x] - 2.0 + 2.0*randn(seed, x);
 		}
 		//particle filter likelihood
-		long long error = get_time();
-		printf("TIME TO SET ERROR TOOK: %f\n", elapsed_time(set_arrays, error));
 		for(x = 0; x < Nparticles; x++){
 		
 			//compute the likelihood: remember our assumption is that you know
@@ -505,26 +497,18 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 			likelihood[x] = calcLikelihoodSum(I, ind, countOnes);
 			likelihood[x] = likelihood[x]/countOnes;
 		}
-		long long likelihood_time = get_time();
-		printf("TIME TO GET LIKELIHOODS TOOK: %f\n", elapsed_time(error, likelihood_time));
 		// update & normalize weights
 		// using equation (63) of Arulampalam Tutorial		
 		for(x = 0; x < Nparticles; x++){
 			weights[x] = weights[x] * exp(likelihood[x]);
 		}
-		long long exponential = get_time();
-		printf("TIME TO GET EXP TOOK: %f\n", elapsed_time(likelihood_time, exponential));
 		double sumWeights = 0;	
 		for(x = 0; x < Nparticles; x++){
 			sumWeights += weights[x];
 		}
-		long long sum_time = get_time();
-		printf("TIME TO SUM WEIGHTS TOOK: %f\n", elapsed_time(exponential, sum_time));
 		for(x = 0; x < Nparticles; x++){
 				weights[x] = weights[x]/sumWeights;
 		}
-		long long normalize = get_time();
-		printf("TIME TO NORMALIZE WEIGHTS TOOK: %f\n", elapsed_time(sum_time, normalize));
 		xe = 0;
 		ye = 0;
 		// estimate the object location by expected values
@@ -532,12 +516,12 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 			xe += arrayX[x] * weights[x];
 			ye += arrayY[x] * weights[x];
 		}
-		long long move_time = get_time();
-		printf("TIME TO MOVE OBJECT TOOK: %f\n", elapsed_time(normalize, move_time));
-		printf("XE: %lf\n", xe);
-		printf("YE: %lf\n", ye);
-		double distance = sqrt( pow((double)(xe-(int)roundDouble(IszY/2.0)),2) + pow((double)(ye-(int)roundDouble(IszX/2.0)),2) );
-		printf("%lf\n", distance);
+        if(verbose) {
+            printf("XE: %lf\n", xe);
+            printf("YE: %lf\n", ye);
+            double distance = sqrt( pow((double)(xe-(int)roundDouble(IszY/2.0)),2) + pow((double)(ye-(int)roundDouble(IszX/2.0)),2) );
+            printf("%lf\n", distance);
+        }
 		//display(hold off for now)
 		
 		//pause(hold off for now)
@@ -549,39 +533,45 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 		for(x = 1; x < Nparticles; x++){
 			CDF[x] = weights[x] + CDF[x-1];
 		}
-		long long cum_sum = get_time();
-		printf("TIME TO CALC CUM SUM TOOK: %f\n", elapsed_time(move_time, cum_sum));
 		double u1 = (1/((double)(Nparticles)))*randu(seed, 0);
 		for(x = 0; x < Nparticles; x++){
 			u[x] = u1 + x/((double)(Nparticles));
 		}
-		long long u_time = get_time();
-		printf("TIME TO CALC U TOOK: %f\n", elapsed_time(cum_sum, u_time));
-		long long start_copy = get_time();
 		//CUDA memory copying from CPU memory to GPU memory
+        cudaEventRecord(start, 0);
+
 		cudaMemcpy(arrayX_GPU, arrayX, sizeof(double)*Nparticles, cudaMemcpyHostToDevice);
 		cudaMemcpy(arrayY_GPU, arrayY, sizeof(double)*Nparticles, cudaMemcpyHostToDevice);
 		cudaMemcpy(xj_GPU, xj, sizeof(double)*Nparticles, cudaMemcpyHostToDevice);
 		cudaMemcpy(yj_GPU, yj, sizeof(double)*Nparticles, cudaMemcpyHostToDevice);
 		cudaMemcpy(CDF_GPU, CDF, sizeof(double)*Nparticles, cudaMemcpyHostToDevice);
 		cudaMemcpy(u_GPU, u, sizeof(double)*Nparticles, cudaMemcpyHostToDevice);
-		long long end_copy = get_time();
+
+        cudaEventRecord(stop, 0);
+        cudaEventSynchronize(stop);
+        cudaEventElapsedTime(&elapsedTime, start, stop);
+        transferTime += elapsedTime * 1.e-3;
 		//Set number of threads
 		int num_blocks = ceil((double) Nparticles/(double) threads_per_block);
 		
 		//KERNEL FUNCTION CALL
+        cudaEventRecord(start, 0);
 		kernel <<< num_blocks, threads_per_block >>> (arrayX_GPU, arrayY_GPU, CDF_GPU, u_GPU, xj_GPU, yj_GPU, Nparticles);
-                cudaThreadSynchronize();
-                long long start_copy_back = get_time();
+        cudaEventRecord(stop, 0);
+        cudaEventSynchronize(stop);
+        cudaEventElapsedTime(&elapsedTime, start, stop);
+        kernelTime += elapsedTime * 1.e-3;
+        CHECK_CUDA_ERROR();
+        
+        cudaThreadSynchronize();
 		//CUDA memory copying back from GPU to CPU memory
+        cudaEventRecord(start, 0);
 		cudaMemcpy(yj, yj_GPU, sizeof(double)*Nparticles, cudaMemcpyDeviceToHost);
 		cudaMemcpy(xj, xj_GPU, sizeof(double)*Nparticles, cudaMemcpyDeviceToHost);
-		long long end_copy_back = get_time();
-		printf("SENDING TO GPU TOOK: %lf\n", elapsed_time(start_copy, end_copy));
-		printf("CUDA EXEC TOOK: %lf\n", elapsed_time(end_copy, start_copy_back));
-		printf("SENDING BACK FROM GPU TOOK: %lf\n", elapsed_time(start_copy_back, end_copy_back));
-		long long xyj_time = get_time();
-		printf("TIME TO CALC NEW ARRAY X AND Y TOOK: %f\n", elapsed_time(u_time, xyj_time));
+        cudaEventRecord(stop, 0);
+        cudaEventSynchronize(stop);
+        cudaEventElapsedTime(&elapsedTime, start, stop);
+        transferTime += elapsedTime * 1.e-3;
 		
 		for(x = 0; x < Nparticles; x++){
 			//reassign arrayX and arrayY
@@ -589,9 +579,13 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 			arrayY[x] = yj[x];
 			weights[x] = 1/((double)(Nparticles));
 		}
-		long long reset = get_time();
-		printf("TIME TO RESET WEIGHTS TOOK: %f\n", elapsed_time(xyj_time, reset));
 	}
+    
+    char atts[1024];
+    sprintf(atts, "dimx:%d, dimy:%d, numframes:%d, numparticles:%d", IszX, IszY, Nfr, Nparticles);
+    resultDB.AddResult("particlefilter_naive_kernel_time", atts, "sec", kernelTime);
+    resultDB.AddResult("particlefilter_naive_transfer_time", atts, "sec", transferTime);
+    resultDB.AddResult("particlefilter_naive_parity", atts, "N", transferTime / kernelTime);
 	
 	//CUDA freeing of memory
 	cudaFree(u_GPU);
@@ -646,9 +640,9 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
             args[i] = probSizes[size][i];
         }
     }
-    for(int i = 0; i < 4; i++) {
-        printf("%d\n", args[i]);
-    }
+    printf("Using dimx=%d, dimy=%d, framecount=%d, numparticles=%d\n",
+           args[0], args[1], args[2], args[3]);
+    verbose = op.getOptionBool("verbose");
     int passes = op.getOptionInt("passes");
     for(int i = 0; i < passes; i++) {
         printf("Pass %d: ", i);
@@ -672,16 +666,10 @@ void particlefilter_naive(ResultDatabase &resultDB, int args[]){
 		seed[i] = time(0)*i;
 	//malloc matrix
 	int * I = (int *)malloc(sizeof(int)*IszX*IszY*Nfr);
-	long long start = get_time();
 	//call video sequence
 	videoSequence(I, IszX, IszY, Nfr, seed);
-	long long endVideoSequence = get_time();
-	printf("VIDEO SEQUENCE TOOK %f\n", elapsed_time(start, endVideoSequence));
 	//call particle filter
-	particleFilter(I, IszX, IszY, Nfr, seed, Nparticles);
-	long long endParticleFilter = get_time();
-	printf("PARTICLE FILTER TOOK %f\n", elapsed_time(endVideoSequence, endParticleFilter));
-	printf("ENTIRE PROGRAM TOOK %f\n", elapsed_time(start, endParticleFilter));
+	particleFilter(I, IszX, IszY, Nfr, seed, Nparticles, resultDB);
 	
 	free(seed);
 	free(I);
