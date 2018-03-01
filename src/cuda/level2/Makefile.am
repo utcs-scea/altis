@@ -1,1 +1,1 @@
-SUBDIRS=backprop lavamd particlefilter
+SUBDIRS=lavamd nw particlefilter
