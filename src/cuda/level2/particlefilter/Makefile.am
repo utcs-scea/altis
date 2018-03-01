@@ -11,16 +11,19 @@ AM_CPPFLAGS = $(CUDA_INC)
 cudadir = $(bindir)/CUDA
 
 # What programs should be installed to that destination?
-cuda_PROGRAMS = particlefilter
+cuda_PROGRAMS = particlefilter_naive particlefilter_float
 
 # How to build those programs?
-particlefilter_SOURCES = \
-main.cpp \
-harness.cpp
+particlefilter_naive_SOURCES = \
+main.cpp
 
-particlefilter_LDADD = \
+particlefilter_naive_LDADD = \
 ex_particle_CUDA_naive_seq.o \
-ex_particle_CUDA_float_seq.o \
 $(CUDA_LIBS) $(LIBS) -lm
 
+particlefilter_float_SOURCES = \
+main.cpp
 
+particlefilter_float_LDADD = \
+ex_particle_CUDA_float_seq.o \
+$(CUDA_LIBS) $(LIBS) -lm
