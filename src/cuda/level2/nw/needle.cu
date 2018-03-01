@@ -337,5 +337,6 @@ void runTest(ResultDatabase &resultDB, OptionParser &op) {
   string atts = string(tmp);
   resultDB.AddResult("NW-TransferTime", atts, "sec", transferTime);
   resultDB.AddResult("NW-KernelTime", atts, "sec", kernelTime);
+  resultDB.AddResult("NW-TotalTime", atts, "sec", transferTime + kernelTime);
   resultDB.AddResult("NW-Rate_Parity", atts, "N", transferTime / kernelTime);
 }

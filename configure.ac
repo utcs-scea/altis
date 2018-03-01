@@ -239,6 +239,7 @@ AC_CONFIG_FILES([Makefile
                  src/cuda/level1/pathfinder/Makefile
                  src/cuda/level1/sort/Makefile
                  src/cuda/level2/Makefile
+                 src/cuda/level2/kmeans/Makefile
                  src/cuda/level2/lavamd/Makefile
                  src/cuda/level2/nw/Makefile
                  src/cuda/level2/particlefilter/Makefile

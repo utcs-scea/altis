@@ -147,6 +147,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
         string testName = "DGEMM";
         resultDB.AddResult(testName + "-" + transb + "-TransferTime", atts, "sec", FLT_MAX);
         resultDB.AddResult(testName + "-" + transb + "-KernelTime", atts, "sec", FLT_MAX);
+        resultDB.AddResult(testName + "-" + transb + "-TotalTime", atts, "sec", FLT_MAX);
         resultDB.AddResult(testName + "-" + transb, atts, "GFlops", FLT_MAX);
         resultDB.AddResult(testName + "-" + transb + "_PCIe", atts, "GFlops",
                            FLT_MAX);
@@ -280,6 +281,7 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
       string atts = "dim:" + toString(dim);
       resultDB.AddResult(testName + "-" + transb + "-TransferTime", atts, "sec", transferTime);
       resultDB.AddResult(testName + "-" + transb + "-KernelTime", atts, "sec", cublasTime);
+      resultDB.AddResult(testName + "-" + transb + "-TotalTime", atts, "sec", transferTime + cublasTime);
       resultDB.AddResult(testName + "-" + transb, atts, "GFlops", cublasGflops);
       resultDB.AddResult(testName + "-" + transb + "_PCIe", atts, "GFlops", pcieGflops);
       resultDB.AddResult(testName + "-" + transb + "_Parity", atts, "N", transferTime / cublasTime);

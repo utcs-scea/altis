@@ -309,5 +309,6 @@ void run(ResultDatabase &resultDB, OptionParser &op) {
   string atts = toString(rows) + "x" + toString(cols);
   resultDB.AddResult("Pathfinder-TransferTime", atts, "sec", transferTime);
   resultDB.AddResult("Pathfinder-KernelTime", atts, "sec", kernelTime);
+  resultDB.AddResult("Pathfinder-TotalTime", atts, "sec", transferTime + kernelTime);
   resultDB.AddResult("Pathfinder-Rate_Parity", atts, "N", transferTime/kernelTime);
 }

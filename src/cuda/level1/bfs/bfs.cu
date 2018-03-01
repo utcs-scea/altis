@@ -432,6 +432,7 @@ double BFSGraph(ResultDatabase &resultDB, OptionParser &op, int no_of_nodes, int
     string atts = string(tmp);
     resultDB.AddResult("BFS-TransferTime", atts, "sec", transferTime);
     resultDB.AddResult("BFS-KernelTime", atts, "sec", kernelTime);
+    resultDB.AddResult("BFS-TotalTime", atts, "sec", transferTime + kernelTime);
     resultDB.AddResult("BFS-Rate_Nodes", atts, "Nodes/s", no_of_nodes/kernelTime);
     resultDB.AddResult("BFS-Rate_Edges", atts, "Edges/s", edge_list_size/kernelTime);
     resultDB.AddResult("BFS-Rate_PCIe_Nodes", atts, "Nodes/s", no_of_nodes/(kernelTime + transferTime));

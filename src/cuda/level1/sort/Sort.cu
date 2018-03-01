@@ -188,8 +188,9 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     char atts[1024];
     sprintf(atts, "%ditems", size);
     double gb = (bytes * 2.) / (1000. * 1000. * 1000.);
-    resultDB.AddResult("Sort-KernelTime", atts, "sec", kernelTime);
     resultDB.AddResult("Sort-TransferTime", atts, "sec", transferTime);
+    resultDB.AddResult("Sort-KernelTime", atts, "sec", kernelTime);
+    resultDB.AddResult("Sort-TotalTime", atts, "sec", transferTime + kernelTime);
     resultDB.AddResult("Sort-Rate", atts, "GB/s", gb / kernelTime);
     resultDB.AddResult("Sort-Rate_PCIe", atts, "GB/s",
                        gb / (kernelTime + transferTime));

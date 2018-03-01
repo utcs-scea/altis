@@ -3,15 +3,15 @@
 #include <string.h>
 #include <math.h>
 #include <assert.h>
-
 #include <omp.h>
-
 #include <cuda.h>
 
 #define THREADS_PER_DIM 16
 #define BLOCKS_PER_DIM 16
 #define THREADS_PER_BLOCK THREADS_PER_DIM*THREADS_PER_DIM
 
+#include "ResultDatabase.h"
+#include "OptionParser.h"
 #include "kmeans_cuda_kernel.cu"
 
 
@@ -120,18 +120,19 @@ void deallocateMemory()
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Program main																  //
-
-int
-main( int argc, char** argv) 
-{
-	// make sure we're running on the big card
-    cudaSetDevice(1);
-	// as done in the CUDA start/help document provided
-	setup(argc, argv);    
+void addBenchmarkSpecOptions(OptionParser &op) {
+    op.addOption("maxClusters", OPT_INT, "5", "maximum number of clusters allowed");
+    op.addOption("minClusters", OPT_INT, "5", "minimum number of clusters allowed");
+    op.addOption("threshold", OPT_FLOAT, "0.001", "threshold value");
+    op.addOption("loops", OPT_INT, "1", "iteration for each number of clusters");
+    op.addOption("binaryInput", OPT_BOOL, "1", "input file is in binary format (default on)");
+    op.addOption("rmse", OPT_BOOL, "", "calculate RMSE (default off)");
+    op.addOption("outputCenters", OPT_BOOL, "", "output cluster center coordinates (default off)");
 }
 
-//																			  //
+void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
+    setup(resultDB, op);
+}
 ////////////////////////////////////////////////////////////////////////////////
 
 
