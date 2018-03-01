@@ -47,8 +47,8 @@ struct Node
 };
 
 void initGraph(OptionParser &op, int &no_of_nodes, int &edge_list_size, int &source, Node* &h_graph_nodes, int* &h_graph_edges);
-double BFSGraph(ResultDatabase &resultDB, OptionParser &op, int no_of_nodes, int edge_list_size, int source, Node* &h_graph_nodes, int* &h_graph_edges);
-double BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, int no_of_nodes, int edge_list_size, int source, Node* &h_graph_nodes, int* &h_graph_edges);
+void BFSGraph(ResultDatabase &resultDB, OptionParser &op, int no_of_nodes, int edge_list_size, int source, Node* &h_graph_nodes, int* &h_graph_edges);
+void BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, int no_of_nodes, int edge_list_size, int source, Node* &h_graph_nodes, int* &h_graph_edges);
 
 ////////////////////////////////////////////////////////////////////////////////
 __global__ void Kernel( Node* g_graph_nodes, int* g_graph_edges, bool* g_graph_mask, bool* g_updating_graph_mask, bool *g_graph_visited, int* g_cost, int no_of_nodes) 
@@ -137,21 +137,15 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 	int* h_graph_edges;
     initGraph(op, no_of_nodes, edge_list_size, source, h_graph_nodes, h_graph_edges);
 
-    // atts string for result database
-    char tmp[64];
-    sprintf(tmp, "%dV,%dE", no_of_nodes, edge_list_size);
-    string atts = string(tmp);
-
     int passes = op.getOptionInt("passes");
     for(int i = 0; i < passes; i++) {
         printf("Pass %d:\n", i);
         printf("Executing BFS...");
-        double kernelTime = BFSGraph(resultDB, op, no_of_nodes, edge_list_size, source, h_graph_nodes, h_graph_edges);
+        BFSGraph(resultDB, op, no_of_nodes, edge_list_size, source, h_graph_nodes, h_graph_edges);
         printf("Done.\n");
         printf("Executing BFS using unified memory...");
-        double kernelTimeUM = BFSGraphUnifiedMemory(resultDB, op, no_of_nodes, edge_list_size, source, h_graph_nodes, h_graph_edges);
+        BFSGraphUnifiedMemory(resultDB, op, no_of_nodes, edge_list_size, source, h_graph_nodes, h_graph_edges);
         printf("Done.\n");
-        resultDB.AddResult("BFS/BFS-UM_Speedup", atts, "N", kernelTime/kernelTimeUM);
     }
 
 	free( h_graph_nodes);
@@ -259,7 +253,7 @@ void initGraph(OptionParser &op, int &no_of_nodes, int &edge_list_size, int &sou
 ////////////////////////////////////////////////////////////////////////////////
 //Apply BFS on a Graph using CUDA
 ////////////////////////////////////////////////////////////////////////////////
-double BFSGraph(ResultDatabase &resultDB, OptionParser &op, int no_of_nodes, int edge_list_size, int source, Node* &h_graph_nodes, int* &h_graph_edges) 
+void BFSGraph(ResultDatabase &resultDB, OptionParser &op, int no_of_nodes, int edge_list_size, int source, Node* &h_graph_nodes, int* &h_graph_edges) 
 {
     bool verbose = op.getOptionBool("verbose");
 
@@ -382,10 +376,10 @@ double BFSGraph(ResultDatabase &resultDB, OptionParser &op, int no_of_nodes, int
 	}
 	while(stop);
 
-    if(verbose) {
+    //if(verbose) {
         printf("Kernel Time: %f\n", kernelTime);
 	    printf("Kernel Executed %d times\n",k);
-    }
+    //}
 
 	// copy result from device to host
     cudaEventRecord(tstart, 0);
@@ -407,12 +401,7 @@ double BFSGraph(ResultDatabase &resultDB, OptionParser &op, int no_of_nodes, int
             printf("Result stored in %s\n", resultsfile.c_str());
         }
     }
-
-    // store the result into an array to be compared with unified memory result
     check = (int*) malloc(sizeof(int)*no_of_nodes);
-    for(int i = 0; i < no_of_nodes; i++) {
-        check[i] = h_cost[i];
-    }
 
 	// cleanup memory
 	free( h_graph_mask);
@@ -437,13 +426,12 @@ double BFSGraph(ResultDatabase &resultDB, OptionParser &op, int no_of_nodes, int
     resultDB.AddResult("BFS-Rate_PCIe_Nodes", atts, "Nodes/s", no_of_nodes/(kernelTime + transferTime));
     resultDB.AddResult("BFS-Rate_PCIe_Edges", atts, "Edges/s", edge_list_size/(kernelTime + transferTime));
     resultDB.AddResult("BFS-Rate_Parity", atts, "N", transferTime / kernelTime);
-    return kernelTime;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //Apply BFS on a Graph using CUDA and Unified Memory
 ////////////////////////////////////////////////////////////////////////////////
-double BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, int no_of_nodes, int edge_list_size, int source, Node* &h_graph_nodes, int* &h_graph_edges) {
+void BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, int no_of_nodes, int edge_list_size, int source, Node* &h_graph_nodes, int* &h_graph_edges) {
     bool verbose = op.getOptionBool("verbose");
 	int num_of_blocks = 1;
 	int num_of_threads_per_block = no_of_nodes;
@@ -507,7 +495,7 @@ double BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, int no_
     double kernelTime = 0;
 	int k=0;
     bool stop;
-	//Call the Kernel until all the elements of Frontier are not false
+	//Call the Kernel untill all the elements of Frontier are not false
 	do
 	{
         stop = false;
@@ -535,20 +523,9 @@ double BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, int no_
 	}
 	while(stop);
 
-    if(verbose) {
-        printf("Kernel Time: %f\n", kernelTime);
-        printf("Kernel Executed %d times\n",k);
-    }
+    printf("Kernel Time: %f\n", kernelTime);
+    printf("Kernel Executed %d times\n",k);
 
-    for(int i = 0; i < no_of_nodes; i++) {
-        if(cost[i] != check[i]) {
-            printf("Error: Results don't match at index %d\n", i);
-            break;
-        }
-    }
-
-    // cleanup memory
-    free(check);
 	cudaFree(graph_nodes);
 	cudaFree(graph_edges);
 	cudaFree(graph_mask);
@@ -556,12 +533,4 @@ double BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, int no_
 	cudaFree(graph_visited);
 	cudaFree(cost);
     cudaFree(over);
-
-    char tmp[64];
-    sprintf(tmp, "%dV,%dE", no_of_nodes, edge_list_size);
-    string atts = string(tmp);
-    resultDB.AddResult("BFS-UM-KernelTime", atts, "sec", kernelTime);
-    resultDB.AddResult("BFS-UM-Rate_Nodes", atts, "Nodes/s", no_of_nodes/kernelTime);
-    resultDB.AddResult("BFS-UM-Rate_Edges", atts, "Edges/s", edge_list_size/kernelTime);
-    return kernelTime;
 }

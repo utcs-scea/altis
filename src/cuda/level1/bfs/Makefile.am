@@ -15,6 +15,8 @@ cudadir = $(bindir)/CUDA
 # What programs should be installed to that destination?
 cuda_PROGRAMS = bfs
 
+bfs_LDFLAGS = -pthread
+
 # How to build those programs?
 bfs_SOURCES = main.cpp
 bfs_LDADD = bfs.o $(CUDA_LIBS) $(LIBS)

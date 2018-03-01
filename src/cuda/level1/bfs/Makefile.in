@@ -107,6 +107,8 @@ am_bfs_OBJECTS = main.$(OBJEXT)
 bfs_OBJECTS = $(am_bfs_OBJECTS)
 am__DEPENDENCIES_1 =
 bfs_DEPENDENCIES = bfs.o $(am__DEPENDENCIES_1)
+bfs_LINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(bfs_LDFLAGS) \
+	$(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -289,6 +291,7 @@ AM_CPPFLAGS = $(CUDA_INC)
 
 # What is the destination for programs built from this directory?
 cudadir = $(bindir)/CUDA
+bfs_LDFLAGS = -pthread
 
 # How to build those programs?
 bfs_SOURCES = main.cpp
@@ -371,7 +374,7 @@ clean-cudaPROGRAMS:
 
 bfs$(EXEEXT): $(bfs_OBJECTS) $(bfs_DEPENDENCIES) $(EXTRA_bfs_DEPENDENCIES) 
 	@rm -f bfs$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(bfs_OBJECTS) $(bfs_LDADD) $(LIBS)
+	$(AM_V_CXXLD)$(bfs_LINK) $(bfs_OBJECTS) $(bfs_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
