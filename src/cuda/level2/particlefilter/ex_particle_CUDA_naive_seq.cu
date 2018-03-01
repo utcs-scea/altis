@@ -12,16 +12,51 @@
 #include <fcntl.h>
 #include <float.h>
 #include <sys/time.h>
-
-#include "Particlefilter/common.h"
-#include "ex_particle_CUDA_naive_seq.h"
-
+#include "OptionParser.h"
+#include "ResultDatabase.h"
 #define PI 3.1415926535897932
 #define BLOCK_X 16
 #define BLOCK_Y 16
 
+/**
+@var M value for Linear Congruential Generator (LCG); use GCC's value
+*/
+long M = INT_MAX;
+/**
+@var A value for LCG
+*/
+int A = 1103515245;
+/**
+@var C value for LCG
+*/
+int C = 12345;
+
 const int threads_per_block = 128;
 
+/*****************************
+*GET_TIME
+*returns a long int representing the time
+*****************************/
+long long get_time() {
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	return (tv.tv_sec * 1000000) + tv.tv_usec;
+}
+// Returns the number of seconds elapsed between the two specified times
+float elapsed_time(long long start_time, long long end_time) {
+        return (float) (end_time - start_time) / (1000 * 1000);
+}
+/*****************************
+* CHECK_ERROR
+* Checks for CUDA errors and prints them to the screen to help with
+* debugging of CUDA related programming
+*****************************/
+void check_error(cudaError e) {
+     if (e != cudaSuccess) {
+     	printf("\nCUDA error: %s\n", cudaGetErrorString(e));
+	    exit(1);
+     }
+}
 __device__ int findIndexSeq(double * CDF, int lengthCDF, double value)
 {
 	int index = -1;
@@ -579,67 +614,57 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 	free(u);
 	free(ind);
 }
-void particlefilter_naive(ResultDatabase &resultDB, OptionParser &op){
-    printf("hello there\n");
-/*	
-	char* usage = "naive.out -x <dimX> -y <dimY> -z <Nfr> -np <Nparticles>";
-	//check number of arguments
-	if(argc != 9)
-	{
-		printf("%s\n", usage);
-		return 0;
-	}
-	//check args deliminators
-	if( strcmp( argv[1], "-x" ) ||  strcmp( argv[3], "-y" ) || strcmp( argv[5], "-z" ) || strcmp( argv[7], "-np" ) ) {
-		printf( "%s\n",usage );
-		return 0;
-	}
+
+void addBenchmarkSpecOptions(OptionParser &op) {
+  op.addOption("dimx", OPT_INT, "0", "grid x dimension", 'x');
+  op.addOption("dimy", OPT_INT, "0", "grid y dimension", 'y');
+  op.addOption("framecount", OPT_INT, "0", "number of frames to track across", 'f');
+  op.addOption("np", OPT_INT, "0", "number of particles to use");
+}
+
+void particlefilter_naive(ResultDatabase &resultDB, int args[]);
+
+void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
+    int args[4];
+    args[0] = op.getOptionInt("dimx");
+    args[1] = op.getOptionInt("dimy");
+    args[2] = op.getOptionInt("framecount");
+    args[3] = op.getOptionInt("np");
+    bool preset = false;
+    for(int i = 0; i < 4; i++) {
+        if(args[i] <= 0) {
+            preset = true;
+        }
+    }
+    if(preset) {
+        int probSizes[4][4] = {{10, 10, 5, 100},
+                               {40, 40, 10, 500},
+                               {200, 200, 100, 2000},
+                               {500, 500, 1000, 10000}};
+        int size = op.getOptionInt("size") - 1;
+        for(int i = 0; i < 4; i++) {
+            args[i] = probSizes[size][i];
+        }
+    }
+    for(int i = 0; i < 4; i++) {
+        printf("%d\n", args[i]);
+    }
+    int passes = op.getOptionInt("passes");
+    for(int i = 0; i < passes; i++) {
+        printf("Pass %d: ", i);
+        particlefilter_naive(resultDB, args);
+        printf("Done.\n");
+    }
+}
+
+void particlefilter_naive(ResultDatabase &resultDB, int args[]){
 	
 	int IszX, IszY, Nfr, Nparticles;
-	
-	//converting a string to a integer
-	if( sscanf( argv[2], "%d", &IszX ) == EOF ) {
-	   printf("ERROR: dimX input is incorrect");
-	   return 0;
-	}
-	
-	if( IszX <= 0 ) {
-		printf("dimX must be > 0\n");
-		return 0;
-	}
-	
-	//converting a string to a integer
-	if( sscanf( argv[4], "%d", &IszY ) == EOF ) {
-	   printf("ERROR: dimY input is incorrect");
-	   return 0;
-	}
-	
-	if( IszY <= 0 ) {
-		printf("dimY must be > 0\n");
-		return 0;
-	}
-	
-	//converting a string to a integer
-	if( sscanf( argv[6], "%d", &Nfr ) == EOF ) {
-	   printf("ERROR: Number of frames input is incorrect");
-	   return 0;
-	}
-	
-	if( Nfr <= 0 ) {
-		printf("number of frames must be > 0\n");
-		return 0;
-	}
-	
-	//converting a string to a integer
-	if( sscanf( argv[8], "%d", &Nparticles ) == EOF ) {
-	   printf("ERROR: Number of particles input is incorrect");
-	   return 0;
-	}
-	
-	if( Nparticles <= 0 ) {
-		printf("Number of particles must be > 0\n");
-		return 0;
-	}
+	IszX = args[0];
+	IszY = args[1];
+    Nfr = args[2];
+    Nparticles = args[3];
+
 	//establish seed
 	int * seed = (int *)malloc(sizeof(int)*Nparticles);
 	int i;
@@ -660,6 +685,4 @@ void particlefilter_naive(ResultDatabase &resultDB, OptionParser &op){
 	
 	free(seed);
 	free(I);
-	return 0;
-    */
 }
