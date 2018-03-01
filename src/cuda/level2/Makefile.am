@@ -1,1 +1,1 @@
-SUBDIRS=lavamd nw particlefilter
+SUBDIRS=kmeans lavamd nw particlefilter
