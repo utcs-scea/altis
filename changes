@@ -25,29 +25,43 @@ driver.py
 - TODO: calculate & output umbrella result from ResultDB
 
 all benchmarks
+- set preset problem sizes based on capabilities of modern gpus
 - if using a random number generator, #define SEED 7
 - added metrics for kernel time, transfer time, total time
 
 device memory
 - when testing device memory capabilities, increased max size to 1GB (from 64MB)
+- why its here:
+    - tests a low level capability of the device
 
 maxflops
 - added half precision tests using <short> (if compute capability supports this)
+- why its here:
+    - tests a low level capability of the device
 
 sort
 - added functionality to read data from a file (TODO: error checking)
 - if using preset problem size, use rand() to fill array (instead of i % 1024)
 - datagen.py options:
     - size of array
+- why its here:
+    - basic parallel algorithm that encompasses one of the 9 primitives
+    - dwarf: sorting algorithm
 
 gemm
 - added functionality to read data from a file
 - moved data size option (in kb) to datagen.py
 - datagen.py options:
     - size of matrix (in kb)
+- why its here:
+    - basic parallel algorithm
+    - tests performance of cuda feature: hyperq
 
 pathfinder
 - added ability to do multiple passes
+- why its here:
+    - basic parallel algorithm that encompasses one of the 9 primitives
+    - dwarf: dynamic programming
 
 bfs
 - added ability to do multiple passes
@@ -56,13 +70,26 @@ bfs
 - implemented bfs using unified memory (host & device "share" memory)
 - datagen.py options:
     - size of graph (# of nodes)
+- why its here:
+    - basic parallel algorithm that encompasses one of the 9 primitives
+    - dwarf: graph traversal
+    - tests performance of cuda feature: unified memory
 
 nw
 - added ability to do multiple passes
+- why its here:
+    - real application kernel that covers a domain currently dominated by GPUs
+    - domain: bioinformatics
 
-Particle Filter
+particle filter
 - Didn't include the use_fast_math flag (from testing it only adds ~0.3% speed improvement)
 - Kept float and naive as separate binaries, (difficult to merge them into single with a flag)
+- why its here:
+    - real application kernel that covers a domain currently dominated by GPUs
+    - domain: medical imaging
+
+lavamd
+- TODO
 
 Rodinia is heavily fragmented with each benchmark living in it's own bubble (specifies its own arch value, own location for /usr/local/cuda)
 we're bringing the uniformity of shoc (get all config info from universal source) over to rodinia
