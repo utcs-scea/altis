@@ -5,6 +5,7 @@ src/cuda/common/main.cpp
 
 data/
 - the idea of having a datagen for certain benchmarks is to allow the user to customize the benchmark to their needs, rather than having to use a limit amount of preset data sizes with a fixed configuration
+- if the problem size that the user wants to use is very large, the datagen saves time by writing a file that can be read repeatedly, instead of the benchmark having to generate the data over and over again
 - replacing Rodinia benchmark datagens with python version for consistency (SHOC benchmark datagens are in python)
 - adding datagen to SHOC benchmarks
 - user can either
@@ -23,49 +24,41 @@ driver.py
 - TODO: determine a problem size based on device capabilities
 - TODO: calculate & output umbrella result from ResultDB
 
-Device Memory
+all benchmarks
+- if using a random number generator, #define SEED 7
+- added metrics for kernel time, transfer time, total time
+
+device memory
 - when testing device memory capabilities, increased max size to 1GB (from 64MB)
 
-MaxFlops
+maxflops
 - added half precision tests using <short> (if compute capability supports this)
-- renamed tests so the type of precision is at the beginning of the name
 
-Sort
+sort
 - added functionality to read data from a file (TODO: error checking)
 - if using preset problem size, use rand() to fill array (instead of i % 1024)
 - datagen.py options:
-    - seed for random number generator
     - size of array
 
-Spmv
-- took out "symmetric" flag to indicate that matrix is symmetrical
-- datagen.py options:
-    - seed for random number generator
-    - number of rows in matrix
-    - number of cols in matrix
-    - max value in matrix
-    - 'pattern' flag for allowing common/Spmv/util to generate elements following a pattern
-
-Gemm
-- added functionality to read data from a file (+ error checking)
+gemm
+- added functionality to read data from a file
 - moved data size option (in kb) to datagen.py
 - datagen.py options:
-    - seed for random number generator
     - size of matrix (in kb)
 
-Stencil2D
-- changed -customSize option to -matrixRows and -matrixCols (more intuitive for user)
-- changed -lsize option to -blockRows and -blockCols (more intuitive for user)
-- NO DATAGEN. the purpose of datagen is to allow a high level of customization, but the benchmark already has enough options to allow for that (matrix size, weights, etc.) without a datagen
+pathfinder
+- added ability to do multiple passes
 
-Backprop (originally Rodinia)
-- incorporated benchmark into existing build and run framework
-- changed file extensions to .cpp, refactored "extern" functions into an #include statement
-- updated deprecated syntax from 1994
-- added options to OptionParser
-    - layer size
-    - seed
-- added preset problem sizes (layer_size)
+bfs
+- added ability to do multiple passes
+- initGraph() initializes graph once, runs bfs multiple times
+- can read graph from a file or initialize graph of preset problem size
+- implemented bfs using unified memory (host & device "share" memory)
+- datagen.py options:
+    - size of graph (# of nodes)
+
+nw
+- added ability to do multiple passes
 
 Rodinia is heavily fragmented with each benchmark living in it's own bubble (specifies its own arch value, own location for /usr/local/cuda)
 we're bringing the uniformity of shoc (get all config info from universal source) over to rodinia
