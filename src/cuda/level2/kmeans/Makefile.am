@@ -16,7 +16,6 @@ cuda_PROGRAMS = kmeans
 # How to build those programs?
 kmeans_SOURCES = main.cpp \
                  cluster.cpp \
-                 getopt.cpp \
                  kmeans.cpp \
                  kmeans_clustering.cpp \
                  rmse.cpp
