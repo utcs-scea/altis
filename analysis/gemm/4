@@ -1,0 +1,95 @@
+==14258== NVPROF is profiling process 14258, command: ./src/cuda/level1/gemm/gemm -s 4
+==14258== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==14258== Profiling application: ./src/cuda/level1/gemm/gemm -s 4
+==14258== Profiling result:
+==14258== Metric result:
+Invocations                               Metric Name                            Metric Description         Min         Max         Avg
+Device "Tesla P100-SXM2-16GB (0)"
+    Kernel: sgemm_128x128x8_TN_vec
+         50                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         50                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         50                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (2)     Low (2)     Low (2)
+         50           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+         50                    special_fu_utilization             Special Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         50           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
+         50                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
+         50                             flop_count_sp   Floating Point Operations(Single Precision)  1.3749e+11  1.3749e+11  1.3749e+11
+         50                          dram_utilization                     Device Memory Utilization     Low (2)     Low (2)     Low (2)
+         50                           tex_utilization                     Unified Cache Utilization     Low (2)     Low (2)     Low (2)
+         50                        shared_utilization                     Shared Memory Utilization     Low (3)     Low (3)     Low (3)
+         50                                inst_fp_32                       FP Instructions(Single)  6.8754e+10  6.8754e+10  6.8754e+10
+         50                                inst_fp_64                       FP Instructions(Double)           0           0           0
+         50                              inst_integer                          Integer Instructions  1695547392  1695547392  1695547392
+         50                          inst_bit_convert                      Bit-Convert Instructions      786432      786432      786432
+         50                              inst_control                     Control-Flow Instructions   138412032   138412032   138412032
+         50                        inst_compute_ld_st                       Load/Store Instructions  4874043392  4874043392  4874043392
+         50                                 inst_misc                             Misc Instructions   154402816   154402816   154402816
+         50           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
+         50                            l2_utilization                          L2 Cache Utilization     Low (3)     Low (3)     Low (3)
+         50                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
+    Kernel: sgemm_128x128x8_NN_vec
+         50                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         50                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         50                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (2)     Low (2)     Low (2)
+         50           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+         50                    special_fu_utilization             Special Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         50           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
+         50                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
+         50                             flop_count_sp   Floating Point Operations(Single Precision)  1.3749e+11  1.3749e+11  1.3749e+11
+         50                          dram_utilization                     Device Memory Utilization     Low (2)     Low (2)     Low (2)
+         50                           tex_utilization                     Unified Cache Utilization     Low (2)     Low (2)     Low (2)
+         50                        shared_utilization                     Shared Memory Utilization     Low (3)     Low (3)     Low (3)
+         50                                inst_fp_32                       FP Instructions(Single)  6.8754e+10  6.8754e+10  6.8754e+10
+         50                                inst_fp_64                       FP Instructions(Double)           0           0           0
+         50                              inst_integer                          Integer Instructions  1964769280  1964769280  1964769280
+         50                          inst_bit_convert                      Bit-Convert Instructions      786432      786432      786432
+         50                              inst_control                     Control-Flow Instructions   138412032   138412032   138412032
+         50                        inst_compute_ld_st                       Load/Store Instructions  5277745152  5277745152  5277745152
+         50                                 inst_misc                             Misc Instructions   423100416   423100416   423100416
+         50           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
+         50                            l2_utilization                          L2 Cache Utilization     Low (3)     Low (3)     Low (3)
+         50                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
+    Kernel: maxwell_dgemm_128x64_raggedMn_nn
+         50                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         50                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         50                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (2)     Low (2)     Low (2)
+         50           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
+         50                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+         50           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         50                             flop_count_dp   Floating Point Operations(Double Precision)  1.7184e+10  1.7184e+10  1.7184e+10
+         50                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
+         50                          dram_utilization                     Device Memory Utilization     Low (1)     Low (2)     Low (1)
+         50                           tex_utilization                     Unified Cache Utilization     Low (2)     Low (2)     Low (2)
+         50                        shared_utilization                     Shared Memory Utilization     Low (3)     Low (3)     Low (3)
+         50                                inst_fp_32                       FP Instructions(Single)           0           0           0
+         50                                inst_fp_64                       FP Instructions(Double)  8594194432  8594194432  8594194432
+         50                              inst_integer                          Integer Instructions   339673088   339673088   339673088
+         50                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
+         50                              inst_control                     Control-Flow Instructions    18415616    18415616    18415616
+         50                        inst_compute_ld_st                       Load/Store Instructions  1488978432  1488978432  1488978432
+         50                                 inst_misc                             Misc Instructions    56164352    56164352    56164352
+         50           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
+         50                            l2_utilization                          L2 Cache Utilization     Low (3)     Low (3)     Low (3)
+         50                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
+    Kernel: maxwell_dgemm_128x64_raggedMn_nt
+         50                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         50                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         50                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (2)     Low (2)     Low (2)
+         50           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
+         50                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+         50           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         50                             flop_count_dp   Floating Point Operations(Double Precision)  1.7184e+10  1.7184e+10  1.7184e+10
+         50                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
+         50                          dram_utilization                     Device Memory Utilization     Low (2)     Low (2)     Low (2)
+         50                           tex_utilization                     Unified Cache Utilization     Low (2)     Low (2)     Low (2)
+         50                        shared_utilization                     Shared Memory Utilization     Low (3)     Low (3)     Low (3)
+         50                                inst_fp_32                       FP Instructions(Single)           0           0           0
+         50                                inst_fp_64                       FP Instructions(Double)  8594194432  8594194432  8594194432
+         50                              inst_integer                          Integer Instructions   272236544   272236544   272236544
+         50                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
+         50                              inst_control                     Control-Flow Instructions    18415616    18415616    18415616
+         50                        inst_compute_ld_st                       Load/Store Instructions  1488978432  1488978432  1488978432
+         50                                 inst_misc                             Misc Instructions    56164352    56164352    56164352
+         50           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
+         50                            l2_utilization                          L2 Cache Utilization     Low (3)     Low (3)     Low (3)
+         50                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)

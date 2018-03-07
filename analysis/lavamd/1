@@ -1,0 +1,29 @@
+==15685== NVPROF is profiling process 15685, command: ./src/cuda/level2/lavamd/lavamd -s 1
+==15685== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==15685== Profiling application: ./src/cuda/level2/lavamd/lavamd -s 1
+==15685== Profiling result:
+==15685== Metric result:
+Invocations                               Metric Name                            Metric Description         Min         Max         Avg
+Device "Tesla P100-SXM2-16GB (0)"
+    Kernel: kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)
+         10                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         10                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         10                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (2)     Low (2)     Low (2)
+         10           double_precision_fu_utilization    Double-Precision Function Unit Utilization    High (9)    High (9)    High (9)
+         10                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+         10           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (2)     Low (2)     Low (2)
+         10                             flop_count_dp   Floating Point Operations(Double Precision)  1.1415e+10  1.1415e+10  1.1415e+10
+         10                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
+         10                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)
+         10                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (1)     Low (1)
+         10                        shared_utilization                     Shared Memory Utilization     Low (2)     Low (2)     Low (2)
+         10                                inst_fp_32                       FP Instructions(Single)   219520000   219520000   219520000
+         10                                inst_fp_64                       FP Instructions(Double)  7024896000  7024896000  7024896000
+         10                              inst_integer                          Integer Instructions   831062368   831062368   831062368
+         10                          inst_bit_convert                      Bit-Convert Instructions   219520000   219520000   219520000
+         10                              inst_control                     Control-Flow Instructions   574809280   574809280   574809280
+         10                        inst_compute_ld_st                       Load/Store Instructions  1154637312  1154637312  1154637312
+         10                                 inst_misc                             Misc Instructions   717078816   717078816   717078816
+         10           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
+         10                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
+         10                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)

@@ -1,0 +1,29 @@
+==14930== NVPROF is profiling process 14930, command: ./src/cuda/level1/pathfinder/pathfinder -s 2
+==14930== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==14930== Profiling application: ./src/cuda/level1/pathfinder/pathfinder -s 2
+==14930== Profiling result:
+==14930== Metric result:
+Invocations                               Metric Name                            Metric Description         Min         Max         Avg
+Device "Tesla P100-SXM2-16GB (0)"
+    Kernel: dynproc_kernel(int, int*, int*, int*, int, int, int, int)
+       2050                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+       2050                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+       2050                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (2)     Low (1)
+       2050           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+       2050                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+       2050           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (2)     Low (2)     Low (2)
+       2050                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
+       2050                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
+       2050                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)
+       2050                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (1)     Low (1)
+       2050                        shared_utilization                     Shared Memory Utilization     Low (1)     Low (1)     Low (1)
+       2050                                inst_fp_32                       FP Instructions(Single)           0           0           0
+       2050                                inst_fp_64                       FP Instructions(Double)           0           0           0
+       2050                              inst_integer                          Integer Instructions     6980876     9130480     9119994
+       2050                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
+       2050                              inst_control                     Control-Flow Instructions     1155072     1479936     1478351
+       2050                        inst_compute_ld_st                       Load/Store Instructions     2072676     2819824     2816179
+       2050                                 inst_misc                             Misc Instructions     3024276     3888720     3884503
+       2050           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
+       2050                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
+       2050                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)

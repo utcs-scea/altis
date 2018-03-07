@@ -1,0 +1,51 @@
+==17834== NVPROF is profiling process 17834, command: ./src/cuda/level2/nw/nw -s 2
+==17834== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==17834== Profiling application: ./src/cuda/level2/nw/nw -s 2
+==17834== Profiling result:
+==17834== Metric result:
+Invocations                               Metric Name                            Metric Description         Min         Max         Avg
+Device "Tesla P100-SXM2-16GB (0)"
+    Kernel: needle_cuda_shared_1(int*, int*, int, int, int, int)
+       5120                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+       5120                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+       5120                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (2)     Low (1)
+       5120           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+       5120                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+       5120           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (2)     Low (1)
+       5120                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
+       5120                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
+       5120                          dram_utilization                     Device Memory Utilization     Low (1)     Low (3)     Low (2)
+       5120                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (1)     Low (1)
+       5120                        shared_utilization                     Shared Memory Utilization     Low (1)     Low (3)     Low (2)
+       5120                                inst_fp_32                       FP Instructions(Single)           0           0           0
+       5120                                inst_fp_64                       FP Instructions(Double)           0           0           0
+       5120                              inst_integer                          Integer Instructions        4036     2066432     1035234
+       5120                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
+       5120                              inst_control                     Control-Flow Instructions        1071      548352      274711
+       5120                        inst_compute_ld_st                       Load/Store Instructions        2370     1213440      607905
+       5120                                 inst_misc                             Misc Instructions        1168      598016      299592
+       5120           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
+       5120                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (2)     Low (1)
+       5120                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
+    Kernel: needle_cuda_shared_2(int*, int*, int, int, int, int)
+       5110                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+       5110                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+       5110                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (2)     Low (1)
+       5110           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+       5110                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+       5110           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (2)     Low (1)
+       5110                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
+       5110                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
+       5110                          dram_utilization                     Device Memory Utilization     Low (1)     Low (3)     Low (2)
+       5110                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (1)     Low (1)
+       5110                        shared_utilization                     Shared Memory Utilization     Low (1)     Mid (4)     Low (2)
+       5110                                inst_fp_32                       FP Instructions(Single)           0           0           0
+       5110                                inst_fp_64                       FP Instructions(Double)           0           0           0
+       5110                              inst_integer                          Integer Instructions        4052     2070572     1037312
+       5110                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
+       5110                              inst_control                     Control-Flow Instructions        1071      547281      274176
+       5110                        inst_compute_ld_st                       Load/Store Instructions        2370     1211070      606720
+       5110                                 inst_misc                             Misc Instructions        1648      842128      421888
+       5110           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
+       5110                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (2)     Low (1)
+       5110                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
