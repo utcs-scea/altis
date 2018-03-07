@@ -10,10 +10,10 @@
 #define BLOCKS_PER_DIM 16
 #define THREADS_PER_BLOCK THREADS_PER_DIM*THREADS_PER_DIM
 
+#include "cudacommon.h"
 #include "ResultDatabase.h"
 #include "OptionParser.h"
 #include "kmeans_cuda_kernel.cu"
-
 
 //#define BLOCK_DELTA_REDUCE
 //#define BLOCK_CENTER_REDUCE
@@ -21,8 +21,7 @@
 #define CPU_DELTA_REDUCE
 #define CPU_CENTER_REDUCE
 
-extern "C"
-int setup(int argc, char** argv);									/* function prototype */
+int setup(ResultDatabase &resultDB, OptionParser &op);
 
 // GLOBAL!!!!!
 unsigned int num_threads_perdim = THREADS_PER_DIM;					/* sqrt(256) -- see references for this choice */
@@ -40,10 +39,24 @@ float  *clusters_d;													/* cluster centers on the device */
 float  *block_clusters_d;											/* per block calculation of cluster centers */
 int    *block_deltas_d;												/* per block calculation of deltas */
 
+////////////////////////////////////////////////////////////////////////////////
+void addBenchmarkSpecOptions(OptionParser &op) {
+    op.addOption("maxClusters", OPT_INT, "5", "maximum number of clusters allowed");
+    op.addOption("minClusters", OPT_INT, "5", "minimum number of clusters allowed");
+    op.addOption("threshold", OPT_FLOAT, "0.001", "threshold value");
+    op.addOption("loops", OPT_INT, "1", "iteration for each number of clusters");
+    op.addOption("binaryInput", OPT_BOOL, "", "input file is in binary format");
+    op.addOption("rmse", OPT_BOOL, "", "calculate RMSE (default off)");
+    op.addOption("outputCenters", OPT_BOOL, "", "output cluster center coordinates (default off)");
+}
+
+void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
+    setup(resultDB, op);
+}
+////////////////////////////////////////////////////////////////////////////////
 
 /* -------------- allocateMemory() ------------------- */
 /* allocate device memory, calculate number of blocks and threads, and invert the data array */
-extern "C"
 void allocateMemory(int npoints, int nfeatures, int nclusters, float **features)
 {	
 	num_blocks = npoints / num_threads;
@@ -98,7 +111,6 @@ void allocateMemory(int npoints, int nfeatures, int nclusters, float **features)
 
 /* -------------- deallocateMemory() ------------------- */
 /* free host and device memory */
-extern "C"
 void deallocateMemory()
 {
 	free(membership_new);
@@ -118,26 +130,7 @@ void deallocateMemory()
 /* -------------- deallocateMemory() end ------------------- */
 
 
-
-////////////////////////////////////////////////////////////////////////////////
-void addBenchmarkSpecOptions(OptionParser &op) {
-    op.addOption("maxClusters", OPT_INT, "5", "maximum number of clusters allowed");
-    op.addOption("minClusters", OPT_INT, "5", "minimum number of clusters allowed");
-    op.addOption("threshold", OPT_FLOAT, "0.001", "threshold value");
-    op.addOption("loops", OPT_INT, "1", "iteration for each number of clusters");
-    op.addOption("binaryInput", OPT_BOOL, "1", "input file is in binary format (default on)");
-    op.addOption("rmse", OPT_BOOL, "", "calculate RMSE (default off)");
-    op.addOption("outputCenters", OPT_BOOL, "", "output cluster center coordinates (default off)");
-}
-
-void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
-    setup(resultDB, op);
-}
-////////////////////////////////////////////////////////////////////////////////
-
-
 /* ------------------- kmeansCuda() ------------------------ */    
-extern "C"
 int	// delta -- had problems when return value was of float type
 kmeansCuda(float  **feature,				/* in: [npoints][nfeatures] */
            int      nfeatures,				/* number of attributes for each point */
@@ -167,24 +160,21 @@ kmeansCuda(float  **feature,				/* in: [npoints][nfeatures] */
     t_features.normalized = false;
     t_features.channelDesc = chDesc0;
 
-	if(cudaBindTexture(NULL, &t_features, feature_d, &chDesc0, npoints*nfeatures*sizeof(float)) != CUDA_SUCCESS)
-        printf("Couldn't bind features array to texture!\n");
+	cudaBindTexture(NULL, &t_features, feature_d, &chDesc0, npoints*nfeatures*sizeof(float));
 
 	cudaChannelFormatDesc chDesc1 = cudaCreateChannelDesc<float>();
     t_features_flipped.filterMode = cudaFilterModePoint;   
     t_features_flipped.normalized = false;
     t_features_flipped.channelDesc = chDesc1;
 
-	if(cudaBindTexture(NULL, &t_features_flipped, feature_flipped_d, &chDesc1, npoints*nfeatures*sizeof(float)) != CUDA_SUCCESS)
-        printf("Couldn't bind features_flipped array to texture!\n");
+	cudaBindTexture(NULL, &t_features_flipped, feature_flipped_d, &chDesc1, npoints*nfeatures*sizeof(float));
 
 	cudaChannelFormatDesc chDesc2 = cudaCreateChannelDesc<float>();
     t_clusters.filterMode = cudaFilterModePoint;   
     t_clusters.normalized = false;
     t_clusters.channelDesc = chDesc2;
 
-	if(cudaBindTexture(NULL, &t_clusters, clusters_d, &chDesc2, nclusters*nfeatures*sizeof(float)) != CUDA_SUCCESS)
-        printf("Couldn't bind clusters array to texture!\n");
+	cudaBindTexture(NULL, &t_clusters, clusters_d, &chDesc2, nclusters*nfeatures*sizeof(float));
 
 	/* copy clusters to constant memory */
 	cudaMemcpyToSymbol("c_clusters",clusters[0],nclusters*nfeatures*sizeof(float),0,cudaMemcpyHostToDevice);
@@ -307,4 +297,3 @@ kmeansCuda(float  **feature,				/* in: [npoints][nfeatures] */
 	
 }
 /* ------------------- kmeansCuda() end ------------------------ */    
-

@@ -73,6 +73,7 @@
 #include <float.h>
 #include <omp.h>
 
+#include "kmeans_cuda.h"
 #include "kmeans.h"
 
 extern double wtime(void);

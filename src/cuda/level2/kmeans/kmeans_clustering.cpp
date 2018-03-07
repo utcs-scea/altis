@@ -68,6 +68,7 @@
 #include <omp.h>
 
 #include "kmeans.h"
+#include "kmeans_cuda.h"
 
 #define RANDOM_MAX 2147483647
 

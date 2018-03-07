@@ -101,8 +101,8 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(cudadir)"
 PROGRAMS = $(cuda_PROGRAMS)
-am_kmeans_OBJECTS = main.$(OBJEXT) cluster.$(OBJEXT) getopt.$(OBJEXT) \
-	kmeans.$(OBJEXT) kmeans_clustering.$(OBJEXT) rmse.$(OBJEXT)
+am_kmeans_OBJECTS = main.$(OBJEXT) cluster.$(OBJEXT) kmeans.$(OBJEXT) \
+	kmeans_clustering.$(OBJEXT) rmse.$(OBJEXT)
 kmeans_OBJECTS = $(am_kmeans_OBJECTS)
 am__DEPENDENCIES_1 =
 kmeans_DEPENDENCIES = kmeans_cuda.o $(am__DEPENDENCIES_1)
@@ -292,7 +292,6 @@ cudadir = $(bindir)/CUDA
 # How to build those programs?
 kmeans_SOURCES = main.cpp \
                  cluster.cpp \
-                 getopt.cpp \
                  kmeans.cpp \
                  kmeans_clustering.cpp \
                  rmse.cpp
@@ -385,7 +384,6 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cluster.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getopt.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kmeans.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kmeans_clustering.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
