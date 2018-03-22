@@ -2,12 +2,13 @@
 // This code is from the AIAA-2009-4001 paper
 
 //#include <cutil.h>
-#include <helper_cuda.h>
-#include <helper_timer.h>
 #include <iostream>
 #include <fstream>
-
+#include "cudacommon.h"
+#include "ResultDatabase.h"
+#include "OptionParser.h"
  
+#define SEED 7
  
 /*
  * Options 
@@ -94,6 +95,10 @@
 #define VAR_DENSITY_ENERGY (VAR_MOMENTUM+NDIM)
 #define NVAR (VAR_DENSITY_ENERGY+1)
 
+float kernelTime = 0.0f;
+float transferTime = 0.0f;
+cudaEvent_t start, stop;
+float elapsed;
 
 /*
  * Generic functions
@@ -102,32 +107,47 @@ template <typename T>
 T* alloc(int N)
 {
 	T* t;
-	checkCudaErrors(cudaMalloc((void**)&t, sizeof(T)*N));
+	CUDA_SAFE_CALL(cudaMalloc((void**)&t, sizeof(T)*N));
 	return t;
 }
 
 template <typename T>
 void dealloc(T* array)
 {
-	checkCudaErrors(cudaFree((void*)array));
+	CUDA_SAFE_CALL(cudaFree((void*)array));
 }
 
 template <typename T>
 void copy(T* dst, T* src, int N)
 {
-	checkCudaErrors(cudaMemcpy((void*)dst, (void*)src, N*sizeof(T), cudaMemcpyDeviceToDevice));
+    cudaEventRecord(start, 0);
+	CUDA_SAFE_CALL(cudaMemcpy((void*)dst, (void*)src, N*sizeof(T), cudaMemcpyDeviceToDevice));
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed, start, stop);
+    transferTime += elapsed * 1.e-3;
 }
 
 template <typename T>
 void upload(T* dst, T* src, int N)
 {
-	checkCudaErrors(cudaMemcpy((void*)dst, (void*)src, N*sizeof(T), cudaMemcpyHostToDevice));
+    cudaEventRecord(start, 0);
+	CUDA_SAFE_CALL(cudaMemcpy((void*)dst, (void*)src, N*sizeof(T), cudaMemcpyHostToDevice));
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed, start, stop);
+    transferTime += elapsed * 1.e-3;
 }
 
 template <typename T>
 void download(T* dst, T* src, int N)
 {
-	checkCudaErrors(cudaMemcpy((void*)dst, (void*)src, N*sizeof(T), cudaMemcpyDeviceToHost));
+    cudaEventRecord(start, 0);
+	CUDA_SAFE_CALL(cudaMemcpy((void*)dst, (void*)src, N*sizeof(T), cudaMemcpyDeviceToHost));
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed, start, stop);
+    transferTime += elapsed * 1.e-3;
 }
 
 void dump(float* variables, int nel, int nelr)
@@ -179,8 +199,13 @@ __global__ void cuda_initialize_variables(int nelr, float* variables)
 void initialize_variables(int nelr, float* variables)
 {
 	dim3 Dg(nelr / BLOCK_SIZE_1), Db(BLOCK_SIZE_1);
+    cudaEventRecord(start, 0);
 	cuda_initialize_variables<<<Dg, Db>>>(nelr, variables);
-	getLastCudaError("initialize_variables failed");
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed, start, stop);
+    kernelTime += elapsed * 1.e-3;
+    CHECK_CUDA_ERROR();
 }
 
 __device__ __host__ inline void compute_flux_contribution(float& density, float3& momentum, float& density_energy, float& pressure, float3& velocity, float3& fc_momentum_x, float3& fc_momentum_y, float3& fc_momentum_z, float3& fc_density_energy)
@@ -249,8 +274,13 @@ __global__ void cuda_compute_step_factor(int nelr, float* variables, float* area
 void compute_step_factor(int nelr, float* variables, float* areas, float* step_factors)
 {
 	dim3 Dg(nelr / BLOCK_SIZE_2), Db(BLOCK_SIZE_2);
+    cudaEventRecord(start, 0);
 	cuda_compute_step_factor<<<Dg, Db>>>(nelr, variables, areas, step_factors);		
-	getLastCudaError("compute_step_factor failed");
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed, start, stop);
+    kernelTime += elapsed * 1.e-3;
+    CHECK_CUDA_ERROR();
 }
 
 /*
@@ -390,8 +420,13 @@ __global__ void cuda_compute_flux(int nelr, int* elements_surrounding_elements, 
 void compute_flux(int nelr, int* elements_surrounding_elements, float* normals, float* variables, float* fluxes)
 {
 	dim3 Dg(nelr / BLOCK_SIZE_3), Db(BLOCK_SIZE_3);
+    cudaEventRecord(start, 0);
 	cuda_compute_flux<<<Dg,Db>>>(nelr, elements_surrounding_elements, normals, variables, fluxes);
-	getLastCudaError("compute_flux failed");
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed, start, stop);
+    kernelTime += elapsed * 1.e-3;
+    CHECK_CUDA_ERROR();
 }
 
 __global__ void cuda_time_step(int j, int nelr, float* old_variables, float* variables, float* step_factors, float* fluxes)
@@ -409,33 +444,39 @@ __global__ void cuda_time_step(int j, int nelr, float* old_variables, float* var
 void time_step(int j, int nelr, float* old_variables, float* variables, float* step_factors, float* fluxes)
 {
 	dim3 Dg(nelr / BLOCK_SIZE_4), Db(BLOCK_SIZE_4);
+    cudaEventRecord(start, 0);
 	cuda_time_step<<<Dg,Db>>>(j, nelr, old_variables, variables, step_factors, fluxes);
-	getLastCudaError("update failed");
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed, start, stop);
+    kernelTime += elapsed * 1.e-3;
+    CHECK_CUDA_ERROR();
 }
 
-/*
- * Main function
- */
-int main(int argc, char** argv)
+void addBenchmarkSpecOptions(OptionParser &op) {
+}
+
+void cfd(ResultDatabase &resultDB, OptionParser &op);
+
+void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
+    printf("WG size of kernel:initialize = %d, WG size of kernel:compute_step_factor = %d, WG size of kernel:compute_flux = %d, WG size of kernel:time_step = %d\n", BLOCK_SIZE_1, BLOCK_SIZE_2, BLOCK_SIZE_3, BLOCK_SIZE_4);
+
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+
+    int passes = op.getOptionInt("passes");
+    for(int i = 0; i < passes; i++) {
+        kernelTime = 0.0f;
+        transferTime = 0.0f;
+        printf("Pass %d:\n", i);
+        cfd(resultDB, op);
+        printf("Done.\n");
+    }
+
+}
+
+void cfd(ResultDatabase &resultDB, OptionParser &op)
 {
-  printf("WG size of kernel:initialize = %d, WG size of kernel:compute_step_factor = %d, WG size of kernel:compute_flux = %d, WG size of kernel:time_step = %d\n", BLOCK_SIZE_1, BLOCK_SIZE_2, BLOCK_SIZE_3, BLOCK_SIZE_4);
-
-	if (argc < 2)
-	{
-		std::cout << "specify data file name" << std::endl;
-		return 0;
-	}
-	const char* data_file_name = argv[1];
-	
-	cudaDeviceProp prop;
-	int dev;
-	
-	checkCudaErrors(cudaSetDevice(0));
-	checkCudaErrors(cudaGetDevice(&dev));
-	checkCudaErrors(cudaGetDeviceProperties(&prop, dev));
-	
-	printf("Name:                     %s\n", prop.name);
-
 	// set far field conditions and load them into constant memory on the gpu
 	{
 		float h_ff_variable[NVAR];
@@ -469,12 +510,18 @@ int main(int argc, char** argv)
 		compute_flux_contribution(h_ff_variable[VAR_DENSITY], h_ff_momentum, h_ff_variable[VAR_DENSITY_ENERGY], ff_pressure, ff_velocity, h_ff_flux_contribution_momentum_x, h_ff_flux_contribution_momentum_y, h_ff_flux_contribution_momentum_z, h_ff_flux_contribution_density_energy);
 
 		// copy far field conditions to the gpu
-		checkCudaErrors( cudaMemcpyToSymbol(ff_variable,          h_ff_variable,          NVAR*sizeof(float)) );
-		checkCudaErrors( cudaMemcpyToSymbol(ff_flux_contribution_momentum_x, &h_ff_flux_contribution_momentum_x, sizeof(float3)) );
-		checkCudaErrors( cudaMemcpyToSymbol(ff_flux_contribution_momentum_y, &h_ff_flux_contribution_momentum_y, sizeof(float3)) );
-		checkCudaErrors( cudaMemcpyToSymbol(ff_flux_contribution_momentum_z, &h_ff_flux_contribution_momentum_z, sizeof(float3)) );
-		
-		checkCudaErrors( cudaMemcpyToSymbol(ff_flux_contribution_density_energy, &h_ff_flux_contribution_density_energy, sizeof(float3)) );		
+        cudaEventRecord(start, 0);
+
+		CUDA_SAFE_CALL( cudaMemcpyToSymbol(ff_variable,          h_ff_variable,          NVAR*sizeof(float)) );
+		CUDA_SAFE_CALL( cudaMemcpyToSymbol(ff_flux_contribution_momentum_x, &h_ff_flux_contribution_momentum_x, sizeof(float3)) );
+		CUDA_SAFE_CALL( cudaMemcpyToSymbol(ff_flux_contribution_momentum_y, &h_ff_flux_contribution_momentum_y, sizeof(float3)) );
+		CUDA_SAFE_CALL( cudaMemcpyToSymbol(ff_flux_contribution_momentum_z, &h_ff_flux_contribution_momentum_z, sizeof(float3)) );
+		CUDA_SAFE_CALL( cudaMemcpyToSymbol(ff_flux_contribution_density_energy, &h_ff_flux_contribution_density_energy, sizeof(float3)) );		
+
+        cudaEventRecord(stop, 0);
+        cudaEventSynchronize(stop);
+        cudaEventElapsedTime(&elapsed, start, stop);
+        transferTime += elapsed * 1.e-3;
 	}
 	int nel;
 	int nelr;
@@ -484,29 +531,49 @@ int main(int argc, char** argv)
 	int* elements_surrounding_elements;
 	float* normals;
 	{
-		std::ifstream file(data_file_name);
-	
-		file >> nel;
+        string inputFile = op.getOptionString("inputFile");
+		std::ifstream file(inputFile.c_str());
+        
+        if(inputFile != "") {
+		    file >> nel;
+        } else {
+            int problemSizes[4] = {97000, 200000, 1000000, 4000000};
+            nel = problemSizes[op.getOptionInt("size") - 1];
+        }
 		nelr = BLOCK_SIZE_0*((nel / BLOCK_SIZE_0 )+ std::min(1, nel % BLOCK_SIZE_0));
 
 		float* h_areas = new float[nelr];
 		int* h_elements_surrounding_elements = new int[nelr*NNB];
 		float* h_normals = new float[nelr*NDIM*NNB];
 
+        srand(SEED);
 				
 		// read in data
 		for(int i = 0; i < nel; i++)
 		{
-			file >> h_areas[i];
-			for(int j = 0; j < NNB; j++)
+            if(inputFile != "") {
+		    	file >> h_areas[i];
+            } else {
+                h_areas[i] = 1.0 * rand() / RAND_MAX;
+            }
+			for(int j = 0; j < NNB; j++) // NNB is always 4
 			{
-				file >> h_elements_surrounding_elements[i + j*nelr];
+                if(inputFile != "") {
+				    file >> h_elements_surrounding_elements[i + j*nelr];
+                } else {
+                    int val = i + (rand() % 20) - 10;
+                    h_elements_surrounding_elements[i + j * nelr] = val;
+                }
 				if(h_elements_surrounding_elements[i+j*nelr] < 0) h_elements_surrounding_elements[i+j*nelr] = -1;
 				h_elements_surrounding_elements[i + j*nelr]--; //it's coming in with Fortran numbering				
 				
-				for(int k = 0; k < NDIM; k++)
+				for(int k = 0; k < NDIM; k++) // NDIM is always 3
 				{
-					file >> h_normals[i + (j + k*NNB)*nelr];
+                    if(inputFile != "") {
+					    file >> h_normals[i + (j + k*NNB)*nelr];
+                    } else {
+                        h_normals[i + (j + k*NNB)*nelr] = 1.0 * rand() / RAND_MAX - 0.5;
+                    }
 					h_normals[i + (j + k*NNB)*nelr] = -h_normals[i + (j + k*NNB)*nelr];
 				}
 			}
@@ -555,15 +622,11 @@ int main(int argc, char** argv)
 	cudaThreadSynchronize();
 
 	// these need to be computed the first time in order to compute time step
-	std::cout << "Starting..." << std::endl;
 
-	StopWatchInterface *timer = 0;
 	  //	unsigned int timer = 0;
 
 	// CUT_SAFE_CALL( cutCreateTimer( &timer));
 	// CUT_SAFE_CALL( cutStartTimer( timer));
-	sdkCreateTimer(&timer); 
-	sdkStartTimer(&timer); 
 	// Begin iterations
 	for(int i = 0; i < iterations; i++)
 	{
@@ -571,29 +634,25 @@ int main(int argc, char** argv)
 		
 		// for the first iteration we compute the time step
 		compute_step_factor(nelr, variables, areas, step_factors);
-		getLastCudaError("compute_step_factor failed");
+        CHECK_CUDA_ERROR();
 		
 		for(int j = 0; j < RK; j++)
 		{
 			compute_flux(nelr, elements_surrounding_elements, normals, variables, fluxes);
-			getLastCudaError("compute_flux failed");			
+            CHECK_CUDA_ERROR();
 			time_step(j, nelr, old_variables, variables, step_factors, fluxes);
-			getLastCudaError("time_step failed");			
+            CHECK_CUDA_ERROR();
 		}
 	}
 
 	cudaThreadSynchronize();
 	//	CUT_SAFE_CALL( cutStopTimer(timer) );  
-	sdkStopTimer(&timer); 
 
-	std::cout  << (sdkGetAverageTimerValue(&timer)/1000.0)  / iterations << " seconds per iteration" << std::endl;
-
-	std::cout << "Saving solution..." << std::endl;
-	dump(variables, nel, nelr);
-	std::cout << "Saved solution..." << std::endl;
+    if(op.getOptionBool("verbose")) {
+	    dump(variables, nel, nelr);
+    }
 
 	
-	std::cout << "Cleaning up..." << std::endl;
 	dealloc<float>(areas);
 	dealloc<int>(elements_surrounding_elements);
 	dealloc<float>(normals);
@@ -603,7 +662,9 @@ int main(int argc, char** argv)
 	dealloc<float>(fluxes);
 	dealloc<float>(step_factors);
 
-	std::cout << "Done..." << std::endl;
-
-	return 0;
+    char atts[1024];
+    sprintf(atts, "numelements:%d", nel);
+    resultDB.AddResult("cfd_kernel_time", atts, "sec", kernelTime);
+    resultDB.AddResult("cfd_transfer_time", atts, "sec", transferTime);
+    resultDB.AddResult("cfd_parity", atts, "N", transferTime / kernelTime);
 }
