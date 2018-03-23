@@ -244,6 +244,7 @@ AC_CONFIG_FILES([Makefile
                  src/cuda/level2/nw/Makefile
                  src/cuda/level2/particlefilter/Makefile
                  src/cuda/level2/cfd/Makefile
+                 src/cuda/level2/srad/Makefile
                  ])
 AC_OUTPUT
 

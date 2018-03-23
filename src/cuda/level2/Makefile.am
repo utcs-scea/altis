@@ -1,1 +1,1 @@
-SUBDIRS=kmeans lavamd nw particlefilter cfd
+SUBDIRS=kmeans lavamd nw particlefilter cfd srad
