@@ -80,7 +80,8 @@ float** kmeans_clustering(float **feature,    /* in: [npoints][nfeatures] */
                           int     npoints,
                           int     nclusters,
                           float   threshold,
-                          int    *membership) /* out: [npoints] */
+                          int    *membership,
+                          ResultDatabase &resultDB) /* out: [npoints] */
 {    
     int      i, j, n = 0;				/* counters */
 	int		 loop=0, temp;
@@ -98,8 +99,9 @@ float** kmeans_clustering(float **feature,    /* in: [npoints][nfeatures] */
 
 	/* nclusters should never be > npoints
 	   that would guarantee a cluster without points */
-	if (nclusters > npoints)
+	if (nclusters > npoints) {
 		nclusters = npoints;
+    }
 
     /* allocate space for and initialize returning variable clusters[] */
     clusters    = (float**) malloc(nclusters *             sizeof(float*));
@@ -109,8 +111,7 @@ float** kmeans_clustering(float **feature,    /* in: [npoints][nfeatures] */
 
 	/* initialize the random clusters */
 	initial = (int *) malloc (npoints * sizeof(int));
-	for (i = 0; i < npoints; i++)
-	{
+	for (i = 0; i < npoints; i++) {
 		initial[i] = i;
 	}
 	initial_points = npoints;
@@ -144,18 +145,32 @@ float** kmeans_clustering(float **feature,    /* in: [npoints][nfeatures] */
         new_centers[i] = new_centers[i-1] + nfeatures;
 
 	/* iterate until convergence */
-	do {
+    do {
         delta = 0.0;
-		// CUDA
-		delta = (float) kmeansCuda(feature,			/* in: [npoints][nfeatures] */
-								   nfeatures,		/* number of attributes for each point */
-								   npoints,			/* number of data points */
-								   nclusters,		/* number of clusters */
-								   membership,		/* which cluster the point belongs to */
-								   clusters,		/* out: [nclusters][nfeatures] */
-								   new_centers_len,	/* out: number of points in each cluster */
-								   new_centers		/* sum of points in each cluster */
-								   );
+        // CUDA
+        double transferTime = 0.;
+        double kernelTime = 0;
+        delta = (float) kmeansCuda(
+                feature,		/* in: [npoints][nfeatures] */
+                nfeatures,		/* number of attributes for each point */
+                npoints,		/* number of data points */
+                nclusters,		/* number of clusters */
+                membership,		/* which cluster the point belongs to */
+                clusters,		/* out: [nclusters][nfeatures] */
+                new_centers_len,/* out: number of points in each cluster */
+                new_centers,	/* sum of points in each cluster */
+                transferTime,
+                kernelTime,
+                resultDB);
+            
+        char tmp[32];
+        sprintf(tmp, "%dpoints,%dfeatures", npoints, nfeatures);
+        string atts = string(tmp);
+        resultDB.AddResult("KMeans-TransferTime", atts, "sec/iteration", transferTime);
+        resultDB.AddResult("KMeans-KernelTime", atts, "sec/iteration", kernelTime);
+        resultDB.AddResult("KMeans-TotalTime", atts, "sec/iteration", transferTime+kernelTime);
+        resultDB.AddResult("KMeans-Rate_Parity", atts, "N", transferTime/kernelTime);
+
 
 		/* replace old cluster centers with new_centers */
 		/* CPU side of reduction */
@@ -169,7 +184,7 @@ float** kmeans_clustering(float **feature,    /* in: [npoints][nfeatures] */
 		}	 
 		c++;
     } while ((delta > threshold) && (loop++ < 500));	/* makes sure loop terminates */
-	printf("iterated %d times\n", c);
+	printf("Iterated %d times\n", c);
     free(new_centers[0]);
     free(new_centers);
     free(new_centers_len);

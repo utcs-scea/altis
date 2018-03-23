@@ -24,20 +24,32 @@
 int setup(ResultDatabase &resultDB, OptionParser &op);
 
 // GLOBAL!!!!!
-unsigned int num_threads_perdim = THREADS_PER_DIM;					/* sqrt(256) -- see references for this choice */
-unsigned int num_blocks_perdim = BLOCKS_PER_DIM;					/* temporary */
-unsigned int num_threads = num_threads_perdim*num_threads_perdim;	/* number of threads */
-unsigned int num_blocks = num_blocks_perdim*num_blocks_perdim;		/* number of blocks */
+/* sqrt(256) -- see references for this choice */
+unsigned int num_threads_perdim = THREADS_PER_DIM;					
+/* temporary */
+unsigned int num_blocks_perdim = BLOCKS_PER_DIM;
+/* number of threads */
+unsigned int num_threads = num_threads_perdim*num_threads_perdim;	
+/* number of blocks */
+unsigned int num_blocks = num_blocks_perdim*num_blocks_perdim;		
 
 /* _d denotes it resides on the device */
-int    *membership_new;												/* newly assignment membership */
-float  *feature_d;													/* inverted data array */
-float  *feature_flipped_d;											/* original (not inverted) data array */
-int    *membership_d;												/* membership on the device */
-float  *block_new_centers;											/* sum of points in a cluster (per block) */
-float  *clusters_d;													/* cluster centers on the device */
-float  *block_clusters_d;											/* per block calculation of cluster centers */
-int    *block_deltas_d;												/* per block calculation of deltas */
+/* newly assignment membership */
+int    *membership_new;												
+/* inverted data array */
+float  *feature_d;													
+/* original (not inverted) data array */
+float  *feature_flipped_d;											
+/* membership on the device */
+int    *membership_d;												
+/* sum of points in a cluster (per block) */
+float  *block_new_centers;											
+/* cluster centers on the device */
+float  *clusters_d;													
+/* per block calculation of cluster centers */
+float  *block_clusters_d;											
+/* per block calculation of deltas */
+int    *block_deltas_d;												
 
 ////////////////////////////////////////////////////////////////////////////////
 void addBenchmarkSpecOptions(OptionParser &op) {
@@ -85,6 +97,7 @@ void allocateMemory(int npoints, int nfeatures, int nclusters, float **features)
 		
 	/* invert the data array (kernel execution) */	
 	invert_mapping<<<num_blocks,num_threads>>>(feature_flipped_d,feature_d,npoints,nfeatures);
+    CHECK_CUDA_ERROR();
 		
 	/* allocate memory for membership_d[] and clusters_d[][] (device) */
 	cudaMalloc((void**) &membership_d, npoints*sizeof(int));
@@ -100,9 +113,9 @@ void allocateMemory(int npoints, int nfeatures, int nclusters, float **features)
 
 #ifdef BLOCK_CENTER_REDUCE
 	// allocate memory and copy to card cluster  array in which to accumulate center points for the next iteration
-	cudaMalloc((void**) &block_clusters_d, 
-        num_blocks_perdim * num_blocks_perdim * 
-        nclusters * nfeatures * sizeof(float));
+    cudaMalloc((void**) &block_clusters_d, 
+            num_blocks_perdim * num_blocks_perdim * 
+            nclusters * nfeatures * sizeof(float));
 	//cudaMemcpy(new_clusters_d, new_centers[0], nclusters*nfeatures*sizeof(float), cudaMemcpyHostToDevice);
 #endif
 
@@ -139,20 +152,30 @@ kmeansCuda(float  **feature,				/* in: [npoints][nfeatures] */
            int     *membership,				/* which cluster the point belongs to */
 		   float  **clusters,				/* coordinates of cluster centers */
 		   int     *new_centers_len,		/* number of elements in each cluster */
-           float  **new_centers				/* sum of elements in each cluster */
-		   )
+           float  **new_centers,			/* sum of elements in each cluster */
+           double &transferTime,
+           double &kernelTime,
+		   ResultDatabase &resultDB)
 {
 	int delta = 0;			/* if point has moved */
 	int i,j;				/* counters */
 
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    float elapsedTime;
 
-	cudaSetDevice(1);
+    cudaEventRecord(start, 0);
+    /* copy membership (host to device) */
+    cudaMemcpy(membership_d, membership_new, npoints*sizeof(int), cudaMemcpyHostToDevice);
+    /* copy clusters (host to device) */
+    cudaMemcpy(clusters_d, clusters[0], nclusters*nfeatures*sizeof(float), cudaMemcpyHostToDevice);
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsedTime, start, stop);
+    transferTime += elapsedTime * 1.e-3; // convert to seconds
 
-	/* copy membership (host to device) */
-	cudaMemcpy(membership_d, membership_new, npoints*sizeof(int), cudaMemcpyHostToDevice);
-
-	/* copy clusters (host to device) */
-	cudaMemcpy(clusters_d, clusters[0], nclusters*nfeatures*sizeof(float), cudaMemcpyHostToDevice);
+    cudaError_t err;
 
 	/* set up texture */
     cudaChannelFormatDesc chDesc0 = cudaCreateChannelDesc<float>();
@@ -160,24 +183,38 @@ kmeansCuda(float  **feature,				/* in: [npoints][nfeatures] */
     t_features.normalized = false;
     t_features.channelDesc = chDesc0;
 
-	cudaBindTexture(NULL, &t_features, feature_d, &chDesc0, npoints*nfeatures*sizeof(float));
+	err = cudaBindTexture(NULL, &t_features, feature_d, &chDesc0, npoints*nfeatures*sizeof(float));
+    if(err != CUDA_SUCCESS) {
+        printf("Error: Couldn't bind features array to texture, %d", err);
+    }
 
 	cudaChannelFormatDesc chDesc1 = cudaCreateChannelDesc<float>();
     t_features_flipped.filterMode = cudaFilterModePoint;   
     t_features_flipped.normalized = false;
     t_features_flipped.channelDesc = chDesc1;
 
-	cudaBindTexture(NULL, &t_features_flipped, feature_flipped_d, &chDesc1, npoints*nfeatures*sizeof(float));
+	err = cudaBindTexture(NULL, &t_features_flipped, feature_flipped_d, &chDesc1, npoints*nfeatures*sizeof(float));
+    if(err != CUDA_SUCCESS) {
+        printf("Error: Couldn't bind features_flipped array to texture, %d", err);
+    }
 
 	cudaChannelFormatDesc chDesc2 = cudaCreateChannelDesc<float>();
     t_clusters.filterMode = cudaFilterModePoint;   
     t_clusters.normalized = false;
     t_clusters.channelDesc = chDesc2;
 
-	cudaBindTexture(NULL, &t_clusters, clusters_d, &chDesc2, nclusters*nfeatures*sizeof(float));
+	err = cudaBindTexture(NULL, &t_clusters, clusters_d, &chDesc2, nclusters*nfeatures*sizeof(float));
+    if(err != CUDA_SUCCESS) {
+        printf("Error: Couldn't bind clusters array to texture, %d", err);
+    }
 
+  cudaEventRecord(start, 0);
 	/* copy clusters to constant memory */
 	cudaMemcpyToSymbol("c_clusters",clusters[0],nclusters*nfeatures*sizeof(float),0,cudaMemcpyHostToDevice);
+  cudaEventRecord(stop, 0);
+  cudaEventSynchronize(stop);
+  cudaEventElapsedTime(&elapsedTime, start, stop);
+  transferTime += elapsedTime * 1.e-3; // convert to seconds
 
 
     /* setup execution parameters.
@@ -186,6 +223,7 @@ kmeansCuda(float  **feature,				/* in: [npoints][nfeatures] */
     dim3  threads( num_threads_perdim*num_threads_perdim );
     
 	/* execute the kernel */
+    cudaEventRecord(start, 0);
     kmeansPoint<<< grid, threads >>>( feature_d,
                                       nfeatures,
                                       npoints,
@@ -196,9 +234,19 @@ kmeansCuda(float  **feature,				/* in: [npoints][nfeatures] */
 									  block_deltas_d);
 
 	cudaThreadSynchronize();
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsedTime, start, stop);
+    kernelTime += elapsedTime * 1.e-3;
+    //CHECK_CUDA_ERROR();
 
+  cudaEventRecord(start, 0);
 	/* copy back membership (device to host) */
 	cudaMemcpy(membership_new, membership_d, npoints*sizeof(int), cudaMemcpyDeviceToHost);	
+  cudaEventRecord(stop, 0);
+  cudaEventSynchronize(stop);
+  cudaEventElapsedTime(&elapsedTime, start, stop);
+  transferTime += elapsedTime * 1.e-3; // convert to seconds
 
 #ifdef BLOCK_CENTER_REDUCE
     /*** Copy back arrays of per block sums ***/
@@ -206,18 +254,28 @@ kmeansCuda(float  **feature,				/* in: [npoints][nfeatures] */
         num_blocks_perdim * num_blocks_perdim * 
         nclusters * nfeatures * sizeof(float));
         
+  cudaEventRecord(start, 0);
 	cudaMemcpy(block_clusters_h, block_clusters_d, 
         num_blocks_perdim * num_blocks_perdim * 
         nclusters * nfeatures * sizeof(float), 
         cudaMemcpyDeviceToHost);
+  cudaEventRecord(stop, 0);
+  cudaEventSynchronize(stop);
+  cudaEventElapsedTime(&elapsedTime, start, stop);
+  transferTime += elapsedTime * 1.e-3; // convert to seconds
 #endif
 #ifdef BLOCK_DELTA_REDUCE
     int * block_deltas_h = (int *) malloc(
         num_blocks_perdim * num_blocks_perdim * sizeof(int));
         
+  cudaEventRecord(start, 0);
 	cudaMemcpy(block_deltas_h, block_deltas_d, 
         num_blocks_perdim * num_blocks_perdim * sizeof(int), 
         cudaMemcpyDeviceToHost);
+  cudaEventRecord(stop, 0);
+  cudaEventSynchronize(stop);
+  cudaEventElapsedTime(&elapsedTime, start, stop);
+  transferTime += elapsedTime * 1.e-3; // convert to seconds
 #endif
     
 	/* for each point, sum data points in each cluster

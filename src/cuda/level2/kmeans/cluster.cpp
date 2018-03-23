@@ -73,6 +73,7 @@
 #include <float.h>
 #include <omp.h>
 
+#include "ResultDatabase.h"
 #include "kmeans_cuda.h"
 #include "kmeans.h"
 
@@ -80,24 +81,24 @@ extern double wtime(void);
 float	min_rmse_ref = FLT_MAX;			/* reference min_rmse value */
 
 /*---< cluster() >-----------------------------------------------------------*/
-int cluster(int      npoints,				/* number of data points */
-            int      nfeatures,				/* number of attributes for each point */
+int cluster(int      npoints,	        /* number of data points */
+            int      nfeatures,			/* number of attributes for each point */
             float  **features,			/* array: [npoints][nfeatures] */                  
-            int      min_nclusters,			/* range of min to max number of clusters */
+            int      min_nclusters,		/* range of min to max number of clusters */
 			int		 max_nclusters,
-            float    threshold,				/* loop terminating factor */
-            int     *best_nclusters,		/* out: number between min and max with lowest RMSE */
-            float ***cluster_centres,		/* out: [best_nclusters][nfeatures] */
-			float	*min_rmse,				/* out: minimum RMSE */
-			int		 isRMSE,				/* calculate RMSE */
-			int		 nloops					/* number of iteration for each number of clusters */
-			)
+            float    threshold,			/* loop terminating factor */
+            int     *best_nclusters,	/* out: number between min and max with lowest RMSE */
+            float ***cluster_centres,	/* out: [best_nclusters][nfeatures] */
+			float	*min_rmse,			/* out: minimum RMSE */
+			int		 isRMSE,			/* calculate RMSE */
+			int		 nloops,				/* number of iteration for each number of clusters */
+			ResultDatabase &resultDB)
 {    
-	int		nclusters;						/* number of clusters k */	
-	int		index =0;						/* number of iteration to reach the best RMSE */
-	int		rmse;							/* RMSE for each clustering */
-    int    *membership;						/* which cluster a data point belongs to */
-    float **tmp_cluster_centres;			/* hold coordinates of cluster centers */
+	int		nclusters;				/* number of clusters k */	
+	int		index =0;				/* number of iteration to reach the best RMSE */
+	int		rmse;					/* RMSE for each clustering */
+    int    *membership;				/* which cluster a data point belongs to */
+    float **tmp_cluster_centres;	/* hold coordinates of cluster centers */
 	int		i;
 
 	/* allocate memory for membership */
@@ -106,6 +107,7 @@ int cluster(int      npoints,				/* number of data points */
 	/* sweep k from min to max_nclusters to find the best number of clusters */
 	for(nclusters = min_nclusters; nclusters <= max_nclusters; nclusters++)
 	{
+        printf("\nRunning k-means for %d clusters:\n", nclusters);
 		if (nclusters > npoints) break;	/* cannot have more clusters than points */
 
 		/* allocate device memory, invert data array (@ kmeans_cuda.cu) */
@@ -115,12 +117,14 @@ int cluster(int      npoints,				/* number of data points */
 		for(i = 0; i < nloops; i++)
 		{
 			/* initialize initial cluster centers, CUDA calls (@ kmeans_cuda.cu) */
+            printf("Pass %d: ", i);
 			tmp_cluster_centres = kmeans_clustering(features,
 													nfeatures,
 													npoints,
 													nclusters,
 													threshold,
-													membership);
+													membership,
+                                                    resultDB);
 
 			if (*cluster_centres) {
 				free((*cluster_centres)[0]);
