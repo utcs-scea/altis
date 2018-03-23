@@ -6085,7 +6085,7 @@ fi
 
 
 
-ac_config_files="$ac_config_files Makefile config/common.mk config/config.mk config/dirtargets.mk config/targets.mk src/Makefile src/common/Makefile src/cuda/Makefile src/cuda/level0/Makefile src/cuda/level0/busspeeddownload/Makefile src/cuda/level0/busspeedreadback/Makefile src/cuda/level0/devicememory/Makefile src/cuda/level0/maxflops/Makefile src/cuda/level1/Makefile src/cuda/level1/bfs/Makefile src/cuda/level1/gemm/Makefile src/cuda/level1/pathfinder/Makefile src/cuda/level1/sort/Makefile src/cuda/level2/Makefile src/cuda/level2/kmeans/Makefile src/cuda/level2/lavamd/Makefile src/cuda/level2/nw/Makefile src/cuda/level2/particlefilter/Makefile"
+ac_config_files="$ac_config_files Makefile config/common.mk config/config.mk config/dirtargets.mk config/targets.mk src/Makefile src/common/Makefile src/cuda/Makefile src/cuda/level0/Makefile src/cuda/level0/busspeeddownload/Makefile src/cuda/level0/busspeedreadback/Makefile src/cuda/level0/devicememory/Makefile src/cuda/level0/maxflops/Makefile src/cuda/level1/Makefile src/cuda/level1/bfs/Makefile src/cuda/level1/gemm/Makefile src/cuda/level1/pathfinder/Makefile src/cuda/level1/sort/Makefile src/cuda/level2/Makefile src/cuda/level2/kmeans/Makefile src/cuda/level2/lavamd/Makefile src/cuda/level2/nw/Makefile src/cuda/level2/particlefilter/Makefile src/cuda/level2/cfd/Makefile src/cuda/level2/srad/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -6853,6 +6853,8 @@ do
     "src/cuda/level2/lavamd/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level2/lavamd/Makefile" ;;
     "src/cuda/level2/nw/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level2/nw/Makefile" ;;
     "src/cuda/level2/particlefilter/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level2/particlefilter/Makefile" ;;
+    "src/cuda/level2/cfd/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level2/cfd/Makefile" ;;
+    "src/cuda/level2/srad/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level2/srad/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
