@@ -107,7 +107,7 @@ int cluster(int      npoints,	        /* number of data points */
 	/* sweep k from min to max_nclusters to find the best number of clusters */
 	for(nclusters = min_nclusters; nclusters <= max_nclusters; nclusters++)
 	{
-        printf("\nRunning k-means for %d clusters:\n", nclusters);
+        printf("\nRunning k means for %d clusters:\n", nclusters);
 		if (nclusters > npoints) break;	/* cannot have more clusters than points */
 
 		/* allocate device memory, invert data array (@ kmeans_cuda.cu) */

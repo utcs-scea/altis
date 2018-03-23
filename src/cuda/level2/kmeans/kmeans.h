@@ -44,27 +44,17 @@
 #define FLT_MAX 3.40282347e+38
 #endif
 
-<<<<<<< HEAD
 #include "ResultDatabase.h"
 
-=======
->>>>>>> ac67b0ac89e7e88a81b0ae127701263ca7241fd2
 /* rmse.c */
 float   euclid_dist_2        (float*, float*, int);
 int     find_nearest_point   (float* , int, float**, int);
 float	rms_err(float**, int, int, float**, int);
 
 /* cluster.c */
-<<<<<<< HEAD
 int     cluster(int, int, float**, int, int, float, int*, float***, float*, int, int, ResultDatabase&);
 
 /* kmeans_clustering.c */
 float **kmeans_clustering(float**, int, int, int, float, int*, ResultDatabase&);
-=======
-int     cluster(int, int, float**, int, int, float, int*, float***, float*, int, int);
-
-/* kmeans_clustering.c */
-float **kmeans_clustering(float**, int, int, int, float, int*);
->>>>>>> ac67b0ac89e7e88a81b0ae127701263ca7241fd2
 
 #endif

@@ -57,7 +57,6 @@
 /**              Northwestern University.                               **/
 /**                                                                     **/
 /**   ================================================================  **/
-<<<<<<< HEAD
 /**                                                                     **/
 /**   Edited by: Shuai Che, David Tarjan, Sang-Ha Lee                   **/
 /**				 University of Virginia                                 **/
@@ -71,29 +70,6 @@
 /*************************************************************************/
 #define _CRT_SECURE_NO_DEPRECATE 1
 #define SEED 7
-=======
-/**
- * **/
-/**   Edited by: Shuai Che, David Tarjan, Sang-Ha Lee
- * **/
-/**				 University of Virginia
- * **/
-/**
- * **/
-/**   Description:	No longer supports fuzzy c-means clustering;
- * **/
-/**					only regular k-means clustering.
- * **/
-/**					No longer performs "validity" function to
- * analyze	**/
-/**					compactness and separation crietria; instead
- * **/
-/**					calculate root mean squared error.
- * **/
-/**                                                                     **/
-/*************************************************************************/
-#define _CRT_SECURE_NO_DEPRECATE 1
->>>>>>> ac67b0ac89e7e88a81b0ae127701263ca7241fd2
 
 #include <fcntl.h>
 #include <limits.h>
@@ -112,7 +88,6 @@ extern double wtime(void);
 
 /*---< main() >-------------------------------------------------------------*/
 int setup(ResultDatabase &resultDB, OptionParser &op) {
-<<<<<<< HEAD
   srand(SEED); /* seed for future random number generator */
 
   int nloops = op.getOptionInt("passes");
@@ -121,12 +96,6 @@ int setup(ResultDatabase &resultDB, OptionParser &op) {
 
   float *buf;
   char line[1024];
-=======
-  const char *filename = op.getOptionString("inputFile").c_str();
-  float *buf;
-  char line[1024];
-  bool isBinaryFile = op.getOptionBool("binaryInput");
->>>>>>> ac67b0ac89e7e88a81b0ae127701263ca7241fd2
 
   float threshold = op.getOptionFloat("threshold");
   int max_nclusters = op.getOptionInt("maxClusters");
@@ -135,7 +104,6 @@ int setup(ResultDatabase &resultDB, OptionParser &op) {
   int nfeatures = 0;
   int npoints = 0;
   float len;
-<<<<<<< HEAD
   float **features;
   float **cluster_centres = NULL;
   int i, j, index;
@@ -143,26 +111,28 @@ int setup(ResultDatabase &resultDB, OptionParser &op) {
 
   /* ============== I/O begin ==============*/
   // open file if filename is given
+  FILE *fp = NULL;
   string infile = op.getOptionString("inputFile");
-  FILE *fp;
-  if(infile != "") {
-      printf("opening file\n");
+  if(infile.size() > 0) {
       fp = fopen(infile.c_str(),"r");
+      if(!fp)
+      {
+          printf("Error: Unable to read graph file %s.\n", infile.c_str());
+      }
   }
 
-  printf("1\n");
   // set npoints and nfeatures
-  if(fp != NULL) {
+  if(fp) {
+      printf("Reading input file...");
       int n = fscanf(fp, "%d %d", &npoints, &nfeatures);
   } else {
-      printf("Using a preset problem size");
+      printf("Generating a graph with a preset problem size...");
       int npointsPresets[4] = {1, 10, 100, 200};
       npoints = npointsPresets[op.getOptionInt("size") - 1] * 10000;
       int nfeaturesPresets[4] = {10, 20, 35, 100};
       nfeatures = nfeaturesPresets[op.getOptionInt("size") - 1];
   }
 
-  printf("2\n");
   // allocate space for features[] and read attributes of all objects
   buf = (float *)malloc(npoints * nfeatures * sizeof(float));
   features = (float **)malloc(npoints * sizeof(float *));
@@ -173,15 +143,13 @@ int setup(ResultDatabase &resultDB, OptionParser &op) {
   }
   i = 0;
   int id;
-  printf("%d %d\n", npoints, nfeatures);
   // read/generate features for each point
   for (int point = 0; point < npoints; point++) {
-      if(fp != NULL) {
+      if(fp) {
         int n = fscanf(fp, "%d", &id);
       }
-      printf("%d ", point);
       for (j = 0; j < nfeatures; j++) {
-          if(fp != NULL) {
+          if(fp) {
             fscanf(fp, "%f", &buf[i++]);
           } else {
             buf[i++] = rand() % 256;
@@ -190,96 +158,11 @@ int setup(ResultDatabase &resultDB, OptionParser &op) {
   }
 
   // close file
-  if(fp != NULL) {
+  if(fp) {
     fclose(fp);
   }
 
-  printf("\nFinished reading input file.\n");
-=======
-
-  float **features;
-  float **cluster_centres = NULL;
-  int i, j, index;
-  int nloops = op.getOptionInt("loops");
-
-  bool isRMSE = op.getOptionBool("rmse");
-  float rmse;
-
-  bool isOutput = op.getOptionBool("outputCenters");
-
-  /* ============== I/O begin ==============*/
-  /* get nfeatures and npoints */
-  // io_timing = omp_get_wtime();
-  if (isBinaryFile) { // Binary file input
-    int infile;
-    if ((infile = open(filename, O_RDONLY, "0600")) == -1) {
-      fprintf(stderr, "Error: no such file (%s)\n", filename);
-      exit(1);
-    }
-    read(infile, &npoints, sizeof(int));
-    read(infile, &nfeatures, sizeof(int));
-
-    /* allocate space for features[][] and read attributes of all objects */
-    buf = (float *)malloc(npoints * nfeatures * sizeof(float));
-    features = (float **)malloc(npoints * sizeof(float *));
-    features[0] = (float *)malloc(npoints * nfeatures * sizeof(float));
-    for (i = 1; i < npoints; i++)
-      features[i] = features[i - 1] + nfeatures;
-
-    read(infile, buf, npoints * nfeatures * sizeof(float));
-
-    close(infile);
-  } else {
-    FILE *fp;
-    string infile = op.getOptionString("inputFile");
-    fp = fopen(infile.c_str(),"r");
-    if(!fp)
-    {
-        printf("Error: Unable to read input file %s.\n", infile.c_str());
-    }
-    int n = fscanf(fp, "%d %d", &npoints, &nfeatures);
-    
-    printf("reading file\n");
-    /*
-    if ((infile = fopen(filename, "r")) == NULL) {
-      fprintf(stderr, "Error: no such file (%s)\n", filename);
-      exit(1);
-    }
-    while (fgets(line, 1024, infile) != NULL)
-      if (strtok(line, " \t\n") != 0)
-        npoints++;
-    rewind(infile);
-    while (fgets(line, 1024, infile) != NULL) {
-      if (strtok(line, " \t\n") != 0) {
-        ignore the id (first attribute): nfeatures = 1;
-        while (strtok(NULL, " ,\t\n") != NULL)
-          nfeatures++;
-        break;
-      }
-    }*/
-
-    /* allocate space for features[] and read attributes of all objects */
-    buf = (float *)malloc(npoints * nfeatures * sizeof(float));
-    features = (float **)malloc(npoints * sizeof(float *));
-    features[0] = (float *)malloc(npoints * nfeatures * sizeof(float));
-    for (i = 1; i < npoints; i++)
-      features[i] = features[i - 1] + nfeatures;
-    //rewind(fp);
-    i = 0;
-    while (fgets(line, 1024, fp) != NULL) {
-      if (strtok(line, " \t\n") == NULL)
-        continue;
-      for (j = 0; j < nfeatures; j++) {
-        buf[i] = atof(strtok(NULL, " ,\t\n"));
-        i++;
-      }
-    }
-    fclose(fp);
-  }
-  // io_timing = omp_get_wtime() - io_timing;
-
-  printf("\nI/O completed\n");
->>>>>>> ac67b0ac89e7e88a81b0ae127701263ca7241fd2
+  printf("Done.\n");
   printf("\nNumber of objects: %d\n", npoints);
   printf("Number of features: %d\n", nfeatures);
   /* ============== I/O end ==============*/
@@ -291,24 +174,11 @@ int setup(ResultDatabase &resultDB, OptionParser &op) {
     exit(0);
   }
 
-<<<<<<< HEAD
   memcpy(features[0], buf,npoints * nfeatures *sizeof(float)); /* now features holds 2-dimensional array of features */
-=======
-  srand(7); /* seed for future random number generator */
-  memcpy(
-      features[0], buf,
-      npoints * nfeatures *
-          sizeof(
-              float)); /* now features holds 2-dimensional array of features */
->>>>>>> ac67b0ac89e7e88a81b0ae127701263ca7241fd2
   free(buf);
 
   /* ======================= core of the clustering ===================*/
 
-<<<<<<< HEAD
-=======
-  // cluster_timing = omp_get_wtime();		/* Total clustering time */
->>>>>>> ac67b0ac89e7e88a81b0ae127701263ca7241fd2
   cluster_centres = NULL;
   index = cluster(npoints,       /* number of data points */
                   nfeatures,     /* number of features for each point */
@@ -319,14 +189,8 @@ int setup(ResultDatabase &resultDB, OptionParser &op) {
                   &cluster_centres, /* return: [best_nclusters][nfeatures] */
                   &rmse,            /* Root Mean Squared Error */
                   isRMSE,           /* calculate RMSE */
-<<<<<<< HEAD
                   nloops,
                   resultDB); /* number of iteration for each number of clusters */
-=======
-                  nloops); /* number of iteration for each number of clusters */
-
-  // cluster_timing = omp_get_wtime() - cluster_timing;
->>>>>>> ac67b0ac89e7e88a81b0ae127701263ca7241fd2
 
   /* =============== Command Line Output =============== */
 
@@ -343,44 +207,12 @@ int setup(ResultDatabase &resultDB, OptionParser &op) {
     }
   }
 
-<<<<<<< HEAD
   if (min_nclusters != max_nclusters) {
       printf("Best number of clusters is %d\n", best_nclusters);
   }
   if (isRMSE) { // if calculated RMSE
       printf("Best Root Mean Squared Error: %.3f\n", rmse);
   }
-
-=======
-  len = (float)((max_nclusters - min_nclusters + 1) * nloops);
-
-  printf("Number of Iteration: %d\n", nloops);
-  // printf("Time for I/O: %.5fsec\n", io_timing);
-  // printf("Time for Entire Clustering: %.5fsec\n", cluster_timing);
-
-  if (min_nclusters != max_nclusters) {
-    if (nloops != 1) { // range of k, multiple iteration
-      // printf("Average Clustering Time: %fsec\n",
-      //		cluster_timing / len);
-      printf("Best number of clusters is %d\n", best_nclusters);
-    } else { // range of k, single iteration
-      // printf("Average Clustering Time: %fsec\n",
-      //		cluster_timing / len);
-      printf("Best number of clusters is %d\n", best_nclusters);
-    }
-  } else {
-    if (nloops != 1) { // single k, multiple iteration
-      // printf("Average Clustering Time: %.5fsec\n",
-      //		cluster_timing / nloops);
-      if (isRMSE) // if calculated RMSE
-        printf("Number of trials to approach the best RMSE of %.3f is %d\n",
-               rmse, index + 1);
-    } else {      // single k, single iteration
-      if (isRMSE) // if calculated RMSE
-        printf("Root Mean Squared Error: %.3f\n", rmse);
-    }
-  }
->>>>>>> ac67b0ac89e7e88a81b0ae127701263ca7241fd2
 
   /* free up memory */
   free(features[0]);
