@@ -20,11 +20,10 @@ AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_RANLIB
 AC_CHECK_TOOL([AR], [ar], [:])
-AC_PATH_PROG([PERL], [perl])
 AC_PATH_PROG([UNZIP], [unzip])
 
 # Check whether special NVCXXFLAGS were specified
-# If not, set default flags based on whehter we are using g++ and whether our
+# If not, set default flags based on whether we're using g++ and whether our
 # C++ compiler supports -g.
 # Logic based on the logic used in the AC_PROG_CXX macro.
 ac_save_NVCXXFLAGS=${NVCXXFLAGS}
@@ -79,73 +78,6 @@ AS_IF([test "x$ac_cv_func_clock_gettime" = xyes],
     ]
 )    
 
-# OpenCL support
-AC_ARG_WITH([opencl],
-    [AS_HELP_STRING([--with-opencl],
-        [build OpenCL versions of MIROVIA benchmark programs @<:@default=check@:>@])],
-    [],
-    [with_opencl=check])
-
-# Detect/verify we have a working OpenCL header and library
-AS_IF([test "x$with_opencl" != xno],
-    [
-        # Check for usable OpenCL header
-        # Note: C++ binding uses opencl.h, not just cl.h
-        AC_MSG_NOTICE([checking for usable OpenCL opencl.h header])
-        AC_CHECK_HEADER([OpenCL/opencl.h],
-            [OPENCL_HEADER='"OpenCL/opencl.h"'],
-            [AC_CHECK_HEADER([CL/opencl.h],
-                [OPENCL_HEADER='"CL/opencl.h"'],
-                [if test "x$with_opencl" != xcheck; then
-                    AC_MSG_FAILURE([OpenCL support was requested, but no usable OpenCL header was found])
-                 fi
-                ]
-             )
-            ]
-        )
-
-        AS_IF([test "x$OPENCL_HEADER" != x],
-            [
-            # we have a header, check for usable OpenCL library
-            # we cannot use AC_CHECK_LIB because we want to check
-            # using the OS X OpenCL framework, and AC_CHECK_LIB does not
-            # know how to use the framework linker syntax.
-            # (we also do not want the OpenCL libs to be added to the
-            # LIBS variable, and AC_CHECK_LIB does that if it succeeds)
-            AC_MSG_CHECKING([for usable OpenCL library])
-            savedLIBS=$LIBS
-            OPENCL_LIBS="-framework OpenCL"
-            LIBS="$OPENCL_LIBS $savedLIBS"
-            AC_LINK_IFELSE( [AC_LANG_PROGRAM([@%:@include $OPENCL_HEADER],[clGetPlatformIDs(0,0,0);])],
-                [AC_MSG_RESULT($OPENCL_LIBS)],
-                [OPENCL_LIBS="-lOpenCL"
-                 LIBS="$OPENCL_LIBS $savedLIBS"
-                 AC_LINK_IFELSE( [AC_LANG_PROGRAM([@%:@include $OPENCL_HEADER],[clGetPlatformIDs(0,0,0);])],
-                    [AC_MSG_RESULT($OPENCL_LIBS)],
-                    [AC_MSG_RESULT([no])
-                     if test "x$with_opencl" != xcheck; then
-                         AC_MSG_FAILURE([OpenCL support was requested, but no usable OpenCL library was fund])
-                     fi
-                    ]
-                 )
-                ]
-            )
-            LIBS=$savedLIBS
-            ]
-        )
-
-        AS_IF([test "x$OPENCL_HEADER" != "x" -a "x$OPENCL_LIBS" != "x"],
-            [with_opencl=yes
-             MPI_SUBDIRS="$MPI_SUBDIRS opencl"
-             AC_SUBST([OPENCL_LIBS])
-             ],
-            [AC_MSG_NOTICE([no usable OpenCL installation found])
-             with_opencl=no
-            ])
-    ])
-AM_CONDITIONAL([BUILD_OPENCL], [test "x$with_opencl" = "xyes"])
-
-
 # CUDA support
 AC_ARG_WITH([cuda],
     [AS_HELP_STRING([--with-cuda],
@@ -174,14 +106,14 @@ AS_IF([test "x$with_cuda" != xno],
               CPPFLAGS="$CPPFLAGS -I$CUDA_INCDIR"
 
               AC_CHECK_HEADERS([cuda.h cuda_runtime.h],[],
-                [NVCC=""]
-              )
+                  [NVCC=""]
+                  )
               AC_CHECK_LIB([cublas], [cublasInit],[],
-                [NVCC=""]
-              )
+                  [NVCC=""]
+                  )
               AC_CHECK_LIB([cufft], [cufftPlan1d], [],
-                [NVCC=""]
-              )
+                  [NVCC=""]
+                  )
 
               CPPFLAGS=$savedCPPFLAGS
               LIBS=$savedLIBS
@@ -216,6 +148,36 @@ AS_IF([test "x$with_cuda" != xno],
     ]
 )
 AM_CONDITIONAL([BUILD_CUDA], [test "x$with_cuda" = "xyes"])
+
+# test whether or not to build unified memory in bfs
+unified_memory=yes
+grid_sync=yes
+AS_IF([nvcc --version | grep -q "release 8"], [grid_sync=no],[])
+AS_IF([nvcc --version | grep -q "release 7"], [grid_sync=no],[])
+AS_IF([nvcc --version | grep -q "release 6"], [grid_sync=no],[])
+AS_IF([nvcc --version | grep -q "release 5"], [grid_sync=no, unified_memory=no],[])
+AS_IF([nvcc --version | grep -q "release 4"], [grid_sync=no, unified_memory=no],[])
+AS_IF([nvcc --version | grep -q "release 3"], [grid_sync=no, unified_memory=no],[])
+AS_IF([nvcc --version | grep -q "release 2"], [grid_sync=no, unified_memory=no],[])
+AS_IF([nvcc --version | grep -q "release 1"], [grid_sync=no, unified_memory=no],[])
+
+AS_IF([test "x$unified_memory" = "xyes"], 
+        [
+            AC_MSG_RESULT([supports unified memory: yes]),
+            CUDA_CPPFLAGS+=[" -DUNIFIED_MEMORY"]
+        ],
+        [
+            AC_MSG_RESULT([supports unified memory: no]),
+        ])
+
+AS_IF([test "x$grid_sync" = "xyes"], 
+    [
+        AC_MSG_RESULT([supports grid sync: yes]),
+        CUDA_CPPFLAGS+=[" -DGRID_SYNC"]
+    ],
+    [
+        AC_MSG_RESULT([supports grid sync: no])
+    ])
 
 AC_SUBST([USE_CUDA])
 AC_SUBST([NVCXXFLAGS])

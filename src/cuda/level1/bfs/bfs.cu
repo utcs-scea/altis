@@ -48,7 +48,9 @@ struct Node
 
 void initGraph(OptionParser &op, int &no_of_nodes, int &edge_list_size, int &source, Node* &h_graph_nodes, int* &h_graph_edges);
 double BFSGraph(ResultDatabase &resultDB, OptionParser &op, int no_of_nodes, int edge_list_size, int source, Node* &h_graph_nodes, int* &h_graph_edges);
+#ifdef UNIFIED_MEMORY
 double BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, int no_of_nodes, int edge_list_size, int source, Node* &h_graph_nodes, int* &h_graph_edges);
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 __global__ void Kernel( Node* g_graph_nodes, int* g_graph_edges, bool* g_graph_mask, bool* g_updating_graph_mask, bool *g_graph_visited, int* g_cost, int no_of_nodes) 
@@ -146,12 +148,14 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     for(int i = 0; i < passes; i++) {
         printf("Pass %d:\n", i);
         printf("Executing BFS...");
-        double kernelTime = BFSGraph(resultDB, op, no_of_nodes, edge_list_size, source, h_graph_nodes, h_graph_edges);
+        double time = BFSGraph(resultDB, op, no_of_nodes, edge_list_size, source, h_graph_nodes, h_graph_edges);
         printf("Done.\n");
+#ifdef UNIFIED_MEMORY
         printf("Executing BFS using unified memory...");
-        double kernelTimeUM = BFSGraphUnifiedMemory(resultDB, op, no_of_nodes, edge_list_size, source, h_graph_nodes, h_graph_edges);
+        double timeUM = BFSGraphUnifiedMemory(resultDB, op, no_of_nodes, edge_list_size, source, h_graph_nodes, h_graph_edges);
         printf("Done.\n");
-        resultDB.AddResult("BFS/BFS-UM_Speedup", atts, "N", kernelTime/kernelTimeUM);
+        resultDB.AddResult("Regular_Mem/Managed_Mem_Time", atts, "N", time/timeUM);
+#endif
     }
 
 	free( h_graph_nodes);
@@ -173,7 +177,7 @@ int uniform_distribution(int rangeLow, int rangeHigh) {
 ////////////////////////////////////////////////////////////////////////////////
 void initGraph(OptionParser &op, int &no_of_nodes, int &edge_list_size, int &source, Node* &h_graph_nodes, int* &h_graph_edges) {
     // open input file for reading
-    FILE *fp;
+    FILE *fp = NULL;
     string infile = op.getOptionString("inputFile");
     if(infile != "") {
         fp = fopen(infile.c_str(),"r");
@@ -438,9 +442,10 @@ double BFSGraph(ResultDatabase &resultDB, OptionParser &op, int no_of_nodes, int
     resultDB.AddResult("BFS-Rate_PCIe_Nodes", atts, "Nodes/s", no_of_nodes/(kernelTime + transferTime));
     resultDB.AddResult("BFS-Rate_PCIe_Edges", atts, "Edges/s", edge_list_size/(kernelTime + transferTime));
     resultDB.AddResult("BFS-Rate_Parity", atts, "N", transferTime / kernelTime);
-    return kernelTime;
+    return transferTime + kernelTime;
 }
 
+#ifdef UNIFIED_MEMORY
 ////////////////////////////////////////////////////////////////////////////////
 //Apply BFS on a Graph using CUDA and Unified Memory
 ////////////////////////////////////////////////////////////////////////////////
@@ -561,8 +566,9 @@ double BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, int no_
     char tmp[64];
     sprintf(tmp, "%dV,%dE", no_of_nodes, edge_list_size);
     string atts = string(tmp);
-    resultDB.AddResult("BFS-UM-KernelTime", atts, "sec", kernelTime);
+    resultDB.AddResult("BFS-UM-TotalTime", atts, "sec", kernelTime);
     resultDB.AddResult("BFS-UM-Rate_Nodes", atts, "Nodes/s", no_of_nodes/kernelTime);
     resultDB.AddResult("BFS-UM-Rate_Edges", atts, "Edges/s", edge_list_size/kernelTime);
     return kernelTime;
 }
+#endif

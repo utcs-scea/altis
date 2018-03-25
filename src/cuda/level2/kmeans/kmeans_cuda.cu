@@ -57,7 +57,6 @@ void addBenchmarkSpecOptions(OptionParser &op) {
     op.addOption("minClusters", OPT_INT, "5", "minimum number of clusters allowed");
     op.addOption("threshold", OPT_FLOAT, "0.001", "threshold value");
     op.addOption("loops", OPT_INT, "1", "iteration for each number of clusters");
-    op.addOption("binaryInput", OPT_BOOL, "", "input file is in binary format");
     op.addOption("rmse", OPT_BOOL, "", "calculate RMSE (default off)");
     op.addOption("outputCenters", OPT_BOOL, "", "output cluster center coordinates (default off)");
 }
@@ -330,7 +329,6 @@ kmeansCuda(float  **feature,				/* in: [npoints][nfeatures] */
 		}
     }
 	
-
 #ifdef CPU_CENTER_REDUCE
 	//debug
 	/*for(int j = 0; j < nclusters;j++) {
