@@ -282,18 +282,14 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AM_LDFLAGS = $(CUDA_LDFLAGS)
 AM_CPPFLAGS = $(CUDA_INC)
+AM_NVXXFLAGS = -rdc=true
 
 # What is the destination for programs built from this directory?
 cudadir = $(bindir)/CUDA
 
 # How to build those programs?
-srad_SOURCES = \
-main.cpp
-
-srad_LDADD = \
-srad.o \
-$(CUDA_LIBS) $(LIBS) -lm
-
+srad_SOURCES = main.cpp
+srad_LDADD = srad.o $(CUDA_LIBS) $(LIBS) -lm
 all: all-am
 
 .SUFFIXES:

@@ -14,9 +14,6 @@ cudadir = $(bindir)/CUDA
 cuda_PROGRAMS = srad
 
 # How to build those programs?
-srad_SOURCES = \
-main.cpp
+srad_SOURCES = main.cpp
 
-srad_LDADD = \
-srad.o \
-$(CUDA_LIBS) $(LIBS) -lm
+srad_LDADD = srad.o $(CUDA_LIBS) $(LIBS) -lm
