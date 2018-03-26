@@ -137,7 +137,7 @@ AS_IF([test "x$with_cuda" != xno],
         AS_IF([test "x$with_cuda" = xyes],
             [AS_IF([test "x$CUDA_CPPFLAGS" = x],
                 [dnl generate CUDA code for broad spectrum of devices
-                 CUDA_CPPFLAGS=["-arch=sm_30 -gencode=arch=compute_60,code=sm_60"]
+                 CUDA_CPPFLAGS=["-arch=sm_60 -gencode=arch=compute_60,code=sm_60"]
                  AC_MSG_NOTICE([using CUDA_CPPFLAGS=$CUDA_CPPFLAGS])
                  AC_MSG_WARN([*** MIROVIA programs may fail if these -gencode values do not apply to your GPU.  If they don't apply, or if you want to shorten MIROVIA's compile time, determine the -gencode options that apply for your GPU and re-configure MIROVIA explicitly specifying only those options in CUDA_CPPFLAGS during the configure. ***])
                 ]
@@ -163,16 +163,16 @@ AS_IF([nvcc --version | grep -q "release 1"], [grid_sync=no, unified_memory=no],
 
 AS_IF([test "x$unified_memory" = "xyes"], 
         [
-            AC_MSG_RESULT([supports unified memory: yes]),
+            AC_MSG_RESULT([supports unified memory: yes])
             CUDA_CPPFLAGS+=[" -DUNIFIED_MEMORY"]
         ],
         [
-            AC_MSG_RESULT([supports unified memory: no]),
+            AC_MSG_RESULT([supports unified memory: no])
         ])
 
 AS_IF([test "x$grid_sync" = "xyes"], 
     [
-        AC_MSG_RESULT([supports grid sync: yes]),
+        AC_MSG_RESULT([supports grid sync: yes])
         CUDA_CPPFLAGS+=[" -DGRID_SYNC"]
     ],
     [
