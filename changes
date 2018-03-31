@@ -1,3 +1,11 @@
+- cuda features
+    - autoconf turns on and off
+    - compares performance with and without the feature
+
+- CPU benchmarks
+    - ifdef CPU for benchmarks if GPU kernel isnt able to be run
+    - also available to compare speedup
+
 src/cuda/common/main.cpp
 - added -outputFile option to write benchmark results to a file instead of stdout
 - added -inputFile option to read data from a file

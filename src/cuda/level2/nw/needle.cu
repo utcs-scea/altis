@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
+#include <limits.h>
 
 #include "cudacommon.h"
 #include "OptionParser.h"
@@ -125,8 +126,14 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   }
 
   if (dim == 0) {
-    int problemSizes[4] = {1, 8, 48, 96};
-    dim = problemSizes[op.getOptionInt("size") - 1] * 1024;
+    int problemSizes[4] = {1, 100, 1000, 10000};
+    dim = problemSizes[op.getOptionInt("size") - 1];
+  }
+
+  long long num_items = (long long)dim * (long long)dim;
+  if(num_items >= INT_MAX) {
+      printf("Error: Total size cannot exceed INT_MAX");
+      return;
   }
 
   printf("WG size of kernel = %d \n", BLOCK_SIZE);
@@ -191,8 +198,8 @@ void runTest(ResultDatabase &resultDB, OptionParser &op) {
   for (int j = 1; j < max_cols; j++) input_itemsets[j] = -j * penalty;
 
   size = max_cols * max_rows;
-  cudaMalloc((void **)&referrence_cuda, sizeof(int) * size);
-  cudaMalloc((void **)&matrix_cuda, sizeof(int) * size);
+  CUDA_SAFE_CALL(cudaMalloc((void **)&referrence_cuda, sizeof(int) * size));
+  CUDA_SAFE_CALL(cudaMalloc((void **)&matrix_cuda, sizeof(int) * size));
 
   cudaEvent_t start, stop;
   cudaEventCreate(&start);
@@ -202,10 +209,10 @@ void runTest(ResultDatabase &resultDB, OptionParser &op) {
   double kernelTime = 0;
 
   cudaEventRecord(start, 0);
-  cudaMemcpy(referrence_cuda, referrence, sizeof(int) * size,
-          cudaMemcpyHostToDevice);
-  cudaMemcpy(matrix_cuda, input_itemsets, sizeof(int) * size,
-          cudaMemcpyHostToDevice);
+  CUDA_SAFE_CALL(cudaMemcpy(referrence_cuda, referrence, sizeof(int) * size,
+          cudaMemcpyHostToDevice));
+  CUDA_SAFE_CALL(cudaMemcpy(matrix_cuda, input_itemsets, sizeof(int) * size,
+          cudaMemcpyHostToDevice));
   cudaEventRecord(stop, 0);
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&elapsedTime, start, stop);

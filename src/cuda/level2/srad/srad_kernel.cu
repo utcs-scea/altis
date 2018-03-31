@@ -1,7 +1,7 @@
-//#ifdef GRID_SYNC
+#ifdef GRID_SYNC
 #include <cooperative_groups.h>
 using namespace cooperative_groups;
-//#endif
+#endif
 
 __global__ void
 srad_cuda_1(
@@ -283,7 +283,7 @@ srad_cuda_3(
 		  float lambda,
 		  float q0sqr
 ) {
-  grid_group g = this_grid();
+  cooperative_groups::grid_group g = cooperative_groups::this_grid();
 
   //block id
   int bx = blockIdx.x;
@@ -524,3 +524,5 @@ srad_cuda_3(
     
 }
 #endif
+
+

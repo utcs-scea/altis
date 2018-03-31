@@ -628,10 +628,6 @@ am__EXEEXT_TRUE
 LTLIBOBJS
 NVCXXFLAGS
 USE_CUDA
-GRID_SYNC_FALSE
-GRID_SYNC_TRUE
-UNIFIED_MEMORY_FALSE
-UNIFIED_MEMORY_TRUE
 BUILD_CUDA_FALSE
 BUILD_CUDA_TRUE
 CUDA_CPPFLAGS
@@ -5882,7 +5878,7 @@ fi
 
         if test "x$with_cuda" = xyes; then :
   if test "x$CUDA_CPPFLAGS" = x; then :
-                   CUDA_CPPFLAGS="-arch=sm_30 -gencode=arch=compute_60,code=sm_60"
+                   CUDA_CPPFLAGS="-m64 -arch=sm_60 -gencode=arch=compute_60,code=sm_60"
                  { $as_echo "$as_me:${as_lineno-$LINENO}: using CUDA_CPPFLAGS=$CUDA_CPPFLAGS" >&5
 $as_echo "$as_me: using CUDA_CPPFLAGS=$CUDA_CPPFLAGS" >&6;}
                  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: *** MIROVIA programs may fail if these -gencode values do not apply to your GPU.  If they don't apply, or if you want to shorten MIROVIA's compile time, determine the -gencode options that apply for your GPU and re-configure MIROVIA explicitly specifying only those options in CUDA_CPPFLAGS during the configure. ***" >&5
@@ -5935,40 +5931,30 @@ if nvcc --version | grep -q "release 1"; then :
 fi
 
 if test "x$unified_memory" = "xyes"; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: supports unified memory: yes" >&5
+
+            { $as_echo "$as_me:${as_lineno-$LINENO}: result: supports unified memory: yes" >&5
 $as_echo "supports unified memory: yes" >&6; }
+            CUDA_CPPFLAGS+=" -DUNIFIED_MEMORY"
+
 else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: supports unified memory: no" >&5
+
+            { $as_echo "$as_me:${as_lineno-$LINENO}: result: supports unified memory: no" >&5
 $as_echo "supports unified memory: no" >&6; }
+
 fi
+
 if test "x$grid_sync" = "xyes"; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: supports grid sync: yes" >&5
+
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: supports grid sync: yes" >&5
 $as_echo "supports grid sync: yes" >&6; }
+        CUDA_CPPFLAGS+=" -DGRID_SYNC"
+
 else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: supports grid sync: no" >&5
+
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: supports grid sync: no" >&5
 $as_echo "supports grid sync: no" >&6; }
-fi
 
-if test "x$unified_memory" = "xyes"; then :
-  CUDA_CPPFLAGS+=" -DUNIFIED_MEMORY"
 fi
-
- if test "x$unified_memory" = "xyes"; then
-  UNIFIED_MEMORY_TRUE=
-  UNIFIED_MEMORY_FALSE='#'
-else
-  UNIFIED_MEMORY_TRUE='#'
-  UNIFIED_MEMORY_FALSE=
-fi
-
- if test "x$grid_sync" = "xyes"; then
-  GRID_SYNC_TRUE=
-  GRID_SYNC_FALSE='#'
-else
-  GRID_SYNC_TRUE='#'
-  GRID_SYNC_FALSE=
-fi
-
 
 
 
@@ -6118,14 +6104,6 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${BUILD_CUDA_TRUE}" && test -z "${BUILD_CUDA_FALSE}"; then
   as_fn_error $? "conditional \"BUILD_CUDA\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${UNIFIED_MEMORY_TRUE}" && test -z "${UNIFIED_MEMORY_FALSE}"; then
-  as_fn_error $? "conditional \"UNIFIED_MEMORY\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${GRID_SYNC_TRUE}" && test -z "${GRID_SYNC_FALSE}"; then
-  as_fn_error $? "conditional \"GRID_SYNC\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 

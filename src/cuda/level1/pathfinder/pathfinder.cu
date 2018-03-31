@@ -74,11 +74,11 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   
   if(rowLen == 0 || colLen == 0 || pyramidHeight == 0) {
       printf("Parameters not fully specified, using preset problem size\n");
-      int rowSizes[4] = {1, 8, 48, 96};
-      int colSizes[4] = {1, 8, 48, 96};
-      int pyramidSizes[4] = {20, 40, 60, 80};
+      int rowSizes[4] = {1, 64, 256, 1024};
+      int colSizes[4] = {1, 8, 32, 64};
+      int pyramidSizes[4] = {10, 15, 30, 60};
       rows = rowSizes[op.getOptionInt("size") - 1] * 1024;
-      cols = colSizes[op.getOptionInt("size") - 1] * 1024;
+      cols = colSizes[op.getOptionInt("size") - 1];
       pyramid_height = pyramidSizes[op.getOptionInt("size") - 1];
   } else {
       rows = rowLen;

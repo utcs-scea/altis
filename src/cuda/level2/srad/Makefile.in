@@ -161,7 +161,7 @@ am__define_uniq_tagged_files = \
 ETAGS = etags
 CTAGS = ctags
 am__DIST_COMMON = $(srcdir)/Makefile.in \
-	$(top_srcdir)/build-aux/depcomp README
+	$(top_srcdir)/build-aux/depcomp
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 
 # How to find source files
@@ -179,7 +179,7 @@ CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 CPPFLAGS = @CPPFLAGS@
-CUDA_CPPFLAGS = @CUDA_CPPFLAGS@
+CUDA_CPPFLAGS = @CUDA_CPPFLAGS@ -rdc=true
 CUDA_INCDIR = @CUDA_INCDIR@
 CXX = @CXX@
 CXXCPP = @CXXCPP@
@@ -282,7 +282,6 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AM_LDFLAGS = $(CUDA_LDFLAGS)
 AM_CPPFLAGS = $(CUDA_INC)
-AM_NVXXFLAGS = -rdc=true
 
 # What is the destination for programs built from this directory?
 cudadir = $(bindir)/CUDA

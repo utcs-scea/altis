@@ -1,21 +1,21 @@
-==15938== NVPROF is profiling process 15938, command: ./src/cuda/level2/lavamd/lavamd -s 3
-==15938== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
-==15938== Profiling application: ./src/cuda/level2/lavamd/lavamd -s 3
-==15938== Profiling result:
-==15938== Metric result:
+==1536== NVPROF is profiling process 1536, command: ./src/cuda/level2/lavamd/lavamd -s 3 -n 1
+==1536== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==1536== Profiling application: ./src/cuda/level2/lavamd/lavamd -s 3 -n 1
+==1536== Profiling result:
+==1536== Metric result:
 Invocations                               Metric Name                            Metric Description         Min         Max         Avg
 Device "Tesla P100-SXM2-16GB (0)"
     Kernel: kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)
-         10                             flop_count_dp   Floating Point Operations(Double Precision)  1.3761e+13  1.3761e+13  1.3761e+13
-         10                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
-         10                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)
-         10                                inst_fp_32                       FP Instructions(Single)  2.6464e+11  2.6464e+11  2.6464e+11
-         10                                inst_fp_64                       FP Instructions(Double)  8.4686e+12  8.4686e+12  8.4686e+12
-         10                              inst_integer                          Integer Instructions  1.0015e+12  1.0015e+12  1.0015e+12
-         10                          inst_bit_convert                      Bit-Convert Instructions  2.6464e+11  2.6464e+11  2.6464e+11
-         10                              inst_control                     Control-Flow Instructions  6.9274e+11  6.9274e+11  6.9274e+11
-         10                        inst_compute_ld_st                       Load/Store Instructions  1.3917e+12  1.3917e+12  1.3917e+12
-         10                                 inst_misc                             Misc Instructions  8.6419e+11  8.6419e+11  8.6419e+11
-         10           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
-         10                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
-==15938== Warning: One or more events or metrics overflowed. Rerun with "--print-gpu-trace" for detail.
+          1                             flop_count_dp   Floating Point Operations(Double Precision)  1.3761e+13  1.3761e+13  1.3761e+13
+          1                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
+          1                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)
+          1                                inst_fp_32                       FP Instructions(Single)  2.6464e+11  2.6464e+11  2.6464e+11
+          1                                inst_fp_64                       FP Instructions(Double)  8.4686e+12  8.4686e+12  8.4686e+12
+          1                              inst_integer                          Integer Instructions  9.4747e+11  9.4747e+11  9.4747e+11
+          1                          inst_bit_convert                      Bit-Convert Instructions  2.6464e+11  2.6464e+11  2.6464e+11
+          1                              inst_control                     Control-Flow Instructions  6.8725e+11  6.8725e+11  6.8725e+11
+          1                        inst_compute_ld_st                       Load/Store Instructions  8.5169e+11  8.5169e+11  8.5169e+11
+          1                                 inst_misc                             Misc Instructions  1.1113e+12  1.1113e+12  1.1113e+12
+          1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
+          1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
+==1536== Warning: One or more events or metrics overflowed. Rerun with "--print-gpu-trace" for detail.
