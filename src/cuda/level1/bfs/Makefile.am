@@ -7,7 +7,7 @@ include $(top_builddir)/config/targets.mk
 VPATH = $(srcdir):$(srcdir)/../../common:$(srcdir)/../../../common
 
 AM_LDFLAGS = $(CUDA_LDFLAGS)
-AM_CPPFLAGS = $(CUDA_INC)
+AM_CPPFLAGS = $(CUDA_INC) -Wformat
 
 # What is the destination for programs built from this directory?
 cudadir = $(bindir)/CUDA

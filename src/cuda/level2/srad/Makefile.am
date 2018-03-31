@@ -6,6 +6,7 @@ VPATH = $(srcdir):$(srcdir)/../../common:$(srcdir)/../../../common
 
 AM_LDFLAGS = $(CUDA_LDFLAGS)
 AM_CPPFLAGS = $(CUDA_INC)
+CUDA_CPPFLAGS += -rdc=true
 
 # What is the destination for programs built from this directory?
 cudadir = $(bindir)/CUDA
@@ -15,5 +16,5 @@ cuda_PROGRAMS = srad
 
 # How to build those programs?
 srad_SOURCES = main.cpp
-
 srad_LDADD = srad.o $(CUDA_LIBS) $(LIBS) -lm
+
