@@ -5905,6 +5905,7 @@ fi
 # test whether or not to build unified memory in bfs
 unified_memory=yes
 grid_sync=yes
+hyperq=yes
 if nvcc --version | grep -q "release 8"; then :
   grid_sync=no
 fi
@@ -5918,16 +5919,16 @@ if nvcc --version | grep -q "release 5"; then :
   grid_sync=no, unified_memory=no
 fi
 if nvcc --version | grep -q "release 4"; then :
-  grid_sync=no, unified_memory=no
+  grid_sync=no, unified_memory=no, hyperq=no
 fi
 if nvcc --version | grep -q "release 3"; then :
-  grid_sync=no, unified_memory=no
+  grid_sync=no, unified_memory=no, hyperq=no
 fi
 if nvcc --version | grep -q "release 2"; then :
-  grid_sync=no, unified_memory=no
+  grid_sync=no, unified_memory=no, hyperq=no
 fi
 if nvcc --version | grep -q "release 1"; then :
-  grid_sync=no, unified_memory=no
+  grid_sync=no, unified_memory=no, hyperq=no
 fi
 
 if test "x$unified_memory" = "xyes"; then :
@@ -5953,6 +5954,19 @@ else
 
         { $as_echo "$as_me:${as_lineno-$LINENO}: result: supports grid sync: no" >&5
 $as_echo "supports grid sync: no" >&6; }
+
+fi
+
+if test "x$hyperq" = "xyes"; then :
+
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: supports hyperq: yes" >&5
+$as_echo "supports hyperq: yes" >&6; }
+        CUDA_CPPFLAGS+=" -DHYPERQ"
+
+else
+
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: supports hyperq: no" >&5
+$as_echo "supports hyperq: no" >&6; }
 
 fi
 

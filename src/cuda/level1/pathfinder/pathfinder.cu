@@ -210,11 +210,34 @@ int calc_path(int *gpuWall, int *gpuResult[2], int rows, int cols,
   cudaEventCreate(&stop);
   float elapsedTime;
 
+  int numStreams = 32;
+  cudaStream_t streams[numStreams];
+  for(int s = 0; s < numStreams; s++) {
+      cudaStreamCreate(&streams[s]);
+  }
   int src = 1, dst = 0;
   for (int t = 0; t < rows - 1; t += pyramid_height) {
+    for(int s = 0; s < numStreams; s++) {
     int temp = src;
     src = dst;
     dst = temp;
+
+#ifdef HYPERQ
+    if(t == 0 && s == 0) {
+        cudaEventRecord(start, streams[s]);
+    }
+    dynproc_kernel<<<dimGrid, dimBlock, 0, streams[s]>>>(
+        MIN(pyramid_height, rows - t - 1), gpuWall, gpuResult[src],
+        gpuResult[dst], cols, rows, t, borderCols);
+    if(t + pyramid_height >= rows - 1 && s == numStreams - 1) {
+        cudaDeviceSynchronize();
+        cudaEventRecord(stop, streams[s]);
+        cudaEventSynchronize(stop);
+        CHECK_CUDA_ERROR();
+        cudaEventElapsedTime(&elapsedTime, start, stop);
+        kernelTime += elapsedTime * 1.e-3;
+    }
+#else
     cudaEventRecord(start, 0);
     dynproc_kernel<<<dimGrid, dimBlock>>>(
         MIN(pyramid_height, rows - t - 1), gpuWall, gpuResult[src],
@@ -225,7 +248,9 @@ int calc_path(int *gpuWall, int *gpuResult[2], int rows, int cols,
     CHECK_CUDA_ERROR();
     cudaEventElapsedTime(&elapsedTime, start, stop);
     kernelTime += elapsedTime * 1.e-3;
-  }
+#endif
+      }
+    }
   return dst;
 }
 
