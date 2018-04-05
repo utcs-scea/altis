@@ -14,13 +14,13 @@
 #define HALO 1  // halo width along one direction when advancing to the next iteration
 #define SEED 7
 
-void run(ResultDatabase &resultDB, OptionParser &op);
+void run(long long borderCols, long long smallBlockCol, long long blockCols, ResultDatabase &resultDB, OptionParser &op);
 
-int rows, cols;
-int *data;
-int **wall;
-int *result;
-int pyramid_height;
+long long rows, cols;
+long long *data;
+long long **wall;
+long long *result;
+long long pyramid_height;
 
 // ****************************************************************************
 // Function: addBenchmarkSpecOptions
@@ -68,16 +68,16 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   cudaDeviceProp deviceProp;
   cudaGetDeviceProperties(&deviceProp, device);
 
-  int rowLen = op.getOptionInt("rows");
-  int colLen = op.getOptionInt("cols");
-  int pyramidHeight = op.getOptionInt("pyramidHeight");
+  long long rowLen = op.getOptionInt("rows");
+  long long colLen = op.getOptionInt("cols");
+  long long pyramidHeight = op.getOptionInt("pyramidHeight");
   
   if(rowLen == 0 || colLen == 0 || pyramidHeight == 0) {
       printf("Parameters not fully specified, using preset problem size\n");
-      int rowSizes[4] = {1, 64, 256, 1024};
-      int colSizes[4] = {1, 8, 32, 64};
-      int pyramidSizes[4] = {10, 15, 30, 60};
-      rows = rowSizes[op.getOptionInt("size") - 1] * 1024;
+      long long rowSizes[4] = {1, 8, 16, 32};
+      long long colSizes[4] = {1, 8, 16, 32};
+      long long pyramidSizes[4] = {10, 15, 30, 60};
+      rows = rowSizes[op.getOptionInt("size") - 1] * 1024 * 1024;
       cols = colSizes[op.getOptionInt("size") - 1];
       pyramid_height = pyramidSizes[op.getOptionInt("size") - 1];
   } else {
@@ -90,24 +90,34 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   printf("Column length: %d\n", cols);
   printf("Pyramid height: %d\n", pyramid_height);
 
-  int passes = op.getOptionInt("passes");
-  for(int i = 0; i < passes; i++) {
+  /* --------------- pyramid parameters --------------- */
+  long long borderCols = (pyramid_height)*HALO;
+  long long smallBlockCol = BLOCK_SIZE - (pyramid_height)*HALO * 2;
+  long long blockCols = cols / smallBlockCol + ((cols % smallBlockCol == 0) ? 0 : 1);
+
+  printf(
+          "gridSize: [%d]\tborder:[%d]\tblockSize: "
+          "%d\tblockGrid:[%d]\ttargetBlock:[%d]\n",
+          pyramid_height, cols, borderCols, BLOCK_SIZE, blockCols, smallBlockCol);
+
+  long long passes = op.getOptionInt("passes");
+  for(long long i = 0; i < passes; i++) {
     printf("Pass %d: ", i);
-    run(resultDB, op);
+    run(borderCols, smallBlockCol, blockCols, resultDB, op);
     printf("Done.\n");
   }
 }
 
 void init(OptionParser &op) {
-  data = new int[rows * cols];
-  wall = new int *[rows];
-  for (int n = 0; n < rows; n++) wall[n] = data + cols * n;
-  result = new int[cols];
+  data = new long long[rows * cols];
+  wall = new long long *[rows];
+  for (long long n = 0; n < rows; n++) wall[n] = data + (long long)cols * n;
+  result = new long long[cols];
 
   srand(SEED);
 
-  for (int i = 0; i < rows; i++) {
-    for (int j = 0; j < cols; j++) {
+  for (long long i = 0; i < rows; i++) {
+    for (long long j = 0; j < cols; j++) {
       wall[i][j] = rand() % 10;
     }
   }
@@ -125,14 +135,14 @@ void fatal(char *s) { fprintf(stderr, "error: %s\n", s); }
 #define CLAMP_RANGE(x, min, max) x = (x < (min)) ? min : ((x > (max)) ? max : x)
 #define MIN(a, b) ((a) <= (b) ? (a) : (b))
 
-__global__ void dynproc_kernel(int iteration, int *gpuWall, int *gpuSrc,
-                               int *gpuResults, int cols, int rows,
-                               int startStep, int border) {
-  __shared__ int prev[BLOCK_SIZE];
-  __shared__ int result[BLOCK_SIZE];
+__global__ void dynproc_kernel(long long iteration, long long *gpuWall, long long *gpuSrc,
+                               long long *gpuResults, long long cols, long long rows,
+                               long long startStep, long long border) {
+  __shared__ long long prev[BLOCK_SIZE];
+  __shared__ long long result[BLOCK_SIZE];
 
-  int bx = blockIdx.x;
-  int tx = threadIdx.x;
+  long long bx = blockIdx.x;
+  long long tx = threadIdx.x;
 
   // each block finally computes result for a small block
   // after N iterations.
@@ -140,46 +150,46 @@ __global__ void dynproc_kernel(int iteration, int *gpuWall, int *gpuSrc,
   // all the input data
 
   // calculate the small block size
-  int small_block_cols = BLOCK_SIZE - iteration * HALO * 2;
+  long long small_block_cols = BLOCK_SIZE - iteration * HALO * 2;
 
   // calculate the boundary for the block according to
   // the boundary of its small block
-  int blkX = small_block_cols * bx - border;
-  int blkXmax = blkX + BLOCK_SIZE - 1;
+  long long blkX = (long long)small_block_cols * (long long)bx - (long long)border;
+  long long blkXmax = blkX + (long long)BLOCK_SIZE - 1;
 
   // calculate the global thread coordination
-  int xidx = blkX + tx;
+  long long xidx = blkX + (long long)tx;
 
   // effective range within this block that falls within
   // the valid range of the input data
   // used to rule out computation outside the boundary.
-  int validXmin = (blkX < 0) ? -blkX : 0;
-  int validXmax = (blkXmax > cols - 1) ? BLOCK_SIZE - 1 - (blkXmax - cols + 1)
-                                       : BLOCK_SIZE - 1;
+  long long validXmin = (blkX < 0) ? -blkX : 0;
+  long long validXmax = (blkXmax > (long long)cols - 1) ? (long long)BLOCK_SIZE - 1 - (blkXmax - (long long)cols + 1)
+                                       : (long long)BLOCK_SIZE - 1;
 
-  int W = tx - 1;
-  int E = tx + 1;
+  long long W = tx - 1;
+  long long E = tx + 1;
 
   W = (W < validXmin) ? validXmin : W;
   E = (E > validXmax) ? validXmax : E;
 
   bool isValid = IN_RANGE(tx, validXmin, validXmax);
 
-  if (IN_RANGE(xidx, 0, cols - 1)) {
+  if (IN_RANGE(xidx, 0, (long long)cols - 1)) {
     prev[tx] = gpuSrc[xidx];
   }
   __syncthreads();  // [Ronny] Added sync to avoid race on prev Aug. 14 2012
   bool computed;
-  for (int i = 0; i < iteration; i++) {
+  for (long long i = 0; i < iteration; i++) {
     computed = false;
     if (IN_RANGE(tx, i + 1, BLOCK_SIZE - i - 2) && isValid) {
       computed = true;
-      int left = prev[W];
-      int up = prev[tx];
-      int right = prev[E];
-      int shortest = MIN(left, up);
+      long long left = prev[W];
+      long long up = prev[tx];
+      long long right = prev[E];
+      long long shortest = MIN(left, up);
       shortest = MIN(shortest, right);
-      int index = cols * (startStep + i) + xidx;
+      long long index = cols * (startStep + i) + xidx;
       result[tx] = shortest + gpuWall[index];
     }
     __syncthreads();
@@ -200,8 +210,8 @@ __global__ void dynproc_kernel(int iteration, int *gpuWall, int *gpuSrc,
 /*
    compute N time steps
 */
-int calc_path(int *gpuWall, int *gpuResult[2], int rows, int cols,
-              int pyramid_height, int blockCols, int borderCols, double& kernelTime) {
+long long calc_path(long long *gpuWall, long long *gpuResult[2], long long rows, long long cols,
+              long long pyramid_height, long long blockCols, long long borderCols, double& kernelTime) {
   dim3 dimBlock(BLOCK_SIZE);
   dim3 dimGrid(blockCols);
 
@@ -210,15 +220,15 @@ int calc_path(int *gpuWall, int *gpuResult[2], int rows, int cols,
   cudaEventCreate(&stop);
   float elapsedTime;
 
-  int numStreams = 32;
+  long long numStreams = 32;
   cudaStream_t streams[numStreams];
-  for(int s = 0; s < numStreams; s++) {
+  for(long long s = 0; s < numStreams; s++) {
       cudaStreamCreate(&streams[s]);
   }
-  int src = 1, dst = 0;
-  for (int t = 0; t < rows - 1; t += pyramid_height) {
-    for(int s = 0; s < numStreams; s++) {
-    int temp = src;
+  long long src = 1, dst = 0;
+  for (long long t = 0; t < rows - 1; t += pyramid_height) {
+    for(long long s = 0; s < numStreams; s++) {
+    long long temp = src;
     src = dst;
     dst = temp;
 
@@ -254,29 +264,16 @@ int calc_path(int *gpuWall, int *gpuResult[2], int rows, int cols,
   return dst;
 }
 
-void run(ResultDatabase &resultDB, OptionParser &op) {
+void run(long long borderCols, long long smallBlockCol, long long blockCols, ResultDatabase &resultDB, OptionParser &op) {
+  // initialize data
   init(op);
 
-  /* --------------- pyramid parameters --------------- */
-  int borderCols = (pyramid_height)*HALO;
-  int smallBlockCol = BLOCK_SIZE - (pyramid_height)*HALO * 2;
-  int blockCols = cols / smallBlockCol + ((cols % smallBlockCol == 0) ? 0 : 1);
+  long long *gpuWall, *gpuResult[2];
+  long long size = rows * cols;
 
-  bool verbose = op.getOptionBool("verbose");
-
-  if(verbose) {
-    printf(
-        "pyramidHeight: %d\ngridSize: [%d]\nborder:[%d]\nblockSize: "
-        "%d\nblockGrid:[%d]\ntargetBlock:[%d]\n",
-        pyramid_height, cols, borderCols, BLOCK_SIZE, blockCols, smallBlockCol);
-  }
-
-  int *gpuWall, *gpuResult[2];
-  int size = rows * cols;
-
-  CUDA_SAFE_CALL(cudaMalloc((void **)&gpuResult[0], sizeof(int) * cols));
-  CUDA_SAFE_CALL(cudaMalloc((void **)&gpuResult[1], sizeof(int) * cols));
-  CUDA_SAFE_CALL(cudaMalloc((void **)&gpuWall, sizeof(int) * (size - cols)));
+  CUDA_SAFE_CALL(cudaMalloc((void **)&gpuResult[0], sizeof(long long) * cols));
+  CUDA_SAFE_CALL(cudaMalloc((void **)&gpuResult[1], sizeof(long long) * cols));
+  CUDA_SAFE_CALL(cudaMalloc((void **)&gpuWall, sizeof(long long) * (size - cols)));
 
   // Cuda events and times
   cudaEvent_t start, stop;
@@ -287,19 +284,19 @@ void run(ResultDatabase &resultDB, OptionParser &op) {
   double kernelTime = 0;
 
   cudaEventRecord(start, 0);
-  CUDA_SAFE_CALL(cudaMemcpy(gpuResult[0], data, sizeof(int) * cols, cudaMemcpyHostToDevice));
-  CUDA_SAFE_CALL(cudaMemcpy(gpuWall, data+cols, sizeof(int) * (size-cols),
+  CUDA_SAFE_CALL(cudaMemcpy(gpuResult[0], data, sizeof(long long) * cols, cudaMemcpyHostToDevice));
+  CUDA_SAFE_CALL(cudaMemcpy(gpuWall, data+cols, sizeof(long long) * (size-cols),
              cudaMemcpyHostToDevice));
   cudaEventRecord(stop, 0);
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&elapsedTime, start, stop);
   transferTime += elapsedTime * 1.e-3; // convert to seconds
 
-  int final_ret = calc_path(gpuWall, gpuResult, rows, cols, pyramid_height,
+  long long final_ret = calc_path(gpuWall, gpuResult, rows, cols, pyramid_height,
                             blockCols, borderCols, kernelTime);
 
   cudaEventRecord(start, 0);
-  CUDA_SAFE_CALL(cudaMemcpy(result, gpuResult[final_ret], sizeof(int) * cols,
+  CUDA_SAFE_CALL(cudaMemcpy(result, gpuResult[final_ret], sizeof(long long) * cols,
              cudaMemcpyDeviceToHost));
   cudaEventRecord(stop, 0);
   cudaEventSynchronize(stop);
@@ -312,12 +309,12 @@ void run(ResultDatabase &resultDB, OptionParser &op) {
     std::fstream fs;
     fs.open(resultsfile.c_str(), std::fstream::app);
     fs << "***DATA***" << std::endl;
-    for (int i = 0; i < cols; i++) {
+    for (long long i = 0; i < cols; i++) {
       fs << data[i] << " ";
     }
     fs << std::endl;
     fs << "***RESULT***" << std::endl;
-    for (int i = 0; i < cols; i++) {
+    for (long long i = 0; i < cols; i++) {
       fs << result[i] << " ";
     }
     fs << std::endl;
