@@ -1,29 +1,4 @@
-==41794== NVPROF is profiling process 41794, command: ./src/cuda/level1/pathfinder/pathfinder -s 4 -n 1
-==41794== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
-==41794== Profiling application: ./src/cuda/level1/pathfinder/pathfinder -s 4 -n 1
-==41794== Profiling result:
-==41794== Metric result:
-Invocations                               Metric Name                            Metric Description         Min         Max         Avg
-Device "Tesla P100-SXM2-16GB (0)"
-    Kernel: dynproc_kernel(int, int*, int*, int*, int, int, int, int)
-      17477                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
-      17477                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
-      17477                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
-      17477           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-      17477                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-      17477           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (2)     Low (1)
-      17477                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
-      17477                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
-      17477                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)
-      17477                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (1)     Low (1)
-      17477                        shared_utilization                     Shared Memory Utilization     Low (1)     Low (1)     Low (1)
-      17477                                inst_fp_32                       FP Instructions(Single)           0           0           0
-      17477                                inst_fp_64                       FP Instructions(Double)           0           0           0
-      17477                              inst_integer                          Integer Instructions       52544      187904      187896
-      17477                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
-      17477                              inst_control                     Control-Flow Instructions       12288       46848       46846
-      17477                        inst_compute_ld_st                       Load/Store Instructions        6848       27008       27006
-      17477                                 inst_misc                             Misc Instructions       30400      113920      113915
-      17477           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
-      17477                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
-      17477                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
+==126943== NVPROF is profiling process 126943, command: ./src/cuda/level1/pathfinder/pathfinder -s 4 -n 1
+==126943== Profiling application: ./src/cuda/level1/pathfinder/pathfinder -s 4 -n 1
+==126943== Profiling result:
+No events/metrics were profiled.
