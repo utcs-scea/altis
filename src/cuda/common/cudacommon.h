@@ -26,6 +26,15 @@
 #define safe_exit(val) exit(val)
 #endif
 
+#define CHECK_CUDA_ERROR_NOEXIT()                                             \
+{                                                                             \
+    cudaError_t err = cudaGetLastError();                                     \
+    if (err != cudaSuccess)                                                   \
+    {                                                                         \
+        printf("error=%d name=%s at "                                         \
+               "ln: %d\n  ",err,cudaGetErrorString(err),__LINE__);            \
+    }                                                                         \
+}
 #define CHECK_CUDA_ERROR()                                                    \
 {                                                                             \
     cudaError_t err = cudaGetLastError();                                     \
@@ -33,18 +42,26 @@
     {                                                                         \
         printf("error=%d name=%s at "                                         \
                "ln: %d\n  ",err,cudaGetErrorString(err),__LINE__);            \
-        safe_exit(-1);                                                        \
+        safe_exit(EXIT_FAILURE)                                               \
     }                                                                         \
 }
 
 // Alternative macro to catch CUDA errors
-#define CUDA_SAFE_CALL( call) do {                                            \
-   cudaError err = call;                                                      \
-   if (cudaSuccess != err) {                                                  \
-       fprintf(stderr, "Cuda error in file '%s' in line %i : %s.\n",          \
-           __FILE__, __LINE__, cudaGetErrorString( err) );                    \
-       safe_exit(EXIT_FAILURE);                                               \
-   }                                                                          \
+#define CUDA_SAFE_CALL_NOEXIT(call) do {                                      \
+    cudaError err = call;                                                     \
+    if (cudaSuccess != err) {                                                 \
+        fprintf(stderr, "Cuda error in file '%s' in line %i: %s.\n",          \
+                __FILE__, __LINE__, cudaGetErrorString(err) );                \
+    }                                                                         \
+} while (0)
+// Alternative macro to catch CUDA errors
+#define CUDA_SAFE_CALL(call) do {                                             \
+    cudaError err = call;                                                     \
+    if (cudaSuccess != err) {                                                 \
+        fprintf(stderr, "Cuda error in file '%s' in line %i: %s.\n",          \
+                __FILE__, __LINE__, cudaGetErrorString(err) );                \
+        safe_exit(EXIT_FAILURE)                                               \
+    }                                                                         \
 } while (0)
 
 // Alleviate aliasing issues
