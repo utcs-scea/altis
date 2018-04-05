@@ -1,8 +1,8 @@
-==126679== NVPROF is profiling process 126679, command: ./src/cuda/level1/gemm/gemm -s 1 -n 1
-==126679== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
-==126679== Profiling application: ./src/cuda/level1/gemm/gemm -s 1 -n 1
-==126679== Profiling result:
-==126679== Metric result:
+==135393== NVPROF is profiling process 135393, command: ./src/cuda/level1/gemm/gemm -s 1 -n 1
+==135393== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==135393== Profiling application: ./src/cuda/level1/gemm/gemm -s 1 -n 1
+==135393== Profiling result:
+==135393== Metric result:
 Invocations                               Metric Name                            Metric Description         Min         Max         Avg
 Device "Tesla M60 (0)"
     Kernel: sgemm_32x32x32_TN_vec
@@ -11,7 +11,7 @@ Device "Tesla M60 (0)"
           5                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (2)     Low (2)     Low (2)
           5           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           5                    special_fu_utilization             Special Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          5           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Mid (6)    High (8)    High (7)
+          5           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Mid (6)    High (7)     Mid (6)
           5                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           5                             flop_count_sp   Floating Point Operations(Single Precision)    34693120    34693120    34693120
           5                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)

@@ -96,22 +96,22 @@ kernel_gpu_cuda_wrapper(par_str par_cpu,
 	//	boxes
 	//==================================================50
 
-	cudaMalloc(	(void **)&d_box_gpu, 
-				dim_cpu.box_mem);
+	CUDA_SAFE_CALL(cudaMalloc(	(void **)&d_box_gpu, 
+				dim_cpu.box_mem));
 
 	//==================================================50
 	//	rv
 	//==================================================50
 
-	cudaMalloc(	(void **)&d_rv_gpu, 
-				dim_cpu.space_mem);
+	CUDA_SAFE_CALL(cudaMalloc(	(void **)&d_rv_gpu, 
+				dim_cpu.space_mem));
 
 	//==================================================50
 	//	qv
 	//==================================================50
 
-	cudaMalloc(	(void **)&d_qv_gpu, 
-				dim_cpu.space_mem2);
+	CUDA_SAFE_CALL(cudaMalloc(	(void **)&d_qv_gpu, 
+				dim_cpu.space_mem2));
 
 	//====================================================================================================100
 	//	GPU MEMORY				(MALLOC) COPY
@@ -121,8 +121,8 @@ kernel_gpu_cuda_wrapper(par_str par_cpu,
 	//	fv
 	//==================================================50
 
-	cudaMalloc(	(void **)&d_fv_gpu, 
-				dim_cpu.space_mem);
+	CUDA_SAFE_CALL(cudaMalloc(	(void **)&d_fv_gpu, 
+				dim_cpu.space_mem));
 
 	//======================================================================================================================================================150
 	//	GPU MEMORY			COPY

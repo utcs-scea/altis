@@ -1,7 +1,6 @@
 #!/bin/bash
 
-#for f in gemm sort pathfinder bfs
-for f in bfs
+for f in pathfinder bfs
 do
 for i in 1 2 3 4
 do
@@ -9,13 +8,13 @@ nvprof --metrics cf_fu_utilization,tex_fu_utilization,ldst_fu_utilization,double
 done
 done
 
-#for f in cfd kmeans lavamd particlefilter_naive particlefilter_float nw srad
-#do
-#for i in 1 2 3 4
-#do
-#nvprof --metrics cf_fu_utilization,tex_fu_utilization,ldst_fu_utilization,double_precision_fu_utilization,special_fu_utilization,single_precision_fu_utilization,flop_count_dp,flop_count_sp,dram_utilization,tex_utilization,shared_utilization,inst_fp_32,inst_fp_64,inst_integer,inst_bit_convert,inst_control,inst_compute_ld_st,inst_misc,inst_inter_thread_communication,l2_utilization,sysmem_utilization --log-file analysis/$f/$i ./src/cuda/level2/$f/$f -s $i -n 1
-#done
-#done
+for f in cfd kmeans lavamd nw srad
+do
+for i in 1 2 3 4
+do
+nvprof --metrics cf_fu_utilization,tex_fu_utilization,ldst_fu_utilization,double_precision_fu_utilization,special_fu_utilization,single_precision_fu_utilization,flop_count_dp,flop_count_sp,dram_utilization,tex_utilization,shared_utilization,inst_fp_32,inst_fp_64,inst_integer,inst_bit_convert,inst_control,inst_compute_ld_st,inst_misc,inst_inter_thread_communication,l2_utilization,sysmem_utilization --log-file analysis/$f/$i ./src/cuda/level2/$f/$f -s $i -n 1
+done
+done
 
 #cf_fu_utilization:  The utilization level of the multiprocessor function units that execute control-flow instructions on a scale of 0 to 10
 #tex_fu_utilization:  The utilization level of the multiprocessor function units that execute global, local and texture memory instructions on a scale of 0 to 10

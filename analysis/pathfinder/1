@@ -1,4 +1,0 @@
-==126892== NVPROF is profiling process 126892, command: ./src/cuda/level1/pathfinder/pathfinder -s 1 -n 1
-==126892== Profiling application: ./src/cuda/level1/pathfinder/pathfinder -s 1 -n 1
-==126892== Profiling result:
-No events/metrics were profiled.

@@ -35,6 +35,7 @@
                "ln: %d\n  ",err,cudaGetErrorString(err),__LINE__);            \
     }                                                                         \
 }
+
 #define CHECK_CUDA_ERROR()                                                    \
 {                                                                             \
     cudaError_t err = cudaGetLastError();                                     \
@@ -42,7 +43,7 @@
     {                                                                         \
         printf("error=%d name=%s at "                                         \
                "ln: %d\n  ",err,cudaGetErrorString(err),__LINE__);            \
-        safe_exit(EXIT_FAILURE)                                               \
+        safe_exit(EXIT_FAILURE);                                              \
     }                                                                         \
 }
 
@@ -54,13 +55,14 @@
                 __FILE__, __LINE__, cudaGetErrorString(err) );                \
     }                                                                         \
 } while (0)
+
 // Alternative macro to catch CUDA errors
 #define CUDA_SAFE_CALL(call) do {                                             \
     cudaError err = call;                                                     \
     if (cudaSuccess != err) {                                                 \
         fprintf(stderr, "Cuda error in file '%s' in line %i: %s.\n",          \
                 __FILE__, __LINE__, cudaGetErrorString(err) );                \
-        safe_exit(EXIT_FAILURE)                                               \
+        safe_exit(EXIT_FAILURE);                                              \
     }                                                                         \
 } while (0)
 
