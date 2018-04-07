@@ -74,11 +74,11 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   
   if(rowLen == 0 || colLen == 0 || pyramidHeight == 0) {
       printf("Parameters not fully specified, using preset problem size\n");
-      long long rowSizes[4] = {1, 8, 16, 32};
+      long long rowSizes[4] = {8, 16, 32, 64};
       long long colSizes[4] = {1, 8, 16, 32};
-      long long pyramidSizes[4] = {10, 15, 30, 60};
-      rows = rowSizes[op.getOptionInt("size") - 1] * 1024 * 1024;
-      cols = colSizes[op.getOptionInt("size") - 1];
+      long long pyramidSizes[4] = {4, 8, 16, 32};
+      rows = rowSizes[op.getOptionInt("size") - 1];
+      cols = colSizes[op.getOptionInt("size") - 1] * 1024 * 1024;
       pyramid_height = pyramidSizes[op.getOptionInt("size") - 1];
   } else {
       rows = rowLen;
@@ -86,9 +86,9 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
       pyramid_height = pyramidHeight;
   }
 
-  printf("Row length: %d\n", rows);
-  printf("Column length: %d\n", cols);
-  printf("Pyramid height: %d\n", pyramid_height);
+  printf("Row length: %lld\n", rows);
+  printf("Column length: %lld\n", cols);
+  printf("Pyramid height: %lld\n", pyramid_height);
 
   /* --------------- pyramid parameters --------------- */
   long long borderCols = (pyramid_height)*HALO;
@@ -96,13 +96,13 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   long long blockCols = cols / smallBlockCol + ((cols % smallBlockCol == 0) ? 0 : 1);
 
   printf(
-          "gridSize: [%d]\tborder:[%d]\tblockSize: "
-          "%d\tblockGrid:[%d]\ttargetBlock:[%d]\n",
-          pyramid_height, cols, borderCols, BLOCK_SIZE, blockCols, smallBlockCol);
+          "gridSize: [%lld],border:[%lld],blockSize: "
+          "[%d],blockGrid:[%lld],targetBlock:[%lld]\n",
+          cols, borderCols, BLOCK_SIZE, blockCols, smallBlockCol);
 
   long long passes = op.getOptionInt("passes");
   for(long long i = 0; i < passes; i++) {
-    printf("Pass %d: ", i);
+    printf("Pass %lld: ", i);
     run(borderCols, smallBlockCol, blockCols, resultDB, op);
     printf("Done.\n");
   }
@@ -220,7 +220,7 @@ long long calc_path(long long *gpuWall, long long *gpuResult[2], long long rows,
   cudaEventCreate(&stop);
   float elapsedTime;
 
-  long long numStreams = 32;
+  long long numStreams = 1;
   cudaStream_t streams[numStreams];
   for(long long s = 0; s < numStreams; s++) {
       cudaStreamCreate(&streams[s]);

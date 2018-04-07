@@ -126,7 +126,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   }
 
   if (dim == 0) {
-    int problemSizes[4] = {1, 100, 1000, 10000};
+    int problemSizes[4] = {100, 1000, 10000, 100000};
     dim = problemSizes[op.getOptionInt("size") - 1];
   }
 

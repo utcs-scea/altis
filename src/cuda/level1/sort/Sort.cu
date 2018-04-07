@@ -68,7 +68,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   int size;
   uint bytes;
   if (elements == 0) {
-    int probSizes[4] = {1, 8, 48, 96};
+    int probSizes[4] = {16, 64, 128, 256};
     size = probSizes[op.getOptionInt("size") - 1] * 1024 * 1024;
   } else {
     size = elements * 1024 * 1024;

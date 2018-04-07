@@ -5878,7 +5878,7 @@ fi
 
         if test "x$with_cuda" = xyes; then :
   if test "x$CUDA_CPPFLAGS" = x; then :
-                   CUDA_CPPFLAGS="-m64 -arch=sm_60 -gencode=arch=compute_60,code=sm_60"
+                   CUDA_CPPFLAGS="-arch=sm_50 -gencode=arch=compute_50,code=sm_50"
                  { $as_echo "$as_me:${as_lineno-$LINENO}: using CUDA_CPPFLAGS=$CUDA_CPPFLAGS" >&5
 $as_echo "$as_me: using CUDA_CPPFLAGS=$CUDA_CPPFLAGS" >&6;}
                  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: *** MIROVIA programs may fail if these -gencode values do not apply to your GPU.  If they don't apply, or if you want to shorten MIROVIA's compile time, determine the -gencode options that apply for your GPU and re-configure MIROVIA explicitly specifying only those options in CUDA_CPPFLAGS during the configure. ***" >&5
@@ -5902,7 +5902,8 @@ else
 fi
 
 
-# test whether or not to build unified memory in bfs
+# test whether or not to build new cuda features in benchmarks
+
 unified_memory=yes
 grid_sync=yes
 hyperq=yes
@@ -5969,6 +5970,7 @@ else
 $as_echo "supports hyperq: no" >&6; }
 
 fi
+
 
 
 
