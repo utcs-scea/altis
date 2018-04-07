@@ -104,7 +104,8 @@ PROGRAMS = $(cuda_PROGRAMS)
 am_mandelbrot_OBJECTS = main.$(OBJEXT)
 mandelbrot_OBJECTS = $(am_mandelbrot_OBJECTS)
 am__DEPENDENCIES_1 =
-mandelbrot_DEPENDENCIES = mandelbrot.o $(am__DEPENDENCIES_1)
+mandelbrot_DEPENDENCIES = mandelbrot.o mandelbrot_link.o \
+	$(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -280,6 +281,7 @@ target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+EXTRAFLAGS = -rdc=true -dc -lcudadevrt -lcudart
 AM_LDFLAGS = $(CUDA_LDFLAGS)
 AM_CPPFLAGS = $(CUDA_INC)
 
@@ -292,6 +294,7 @@ main.cpp
 
 mandelbrot_LDADD = \
 mandelbrot.o \
+mandelbrot_link.o \
 $(CUDA_LIBS) $(LIBS) -lm
 
 all: all-am
@@ -604,6 +607,9 @@ uninstall-am: uninstall-cudaPROGRAMS
 
 include $(top_builddir)/config/config.mk
 include $(top_builddir)/config/targets.mk
+
+mandelbrot_link.o: mandelbrot.o
+	$(NVCC) ${CUDA_CPPFLAGS} $(CPPFLAGS) $(NVCXXFLAGS) -dlink $< -o mandelbrot_link.o
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
