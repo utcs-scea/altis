@@ -166,7 +166,7 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
   // Use preset problem size or read data from input file
   string filename = op.getOptionString("inputFile");
   if (filename == "") {
-    int probSizes[4] = {1, 4, 8, 16};
+    int probSizes[4] = {2, 4, 8, 16};
     kib = probSizes[op.getOptionInt("size") - 1];
   } else {
     std::ifstream mfs(filename.c_str());

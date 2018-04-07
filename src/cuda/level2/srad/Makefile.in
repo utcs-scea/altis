@@ -179,7 +179,7 @@ CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 CPPFLAGS = @CPPFLAGS@
-CUDA_CPPFLAGS = @CUDA_CPPFLAGS@ -rdc=true
+CUDA_CPPFLAGS = @CUDA_CPPFLAGS@
 CUDA_INCDIR = @CUDA_INCDIR@
 CXX = @CXX@
 CXXCPP = @CXXCPP@
@@ -282,6 +282,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AM_LDFLAGS = $(CUDA_LDFLAGS)
 AM_CPPFLAGS = $(CUDA_INC)
+EXTRAFLAGS = -rdc=true
 
 # What is the destination for programs built from this directory?
 cudadir = $(bindir)/CUDA

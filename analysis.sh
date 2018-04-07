@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for f in pathfinder bfs
+for f in gemm pathfinder sort
 do
 for i in 1 2 3 4
 do

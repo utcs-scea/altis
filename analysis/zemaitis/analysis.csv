@@ -1,22 +1,22 @@
 metric,gemm_1,gemm_2,gemm_3,gemm_4,sort_1,sort_2,sort_3,sort_4,pathfinder_1,pathfinder_2,pathfinder_3,pathfinder_4,bfs_1,bfs_2,bfs_3,bfs_4,lavamd_1,lavamd_2,lavamd_3,lavamd_4,nw_1,nw_2,nw_3,nw_4
-cf_fu_utilization,Low (1),Low (1),Low (1),Low (1),Low (1),Low (2),Low (2),Low (2),n/a,n/a,Low (1),Low (1),Low (1),Low (1),Low (1),Low (1),Low (1),Low (1),n/a,n/a,n/a,Low (1),Low (1),Low (1)
-tex_fu_utilization,Low (1),Mid (4),Low (2),Low (1),Low (2),Low (2),Low (2),Low (2),n/a,n/a,Low (1),Low (1),Low (2),Low (2),Low (2),Low (2),Low (1),Low (1),n/a,n/a,n/a,Low (1),Low (1),Low (1)
-ldst_fu_utilization,Low (2),Low (2),Low (2),Low (2),Mid (6),Mid (5),Mid (5),Mid (5),n/a,n/a,Low (1),Low (1),Low (1),Low (1),Low (1),Low (1),Low (1),Low (1),n/a,n/a,n/a,Low (1),Low (1),Low (1)
-double_precision_fu_utilization,Low (1),Mid (6),Idle (0),Max (10),Idle (0),Idle (0),Idle (0),Idle (0),n/a,n/a,Idle (0),Idle (0),Idle (0),Idle (0),Idle (0),Idle (0),High (9),High (9),n/a,n/a,n/a,Idle (0),Idle (0),Idle (0)
-special_fu_utilization,Low (1),Idle (0),Low (1),Low (1),Low (1),Low (1),Low (1),Low (1),n/a,n/a,Idle (0),Idle (0),Idle (0),Idle (0),Idle (0),Idle (0),Idle (0),Idle (0),n/a,n/a,n/a,Idle (0),Idle (0),Idle (0)
-single_precision_fu_utilization,Mid (6),Max (10),Max (10),Max (10),Mid (4),Mid (4),Mid (4),Mid (4),n/a,n/a,Low (1),Low (1),Low (2),Low (2),Low (2),Low (2),Low (2),Low (2),n/a,n/a,n/a,Low (1),Low (1),Low (1)
-flop_count_dp,4210688,268959744,2148532224,1.7184e+10,0,0,0,0,n/a,n/a,0,0,0,0,0,0,1.1415e+10,8.5439e+11,1.3761e+13,n/a,n/a,0,0,0
-flop_count_sp,34693120,2151677952,1.7193e+10,1.3749e+11,248,192,256,170,n/a,n/a,0,0,0,0,0,0,0,0,0,n/a,n/a,0,0,0
-dram_utilization,Low (1),Low (1),Low (1),Low (2),Mid (5),Mid (6),Mid (6),Mid (6),n/a,n/a,Low (1),Low (1),Low (2),Low (2),Low (2),Low (2),Low (1),Low (1),Low (1),n/a,n/a,Idle (0),Low (1),Low (2)
-tex_utilization,Low (2),Low (3),Low (3),Low (2),Low (1),Low (2),Low (2),Low (2),n/a,n/a,Low (1),Low (1),Low (2),Low (2),Low (2),Low (2),Low (1),Low (1),n/a,n/a,n/a,Low (1),Low (1),Low (1)
-shared_utilization,Low (2),Mid (5),Low (3),Low (3),Mid (4),Mid (5),Mid (5),Mid (5),n/a,n/a,Low (1),Low (1),Idle (0),Idle (0),Idle (0),Idle (0),Low (2),Low (2),n/a,n/a,n/a,Low (1),Low (1),Low (2)
-inst_fp_32,17850368,1076920320,8598519808,6.8754e+10,248,192,256,170,n/a,n/a,0,0,0,0,0,0,219520000,1.6430e+10,2.6464e+11,n/a,n/a,0,0,0
-inst_fp_64,2117632,134512640,1074806784,8594194432,0,0,0,0,n/a,n/a,0,0,0,0,0,0,7024896000,5.2579e+11,8.4686e+12,n/a,n/a,0,0,0
-inst_integer,933888,58620761,70270976,339673088,74981376,599851008,869793792,7198212096,n/a,n/a,86839,187896,81445930,321534796,632450725,956354980,786446784,5.8831e+10,9.4747e+11,n/a,n/a,14126,127134,1266250
-inst_bit_convert,24576,0,196608,786432,9316,66464,263552,525569,n/a,n/a,0,0,0,0,0,0,219520000,1.6430e+10,2.6464e+11,n/a,n/a,0,0,0
-inst_control,98304,4583782,2506752,18415616,49152,8388608,656767,97517568,n/a,n/a,23805,46846,9560629,37895382,74922710,149845462,570218880,4.2670e+10,6.8725e+11,n/a,n/a,3748,33736,335223
-inst_compute_ld_st,2826240,50593792,665124864,5277745152,8519680,68157440,408944640,817889280,n/a,n/a,6783,27006,9650924,51589494,99572182,199147743,706616512,5.2880e+10,8.5169e+11,n/a,n/a,8295,74655,741810
-inst_misc,368640,9764864,9879552,56164352,4227072,855424,985089,6825643,n/a,n/a,57274,113915,28276959,112185582,222066848,444135723,922179648,6.9002e+10,1.1113e+12,n/a,n/a,4944,51088,515000
+cf_fu_utilization,1,1,1,1,1,2,2,2,n/a,n/a,1,1,1,1,1,1,1,1,n/a,n/a,n/a,1,1,1
+tex_fu_utilization,1,4,2,1,2,2,2,2,n/a,n/a,1,1,2,2,2,1,1,1,n/a,n/a,n/a,1,1,1
+ldst_fu_utilization,2,2,2,2,6,7,7,7,n/a,n/a,1,1,1,1,1,1,1,1,n/a,n/a,n/a,1,1,1
+double_precision_fu_utilization,1,6,9,10,0,0,0,0,n/a,n/a,0,0,0,0,0,0,9,9,n/a,n/a,n/a,0,0,0
+special_fu_utilization,1,0,1,1,1,1,1,1,n/a,n/a,0,0,0,0,0,0,0,0,n/a,n/a,n/a,0,0,0
+single_precision_fu_utilization,6,9,10,10,4,4,4,4,n/a,n/a,1,1,2,2,2,1,2,2,n/a,n/a,n/a,1,1,1
+flop_count_dp,4210688,268959744,2148532224,1.7184e+1,0,0,0,0,n/a,n/a,0,0,0,0,0,0,1.1415e+1,8.5439e+1,1.3761e+1,n/a,n/a,0,0,0
+flop_count_sp,34693120,2151677952,1.7193e+1,1.3749e+1,248,192,256,170,n/a,n/a,0,0,0,0,0,0,0,0,0,n/a,n/a,0,0,0
+dram_utilization,1,1,1,2,7,7,7,7,n/a,n/a,1,1,2,2,2,1,1,1,1,n/a,n/a,0,1,2
+tex_utilization,2,3,3,2,1,2,2,2,n/a,n/a,1,1,2,2,2,1,1,1,n/a,n/a,n/a,1,1,1
+shared_utilization,2,5,3,3,4,5,5,5,n/a,n/a,1,1,0,0,0,0,2,2,n/a,n/a,n/a,1,1,2
+inst_fp_32,17850368,1076920320,8598519808,6.8754e+1,248,192,256,170,n/a,n/a,0,0,0,0,0,0,219520000,1.6430e+1,2.6464e+1,n/a,n/a,0,0,0
+inst_fp_64,2117632,134512640,1074806784,8594194432,0,0,0,0,n/a,n/a,0,0,0,0,0,0,7024896000,5.2579e+1,8.4686e+1,n/a,n/a,0,0,0
+inst_integer,933888,58620761,70270976,339673088,74981376,599851008,869793792,7198212096,n/a,n/a,86839,187896,93802973,454941440,909843601,3572784579,786446784,5.8831e+1,9.4747e+1,n/a,n/a,14126,127134,1266250
+inst_bit_convert,24576,0,196608,786432,9316,66464,263552,525569,n/a,n/a,0,0,0,0,0,0,219520000,1.6430e+1,2.6464e+1,n/a,n/a,0,0,0
+inst_control,98304,4583782,2506752,18415616,49152,8388608,656767,97517568,n/a,n/a,23805,46846,12627018,61659166,123313572,486286690,570218880,4.2670e+1,6.8725e+1,n/a,n/a,3748,33736,335223
+inst_compute_ld_st,2826240,50593792,665124864,5277745152,8519680,68157440,408944640,817889280,n/a,n/a,6783,27006,16573270,78666239,157321407,609390854,706616512,5.2880e+1,8.5169e+1,n/a,n/a,8295,74655,741810
+inst_misc,368640,9764864,9879552,56164352,4227072,855424,985089,6825643,n/a,n/a,57274,113915,37657652,184010192,368009190,1451765029,922179648,6.9002e+1,1.1113e+1,n/a,n/a,4944,51088,515000
 inst_inter_thread_communication,0,0,0,0,0,0,0,0,n/a,n/a,0,0,0,0,0,0,0,0,0,n/a,n/a,0,0,0
-l2_utilization,Low (3),Mid (5),Mid (4),Low (3),Mid (4),Mid (5),Mid (4),Mid (4),n/a,n/a,Low (1),Low (1),Low (1),Low (1),Low (1),Low (1),Low (1),Low (1),n/a,n/a,n/a,Low (1),Low (1),Low (1)
-sysmem_utilization,Low (1),Low (1),Low (1),Low (1),Low (1),Low (1),Low (1),Low (1),n/a,n/a,Low (1),Low (1),Low (1),Low (1),Low (1),Low (1),Low (1),Low (1),Low (1),n/a,n/a,Low (1),Low (1),Low (1)
+l2_utilization,3,5,4,3,4,5,4,4,n/a,n/a,1,1,1,1,1,1,1,1,n/a,n/a,n/a,1,1,1
+sysmem_utilization,1,1,1,1,1,1,1,1,n/a,n/a,1,1,1,1,1,1,1,1,1,n/a,n/a,1,1,1

@@ -1,14 +1,36 @@
-==135555== NVPROF is profiling process 135555, command: ./src/cuda/level1/sort/sort -s 3 -n 1
-==135555== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
-==135555== Profiling application: ./src/cuda/level1/sort/sort -s 3 -n 1
-==135555== Profiling result:
-==135555== Metric result:
+==148243== NVPROF is profiling process 148243, command: ./src/cuda/level1/sort/sort -s 3 -n 1
+==148243== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==148243== Profiling application: ./src/cuda/level1/sort/sort -s 3 -n 1
+==148243== Profiling result:
+==148243== Metric result:
 Invocations                               Metric Name                            Metric Description         Min         Max         Avg
 Device "Tesla M60 (0)"
+    Kernel: scan(unsigned int*, unsigned int*, unsigned int*, int, bool, bool)
+         24                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         24                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         24                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (2)     Low (1)
+         24           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+         24                    special_fu_utilization             Special Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         24           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         24                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
+         24                             flop_count_sp   Floating Point Operations(Single Precision)           0         510         170
+         24                          dram_utilization                     Device Memory Utilization     Low (1)    High (9)     Low (3)
+         24                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (1)     Low (1)
+         24                        shared_utilization                     Shared Memory Utilization     Low (1)     Low (2)     Low (1)
+         24                                inst_fp_32                       FP Instructions(Single)           0         510         170
+         24                                inst_fp_64                       FP Instructions(Double)           0           0           0
+         24                              inst_integer                          Integer Instructions        7428    34619392    11553542
+         24                          inst_bit_convert                      Bit-Convert Instructions        2048     2097152      700499
+         24                              inst_control                     Control-Flow Instructions        1282     7340032     2449494
+         24                        inst_compute_ld_st                       Load/Store Instructions        7426    32509952    10849708
+         24                                 inst_misc                             Misc Instructions        6912    28311552     9448704
+         24           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
+         24                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (2)     Low (1)
+         24                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
     Kernel: findRadixOffsets(uint2*, unsigned int*, unsigned int*, unsigned int, unsigned int, unsigned int)
-          8                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (2)     Low (1)
+          8                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
           8                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          8                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (3)     Mid (4)     Low (3)
+          8                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (3)     Low (3)     Low (3)
           8           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           8                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           8           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (3)     Low (3)     Low (3)
@@ -19,36 +41,14 @@ Device "Tesla M60 (0)"
           8                        shared_utilization                     Shared Memory Utilization     Low (3)     Mid (5)     Low (3)
           8                                inst_fp_32                       FP Instructions(Single)           0           0           0
           8                                inst_fp_64                       FP Instructions(Double)           0           0           0
-          8                              inst_integer                          Integer Instructions   594640896   599064576   595857408
+          8                              inst_integer                          Integer Instructions  1585709056  1597505536  1588953088
           8                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
-          8                              inst_control                     Control-Flow Instructions   226492416   226492416   226492416
-          8                        inst_compute_ld_st                       Load/Store Instructions   259424256   263847936   260640768
-          8                                 inst_misc                             Misc Instructions   202899456   202899456   202899456
+          8                              inst_control                     Control-Flow Instructions   603979776   603979776   603979776
+          8                        inst_compute_ld_st                       Load/Store Instructions   691798016   703594496   695042048
+          8                                 inst_misc                             Misc Instructions   541065216   541065216   541065216
           8           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
           8                            l2_utilization                          L2 Cache Utilization     Low (2)     Low (2)     Low (2)
           8                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
-    Kernel: scan(unsigned int*, unsigned int*, unsigned int*, int, bool, bool)
-         24                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
-         24                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
-         24                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (2)     Low (1)
-         24           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-         24                    special_fu_utilization             Special Function Unit Utilization     Low (1)     Low (1)     Low (1)
-         24           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
-         24                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
-         24                             flop_count_sp   Floating Point Operations(Single Precision)           0         512         256
-         24                          dram_utilization                     Device Memory Utilization     Low (1)    High (9)     Low (3)
-         24                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (1)     Low (1)
-         24                        shared_utilization                     Shared Memory Utilization     Low (1)     Low (2)     Low (1)
-         24                                inst_fp_32                       FP Instructions(Single)           0         512         256
-         24                                inst_fp_64                       FP Instructions(Double)           0           0           0
-         24                              inst_integer                          Integer Instructions        7437    12982272     4335367
-         24                          inst_bit_convert                      Bit-Convert Instructions        1920      786432      263552
-         24                              inst_control                     Control-Flow Instructions        1280     2752512      919040
-         24                        inst_compute_ld_st                       Load/Store Instructions        7428    12191232     4071426
-         24                                 inst_misc                             Misc Instructions        6913    10616832     3545856
-         24           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
-         24                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (2)     Low (1)
-         24                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
     Kernel: radixSortBlocks(unsigned int, unsigned int, uint4*, uint4*, uint4*, uint4*)
           8                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
           8                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
@@ -63,11 +63,11 @@ Device "Tesla M60 (0)"
           8                        shared_utilization                     Shared Memory Utilization     Mid (6)    High (8)     Mid (6)
           8                                inst_fp_32                       FP Instructions(Single)           0           0           0
           8                                inst_fp_64                       FP Instructions(Double)           0           0           0
-          8                              inst_integer                          Integer Instructions  3259367424  3259367424  3259367424
+          8                              inst_integer                          Integer Instructions  8691646464  8691646464  8691646464
           8                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
-          8                              inst_control                     Control-Flow Instructions    50331648    50331648    50331648
-          8                        inst_compute_ld_st                       Load/Store Instructions  2114322432  2114322432  2114322432
-          8                                 inst_misc                             Misc Instructions  1182793728  1182793728  1182793728
+          8                              inst_control                     Control-Flow Instructions   134217728   134217728   134217728
+          8                        inst_compute_ld_st                       Load/Store Instructions  5638193152  5638193152  5638193152
+          8                                 inst_misc                             Misc Instructions  3154116608  3154116608  3154116608
           8           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
           8                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (2)     Low (1)
           8                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
@@ -85,11 +85,11 @@ Device "Tesla M60 (0)"
          16                        shared_utilization                     Shared Memory Utilization     Low (1)     Low (1)     Low (1)
          16                                inst_fp_32                       FP Instructions(Single)           0           0           0
          16                                inst_fp_64                       FP Instructions(Double)           0           0           0
-         16                              inst_integer                          Integer Instructions       15366    14946816     7481091
+         16                              inst_integer                          Integer Instructions       38924    39858176    19948550
          16                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
-         16                              inst_control                     Control-Flow Instructions        2560     2359296     1180928
-         16                        inst_compute_ld_st                       Load/Store Instructions        3588     3542016     1772802
-         16                                 inst_misc                             Misc Instructions        4098     3540480     1772289
+         16                              inst_control                     Control-Flow Instructions        6144     6291456     3148800
+         16                        inst_compute_ld_st                       Load/Store Instructions        9224     9445376     4727300
+         16                                 inst_misc                             Misc Instructions        9220     9441280     4725250
          16           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
          16                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (2)     Low (1)
          16                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
@@ -107,11 +107,11 @@ Device "Tesla M60 (0)"
           8                        shared_utilization                     Shared Memory Utilization     Low (1)     Low (1)     Low (1)
           8                                inst_fp_32                       FP Instructions(Single)           0           0           0
           8                                inst_fp_64                       FP Instructions(Double)           0           0           0
-          8                              inst_integer                          Integer Instructions   872939520   872939520   872939520
+          8                              inst_integer                          Integer Instructions  2327838720  2327838720  2327838720
           8                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
-          8                              inst_control                     Control-Flow Instructions    25165824    25165824    25165824
-          8                        inst_compute_ld_st                       Load/Store Instructions   408944640   408944640   408944640
-          8                                 inst_misc                             Misc Instructions   201326592   201326592   201326592
+          8                              inst_control                     Control-Flow Instructions    67108864    67108864    67108864
+          8                        inst_compute_ld_st                       Load/Store Instructions  1090519040  1090519040  1090519040
+          8                                 inst_misc                             Misc Instructions   536870912   536870912   536870912
           8           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
           8                            l2_utilization                          L2 Cache Utilization     Low (2)     Low (2)     Low (2)
           8                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)

@@ -1,4 +1,1 @@
-==126943== NVPROF is profiling process 126943, command: ./src/cuda/level1/pathfinder/pathfinder -s 4 -n 1
-==126943== Profiling application: ./src/cuda/level1/pathfinder/pathfinder -s 4 -n 1
-==126943== Profiling result:
-No events/metrics were profiled.
+======== Error: Application returned non-zero code 1
