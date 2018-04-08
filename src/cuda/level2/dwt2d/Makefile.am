@@ -15,9 +15,9 @@ cuda_PROGRAMS = dwt2d
 
 # How to build those programs?
 dwt2d_SOURCES = \
-main.cpp \
+main.cpp
 
-lavamd_LDADD = \
+dwt2d_LDADD = \
 main.o \
 dwt.o \
 components.o \
@@ -26,6 +26,6 @@ fdwt97.o \
 rdwt53.o \
 rdwt97.o \
 common.o \
-$(CUDA_LIBS) $(LIBS) -lm
+$(CUDA_LIBS) $(LIBS)
 
 
