@@ -154,14 +154,15 @@ AM_CONDITIONAL([BUILD_CUDA], [test "x$with_cuda" = "xyes"])
 unified_memory=yes
 grid_sync=yes
 hyperq=yes
+dynamic_parallelism=yes
 AS_IF([nvcc --version | grep -q "release 8"], [grid_sync=no],[])
 AS_IF([nvcc --version | grep -q "release 7"], [grid_sync=no],[])
 AS_IF([nvcc --version | grep -q "release 6"], [grid_sync=no],[])
 AS_IF([nvcc --version | grep -q "release 5"], [grid_sync=no, unified_memory=no],[])
-AS_IF([nvcc --version | grep -q "release 4"], [grid_sync=no, unified_memory=no, hyperq=no],[])
-AS_IF([nvcc --version | grep -q "release 3"], [grid_sync=no, unified_memory=no, hyperq=no],[])
-AS_IF([nvcc --version | grep -q "release 2"], [grid_sync=no, unified_memory=no, hyperq=no],[])
-AS_IF([nvcc --version | grep -q "release 1"], [grid_sync=no, unified_memory=no, hyperq=no],[])
+AS_IF([nvcc --version | grep -q "release 4"], [grid_sync=no, unified_memory=no, hyperq=no, dynamic_parallelism=no],[])
+AS_IF([nvcc --version | grep -q "release 3"], [grid_sync=no, unified_memory=no, hyperq=no, dynamic_parallelism=no],[])
+AS_IF([nvcc --version | grep -q "release 2"], [grid_sync=no, unified_memory=no, hyperq=no, dynamic_parallelism=no],[])
+AS_IF([nvcc --version | grep -q "release 1"], [grid_sync=no, unified_memory=no, hyperq=no, dynamic_parallelism=no],[])
 
 AS_IF([test "x$unified_memory" = "xyes"], 
         [
@@ -188,6 +189,15 @@ AS_IF([test "x$hyperq" = "xyes"],
     ],
     [
         AC_MSG_RESULT([supports hyperq: no])
+    ])
+
+AS_IF([test "x$dynamic_parallelism" = "xyes"], 
+    [
+        AC_MSG_RESULT([supports dynamic parallelism: yes])
+        CUDA_CPPFLAGS+=[" -DDYNAMIC_PARALLELISM"]
+    ],
+    [
+        AC_MSG_RESULT([supports dynamic parallelism: no])
     ])
 
 
