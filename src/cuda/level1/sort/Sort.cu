@@ -145,7 +145,8 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     cout << "Pass " << it << ": ";
     // Initialize host memory to some pattern
     for (uint i = 0; i < size; i++) {
-        hKeys[i] = hVals[i] = rand() % 1024;
+        hKeys[i] = i % 2014;
+        hVals[i] = rand() % 1024;
     }
     
     // Copy inputs to GPU
