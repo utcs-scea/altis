@@ -1,3 +1,8 @@
+#include "OptionParser.h"
+#include "ResultDatabase.h"
+#include "cudacommon.h"
+#include "Sort.h"
+#include "sort_kernel.h"
 #include <cassert>
 #include <cuda.h>
 #include <cuda_runtime_api.h>
@@ -9,14 +14,7 @@
 #include <sys/types.h>
 #include <vector>
 
-#include "OptionParser.h"
-#include "ResultDatabase.h"
-#include "cudacommon.h"
-#include "Sort.h"
-#include "sort_kernel.h"
-
 #define SEED 7
-
 using namespace std;
 
 // ****************************************************************************
@@ -36,9 +34,7 @@ using namespace std;
 // Modifications:
 //
 // ****************************************************************************
-void addBenchmarkSpecOptions(OptionParser &op) {
-    op.addOption("elements", OPT_INT, "0", "number of elements in the array (in millions)");
-}
+void addBenchmarkSpecOptions(OptionParser &op) {}
 
 // ****************************************************************************
 // Function: RunBenchmark
@@ -48,7 +44,7 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 //
 // Arguments:
 //   resultDB: results from the benchmark are stored in this db
-//   op: the options parser / parameter database
+//   op: the options parsefilePathr / parameter database
 //
 // Returns:  nothing, results are stored in resultDB
 //
@@ -59,22 +55,29 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 //
 // ****************************************************************************
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
-  bool verbose = op.getOptionBool("verbose");
-  int elements = op.getOptionInt("elements");
-
-  srand(SEED);
+    srand(SEED);
 
   // Determine size of the array to sort
   int size;
-  uint bytes;
-  if (elements == 0) {
-    int probSizes[4] = {16, 64, 128, 256};
+  long long bytes;
+  string filePath = op.getOptionString("inputFile");
+  ifstream inputFile(filePath.c_str());
+  if (filePath == "") {
+    int probSizes[4] = {8, 32, 128, 512};
     size = probSizes[op.getOptionInt("size") - 1] * 1024 * 1024;
   } else {
-    size = elements * 1024 * 1024;
+    inputFile >> size;
   }
   bytes = size * sizeof(uint);
-  cout << "Array size: " << bytes << " bytes, " << size << " elements" << endl;
+  printf("Size: %d items, Bytes: %lld\n", size, bytes);
+
+  // If input file given, populate array
+  uint *sourceInput = (uint *)malloc(bytes);
+  if (filePath != "") {
+      for (int i = 0; i < size; i++) {
+          inputFile >> sourceInput[i];
+      }
+  }
 
   // create input data on CPU
   uint *hKeys;
@@ -142,13 +145,17 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   cudaEventCreate(&stop);
 
   for (int it = 0; it < iterations; it++) {
-    cout << "Pass " << it << ": ";
+    printf("Pass %d: ", it);
     // Initialize host memory to some pattern
     for (uint i = 0; i < size; i++) {
-        hKeys[i] = i % 2014;
+      hKeys[i] = i % 1024;
+      if (filePath == "") {
         hVals[i] = rand() % 1024;
+      } else {
+        hVals[i] = sourceInput[i];
+      }
     }
-    
+
     // Copy inputs to GPU
     double transferTime = 0.;
     cudaEventRecord(start, 0);
@@ -182,15 +189,15 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     transferTime += elapsedTime * 1.e-3;
 
     // Test to make sure data was sorted properly, if not, return
-    if (!verifySort(hKeys, hVals, size, verbose)) {
+    if (!verifySort(hKeys, hVals, size, op.getOptionBool("verbose"))) {
       return;
     }
 
     char atts[1024];
     sprintf(atts, "%ditems", size);
     double gb = (bytes * 2.) / (1000. * 1000. * 1000.);
-    resultDB.AddResult("Sort-TransferTime", atts, "sec", transferTime);
     resultDB.AddResult("Sort-KernelTime", atts, "sec", kernelTime);
+    resultDB.AddResult("Sort-TransferTime", atts, "sec", transferTime);
     resultDB.AddResult("Sort-TotalTime", atts, "sec", transferTime + kernelTime);
     resultDB.AddResult("Sort-Rate", atts, "GB/s", gb / kernelTime);
     resultDB.AddResult("Sort-Rate_PCIe", atts, "GB/s",
@@ -215,6 +222,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   free(scanBlockSums);
   CUDA_SAFE_CALL(cudaFreeHost(hKeys));
   CUDA_SAFE_CALL(cudaFreeHost(hVals));
+  free(sourceInput);
 }
 
 // ****************************************************************************
@@ -263,13 +271,11 @@ void radixSortStep(uint nbits, uint startbit, uint4 *keys, uint4 *values,
   radixSortBlocks<<<radixBlocks, SORT_BLOCK_SIZE,
                     4 * sizeof(uint) * SORT_BLOCK_SIZE>>>(
       nbits, startbit, tempKeys, tempValues, keys, values);
-  CHECK_CUDA_ERROR();
 
   findRadixOffsets<<<findBlocks, SCAN_BLOCK_SIZE,
                      2 * SCAN_BLOCK_SIZE * sizeof(uint)>>>(
       (uint2 *)tempKeys, counters, blockOffsets, startbit, numElements,
       findBlocks);
-  CHECK_CUDA_ERROR();
 
   scanArrayRecursive(countersSum, counters, 16 * reorderBlocks, 0,
                      scanBlockSums);
@@ -277,7 +283,6 @@ void radixSortStep(uint nbits, uint startbit, uint4 *keys, uint4 *values,
   reorderData<<<reorderBlocks, SCAN_BLOCK_SIZE>>>(
       startbit, (uint *)keys, (uint *)values, (uint2 *)tempKeys,
       (uint2 *)tempValues, blockOffsets, countersSum, counters, reorderBlocks);
-  CHECK_CUDA_ERROR();
 }
 
 void scanArrayRecursive(uint *outArray, uint *inArray, int numElements,
@@ -297,18 +302,15 @@ void scanArrayRecursive(uint *outArray, uint *inArray, int numElements,
   if (numBlocks > 1) {
     scan<<<grid, threads, sharedMemSize>>>(outArray, inArray, blockSums[level],
                                            numElements, fullBlock, true);
-    CHECK_CUDA_ERROR();
   } else {
     scan<<<grid, threads, sharedMemSize>>>(outArray, inArray, blockSums[level],
                                            numElements, fullBlock, false);
-    CHECK_CUDA_ERROR();
   }
   if (numBlocks > 1) {
     scanArrayRecursive(blockSums[level], blockSums[level], numBlocks, level + 1,
                        blockSums);
     vectorAddUniform4<<<grid, threads>>>(outArray, blockSums[level],
                                          numElements);
-    CHECK_CUDA_ERROR();
   }
 }
 
@@ -331,20 +333,20 @@ void scanArrayRecursive(uint *outArray, uint *inArray, int numElements,
 // ****************************************************************************
 bool verifySort(uint *keys, uint *vals, const size_t size, bool verbose) {
   bool passed = true;
-
   for (unsigned int i = 0; i < size - 1; i++) {
     if (keys[i] > keys[i + 1]) {
       passed = false;
-      if(verbose) {
-        cout << "Failure: at idx: " << i << endl;
-        cout << "Key: " << keys[i] << " Val: " << vals[i] << endl;
-        cout << "Idx: " << i + 1 << " Key: " << keys[i + 1]
-           << " Val: " << vals[i + 1] << endl;
+      if(verbose)  {
+          cout << "Failure: at idx: " << i << endl;
+          cout << "Key: " << keys[i] << " Val: " << vals[i] << endl;
+          cout << "Idx: " << i + 1 << " Key: " << keys[i + 1]
+              << " Val: " << vals[i + 1] << endl;
       }
     }
   }
+  cout << "Test ";
   if (passed)
-    cout << "Succeeded" << endl;
+    cout << "Passed" << endl;
   else
     cout << "Failed" << endl;
   return passed;
