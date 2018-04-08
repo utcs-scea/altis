@@ -104,7 +104,7 @@ PROGRAMS = $(cuda_PROGRAMS)
 am_srad_OBJECTS = main.$(OBJEXT)
 srad_OBJECTS = $(am_srad_OBJECTS)
 am__DEPENDENCIES_1 =
-srad_DEPENDENCIES = srad.o $(am__DEPENDENCIES_1)
+srad_DEPENDENCIES = srad.o srad_link.o $(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -280,16 +280,22 @@ target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+EXTRAFLAGS = -rdc=true -dc
 AM_LDFLAGS = $(CUDA_LDFLAGS)
 AM_CPPFLAGS = $(CUDA_INC)
-EXTRAFLAGS = -rdc=true
 
 # What is the destination for programs built from this directory?
 cudadir = $(bindir)/CUDA
 
 # How to build those programs?
-srad_SOURCES = main.cpp
-srad_LDADD = srad.o $(CUDA_LIBS) $(LIBS) -lm
+srad_SOURCES = \
+main.cpp
+
+srad_LDADD = \
+srad.o \
+srad_link.o \
+$(CUDA_LIBS) $(LIBS) -lm
+
 all: all-am
 
 .SUFFIXES:
@@ -600,6 +606,9 @@ uninstall-am: uninstall-cudaPROGRAMS
 
 include $(top_builddir)/config/config.mk
 include $(top_builddir)/config/targets.mk
+
+srad_link.o: srad.o
+	$(NVCC) ${CUDA_CPPFLAGS} $(CPPFLAGS) $(NVCXXFLAGS) -dlink $< -o srad_link.o
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

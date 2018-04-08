@@ -283,7 +283,7 @@ srad_cuda_3(
 		  float lambda,
 		  float q0sqr
 ) {
-  cooperative_groups::grid_group g = cooperative_groups::this_grid();
+  grid_group g = this_grid();
 
   //block id
   int bx = blockIdx.x;
