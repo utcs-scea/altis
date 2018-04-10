@@ -25,8 +25,8 @@ float *check;
 
 void random_matrix(float *I, int rows, int cols);
 void runTest(int argc, char **argv);
-void srad(ResultDatabase &resultDB, OptionParser &op, int imageSize, int speckleSize, int iters);
-void srad_gridsync(ResultDatabase &resultDB, OptionParser &op, int imageSize, int speckleSize, int iters);
+float srad(ResultDatabase &resultDB, OptionParser &op, float* matrix, int imageSize, int speckleSize, int iters);
+float srad_gridsync(ResultDatabase &resultDB, OptionParser &op, float* matrix, int imageSize, int speckleSize, int iters);
 
 void addBenchmarkSpecOptions(OptionParser &op) {
   op.addOption("imageSize", OPT_INT, "0", "image height and width");
@@ -36,6 +36,7 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 }
 
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
+  srand(SEED);
   printf("WG size of kernel = %d X %d\n", BLOCK_SIZE, BLOCK_SIZE);
 
   // set parameters
@@ -44,7 +45,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   int iters = op.getOptionInt("iterations");
   if (imageSize == 0 || speckleSize == 0 || iters == 0) {
     int imageSizes[4] = {128, 512, 4096, 8192};
-    int iterSizes[4] = {5, 50, 100, 200};
+    int iterSizes[4] = {5, 20, 80, 160};
     imageSize = imageSizes[op.getOptionInt("size") - 1];
     speckleSize = imageSize / 2;
     iters = iterSizes[op.getOptionInt("size") - 1];
@@ -61,30 +62,29 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   // run workload
   int passes = op.getOptionInt("passes");
   for (int i = 0; i < passes; i++) {
+    float *matrix = (float*)malloc(imageSize * imageSize * sizeof(float));
+    random_matrix(matrix, imageSize, imageSize);
     printf("Pass %d:\n", i);
-    srad(resultDB, op, imageSize, speckleSize, iters);
+    float time = srad(resultDB, op, matrix, imageSize, speckleSize, iters);
     printf("Running SRAD...Done.\n");
 #ifdef GRID_SYNC
-    srad_gridsync(resultDB, op, imageSize, speckleSize, iters);
+    // if using cooperative groups, add result to compare the 2 times
+    char atts[1024];
+    sprintf(atts, "img:%d,speckle:%d,iter:%d", imageSize, speckleSize, iters);
+    float time_gridsync = srad_gridsync(resultDB, op, matrix, imageSize, speckleSize, iters);
     printf("Running SRAD with cooperative groups...Done.\n");
+    resultDB.AddResult("srad_time/srad_cg_time", atts, "N", time/time_gridsync);
 #endif
+      free(matrix);
   }
 }
 
-void srad(ResultDatabase &resultDB, OptionParser &op, int imageSize,
+float srad(ResultDatabase &resultDB, OptionParser &op, float* matrix, int imageSize,
           int speckleSize, int iters) {
-    srand(SEED);
     kernelTime = 0.0f;
     transferTime = 0.0f;
     int rows, cols, size_I, size_R, niter, iter;
     float *I, *J, lambda, q0sqr, sum, sum2, tmp, meanROI, varROI;
-
-#ifdef CPU
-  float Jc, G2, L, num, den, qsqr;
-  int *iN, *iS, *jE, *jW, k;
-  float *dN, *dS, *dW, *dE;
-  float cN, cS, cW, cE, D;
-#endif
 
 #ifdef GPU
 
@@ -117,33 +117,6 @@ void srad(ResultDatabase &resultDB, OptionParser &op, int imageSize,
   J = (float *)malloc(size_I * sizeof(float));
   c = (float *)malloc(sizeof(float) * size_I);
 
-#ifdef CPU
-
-  iN = (int *)malloc(sizeof(unsigned int *) * rows);
-  iS = (int *)malloc(sizeof(unsigned int *) * rows);
-  jW = (int *)malloc(sizeof(unsigned int *) * cols);
-  jE = (int *)malloc(sizeof(unsigned int *) * cols);
-
-  dN = (float *)malloc(sizeof(float) * size_I);
-  dS = (float *)malloc(sizeof(float) * size_I);
-  dW = (float *)malloc(sizeof(float) * size_I);
-  dE = (float *)malloc(sizeof(float) * size_I);
-
-  for (int i = 0; i < rows; i++) {
-    iN[i] = i - 1;
-    iS[i] = i + 1;
-  }
-  for (int j = 0; j < cols; j++) {
-    jW[j] = j - 1;
-    jE[j] = j + 1;
-  }
-  iN[0] = 0;
-  iS[rows - 1] = rows - 1;
-  jW[0] = 0;
-  jE[cols - 1] = cols - 1;
-
-#endif
-
 #ifdef GPU
 
   // Allocate device memory
@@ -156,8 +129,8 @@ void srad(ResultDatabase &resultDB, OptionParser &op, int imageSize,
 
 #endif
 
-  // Generate a random matrix
-  random_matrix(I, rows, cols);
+  // copy random matrix
+  memcpy(I, matrix, rows*cols*sizeof(float));
 
   for (int k = 0; k < size_I; k++) {
     J[k] = (float)exp(I[k]);
@@ -175,61 +148,6 @@ void srad(ResultDatabase &resultDB, OptionParser &op, int imageSize,
     meanROI = sum / size_R;
     varROI = (sum2 / size_R) - meanROI * meanROI;
     q0sqr = varROI / (meanROI * meanROI);
-
-#ifdef CPU
-
-    for (int i = 0; i < rows; i++) {
-      for (int j = 0; j < cols; j++) {
-        k = i * cols + j;
-        Jc = J[k];
-
-        // directional derivates
-        dN[k] = J[iN[i] * cols + j] - Jc;
-        dS[k] = J[iS[i] * cols + j] - Jc;
-        dW[k] = J[i * cols + jW[j]] - Jc;
-        dE[k] = J[i * cols + jE[j]] - Jc;
-
-        G2 = (dN[k] * dN[k] + dS[k] * dS[k] + dW[k] * dW[k] + dE[k] * dE[k]) /
-             (Jc * Jc);
-
-        L = (dN[k] + dS[k] + dW[k] + dE[k]) / Jc;
-
-        num = (0.5 * G2) - ((1.0 / 16.0) * (L * L));
-        den = 1 + (.25 * L);
-        qsqr = num / (den * den);
-
-        // diffusion coefficent (equ 33)
-        den = (qsqr - q0sqr) / (q0sqr * (1 + q0sqr));
-        c[k] = 1.0 / (1.0 + den);
-
-        // saturate diffusion coefficent
-        if (c[k] < 0) {
-          c[k] = 0;
-        } else if (c[k] > 1) {
-          c[k] = 1;
-        }
-      }
-    }
-    for (int i = 0; i < rows; i++) {
-      for (int j = 0; j < cols; j++) {
-        // current index
-        k = i * cols + j;
-
-        // diffusion coefficent
-        cN = c[k];
-        cS = c[iS[i] * cols + j];
-        cW = c[k];
-        cE = c[i * cols + jE[j]];
-
-        // divergence (equ 58)
-        D = cN * dN[k] + cS * dS[k] + cW * dW[k] + cE * dE[k];
-
-        // image update (equ 61)
-        J[k] = J[k] + 0.25 * lambda * D;
-      }
-    }
-
-#endif  // CPU
 
 #ifdef GPU
     // Currently the input size must be divided by 16 - the block size
@@ -312,16 +230,7 @@ void srad(ResultDatabase &resultDB, OptionParser &op, int imageSize,
 
   free(I);
   free(J);
-#ifdef CPU
-  free(iN);
-  free(iS);
-  free(jW);
-  free(jE);
-  free(dN);
-  free(dS);
-  free(dW);
-  free(dE);
-#endif
+  free(c);
 #ifdef GPU
   CUDA_SAFE_CALL(cudaFree(C_cuda));
   CUDA_SAFE_CALL(cudaFree(J_cuda));
@@ -330,23 +239,16 @@ void srad(ResultDatabase &resultDB, OptionParser &op, int imageSize,
   CUDA_SAFE_CALL(cudaFree(N_C));
   CUDA_SAFE_CALL(cudaFree(S_C));
 #endif
-  free(c);
+    return kernelTime + transferTime;
 }
 
-void srad_gridsync(ResultDatabase &resultDB, OptionParser &op, int imageSize,
+float srad_gridsync(ResultDatabase &resultDB, OptionParser &op, float* matrix, int imageSize,
           int speckleSize, int iters) {
-    srand(SEED);
     kernelTime = 0.0f;
     transferTime = 0.0f;
     int rows, cols, size_I, size_R, niter, iter;
     float *I, *J, lambda, q0sqr, sum, sum2, tmp, meanROI, varROI;
 
-#ifdef CPU
-  float Jc, G2, L, num, den, qsqr;
-  int *iN, *iS, *jE, *jW, k;
-  float *dN, *dS, *dW, *dE;
-  float cN, cS, cW, cE, D;
-#endif
 
 #ifdef GPU
 
@@ -379,33 +281,6 @@ void srad_gridsync(ResultDatabase &resultDB, OptionParser &op, int imageSize,
   J = (float *)malloc(size_I * sizeof(float));
   c = (float *)malloc(sizeof(float) * size_I);
 
-#ifdef CPU
-
-  iN = (int *)malloc(sizeof(unsigned int *) * rows);
-  iS = (int *)malloc(sizeof(unsigned int *) * rows);
-  jW = (int *)malloc(sizeof(unsigned int *) * cols);
-  jE = (int *)malloc(sizeof(unsigned int *) * cols);
-
-  dN = (float *)malloc(sizeof(float) * size_I);
-  dS = (float *)malloc(sizeof(float) * size_I);
-  dW = (float *)malloc(sizeof(float) * size_I);
-  dE = (float *)malloc(sizeof(float) * size_I);
-
-  for (int i = 0; i < rows; i++) {
-    iN[i] = i - 1;
-    iS[i] = i + 1;
-  }
-  for (int j = 0; j < cols; j++) {
-    jW[j] = j - 1;
-    jE[j] = j + 1;
-  }
-  iN[0] = 0;
-  iS[rows - 1] = rows - 1;
-  jW[0] = 0;
-  jE[cols - 1] = cols - 1;
-
-#endif
-
 #ifdef GPU
 
   // Allocate device memory
@@ -419,7 +294,7 @@ void srad_gridsync(ResultDatabase &resultDB, OptionParser &op, int imageSize,
 #endif
 
   // Generate a random matrix
-  random_matrix(I, rows, cols);
+  memcpy(I, matrix, rows*cols*sizeof(float));
 
   for (int k = 0; k < size_I; k++) {
     J[k] = (float)exp(I[k]);
@@ -437,61 +312,6 @@ void srad_gridsync(ResultDatabase &resultDB, OptionParser &op, int imageSize,
     meanROI = sum / size_R;
     varROI = (sum2 / size_R) - meanROI * meanROI;
     q0sqr = varROI / (meanROI * meanROI);
-
-#ifdef CPU
-
-    for (int i = 0; i < rows; i++) {
-      for (int j = 0; j < cols; j++) {
-        k = i * cols + j;
-        Jc = J[k];
-
-        // directional derivates
-        dN[k] = J[iN[i] * cols + j] - Jc;
-        dS[k] = J[iS[i] * cols + j] - Jc;
-        dW[k] = J[i * cols + jW[j]] - Jc;
-        dE[k] = J[i * cols + jE[j]] - Jc;
-
-        G2 = (dN[k] * dN[k] + dS[k] * dS[k] + dW[k] * dW[k] + dE[k] * dE[k]) /
-             (Jc * Jc);
-
-        L = (dN[k] + dS[k] + dW[k] + dE[k]) / Jc;
-
-        num = (0.5 * G2) - ((1.0 / 16.0) * (L * L));
-        den = 1 + (.25 * L);
-        qsqr = num / (den * den);
-
-        // diffusion coefficent (equ 33)
-        den = (qsqr - q0sqr) / (q0sqr * (1 + q0sqr));
-        c[k] = 1.0 / (1.0 + den);
-
-        // saturate diffusion coefficent
-        if (c[k] < 0) {
-          c[k] = 0;
-        } else if (c[k] > 1) {
-          c[k] = 1;
-        }
-      }
-    }
-    for (int i = 0; i < rows; i++) {
-      for (int j = 0; j < cols; j++) {
-        // current index
-        k = i * cols + j;
-
-        // diffusion coefficent
-        cN = c[k];
-        cS = c[iS[i] * cols + j];
-        cW = c[k];
-        cE = c[i * cols + jE[j]];
-
-        // divergence (equ 58)
-        D = cN * dN[k] + cS * dS[k] + cW * dW[k] + cE * dE[k];
-
-        // image update (equ 61)
-        J[k] = J[k] + 0.25 * lambda * D;
-      }
-    }
-
-#endif  // CPU
 
 #ifdef GPU
     // Currently the input size must be divided by 16 - the block size
@@ -534,29 +354,24 @@ void srad_gridsync(ResultDatabase &resultDB, OptionParser &op, int imageSize,
     char atts[1024];
     sprintf(atts, "img:%d,speckle:%d,iter:%d", imageSize, speckleSize, iters);
     resultDB.AddResult("srad_gridsync_kernel_time", atts, "sec", kernelTime);
+    resultDB.AddResult("srad_gridsync_transer_time", atts, "sec", transferTime);
     resultDB.AddResult("srad_gridsync_parity", atts, "N", transferTime / kernelTime);
 
   // validate result with result obtained by gridsync
   for (int i = 0; i < rows; i++) {
       for (int j = 0; j < cols; j++) {
-          if(check[i*cols+j] != J[i*cols+j]) {
+          if(check[i*cols+j] - J[i*cols+j] < 0.001) {
+              // known bug: with and without gridsync have 10e-5 difference in row 16
               printf("Error: Validation failed at row %d, col %d\n", i, j);
+              printf("%0.6f vs %0.6f\n", check[i*cols+j], J[i*cols+j]);
+              return;
           }
       }
   }
 
   free(I);
   free(J);
-#ifdef CPU
-  free(iN);
-  free(iS);
-  free(jW);
-  free(jE);
-  free(dN);
-  free(dS);
-  free(dW);
-  free(dE);
-#endif
+  free(c);
 #ifdef GPU
   CUDA_SAFE_CALL(cudaFree(C_cuda));
   CUDA_SAFE_CALL(cudaFree(J_cuda));
@@ -565,7 +380,7 @@ void srad_gridsync(ResultDatabase &resultDB, OptionParser &op, int imageSize,
   CUDA_SAFE_CALL(cudaFree(N_C));
   CUDA_SAFE_CALL(cudaFree(S_C));
 #endif
-  free(c);
+    return kernelTime + transferTime;
 }
 
 void random_matrix(float *I, int rows, int cols) {

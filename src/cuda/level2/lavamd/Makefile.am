@@ -2,7 +2,7 @@ include $(top_builddir)/config/config.mk
 include $(top_builddir)/config/targets.mk
 
 # How to find source files
-VPATH = $(srcdir):$(srcdir)/../../common:$(srcdir)/../../../common:$(srcdir)/util/timer:$(srcdir)/util/device:$(srcdir)/kernel
+VPATH = $(srcdir):$(srcdir)/../../common:$(srcdir)/../../../common:$(srcdir)/util/timer:$(srcdir)/kernel
 
 AM_LDFLAGS = $(CUDA_LDFLAGS)
 AM_CPPFLAGS = $(CUDA_INC)

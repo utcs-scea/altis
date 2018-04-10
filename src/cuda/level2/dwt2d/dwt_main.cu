@@ -35,6 +35,8 @@
 #include <sys/time.h>
 #include <getopt.h>
 
+#include "ResultDatabase.h"
+#include "OptionParser.h"
 #include "common.h"
 #include "components.h"
 #include "dwt.h"
@@ -52,8 +54,8 @@ struct dwt {
 int getImg(char * srcFilename, unsigned char *srcImg, int inputSize)
 {
     // printf("Loading ipnput: %s\n", srcFilename);
-    char *path = "../../data/dwt2d/";
-    char *newSrc = NULL;
+    string path = "../../data/dwt2d/";
+    string newSrc = "";
     
     if((newSrc = (char *)malloc(strlen(srcFilename)+strlen(path)+1)) != NULL)
     {
@@ -76,21 +78,6 @@ int getImg(char * srcFilename, unsigned char *srcImg, int inputSize)
     close(i);
 
     return 0;
-}
-
-
-void usage() {
-    printf("dwt [otpions] src_img.rgb <out_img.dwt>\n\
-  -d, --dimension\t\tdimensions of src img, e.g. 1920x1080\n\
-  -c, --components\t\tnumber of color components, default 3\n\
-  -b, --depth\t\t\tbit depth, default 8\n\
-  -l, --level\t\t\tDWT level, default 3\n\
-  -D, --device\t\t\tcuda device\n\
-  -f, --forward\t\t\tforward transform\n\
-  -r, --reverse\t\t\treverse transform\n\
-  -9, --97\t\t\t9/7 transform\n\
-  -5, --53\t\t\t5/3 transform\n\
-  -w  --write-visual\t\twrite output in visual (tiled) fashion instead of the linear\n");
 }
 
 template <typename T>
@@ -216,125 +203,39 @@ void processDWT(struct dwt *d, int forward, int writeVisual)
     cudaCheckError("Cuda free device");
 }
 
-int main(int argc, char **argv) 
+void addBenchmarkSpecOptions(OptionParser &op) {
+    op.addOption("pixWidth", OPT_INT, "1", "real pixel width");
+    op.addOption("pixHeight", OPT_INT, "1", "real pixel height");
+    op.addOption("compCount", OPT_INT, "3", "number of components (3 for RGB/YUV, 4 for RGBA");
+    op.addOption("bitDepth", OPT_INT, "8", "bit depth of src img");
+    op.addOption("levels", OPT_INT, "3", "number of DWT levels");
+    op.addOption("reverse", OPT_BOOL, "", "reverse transform (defaults to forward");
+    op.addOption("53", OPT_BOOL, "", "5/3 transform (defaults to 9/7)");
+    op.addOption("resultFile", OPT_STRING, "", "file to write benchmark output to");
+    op.addOption("writeVisual", OPT_BOOL, "", "write output in visual (tiled) order instead of linear");
+}
+
+void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
 {
-    int optindex = 0;
-    char ch;
-    struct option longopts[] = {
-        {"dimension",   required_argument, 0, 'd'}, //dimensions of src img
-        {"components",  required_argument, 0, 'c'}, //numger of components of src img
-        {"depth",       required_argument, 0, 'b'}, //bit depth of src img
-        {"level",       required_argument, 0, 'l'}, //level of dwt
-        {"device",      required_argument, 0, 'D'}, //cuda device
-        {"forward",     no_argument,       0, 'f'}, //forward transform
-        {"reverse",     no_argument,       0, 'r'}, //reverse transform
-        {"97",          no_argument,       0, '9'}, //9/7 transform
-        {"53",          no_argument,       0, '5' }, //5/3transform
-        {"write-visual",no_argument,       0, 'w' }, //write output (subbands) in visual (tiled) order instead of linear
-        {"help",        no_argument,       0, 'h'}  
-    };
-    
-    int pixWidth    = 0; //<real pixWidth
-    int pixHeight   = 0; //<real pixHeight
-    int compCount   = 3; //number of components; 3 for RGB or YUV, 4 for RGBA
-    int bitDepth    = 8; 
-    int dwtLvls     = 3; //default numuber of DWT levels
-    int device      = 0;
-    int forward     = 1; //forward transform
-    int dwt97       = 1; //1=dwt9/7, 0=dwt5/3 transform
-    int writeVisual = 0; //write output (subbands) in visual (tiled) order instead of linear
-    char * pos;
-
-    while ((ch = getopt_long(argc, argv, "d:c:b:l:D:fr95wh", longopts, &optindex)) != -1) {
-        switch (ch) {
-        case 'd':
-            pixWidth = atoi(optarg);
-            pos = strstr(optarg, "x");
-            if (pos == NULL || pixWidth == 0 || (strlen(pos) >= strlen(optarg))) {
-                usage();
-                return -1;
-            }
-            pixHeight = atoi(pos+1);
-            break;
-        case 'c':
-            compCount = atoi(optarg);
-            break;
-        case 'b':
-            bitDepth = atoi(optarg);
-            break;
-        case 'l':
-            dwtLvls = atoi(optarg);
-            break;
-        case 'D':
-            device = atoi(optarg);
-            break;
-        case 'f':
-            forward = 1;
-            break;
-        case 'r':
-            forward = 0;
-            break;
-        case '9':
-            dwt97 = 1;
-            break;
-        case '5':
-            dwt97 = 0;
-            break;
-        case 'w':
-            writeVisual = 1;
-            break;
-        case 'h':
-            usage();
-            return 0;
-        case '?':
-            return -1;
-        default :
-            usage();
-            return -1;
-        }
-    }
-	argc -= optind;
-	argv += optind;
-
-    if (argc == 0) { // at least one filename is expected
-        printf("Please supply src file name\n");
-        usage();
-        return -1;
-    }
+    int pixWidth    = op.getOptionInt("pixWidth"); //<real pixWidth
+    int pixHeight   = op.getOptionInt("pixHeight"); //<real pixHeight
+    int compCount   = op.getOptionInt("compCount"); //number of components; 3 for RGB or YUV, 4 for RGBA
+    int bitDepth    = op.getOptionInt("bitDepth");; 
+    int dwtLvls     = op.getOptionInt("levels"); //default numuber of DWT levels
+    bool forward     = !op.getOptionInt("reverse"); //forward transform
+    bool dwt97       = !op.getOptionInt("53"); //1=dwt9/7, 0=dwt5/3 transform
+    bool writeVisual = op.getOptionInt("writeVisual");; //write output (subbands) in visual (tiled) order instead of linear
+    string inputFile = op.getOptionString("inputFile");
+    string resultFile = op.getOptionString("resultFile");
 
     if (pixWidth <= 0 || pixHeight <=0) {
         printf("Wrong or missing dimensions\n");
-        usage();
-        return -1;
+        return;
     }
 
     if (forward == 0) {
         writeVisual = 0; //do not write visual when RDWT
     }
-
-    // device init
-    int devCount;
-    cudaGetDeviceCount(&devCount);
-    cudaCheckError("Get device count");
-    if (devCount == 0) {
-        printf("No CUDA enabled device\n");
-        return -1;
-    } 
-    if (device < 0 || device > devCount -1) {
-        printf("Selected device %d is out of bound. Devices on your system are in range %d - %d\n", 
-               device, 0, devCount -1);
-        return -1;
-    }
-    cudaDeviceProp devProp;                                          
-    cudaGetDeviceProperties(&devProp, device);  
-    cudaCheckError("Get device properties");
-    if (devProp.major < 1) {                                         
-        printf("Device %d does not support CUDA\n", device);
-        return -1;
-    }                                                                   
-    printf("Using device %d: %s\n", device, devProp.name);
-    cudaSetDevice(device);
-    cudaCheckError("Set selected device");
 
     struct dwt *d;
     d = (struct dwt *)malloc(sizeof(struct dwt));
@@ -345,15 +246,10 @@ int main(int argc, char **argv)
     d->dwtLvls  = dwtLvls;
 
     // file names
-    d->srcFilename = (char *)malloc(strlen(argv[0]));
-    strcpy(d->srcFilename, argv[0]);
-    if (argc == 1) { // only one filename supplyed
-        d->outFilename = (char *)malloc(strlen(d->srcFilename)+4);
-        strcpy(d->outFilename, d->srcFilename);
-        strcpy(d->outFilename+strlen(d->srcFilename), ".dwt");
-    } else {
-        d->outFilename = strdup(argv[1]);
-    }
+    d->srcFilename = (char*)malloc(strlen(inputFile.c_str()));
+    strcpy(d->srcFilename, inputFile.c_str());
+    d->outFilename = (char*)malloc(strlen(resultFile.c_str()));
+    strcpy(d->outFilename, resultFile.c_str());
 
     //Input review
     printf("Source file:\t\t%s\n", d->srcFilename);
@@ -371,7 +267,7 @@ int main(int argc, char **argv)
     cudaMallocHost((void **)&d->srcImg, inputSize);
     cudaCheckError("Alloc host memory");
     if (getImg(d->srcFilename, d->srcImg, inputSize) == -1) 
-        return -1;
+        return;
 
     /* DWT */
     if (forward == 1) {
@@ -393,6 +289,4 @@ int main(int argc, char **argv)
     //writeComponent(b_wave_cuda, componentSize, ".b");
     cudaFreeHost(d->srcImg);
     cudaCheckError("Cuda free host");
-
-    return 0;
 }

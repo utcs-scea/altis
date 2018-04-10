@@ -47,9 +47,9 @@ struct Node
 };
 
 void initGraph(OptionParser &op, long long &no_of_nodes, long long &edge_list_size, long long &source, Node* &h_graph_nodes, long long* &h_graph_edges);
-double BFSGraph(ResultDatabase &resultDB, OptionParser &op, long long no_of_nodes, long long edge_list_size, long long source, Node* &h_graph_nodes, long long* &h_graph_edges);
+float BFSGraph(ResultDatabase &resultDB, OptionParser &op, long long no_of_nodes, long long edge_list_size, long long source, Node* &h_graph_nodes, long long* &h_graph_edges);
 #ifdef UNIFIED_MEMORY
-double BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, long long no_of_nodes, long long edge_list_size, long long source, Node* &h_graph_nodes, long long* &h_graph_edges);
+float BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, long long no_of_nodes, long long edge_list_size, long long source, Node* &h_graph_nodes, long long* &h_graph_edges);
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -150,21 +150,21 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     long long passes = op.getOptionInt("passes");
     for(long long i = 0; i < passes; i++) {
         printf("Pass %lld:\n", i);
-        double time = BFSGraph(resultDB, op, no_of_nodes, edge_list_size, source, h_graph_nodes, h_graph_edges);
+        float time = BFSGraph(resultDB, op, no_of_nodes, edge_list_size, source, h_graph_nodes, h_graph_edges);
         if(time == FLT_MAX) {
             printf("Executing BFS...Out of Memory.\n");
         } else {
             printf("Executing BFS...Done.\n");
         }
 #ifdef UNIFIED_MEMORY
-        double timeUM = BFSGraphUnifiedMemory(resultDB, op, no_of_nodes, edge_list_size, source, h_graph_nodes, h_graph_edges);
+        float timeUM = BFSGraphUnifiedMemory(resultDB, op, no_of_nodes, edge_list_size, source, h_graph_nodes, h_graph_edges);
         if(timeUM == FLT_MAX) {
             printf("Executing BFS using unified memory...Out of Memory.\n");
         } else {
             printf("Executing BFS using unified memory...Done.\n");
         }
         if(time != FLT_MAX && timeUM != FLT_MAX) {
-            resultDB.AddResult("Regular_Mem/Managed_Mem_Time", atts, "N", time/timeUM);
+            resultDB.AddResult("BFS_Time/BFS_UM_Time", atts, "N", time/timeUM);
         }
 #endif
     }
@@ -276,7 +276,7 @@ void initGraph(OptionParser &op, long long &no_of_nodes, long long &edge_list_si
 ////////////////////////////////////////////////////////////////////////////////
 //Apply BFS on a Graph using CUDA
 ////////////////////////////////////////////////////////////////////////////////
-double BFSGraph(ResultDatabase &resultDB, OptionParser &op, long long no_of_nodes, long long edge_list_size, long long source, Node* &h_graph_nodes, long long* &h_graph_edges) 
+float BFSGraph(ResultDatabase &resultDB, OptionParser &op, long long no_of_nodes, long long edge_list_size, long long source, Node* &h_graph_nodes, long long* &h_graph_edges) 
 {
     bool verbose = op.getOptionBool("verbose");
 
@@ -466,8 +466,6 @@ double transferTime = 0.;
     resultDB.AddResult("BFS-TotalTime", atts, "sec", transferTime + kernelTime);
     resultDB.AddResult("BFS-Rate_Nodes", atts, "Nodes/s", no_of_nodes/kernelTime);
     resultDB.AddResult("BFS-Rate_Edges", atts, "Edges/s", edge_list_size/kernelTime);
-    resultDB.AddResult("BFS-Rate_PCIe_Nodes", atts, "Nodes/s", no_of_nodes/(kernelTime + transferTime));
-    resultDB.AddResult("BFS-Rate_PCIe_Edges", atts, "Edges/s", edge_list_size/(kernelTime + transferTime));
     resultDB.AddResult("BFS-Rate_Parity", atts, "N", transferTime / kernelTime);
     return transferTime + kernelTime;
 }
@@ -476,7 +474,7 @@ double transferTime = 0.;
 ////////////////////////////////////////////////////////////////////////////////
 //Apply BFS on a Graph using CUDA and Unified Memory
 ////////////////////////////////////////////////////////////////////////////////
-double BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, long long no_of_nodes, long long edge_list_size, long long source, Node* &h_graph_nodes, long long* &h_graph_edges) {
+float BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, long long no_of_nodes, long long edge_list_size, long long source, Node* &h_graph_nodes, long long* &h_graph_edges) {
     bool verbose = op.getOptionBool("verbose");
 	long long num_of_blocks = 1;
 	long long num_of_threads_per_block = no_of_nodes;

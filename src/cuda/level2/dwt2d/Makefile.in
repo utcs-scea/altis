@@ -104,7 +104,7 @@ PROGRAMS = $(cuda_PROGRAMS)
 am_dwt2d_OBJECTS = main.$(OBJEXT)
 dwt2d_OBJECTS = $(am_dwt2d_OBJECTS)
 am__DEPENDENCIES_1 =
-dwt2d_DEPENDENCIES = main.o dwt.o components.o fdwt53.o fdwt97.o \
+dwt2d_DEPENDENCIES = dwt_main.o dwt.o components.o fdwt53.o fdwt97.o \
 	rdwt53.o rdwt97.o common.o $(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -292,7 +292,7 @@ dwt2d_SOURCES = \
 main.cpp
 
 dwt2d_LDADD = \
-main.o \
+dwt_main.o \
 dwt.o \
 components.o \
 fdwt53.o \

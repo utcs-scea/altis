@@ -493,15 +493,6 @@ int main(int argc, char** argv)
 	}
 	const char* data_file_name = argv[1];
 	
-	cudaDeviceProp prop;
-	int dev;
-	
-	checkCudaErrors(cudaSetDevice(0));
-	checkCudaErrors(cudaGetDevice(&dev));
-	checkCudaErrors(cudaGetDeviceProperties(&prop, dev));
-	
-	printf("Name:                     %s\n", prop.name);
-
 	// set far field conditions and load them into constant memory on the gpu
 	{
 		double h_ff_variable[NVAR];

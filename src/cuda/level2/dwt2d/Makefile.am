@@ -18,7 +18,7 @@ dwt2d_SOURCES = \
 main.cpp
 
 dwt2d_LDADD = \
-main.o \
+dwt_main.o \
 dwt.o \
 components.o \
 fdwt53.o \
