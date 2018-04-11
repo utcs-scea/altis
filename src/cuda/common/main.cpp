@@ -127,14 +127,14 @@ int main(int argc, char *argv[])
         OptionParser op;
 
         //Add shared options to the parser
-        op.addOption("properties", OPT_BOOL, "",
+        op.addOption("properties", OPT_BOOL, "0",
                 "show properties for available platforms and devices", 'p');
         op.addOption("device", OPT_VECINT, "0",
                 "specify device(s) to run on", 'd');
         op.addOption("passes", OPT_INT, "10", "specify number of passes", 'n');
         op.addOption("size", OPT_INT, "1", "specify problem size", 's');
-        op.addOption("verbose", OPT_BOOL, "", "enable verbose output", 'v');
-        op.addOption("quiet", OPT_BOOL, "", "enable concise output", 'q');
+        op.addOption("verbose", OPT_BOOL, "0", "enable verbose output", 'v');
+        op.addOption("quiet", OPT_BOOL, "0", "enable concise output", 'q');
         op.addOption("configFile", OPT_STRING, "", "path of configuration file", 'c');
         op.addOption("inputFile", OPT_STRING, "", "path of input file", 'i');
         op.addOption("outputFile", OPT_STRING, "", "path of output file", 'o');

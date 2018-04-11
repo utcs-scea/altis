@@ -28,6 +28,7 @@
 
 #define CHECK_CUDA_ERROR_NOEXIT()                                             \
 {                                                                             \
+    cudaThreadSynchronize();                                                 \
     cudaError_t err = cudaGetLastError();                                     \
     if (err != cudaSuccess)                                                   \
     {                                                                         \
@@ -38,6 +39,7 @@
 
 #define CHECK_CUDA_ERROR()                                                    \
 {                                                                             \
+    cudaThreadSynchronize();                                                 \
     cudaError_t err = cudaGetLastError();                                     \
     if (err != cudaSuccess)                                                   \
     {                                                                         \

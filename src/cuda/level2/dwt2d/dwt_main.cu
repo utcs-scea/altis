@@ -37,6 +37,7 @@
 
 #include "ResultDatabase.h"
 #include "OptionParser.h"
+#include "cudacommon.h"
 #include "common.h"
 #include "components.h"
 #include "dwt.h"
@@ -53,24 +54,11 @@ struct dwt {
 
 int getImg(char * srcFilename, unsigned char *srcImg, int inputSize)
 {
-    // printf("Loading ipnput: %s\n", srcFilename);
-    string path = "../../data/dwt2d/";
-    string newSrc = "";
-    
-    if((newSrc = (char *)malloc(strlen(srcFilename)+strlen(path)+1)) != NULL)
-    {
-        newSrc[0] = '\0';
-        strcat(newSrc, path);
-        strcat(newSrc, srcFilename);
-        srcFilename= newSrc;
-    }
-    printf("Loading ipnput: %s\n", srcFilename);
+    printf("Loading input: %s\n", srcFilename);
 
-    //srcFilename = strcat("../../data/dwt2d/",srcFilename);
-    //read image
     int i = open(srcFilename, O_RDONLY, 0644);
     if (i == -1) { 
-        error(0,errno,"cannot access %s", srcFilename);
+        error(0,errno,"Error: cannot access %s", srcFilename);
         return -1;
     }
     int ret = read(i, srcImg, inputSize);
@@ -83,54 +71,36 @@ int getImg(char * srcFilename, unsigned char *srcImg, int inputSize)
 template <typename T>
 void processDWT(struct dwt *d, int forward, int writeVisual)
 {
-    int componentSize = d->pixWidth*d->pixHeight*sizeof(T);
+    int componentSize = d->pixWidth*d->pixHeight*sizeof(T); T *c_r_out, *backup ;
+    CUDA_SAFE_CALL(cudaMalloc((void**)&c_r_out, componentSize)); //< aligned component size
+    CUDA_SAFE_CALL(cudaMemset(c_r_out, 0, componentSize));
     
-    T *c_r_out, *backup ;
-    cudaMalloc((void**)&c_r_out, componentSize); //< aligned component size
-    cudaCheckError("Alloc device memory");
-    cudaMemset(c_r_out, 0, componentSize);
-    cudaCheckError("Memset device memory");
-    
-    cudaMalloc((void**)&backup, componentSize); //< aligned component size
-    cudaCheckError("Alloc device memory");
-    cudaMemset(backup, 0, componentSize);
-    cudaCheckError("Memset device memory");
+    CUDA_SAFE_CALL(cudaMalloc((void**)&backup, componentSize)); //< aligned component size
+    CUDA_SAFE_CALL(cudaMemset(backup, 0, componentSize));
 	
     if (d->components == 3) {
         /* Alloc two more buffers for G and B */
         T *c_g_out, *c_b_out;
-        cudaMalloc((void**)&c_g_out, componentSize); //< aligned component size
-        cudaCheckError("Alloc device memory");
-        cudaMemset(c_g_out, 0, componentSize);
-        cudaCheckError("Memset device memory");
+        CUDA_SAFE_CALL(cudaMalloc((void**)&c_g_out, componentSize)); //< aligned component size
+        CUDA_SAFE_CALL(cudaMemset(c_g_out, 0, componentSize));
         
-        cudaMalloc((void**)&c_b_out, componentSize); //< aligned component size
-        cudaCheckError("Alloc device memory");
-        cudaMemset(c_b_out, 0, componentSize);
-        cudaCheckError("Memset device memory");
+        CUDA_SAFE_CALL(cudaMalloc((void**)&c_b_out, componentSize)); //< aligned component size
+        CUDA_SAFE_CALL(cudaMemset(c_b_out, 0, componentSize));
         
         /* Load components */
         T *c_r, *c_g, *c_b;
-        cudaMalloc((void**)&c_r, componentSize); //< R, aligned component size
-        cudaCheckError("Alloc device memory");
-        cudaMemset(c_r, 0, componentSize);
-        cudaCheckError("Memset device memory");
+        CUDA_SAFE_CALL(cudaMalloc((void**)&c_r, componentSize)); //< R, aligned component size
+        CUDA_SAFE_CALL(cudaMemset(c_r, 0, componentSize));
 
-        cudaMalloc((void**)&c_g, componentSize); //< G, aligned component size
-        cudaCheckError("Alloc device memory");
-        cudaMemset(c_g, 0, componentSize);
-        cudaCheckError("Memset device memory");
+        CUDA_SAFE_CALL(cudaMalloc((void**)&c_g, componentSize)); //< G, aligned component size
+        CUDA_SAFE_CALL(cudaMemset(c_g, 0, componentSize));
 
-        cudaMalloc((void**)&c_b, componentSize); //< B, aligned component size
-        cudaCheckError("Alloc device memory");
-        cudaMemset(c_b, 0, componentSize);
-        cudaCheckError("Memset device memory");
+        CUDA_SAFE_CALL(cudaMalloc((void**)&c_b, componentSize)); //< B, aligned component size
+        CUDA_SAFE_CALL(cudaMemset(c_b, 0, componentSize));
 
         rgbToComponents(c_r, c_g, c_b, d->srcImg, d->pixWidth, d->pixHeight);
 		
-
         /* Compute DWT and always store into file */
-
         nStage2dDWT(c_r, c_r_out, backup, d->pixWidth, d->pixHeight, d->dwtLvls, forward);
         nStage2dDWT(c_g, c_g_out, backup, d->pixWidth, d->pixHeight, d->dwtLvls, forward);
         nStage2dDWT(c_b, c_b_out, backup, d->pixWidth, d->pixHeight, d->dwtLvls, forward);
@@ -147,7 +117,6 @@ void processDWT(struct dwt *d, int forward, int writeVisual)
         
 		
         /* Store DWT to file */
-#ifdef OUTPUT        
         if (writeVisual) {
             writeNStage2DDWT(c_r_out, d->pixWidth, d->pixHeight, d->dwtLvls, d->outFilename, ".r");
             writeNStage2DDWT(c_g_out, d->pixWidth, d->pixHeight, d->dwtLvls, d->outFilename, ".g");
@@ -157,28 +126,19 @@ void processDWT(struct dwt *d, int forward, int writeVisual)
             writeLinear(c_g_out, d->pixWidth, d->pixHeight, d->outFilename, ".g");
             writeLinear(c_b_out, d->pixWidth, d->pixHeight, d->outFilename, ".b");
         }
-#endif
-
 
         cudaFree(c_r);
-        cudaCheckError("Cuda free");
         cudaFree(c_g);
-        cudaCheckError("Cuda free");
         cudaFree(c_b);
-        cudaCheckError("Cuda free");
         cudaFree(c_g_out);
-        cudaCheckError("Cuda free");
         cudaFree(c_b_out);
-        cudaCheckError("Cuda free");
 
     } 
     else if (d->components == 1) {
         //Load component
         T *c_r;
-        cudaMalloc((void**)&(c_r), componentSize); //< R, aligned component size
-        cudaCheckError("Alloc device memory");
-        cudaMemset(c_r, 0, componentSize);
-        cudaCheckError("Memset device memory");
+        CUDA_SAFE_CALL(cudaMalloc((void**)&(c_r), componentSize)); //< R, aligned component size
+        CUDA_SAFE_CALL(cudaMemset(c_r, 0, componentSize));
 
         bwToComponent(c_r, d->srcImg, d->pixWidth, d->pixHeight);
 
@@ -186,21 +146,16 @@ void processDWT(struct dwt *d, int forward, int writeVisual)
         nStage2dDWT(c_r, c_r_out, backup, d->pixWidth, d->pixHeight, d->dwtLvls, forward);
 
         // Store DWT to file 
-// #ifdef OUTPUT        
         if (writeVisual) {
             writeNStage2DDWT(c_r_out, d->pixWidth, d->pixHeight, d->dwtLvls, d->outFilename, ".out");
         } else {
             writeLinear(c_r_out, d->pixWidth, d->pixHeight, d->outFilename, ".lin.out");
         }
-// #endif
         cudaFree(c_r);
-        cudaCheckError("Cuda free");
     }
 
     cudaFree(c_r_out);
-    cudaCheckError("Cuda free device");
     cudaFree(backup);
-    cudaCheckError("Cuda free device");
 }
 
 void addBenchmarkSpecOptions(OptionParser &op) {
@@ -209,10 +164,9 @@ void addBenchmarkSpecOptions(OptionParser &op) {
     op.addOption("compCount", OPT_INT, "3", "number of components (3 for RGB/YUV, 4 for RGBA");
     op.addOption("bitDepth", OPT_INT, "8", "bit depth of src img");
     op.addOption("levels", OPT_INT, "3", "number of DWT levels");
-    op.addOption("reverse", OPT_BOOL, "", "reverse transform (defaults to forward");
-    op.addOption("53", OPT_BOOL, "", "5/3 transform (defaults to 9/7)");
-    op.addOption("resultFile", OPT_STRING, "", "file to write benchmark output to");
-    op.addOption("writeVisual", OPT_BOOL, "", "write output in visual (tiled) order instead of linear");
+    op.addOption("reverse", OPT_BOOL, "0", "reverse transform (defaults to forward");
+    op.addOption("53", OPT_BOOL, "0", "5/3 transform (defaults to 9/7)");
+    op.addOption("writeVisual", OPT_BOOL, "0", "write output in visual (tiled) order instead of linear");
 }
 
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
@@ -224,9 +178,8 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
     int dwtLvls     = op.getOptionInt("levels"); //default numuber of DWT levels
     bool forward     = !op.getOptionInt("reverse"); //forward transform
     bool dwt97       = !op.getOptionInt("53"); //1=dwt9/7, 0=dwt5/3 transform
-    bool writeVisual = op.getOptionInt("writeVisual");; //write output (subbands) in visual (tiled) order instead of linear
+    bool writeVisual = op.getOptionInt("writeVisual"); //write output (subbands) in visual (tiled) order instead of linear
     string inputFile = op.getOptionString("inputFile");
-    string resultFile = op.getOptionString("resultFile");
 
     if (pixWidth <= 0 || pixHeight <=0) {
         printf("Wrong or missing dimensions\n");
@@ -248,8 +201,9 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
     // file names
     d->srcFilename = (char*)malloc(strlen(inputFile.c_str()));
     strcpy(d->srcFilename, inputFile.c_str());
-    d->outFilename = (char*)malloc(strlen(resultFile.c_str()));
-    strcpy(d->outFilename, resultFile.c_str());
+    d->outFilename = (char *)malloc(strlen(d->srcFilename)+4);
+    strcpy(d->outFilename, d->srcFilename);
+    strcpy(d->outFilename+strlen(d->srcFilename), ".dwt");
 
     //Input review
     printf("Source file:\t\t%s\n", d->srcFilename);
@@ -259,6 +213,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
     printf(" DWT levels:\t\t%d\n", dwtLvls);
     printf(" Forward transform:\t%d\n", forward);
     printf(" 9/7 transform:\t\t%d\n", dwt97);
+    printf(" Write visual:\t\t%d\n", writeVisual);
     
     //data sizes
     int inputSize = pixWidth*pixHeight*compCount; //<amount of data (in bytes) to proccess

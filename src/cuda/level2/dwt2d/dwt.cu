@@ -31,6 +31,8 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <error.h>
+
+#include "cudacommon.h"
 #include "dwt_cuda/dwt.h"
 #include "dwt_cuda/common.h"
 #include "dwt.h"
@@ -80,7 +82,6 @@ int nStage2dDWT(T * in, T * out, T * backup, int pixWidth, int pixHeight, int st
     /* create backup of input, because each test iteration overwrites it */
     const int size = pixHeight * pixWidth * sizeof(T);
     cudaMemcpy(backup, in, size, cudaMemcpyDeviceToDevice);
-    cudaCheckError("Memcopy device to device");
     
     /* Measure time of individual levels. */
     if(forward)
@@ -193,12 +194,10 @@ int writeLinear(T *component_cuda, int pixWidth, int pixHeight,
     int samplesNum = pixWidth*pixHeight;
 
     size = samplesNum*sizeof(T);
-    cudaMallocHost((void **)&gpu_output, size);
-    cudaCheckError("Malloc host");
+    CUDA_SAFE_CALL(cudaMallocHost((void **)&gpu_output, size));
     memset(gpu_output, 0, size);
     result = (unsigned char *)malloc(samplesNum);
     cudaMemcpy(gpu_output, component_cuda, size, cudaMemcpyDeviceToHost);
-    cudaCheckError("Memcopy device to host");
 
     /* T to char */
     samplesToChar(result, gpu_output, samplesNum);
@@ -216,10 +215,16 @@ int writeLinear(T *component_cuda, int pixWidth, int pixHeight,
     ssize_t x ;
     x = write(i, result, samplesNum);
     close(i);
+    FILE  *fp = fopen("log", "w");
+    for(int i = 0; i < pixHeight; i++) {
+        for(int j = 0; j < pixWidth; j++) {
+            fprintf(fp, "%c ", result[i*pixWidth+j]);
+        }
+    }
+    fclose(fp);
 
     /* Clean up */
     cudaFreeHost(gpu_output);
-    cudaCheckError("Cuda free host memory");
     free(result);
     if(x == 0) return 1;
     return 0;
@@ -285,14 +290,12 @@ int writeNStage2DDWT(T *component_cuda, int pixWidth, int pixHeight,
 #endif
     
     size = samplesNum*sizeof(T);
-    cudaMallocHost((void **)&src, size);
-    cudaCheckError("Malloc host");
+    CUDA_SAFE_CALL(cudaMallocHost((void **)&src, size));
     dst = (T*)malloc(size);
     memset(src, 0, size);
     memset(dst, 0, size);
     result = (unsigned char *)malloc(samplesNum);
     cudaMemcpy(src, component_cuda, size, cudaMemcpyDeviceToHost);
-    cudaCheckError("Memcopy device to host");
 
     // LL Band
     size = bandDims[stages-1].LL.dimX * sizeof(T);
@@ -348,7 +351,6 @@ int writeNStage2DDWT(T *component_cuda, int pixWidth, int pixHeight,
     close(i);
 
     cudaFreeHost(src);
-    cudaCheckError("Cuda free host memory");
     free(dst);
     free(result);
     free(bandDims);

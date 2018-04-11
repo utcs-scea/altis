@@ -43,29 +43,6 @@
 // compile time minimum macro
 #define CTMIN(a,b) (((a) < (b)) ? (a) : (b))
 
-
-
-// performance testing macros
-#if defined(GPU_DWT_TESTING)
-  #define PERF_BEGIN  \
-  { \
-    dwt_cuda::CudaDWTTester PERF_TESTER; \
-    for(int PERF_N = PERF_TESTER.getNumIterations(); PERF_N--; ) \
-    { \
-      PERF_TESTER.beginTestIteration();
-
-  #define PERF_END(PERF_NAME, PERF_W, PERF_H)  \
-      PERF_TESTER.endTestIteration(); \
-    } \
-    PERF_TESTER.showPerformance(PERF_NAME, PERF_W, PERF_H); \
-  }
-#else // GPU_DWT_TESTING
-  #define PERF_BEGIN
-  #define PERF_END(PERF_NAME, PERF_W, PERF_H)
-#endif // GPU_DWT_TESTING
-
-
-
 namespace dwt_cuda {
   
   
@@ -238,10 +215,11 @@ namespace dwt_cuda {
   inline void memCopy(T * const dest, const T * const src,
                       const size_t sx, const size_t sy) {
     cudaError_t status;
-    PERF_BEGIN
     status = cudaMemcpy(dest, src, sx*sy*sizeof(T), cudaMemcpyDeviceToDevice);
-    PERF_END("        memcpy", sx, sy)
-    CudaDWTTester::check(status, "memcpy device > device");
+    if(status != CUDA_SUCCESS) {
+        printf("Error: Memcopy failed.\n");
+        exit(-1);
+    }
   }
   
   

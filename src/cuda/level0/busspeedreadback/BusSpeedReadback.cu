@@ -26,7 +26,7 @@
 //
 // ****************************************************************************
 void addBenchmarkSpecOptions(OptionParser &op) {
-  op.addOption("nopinned", OPT_BOOL, "",
+  op.addOption("pinned", OPT_BOOL, "0", "use pinned (pagelocked) memory");
                "disable usage of pinned (pagelocked) memory");
 }
 
@@ -54,8 +54,8 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 //
 // ****************************************************************************
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
-  bool verbose = op.getOptionBool("verbose");
-  bool pinned = !op.getOptionBool("nopinned");
+  const bool verbose = op.getOptionBool("verbose");
+  const bool pinned = op.getOptionBool("pinned");
 
   // Sizes are in kb
   int nSizes = 20;

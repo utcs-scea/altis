@@ -30,7 +30,7 @@
 /// POSSIBILITY OF SUCH DAMAGE.
 ///
 
-
+#include "cudacommon.h"
 #include "common.h"
 #include "transform_buffer.h"
 #include "io.h"
@@ -326,10 +326,9 @@ namespace dwt_cuda {
     dim3 gSize(divRndUp(sx, WIN_SX), divRndUp(sy, WIN_SY * steps));
     
     // run kernel, possibly measure time and finally check the call
-    PERF_BEGIN
     fdwt97Kernel<WIN_SX, WIN_SY><<<gSize, WIN_SX>>>(in, out, sx, sy, steps);
-    PERF_END("        FDWT97", sx, sy)
-    CudaDWTTester::checkLastKernelCall("FDWT 9/7 kernel");
+    CHECK_CUDA_ERROR();
+    printf("fdwt97Kernel in launchFDWT97Kernel has finished");
   }
   
   

@@ -57,8 +57,8 @@ void addBenchmarkSpecOptions(OptionParser &op) {
     op.addOption("minClusters", OPT_INT, "5", "minimum number of clusters allowed");
     op.addOption("threshold", OPT_FLOAT, "0.001", "threshold value");
     op.addOption("loops", OPT_INT, "1", "iteration for each number of clusters");
-    op.addOption("rmse", OPT_BOOL, "", "calculate RMSE (default off)");
-    op.addOption("outputCenters", OPT_BOOL, "", "output cluster center coordinates (default off)");
+    op.addOption("rmse", OPT_BOOL, "0", "calculate RMSE (default off)");
+    op.addOption("outputCenters", OPT_BOOL, "0", "output cluster center coordinates (default off)");
 }
 
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {

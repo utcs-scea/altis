@@ -30,7 +30,7 @@
 /// POSSIBILITY OF SUCH DAMAGE.
 ///
 
-
+#include "cudacommon.h"
 #include "common.h"
 #include "transform_buffer.h"
 #include "io.h"
@@ -319,10 +319,9 @@ namespace dwt_cuda {
     dim3 gSize(divRndUp(sx, WIN_SX), divRndUp(sy, WIN_SY * steps));
     
     // finally transform this level
-    PERF_BEGIN
     rdwt53Kernel<WIN_SX, WIN_SY><<<gSize, WIN_SX>>>(in, out, sx, sy, steps);
-    PERF_END("        RDWT53", sx, sy)
-    CudaDWTTester::checkLastKernelCall("RDWT 5/3 kernel");
+    CHECK_CUDA_ERROR();
+    printf("rdwt53Kernel in launchRDWT53Kernel has finished");
   }
     
   
