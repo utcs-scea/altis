@@ -72,8 +72,12 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     char atts[1024];
     sprintf(atts, "img:%d,speckle:%d,iter:%d", imageSize, speckleSize, iters);
     float time_gridsync = srad_gridsync(resultDB, op, matrix, imageSize, speckleSize, iters);
-    printf("Running SRAD with cooperative groups...Done.\n");
-    resultDB.AddResult("srad_time/srad_cg_time", atts, "N", time/time_gridsync);
+    if(time_gridsync == FLT_MAX) {
+        printf("Running SRAD with cooperative groups...Failed.\n");
+    } else {
+        printf("Running SRAD with cooperative groups...Done.\n");
+        resultDB.AddResult("srad_time/srad_cg_time", atts, "N", time/time_gridsync);
+    }
 #endif
       free(matrix);
   }
@@ -364,7 +368,7 @@ float srad_gridsync(ResultDatabase &resultDB, OptionParser &op, float* matrix, i
               // known bug: with and without gridsync have 10e-5 difference in row 16
               printf("Error: Validation failed at row %d, col %d\n", i, j);
               printf("%0.6f vs %0.6f\n", check[i*cols+j], J[i*cols+j]);
-              return;
+              return FLT_MAX;
           }
       }
   }

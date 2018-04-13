@@ -104,8 +104,7 @@ PROGRAMS = $(cuda_PROGRAMS)
 am_lavamd_OBJECTS = lavaMD.$(OBJEXT) main.$(OBJEXT) timer.$(OBJEXT)
 lavamd_OBJECTS = $(am_lavamd_OBJECTS)
 am__DEPENDENCIES_1 =
-lavamd_DEPENDENCIES = device.o kernel_gpu_cuda_wrapper.o \
-	$(am__DEPENDENCIES_1)
+lavamd_DEPENDENCIES = kernel_gpu_cuda_wrapper.o $(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -178,7 +177,7 @@ am__define_uniq_tagged_files = \
 ETAGS = etags
 CTAGS = ctags
 am__DIST_COMMON = $(srcdir)/Makefile.in \
-	$(top_srcdir)/build-aux/depcomp README
+	$(top_srcdir)/build-aux/depcomp
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 
 # How to find source files
@@ -311,7 +310,6 @@ main.cpp \
 util/timer/timer.c
 
 lavamd_LDADD = \
-device.o \
 kernel_gpu_cuda_wrapper.o \
 $(CUDA_LIBS) $(LIBS) -lm
 

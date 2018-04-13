@@ -12,7 +12,6 @@
 //	UTILITIES
 //======================================================================================================================================================150
 
-#include "./../util/device/device.h"				// (in library path specified to compiler)	needed by for device functions
 #include "./../util/timer/timer.h"					// (in library path specified to compiler)	needed by timer
 #include "cudacommon.h"
 

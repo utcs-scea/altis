@@ -216,7 +216,7 @@ namespace dwt_cuda {
                       const size_t sx, const size_t sy) {
     cudaError_t status;
     status = cudaMemcpy(dest, src, sx*sy*sizeof(T), cudaMemcpyDeviceToDevice);
-    if(status != CUDA_SUCCESS) {
+    if(status != cudaSuccess) {
         printf("Error: Memcopy failed.\n");
         exit(-1);
     }

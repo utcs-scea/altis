@@ -183,7 +183,7 @@ kmeansCuda(float  **feature,				/* in: [npoints][nfeatures] */
     t_features.channelDesc = chDesc0;
 
 	err = cudaBindTexture(NULL, &t_features, feature_d, &chDesc0, npoints*nfeatures*sizeof(float));
-    if(err != CUDA_SUCCESS) {
+    if(err != cudaSuccess) {
         printf("Error: Couldn't bind features array to texture, %d", err);
     }
 
@@ -193,7 +193,7 @@ kmeansCuda(float  **feature,				/* in: [npoints][nfeatures] */
     t_features_flipped.channelDesc = chDesc1;
 
 	err = cudaBindTexture(NULL, &t_features_flipped, feature_flipped_d, &chDesc1, npoints*nfeatures*sizeof(float));
-    if(err != CUDA_SUCCESS) {
+    if(err != cudaSuccess) {
         printf("Error: Couldn't bind features_flipped array to texture, %d", err);
     }
 
@@ -203,7 +203,7 @@ kmeansCuda(float  **feature,				/* in: [npoints][nfeatures] */
     t_clusters.channelDesc = chDesc2;
 
 	err = cudaBindTexture(NULL, &t_clusters, clusters_d, &chDesc2, nclusters*nfeatures*sizeof(float));
-    if(err != CUDA_SUCCESS) {
+    if(err != cudaSuccess) {
         printf("Error: Couldn't bind clusters array to texture, %d", err);
     }
 
