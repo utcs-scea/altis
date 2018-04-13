@@ -21,7 +21,6 @@ main.cpp \
 util/timer/timer.c
 
 lavamd_LDADD = \
-device.o \
 kernel_gpu_cuda_wrapper.o \
 $(CUDA_LIBS) $(LIBS) -lm
 
