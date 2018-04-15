@@ -318,17 +318,29 @@ namespace dwt_cuda {
   /// @param sx       width of the input image 
   /// @param sy       height of the input image
   template <int WIN_SX, int WIN_SY>
-  void launchFDWT97Kernel (float * in, float * out, int sx, int sy) {
+  void launchFDWT97Kernel (float * in, float * out, int sx, int sy, float &kernelTime) {
     // compute optimal number of steps of each sliding window
     const int steps = divRndUp(sy, 15 * WIN_SY);
     
     // prepare grid size
     dim3 gSize(divRndUp(sx, WIN_SX), divRndUp(sy, WIN_SY * steps));
     
+    // timing events
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    float elapsedTime;
+
     // run kernel, possibly measure time and finally check the call
+    //printf("fdwt97Kernel in launch\n");
+    cudaEventRecord(start, 0);
     fdwt97Kernel<WIN_SX, WIN_SY><<<gSize, WIN_SX>>>(in, out, sx, sy, steps);
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsedTime, start, stop);
+    kernelTime += elapsedTime * 1.e-3;
     CHECK_CUDA_ERROR();
-    printf("fdwt97Kernel in launchFDWT97Kernel has finished");
+    //printf("fdwt97Kernel has finished\n");
   }
   
   
@@ -340,14 +352,16 @@ namespace dwt_cuda {
   /// @param sizeX   width of input image (in pixels)
   /// @param sizeY   height of input image (in pixels)
   /// @param levels  number of recursive DWT levels
-  void fdwt97(float * in, float * out, int sizeX, int sizeY, int levels) {
+  float fdwt97(float * in, float * out, int sizeX, int sizeY, int levels) {
+    float kernelTime = 0;
+
     // select right width of kernel for the size of the image
     if(sizeX >= 960) {
-      launchFDWT97Kernel<192, 8>(in, out, sizeX, sizeY);
+      launchFDWT97Kernel<192, 8>(in, out, sizeX, sizeY, kernelTime);
     } else if (sizeX >= 480) {
-      launchFDWT97Kernel<128, 6>(in, out, sizeX, sizeY);
+      launchFDWT97Kernel<128, 6>(in, out, sizeX, sizeY, kernelTime);
     } else {
-      launchFDWT97Kernel<64, 6>(in, out, sizeX, sizeY);
+      launchFDWT97Kernel<64, 6>(in, out, sizeX, sizeY, kernelTime);
     }
     
     // if this was not the last level, continue recursively with other levels
@@ -358,8 +372,9 @@ namespace dwt_cuda {
       memCopy(in, out, llSizeX, llSizeY);
       
       // run remaining levels of FDWT
-      fdwt97(in, out, llSizeX, llSizeY, levels - 1);
+      kernelTime += fdwt97(in, out, llSizeX, llSizeY, levels - 1);
     }
+    return kernelTime;
   }
   
   

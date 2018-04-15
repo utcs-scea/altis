@@ -69,42 +69,46 @@ int getImg(char * srcFilename, unsigned char *srcImg, int inputSize)
 }
 
 template <typename T>
-void processDWT(struct dwt *d, int forward, int writeVisual)
+void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &resultDB, bool verbose, bool lastPass)
 {
+    // times
+    float transferTime = 0;
+    float kernelTime = 0;
+
     int componentSize = d->pixWidth*d->pixHeight*sizeof(T); T *c_r_out, *backup ;
-    CUDA_SAFE_CALL(cudaMalloc((void**)&c_r_out, componentSize)); //< aligned component size
+    CUDA_SAFE_CALL(cudaMalloc((void**)&c_r_out, componentSize));
     CUDA_SAFE_CALL(cudaMemset(c_r_out, 0, componentSize));
     
-    CUDA_SAFE_CALL(cudaMalloc((void**)&backup, componentSize)); //< aligned component size
+    CUDA_SAFE_CALL(cudaMalloc((void**)&backup, componentSize));
     CUDA_SAFE_CALL(cudaMemset(backup, 0, componentSize));
 	
     if (d->components == 3) {
         /* Alloc two more buffers for G and B */
         T *c_g_out, *c_b_out;
-        CUDA_SAFE_CALL(cudaMalloc((void**)&c_g_out, componentSize)); //< aligned component size
+        CUDA_SAFE_CALL(cudaMalloc((void**)&c_g_out, componentSize));
         CUDA_SAFE_CALL(cudaMemset(c_g_out, 0, componentSize));
         
-        CUDA_SAFE_CALL(cudaMalloc((void**)&c_b_out, componentSize)); //< aligned component size
+        CUDA_SAFE_CALL(cudaMalloc((void**)&c_b_out, componentSize));
         CUDA_SAFE_CALL(cudaMemset(c_b_out, 0, componentSize));
         
         /* Load components */
         T *c_r, *c_g, *c_b;
-        CUDA_SAFE_CALL(cudaMalloc((void**)&c_r, componentSize)); //< R, aligned component size
+        // R, aligned component size
+        CUDA_SAFE_CALL(cudaMalloc((void**)&c_r, componentSize)); 
         CUDA_SAFE_CALL(cudaMemset(c_r, 0, componentSize));
-
-        CUDA_SAFE_CALL(cudaMalloc((void**)&c_g, componentSize)); //< G, aligned component size
+        // G, aligned component size
+        CUDA_SAFE_CALL(cudaMalloc((void**)&c_g, componentSize)); 
         CUDA_SAFE_CALL(cudaMemset(c_g, 0, componentSize));
-
-        CUDA_SAFE_CALL(cudaMalloc((void**)&c_b, componentSize)); //< B, aligned component size
+        // B, aligned component size
+        CUDA_SAFE_CALL(cudaMalloc((void**)&c_b, componentSize));
         CUDA_SAFE_CALL(cudaMemset(c_b, 0, componentSize));
 
-        rgbToComponents(c_r, c_g, c_b, d->srcImg, d->pixWidth, d->pixHeight);
-		
+        rgbToComponents(c_r, c_g, c_b, d->srcImg, d->pixWidth, d->pixHeight, transferTime, kernelTime);
         /* Compute DWT and always store into file */
-        nStage2dDWT(c_r, c_r_out, backup, d->pixWidth, d->pixHeight, d->dwtLvls, forward);
-        nStage2dDWT(c_g, c_g_out, backup, d->pixWidth, d->pixHeight, d->dwtLvls, forward);
-        nStage2dDWT(c_b, c_b_out, backup, d->pixWidth, d->pixHeight, d->dwtLvls, forward);
-     
+        nStage2dDWT(c_r, c_r_out, backup, d->pixWidth, d->pixHeight, d->dwtLvls, forward, transferTime, kernelTime, verbose);
+        nStage2dDWT(c_g, c_g_out, backup, d->pixWidth, d->pixHeight, d->dwtLvls, forward, transferTime, kernelTime, verbose);
+        nStage2dDWT(c_b, c_b_out, backup, d->pixWidth, d->pixHeight, d->dwtLvls, forward, transferTime, kernelTime, verbose);
+
         // -------test----------
         // T *h_r_out=(T*)malloc(componentSize);
 		// cudaMemcpy(h_r_out, c_g_out, componentSize, cudaMemcpyDeviceToHost);
@@ -126,6 +130,12 @@ void processDWT(struct dwt *d, int forward, int writeVisual)
             writeLinear(c_g_out, d->pixWidth, d->pixHeight, d->outFilename, ".g");
             writeLinear(c_b_out, d->pixWidth, d->pixHeight, d->outFilename, ".b");
         }
+        if(lastPass) {
+            printf("Writing to %s.r (%d x %d)\n", d->outFilename, d->pixWidth, d->pixHeight);
+            printf("Writing to %s.g (%d x %d)\n", d->outFilename, d->pixWidth, d->pixHeight);
+            printf("Writing to %s.b (%d x %d)\n", d->outFilename, d->pixWidth, d->pixHeight);
+        }
+            
 
         cudaFree(c_r);
         cudaFree(c_g);
@@ -137,25 +147,39 @@ void processDWT(struct dwt *d, int forward, int writeVisual)
     else if (d->components == 1) {
         //Load component
         T *c_r;
-        CUDA_SAFE_CALL(cudaMalloc((void**)&(c_r), componentSize)); //< R, aligned component size
+        // R, aligned component size
+        CUDA_SAFE_CALL(cudaMalloc((void**)&(c_r), componentSize)); 
         CUDA_SAFE_CALL(cudaMemset(c_r, 0, componentSize));
 
-        bwToComponent(c_r, d->srcImg, d->pixWidth, d->pixHeight);
+        bwToComponent(c_r, d->srcImg, d->pixWidth, d->pixHeight, transferTime, kernelTime);
 
         // Compute DWT 
-        nStage2dDWT(c_r, c_r_out, backup, d->pixWidth, d->pixHeight, d->dwtLvls, forward);
+        nStage2dDWT(c_r, c_r_out, backup, d->pixWidth, d->pixHeight, d->dwtLvls, forward, transferTime, kernelTime, verbose);
 
         // Store DWT to file 
         if (writeVisual) {
             writeNStage2DDWT(c_r_out, d->pixWidth, d->pixHeight, d->dwtLvls, d->outFilename, ".out");
+            if(lastPass) {
+                printf("Writing to %s.out (%d x %d)\n", d->outFilename, d->pixWidth, d->pixHeight);
+            }
         } else {
             writeLinear(c_r_out, d->pixWidth, d->pixHeight, d->outFilename, ".lin.out");
+            if(lastPass) {
+                printf("Writing to %s.lin.out (%d x %d)\n", d->outFilename, d->pixWidth, d->pixHeight);
+            }
         }
         cudaFree(c_r);
     }
 
     cudaFree(c_r_out);
     cudaFree(backup);
+
+    char atts[1024];
+    sprintf(atts, "%dx%d", d->pixWidth, d->pixHeight);
+    resultDB.AddResult("dwt_kernel_time", atts, "sec", kernelTime);
+    resultDB.AddResult("dwt_transfer_time", atts, "sec", transferTime);
+    resultDB.AddResult("dwt_total_time", atts, "sec", kernelTime+transferTime);
+    resultDB.AddResult("dwt_parity", atts, "N", transferTime/kernelTime);
 }
 
 void addBenchmarkSpecOptions(OptionParser &op) {
@@ -171,14 +195,15 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
 {
+    bool verbose    = op.getOptionBool("verbose");
     int pixWidth    = op.getOptionInt("pixWidth"); //<real pixWidth
     int pixHeight   = op.getOptionInt("pixHeight"); //<real pixHeight
     int compCount   = op.getOptionInt("compCount"); //number of components; 3 for RGB or YUV, 4 for RGBA
     int bitDepth    = op.getOptionInt("bitDepth");; 
     int dwtLvls     = op.getOptionInt("levels"); //default numuber of DWT levels
-    bool forward     = !op.getOptionInt("reverse"); //forward transform
-    bool dwt97       = !op.getOptionInt("53"); //1=dwt9/7, 0=dwt5/3 transform
-    bool writeVisual = op.getOptionInt("writeVisual"); //write output (subbands) in visual (tiled) order instead of linear
+    bool forward     = !op.getOptionBool("reverse"); //forward transform
+    bool dwt97       = !op.getOptionBool("53"); //1=dwt9/7, 0=dwt5/3 transform
+    bool writeVisual = op.getOptionBool("writeVisual"); //write output (subbands) in visual (tiled) order instead of linear
     string inputFile = op.getOptionString("inputFile");
 
     if (pixWidth <= 0 || pixHeight <=0) {
@@ -224,18 +249,26 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
     if (getImg(d->srcFilename, d->srcImg, inputSize) == -1) 
         return;
 
-    /* DWT */
-    if (forward == 1) {
-        if(dwt97 == 1 )
-            processDWT<float>(d, forward, writeVisual);
-        else // 5/3
-            processDWT<int>(d, forward, writeVisual);
-    }
-    else { // reverse
-        if(dwt97 == 1 )
-            processDWT<float>(d, forward, writeVisual);
-        else // 5/3
-            processDWT<int>(d, forward, writeVisual);
+    int passes = op.getOptionInt("passes");
+    for(int i = 0; i < passes; i++) {
+        bool lastPass = i+1 == passes;
+        printf("Pass %d:\n", i);
+        /* DWT */
+        if (forward == 1) {
+            if(dwt97 == 1 ) {
+                processDWT<float>(d, forward, writeVisual, resultDB, verbose, lastPass);
+            } else { // 5/3
+                processDWT<int>(d, forward, writeVisual, resultDB, verbose, lastPass);
+            }
+        }
+        else { // reverse
+            if(dwt97 == 1 ) {
+                processDWT<float>(d, forward, writeVisual, resultDB, verbose, lastPass);
+            } else { // 5/3
+                processDWT<int>(d, forward, writeVisual, resultDB, verbose, lastPass);
+            }
+        }
+        printf("Done.\n");
     }
 
     //writeComponent(r_cuda, pixWidth, pixHeight, srcFilename, ".g");

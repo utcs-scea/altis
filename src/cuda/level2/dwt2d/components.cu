@@ -131,7 +131,7 @@ __global__ void c_CopySrcToComponent(T *d_c, unsigned char * d_src, int pixels)
 
 /* Separate compoents of 8bit RGB source image */
 template<typename T>
-void rgbToComponents(T *d_r, T *d_g, T *d_b, unsigned char * src, int width, int height)
+void rgbToComponents(T *d_r, T *d_g, T *d_b, unsigned char * src, int width, int height, float &transferTime, float &kernelTime)
 {
     unsigned char * d_src;
     int pixels      = width*height;
@@ -141,26 +141,43 @@ void rgbToComponents(T *d_r, T *d_g, T *d_b, unsigned char * src, int width, int
     CUDA_SAFE_CALL(cudaMalloc((void **)&d_src, alignedSize));
     CUDA_SAFE_CALL(cudaMemset(d_src, 0, alignedSize));
 
+    /* timing events */
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    float elapsed;
+
     /* Copy data to device */
+    cudaEventRecord(start, 0);
     cudaMemcpy(d_src, src, pixels*3, cudaMemcpyHostToDevice);
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed, start, stop);
+    transferTime += elapsed * 1.e-3;
 
     /* Kernel */
     dim3 threads(THREADS);
     dim3 grid(alignedSize/(THREADS*3));
     assert(alignedSize%(THREADS*3) == 0);
+
+    cudaEventRecord(start, 0);
     c_CopySrcToComponents<<<grid, threads>>>(d_r, d_g, d_b, d_src, pixels);
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed, start, stop);
+    kernelTime += elapsed * 1.e-3;
     CHECK_CUDA_ERROR();
 
     /* Free Memory */
     cudaFree(d_src);
 }
-template void rgbToComponents<float>(float *d_r, float *d_g, float *d_b, unsigned char * src, int width, int height);
-template void rgbToComponents<int>(int *d_r, int *d_g, int *d_b, unsigned char * src, int width, int height);
+template void rgbToComponents<float>(float *d_r, float *d_g, float *d_b, unsigned char * src, int width, int height, float &transferTime, float &kernelTime);
+template void rgbToComponents<int>(int *d_r, int *d_g, int *d_b, unsigned char * src, int width, int height, float &transferTime, float &kernelTime);
 
 
 /* Copy a 8bit source image data into a color compoment of type T */
 template<typename T>
-void bwToComponent(T *d_c, unsigned char * src, int width, int height)
+void bwToComponent(T *d_c, unsigned char * src, int width, int height, float &transferTime, float &kernelTime)
 {
     unsigned char * d_src;
     int pixels      = width*height;
@@ -170,19 +187,36 @@ void bwToComponent(T *d_c, unsigned char * src, int width, int height)
     CUDA_SAFE_CALL(cudaMalloc((void **)&d_src, alignedSize));
     CUDA_SAFE_CALL(cudaMemset(d_src, 0, alignedSize));
 
+    /* timing events */
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    float elapsed;
+
     /* Copy data to device */
+    cudaEventRecord(start, 0);
     cudaMemcpy(d_src, src, pixels, cudaMemcpyHostToDevice);
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed, start, stop);
+    transferTime += elapsed * 1.e-3;
 
     /* Kernel */
     dim3 threads(THREADS);
     dim3 grid(alignedSize/(THREADS));
     assert(alignedSize%(THREADS) == 0);
+
+    cudaEventRecord(start, 0);
     c_CopySrcToComponent<<<grid, threads>>>(d_c, d_src, pixels);
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed, start, stop);
+    kernelTime += elapsed * 1.e-3;
     CHECK_CUDA_ERROR();
 
     /* Free Memory */
     cudaFree(d_src);
 }
 
-template void bwToComponent<float>(float *d_c, unsigned char *src, int width, int height);
-template void bwToComponent<int>(int *d_c, unsigned char *src, int width, int height);
+template void bwToComponent<float>(float *d_c, unsigned char *src, int width, int height, float &transferTime, float &kernelTime);
+template void bwToComponent<int>(int *d_c, unsigned char *src, int width, int height, float &transferTime, float &kernelTime);

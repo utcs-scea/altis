@@ -38,9 +38,9 @@
 #include "dwt.h"
 #include "common.h"
 
-inline void fdwt(float *in, float *out, int width, int height, int levels)
+inline float fdwt(float *in, float *out, int width, int height, int levels)
 {
-        dwt_cuda::fdwt97(in, out, width, height, levels);
+        return dwt_cuda::fdwt97(in, out, width, height, levels);
 }
 /*
 inline void fdwt(float *in, float *out, int width, int height, int levels, float *diffOut)
@@ -49,11 +49,9 @@ inline void fdwt(float *in, float *out, int width, int height, int levels, float
 }
 */
 
-
-
-inline void fdwt(int *in, int *out, int width, int height, int levels)
+inline float fdwt(int *in, int *out, int width, int height, int levels)
 {
-        dwt_cuda::fdwt53(in, out, width, height, levels);
+        return dwt_cuda::fdwt53(in, out, width, height, levels);
 }
 /*
 inline void fdwt(int *in, int *out, int width, int height, int levels, int *diffOut)
@@ -62,56 +60,50 @@ inline void fdwt(int *in, int *out, int width, int height, int levels, int *diff
 }
 */
 
-
-
-inline void rdwt(float *in, float *out, int width, int height, int levels)
+inline float rdwt(float *in, float *out, int width, int height, int levels)
 {
-        dwt_cuda::rdwt97(in, out, width, height, levels);
+        return dwt_cuda::rdwt97(in, out, width, height, levels);
 }
 
-inline void rdwt(int *in, int *out, int width, int height, int levels)
+inline float rdwt(int *in, int *out, int width, int height, int levels)
 {
-        dwt_cuda::rdwt53(in, out, width, height, levels);
+        return dwt_cuda::rdwt53(in, out, width, height, levels);
 }
 
 template<typename T>
-int nStage2dDWT(T * in, T * out, T * backup, int pixWidth, int pixHeight, int stages, bool forward)
+int nStage2dDWT(T * in, T * out, T * backup, int pixWidth, int pixHeight, int stages, bool forward, float &transferTime, float &kernelTime, bool verbose)
 {
-    printf("\n*** %d stages of 2D forward DWT:\n", stages);
+    if(verbose) {
+        printf("%d stages of 2D DWT:\n", stages);
+    }
     
     /* create backup of input, because each test iteration overwrites it */
     const int size = pixHeight * pixWidth * sizeof(T);
+
+    /* timing events */
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    float elapsed;
+
+    cudaEventRecord(start, 0);
     cudaMemcpy(backup, in, size, cudaMemcpyDeviceToDevice);
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed, start, stop);
+    transferTime += elapsed * 1.e-3;
     
     /* Measure time of individual levels. */
-    if(forward)
-        fdwt(in, out, pixWidth, pixHeight, stages);
-    else
-        rdwt(in, out, pixWidth, pixHeight, stages);
-    
-    // Measure overall time of DWT. 
-/*    #ifdef GPU_DWT_TESTING_1
-	
-    dwt_cuda::CudaDWTTester tester;
-    for(int i = tester.getNumIterations(); i--; ) {
-        // Recover input and measure one overall DWT run. 
-        cudaMemcpy(in, backup, size, cudaMemcpyDeviceToDevice); 
-        cudaCheckError("Memcopy device to device");
-        tester.beginTestIteration();
-        if(forward)
-            fdwt(in, out, pixWidth, pixHeight, stages);
-        else
-            rdwt(in, out, pixWidth, pixHeight, stages);
-        tester.endTestIteration();
+    if(forward) {
+        kernelTime += fdwt(in, out, pixWidth, pixHeight, stages);
+    } else {
+        kernelTime += rdwt(in, out, pixWidth, pixHeight, stages);
     }
-    tester.showPerformance("   Overall DWT", pixWidth, pixHeight);
-    #endif  // GPU_DWT_TESTING 
     
-    cudaCheckAsyncError("DWT Kernel calls");
-*/    return 0;
+    return 0;
 }
-template int nStage2dDWT<float>(float*, float*, float*, int, int, int, bool);
-template int nStage2dDWT<int>(int*, int*, int*, int, int, int, bool);
+template int nStage2dDWT<float>(float*, float*, float*, int, int, int, bool, float&, float&, bool);
+template int nStage2dDWT<int>(int*, int*, int*, int, int, int, bool, float&, float&, bool);
 
 
 
@@ -211,7 +203,6 @@ int writeLinear(T *component_cuda, int pixWidth, int pixHeight,
         error(0,errno,"cannot access %s", outfile);
         return -1;
     }
-    printf("\nWriting to %s (%d x %d)\n", outfile, pixWidth, pixHeight);
     ssize_t x ;
     x = write(i, result, samplesNum);
     close(i);
@@ -345,7 +336,6 @@ int writeNStage2DDWT(T *component_cuda, int pixWidth, int pixHeight,
         error(0,errno,"cannot access %s", outfile);
         return -1;
     }
-    printf("\nWriting to %s (%d x %d)\n", outfile, pixWidth, pixHeight);
     ssize_t x;
     x = write(i, result, samplesNum);
     close(i);

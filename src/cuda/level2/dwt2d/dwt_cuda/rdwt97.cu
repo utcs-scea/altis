@@ -313,17 +313,29 @@ namespace dwt_cuda {
   /// @param sx       width of the input image 
   /// @param sy       height of the input image
   template <int WIN_SX, int WIN_SY>
-  void launchRDWT97Kernel (float * in, float * out, int sx, int sy) {
+  void launchRDWT97Kernel (float * in, float * out, int sx, int sy, float &kernelTime) {
     // compute optimal number of steps of each sliding window
     const int steps = divRndUp(sy, 15 * WIN_SY);
     
     // prepare grid size
     dim3 gSize(divRndUp(sx, WIN_SX), divRndUp(sy, WIN_SY * steps));
     
+    // timing events
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    float elapsedTime;
+
     // finally launch kernel
+    //printf("rdwt97Kernel in launch\n");
+    cudaEventRecord(start, 0);
     rdwt97Kernel<WIN_SX, WIN_SY><<<gSize, WIN_SX>>>(in, out, sx, sy, steps);
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsedTime, start, stop);
+    kernelTime += elapsedTime * 1.e-3;
     CHECK_CUDA_ERROR();
-    printf("rdwt97Kernel in launchRDWT97Kernel has finished");
+    //printf("rdwt97Kernel has finished\n");
   }
   
   
@@ -336,12 +348,14 @@ namespace dwt_cuda {
   /// @param sizeX   width of input image (in pixels)
   /// @param sizeY   height of input image (in pixels)
   /// @param levels  number of recursive DWT levels
-  void rdwt97(float * in, float * out, int sizeX, int sizeY, int levels) {
+  float rdwt97(float * in, float * out, int sizeX, int sizeY, int levels) {
+    float kernelTime = 0;
+
     if(levels > 1) {
       // let this function recursively reverse transform deeper levels first
       const int llSizeX = divRndUp(sizeX, 2);
       const int llSizeY = divRndUp(sizeY, 2);
-      rdwt97(in, out, llSizeX, llSizeY, levels - 1);
+      kernelTime += rdwt97(in, out, llSizeX, llSizeY, levels - 1);
       
       // copy reverse transformed LL band from output back into the input
       memCopy(in, out, llSizeX, llSizeY);
@@ -349,12 +363,13 @@ namespace dwt_cuda {
     
     // select right width of kernel for the size of the image
     if(sizeX >= 960) {
-      launchRDWT97Kernel<192, 8>(in, out, sizeX, sizeY);
+      launchRDWT97Kernel<192, 8>(in, out, sizeX, sizeY, kernelTime);
     } else if (sizeX >= 480) {
-      launchRDWT97Kernel<128, 6>(in, out, sizeX, sizeY);
+      launchRDWT97Kernel<128, 6>(in, out, sizeX, sizeY, kernelTime);
     } else {
-      launchRDWT97Kernel<64, 6>(in, out, sizeX, sizeY);
+      launchRDWT97Kernel<64, 6>(in, out, sizeX, sizeY, kernelTime);
     }
+      return kernelTime;
   }
   
 
