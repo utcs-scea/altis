@@ -2,7 +2,7 @@ include $(top_builddir)/config/config.mk
 include $(top_builddir)/config/targets.mk
 
 # How to find source files
-VPATH = $(srcdir):$(srcdir)/../../common:$(srcdir)/../../../common:$(srcdir)/dwt_cuda
+VPATH = $(srcdir):$(srcdir)/../../common:$(srcdir)/../../../common:$(srcdir)/dwt_cuda:$(srcdir)/data
 
 AM_LDFLAGS = $(CUDA_LDFLAGS)
 AM_CPPFLAGS = $(CUDA_INC)
@@ -15,6 +15,7 @@ cuda_PROGRAMS = dwt2d
 
 # How to build those programs?
 dwt2d_SOURCES = \
+bmp.cpp \
 main.cpp
 
 dwt2d_LDADD = \

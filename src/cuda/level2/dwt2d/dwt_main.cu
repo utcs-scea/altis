@@ -41,6 +41,7 @@
 #include "common.h"
 #include "components.h"
 #include "dwt.h"
+#include "data/create.cpp"
 
 struct dwt {
     char * srcFilename;
@@ -174,7 +175,7 @@ void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &res
     cudaFree(c_r_out);
     cudaFree(backup);
 
-    char atts[1024];
+    char atts[16];
     sprintf(atts, "%dx%d", d->pixWidth, d->pixHeight);
     resultDB.AddResult("dwt_kernel_time", atts, "sec", kernelTime);
     resultDB.AddResult("dwt_transfer_time", atts, "sec", transferTime);
@@ -205,6 +206,10 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
     bool dwt97       = !op.getOptionBool("53"); //1=dwt9/7, 0=dwt5/3 transform
     bool writeVisual = op.getOptionBool("writeVisual"); //write output (subbands) in visual (tiled) order instead of linear
     string inputFile = op.getOptionString("inputFile");
+    if(inputFile.empty()) {
+        int probSizes[4] = {48, 192, 768, 3072};
+        inputFile = datagen(probSizes[op.getOptionInt("size")-1]);
+    }
 
     if (pixWidth <= 0 || pixHeight <=0) {
         printf("Wrong or missing dimensions\n");

@@ -206,13 +206,6 @@ int writeLinear(T *component_cuda, int pixWidth, int pixHeight,
     ssize_t x ;
     x = write(i, result, samplesNum);
     close(i);
-    FILE  *fp = fopen("log", "w");
-    for(int i = 0; i < pixHeight; i++) {
-        for(int j = 0; j < pixWidth; j++) {
-            fprintf(fp, "%c ", result[i*pixWidth+j]);
-        }
-    }
-    fclose(fp);
 
     /* Clean up */
     cudaFreeHost(gpu_output);

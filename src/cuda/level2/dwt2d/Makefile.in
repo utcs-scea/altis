@@ -101,7 +101,7 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(cudadir)"
 PROGRAMS = $(cuda_PROGRAMS)
-am_dwt2d_OBJECTS = main.$(OBJEXT)
+am_dwt2d_OBJECTS = bmp.$(OBJEXT) main.$(OBJEXT)
 dwt2d_OBJECTS = $(am_dwt2d_OBJECTS)
 am__DEPENDENCIES_1 =
 dwt2d_DEPENDENCIES = dwt_main.o dwt.o components.o fdwt53.o fdwt97.o \
@@ -166,7 +166,7 @@ am__DIST_COMMON = $(srcdir)/Makefile.in \
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 
 # How to find source files
-VPATH = $(srcdir):$(srcdir)/../../common:$(srcdir)/../../../common:$(srcdir)/dwt_cuda
+VPATH = $(srcdir):$(srcdir)/../../common:$(srcdir)/../../../common:$(srcdir)/dwt_cuda:$(srcdir)/data
 ACLOCAL = @ACLOCAL@
 ALLOCA = @ALLOCA@
 AMTAR = @AMTAR@
@@ -289,6 +289,7 @@ cudadir = $(bindir)/CUDA
 
 # How to build those programs?
 dwt2d_SOURCES = \
+bmp.cpp \
 main.cpp
 
 dwt2d_LDADD = \
@@ -388,6 +389,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bmp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 
 .cpp.o:
