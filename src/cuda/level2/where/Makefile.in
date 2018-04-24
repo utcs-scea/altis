@@ -88,8 +88,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-cuda_PROGRAMS = cfd$(EXEEXT) cfd_double$(EXEEXT)
-subdir = src/cuda/level2/cfd
+cuda_PROGRAMS = where$(EXEEXT)
+subdir = src/cuda/level2/where
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -101,13 +101,10 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(cudadir)"
 PROGRAMS = $(cuda_PROGRAMS)
-am_cfd_OBJECTS = main.$(OBJEXT)
-cfd_OBJECTS = $(am_cfd_OBJECTS)
+am_where_OBJECTS = main.$(OBJEXT)
+where_OBJECTS = $(am_where_OBJECTS)
 am__DEPENDENCIES_1 =
-cfd_DEPENDENCIES = euler3d.o $(am__DEPENDENCIES_1)
-am_cfd_double_OBJECTS = main.$(OBJEXT)
-cfd_double_OBJECTS = $(am_cfd_double_OBJECTS)
-cfd_double_DEPENDENCIES = euler3d_double.o $(am__DEPENDENCIES_1)
+where_DEPENDENCIES = where.o $(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -137,8 +134,8 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(cfd_SOURCES) $(cfd_double_SOURCES)
-DIST_SOURCES = $(cfd_SOURCES) $(cfd_double_SOURCES)
+SOURCES = $(where_SOURCES)
+DIST_SOURCES = $(where_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -290,18 +287,11 @@ AM_CPPFLAGS = $(CUDA_INC)
 cudadir = $(bindir)/CUDA
 
 # How to build those programs?
-cfd_SOURCES = \
+where_SOURCES = \
 main.cpp
 
-cfd_LDADD = \
-euler3d.o \
-$(CUDA_LIBS) $(LIBS) -lm
-
-cfd_double_SOURCES = \
-main.cpp
-
-cfd_double_LDADD = \
-euler3d_double.o \
+where_LDADD = \
+where.o \
 $(CUDA_LIBS) $(LIBS) -lm
 
 all: all-am
@@ -317,9 +307,9 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__confi
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/cuda/level2/cfd/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/cuda/level2/where/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign src/cuda/level2/cfd/Makefile
+	  $(AUTOMAKE) --foreign src/cuda/level2/where/Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
 	  *config.status*) \
@@ -380,13 +370,9 @@ uninstall-cudaPROGRAMS:
 clean-cudaPROGRAMS:
 	-test -z "$(cuda_PROGRAMS)" || rm -f $(cuda_PROGRAMS)
 
-cfd$(EXEEXT): $(cfd_OBJECTS) $(cfd_DEPENDENCIES) $(EXTRA_cfd_DEPENDENCIES) 
-	@rm -f cfd$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(cfd_OBJECTS) $(cfd_LDADD) $(LIBS)
-
-cfd_double$(EXEEXT): $(cfd_double_OBJECTS) $(cfd_double_DEPENDENCIES) $(EXTRA_cfd_double_DEPENDENCIES) 
-	@rm -f cfd_double$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(cfd_double_OBJECTS) $(cfd_double_LDADD) $(LIBS)
+where$(EXEEXT): $(where_OBJECTS) $(where_DEPENDENCIES) $(EXTRA_where_DEPENDENCIES) 
+	@rm -f where$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(where_OBJECTS) $(where_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
