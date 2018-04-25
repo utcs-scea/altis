@@ -53,7 +53,6 @@ for benchmark in benchmarks:
             val = line[col_6[0]:col_6[1]].strip()
             if not val.isdigit():
                 val = parse_val(val)
-            #print('\t' + name)
             if res.at[metric, name] == 'n/a':
                 res.at[metric, name] = val
             elif res.at[metric, name] < val:

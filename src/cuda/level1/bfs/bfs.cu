@@ -34,11 +34,9 @@
 #define MAX_WEIGHT 10
 #define SEED 7
 
-#define MAX_THREADS_PER_BLOCK 512
+#define MAX_THREADS_PER_BLOCK 32
 
 using namespace std;
-
-long long* check;
 
 struct Node
 {
@@ -55,10 +53,7 @@ float BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, long lon
 ////////////////////////////////////////////////////////////////////////////////
 __global__ void Kernel( Node* g_graph_nodes, long long* g_graph_edges, bool* g_graph_mask, bool* g_updating_graph_mask, bool *g_graph_visited, long long* g_cost, long long no_of_nodes) 
 {
-	long long tid = blockIdx.x*MAX_THREADS_PER_BLOCK + threadIdx.x;
-    if(tid < 0) {
-        return;
-    }
+	long long tid = blockIdx.x*(MAX_THREADS_PER_BLOCK*MAX_THREADS_PER_BLOCK) + (threadIdx.x*MAX_THREADS_PER_BLOCK) + threadIdx.y;
 	if( tid<no_of_nodes && g_graph_mask[tid])
 	{
 		g_graph_mask[tid]=false;
@@ -76,7 +71,7 @@ __global__ void Kernel( Node* g_graph_nodes, long long* g_graph_edges, bool* g_g
 
 __global__ void Kernel2( bool* g_graph_mask, bool *g_updating_graph_mask, bool* g_graph_visited, bool *g_over, long long no_of_nodes)
 {
-	long long tid = blockIdx.x*MAX_THREADS_PER_BLOCK + threadIdx.x;
+	long long tid = blockIdx.x*(MAX_THREADS_PER_BLOCK*MAX_THREADS_PER_BLOCK) + (threadIdx.x*MAX_THREADS_PER_BLOCK) + threadIdx.y;
 	if( tid<no_of_nodes && g_updating_graph_mask[tid])
 	{
 
@@ -152,14 +147,14 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
         printf("Pass %lld:\n", i);
         float time = BFSGraph(resultDB, op, no_of_nodes, edge_list_size, source, h_graph_nodes, h_graph_edges);
         if(time == FLT_MAX) {
-            printf("Executing BFS...Out of Memory.\n");
+            printf("Executing BFS...Error.\n");
         } else {
             printf("Executing BFS...Done.\n");
         }
 #ifdef UNIFIED_MEMORY
         float timeUM = BFSGraphUnifiedMemory(resultDB, op, no_of_nodes, edge_list_size, source, h_graph_nodes, h_graph_edges);
         if(timeUM == FLT_MAX) {
-            printf("Executing BFS using unified memory...Out of Memory.\n");
+            printf("Executing BFS using unified memory...Error.\n");
         } else {
             printf("Executing BFS using unified memory...Done.\n");
         }
@@ -201,7 +196,7 @@ void initGraph(OptionParser &op, long long &no_of_nodes, long long &edge_list_si
     if(fp) {
         printf("Reading graph file\n");
     } else {
-        printf("Generating graph with a preset problem size\n");
+        printf("Generating graph with problem size %d\n", op.getOptionInt("size"));
     }
 
     // initialize number of nodes
@@ -209,7 +204,7 @@ void initGraph(OptionParser &op, long long &no_of_nodes, long long &edge_list_si
 	    long long n = fscanf(fp,"%lld",&no_of_nodes);
         assert(n == 1);
     } else {
-        long long problemSizes[4] = {10, 50, 100, 400};
+        long long problemSizes[4] = {10, 50, 100, 300};
         no_of_nodes = problemSizes[op.getOptionInt("size") - 1] * 1024 * 1024;
     }
 
@@ -286,7 +281,7 @@ float BFSGraph(ResultDatabase &resultDB, OptionParser &op, long long no_of_nodes
 	//Distribute threads across multiple Blocks if necessary
 	if(no_of_nodes>MAX_THREADS_PER_BLOCK)
 	{
-		num_of_blocks = (long long)ceil(no_of_nodes/(double)MAX_THREADS_PER_BLOCK); 
+		num_of_blocks = (long long)ceil(no_of_nodes/(double)(MAX_THREADS_PER_BLOCK*MAX_THREADS_PER_BLOCK));
 		num_of_threads_per_block = MAX_THREADS_PER_BLOCK; 
 	}
 
@@ -328,13 +323,13 @@ float BFSGraph(ResultDatabase &resultDB, OptionParser &op, long long no_of_nodes
 	// bool if execution is over
 	bool *d_over;
 
-	CUDA_SAFE_CALL(cudaMalloc( (void**) &d_graph_nodes, sizeof(Node)*no_of_nodes));
-	CUDA_SAFE_CALL(cudaMalloc( (void**) &d_graph_edges, sizeof(long long)*edge_list_size));
-	CUDA_SAFE_CALL(cudaMalloc( (void**) &d_graph_mask, sizeof(bool)*no_of_nodes));
-	CUDA_SAFE_CALL(cudaMalloc( (void**) &d_updating_graph_mask, sizeof(bool)*no_of_nodes));
-	CUDA_SAFE_CALL(cudaMalloc( (void**) &d_graph_visited, sizeof(bool)*no_of_nodes));
-	CUDA_SAFE_CALL(cudaMalloc( (void**) &d_cost, sizeof(long long)*no_of_nodes));
-	CUDA_SAFE_CALL(cudaMalloc( (void**) &d_over, sizeof(bool)));
+	CUDA_SAFE_CALL_NOEXIT(cudaMalloc( (void**) &d_graph_nodes, sizeof(Node)*no_of_nodes));
+	CUDA_SAFE_CALL_NOEXIT(cudaMalloc( (void**) &d_graph_edges, sizeof(long long)*edge_list_size));
+	CUDA_SAFE_CALL_NOEXIT(cudaMalloc( (void**) &d_graph_mask, sizeof(bool)*no_of_nodes));
+	CUDA_SAFE_CALL_NOEXIT(cudaMalloc( (void**) &d_updating_graph_mask, sizeof(bool)*no_of_nodes));
+	CUDA_SAFE_CALL_NOEXIT(cudaMalloc( (void**) &d_graph_visited, sizeof(bool)*no_of_nodes));
+	CUDA_SAFE_CALL_NOEXIT(cudaMalloc( (void**) &d_cost, sizeof(long long)*no_of_nodes));
+	CUDA_SAFE_CALL_NOEXIT(cudaMalloc( (void**) &d_over, sizeof(bool)));
     cudaError_t err = cudaGetLastError();
     if(err != cudaSuccess) {
         free( h_graph_mask);
@@ -374,7 +369,7 @@ double transferTime = 0.;
 
 	// setup execution parameters
 	dim3  grid( num_of_blocks, 1, 1);
-	dim3  threads( num_of_threads_per_block, 1, 1);
+	dim3  threads( num_of_threads_per_block, num_of_threads_per_block, 1);
 
     if(verbose) {
 	    printf("Start traversing the tree\n");
@@ -439,12 +434,6 @@ double transferTime = 0.;
         }
     }
 
-    // store the result into an array to be compared with unified memory result
-    check = (long long*) malloc(sizeof(long long)*no_of_nodes);
-    for(long long i = 0; i < no_of_nodes; i++) {
-        check[i] = h_cost[i];
-    }
-
 	// cleanup memory
 	free( h_graph_mask);
 	free( h_updating_graph_mask);
@@ -482,7 +471,7 @@ float BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, long lon
 	//Distribute threads across multiple Blocks if necessary
 	if(no_of_nodes>MAX_THREADS_PER_BLOCK)
 	{
-		num_of_blocks = (long long)ceil(no_of_nodes/(double)MAX_THREADS_PER_BLOCK); 
+		num_of_blocks = (long long)ceil(no_of_nodes/(double)(MAX_THREADS_PER_BLOCK*MAX_THREADS_PER_BLOCK));
 		num_of_threads_per_block = MAX_THREADS_PER_BLOCK; 
 	}
 
@@ -490,6 +479,7 @@ float BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, long lon
     Node* graph_nodes;
     CUDA_SAFE_CALL(cudaMallocManaged(&graph_nodes, sizeof(Node)*no_of_nodes));
     memcpy(graph_nodes, h_graph_nodes, sizeof(Node)*no_of_nodes);
+
     // copy graph edges to unified memory
     long long* graph_edges;
     CUDA_SAFE_CALL(cudaMallocManaged(&graph_edges, sizeof(long long)*edge_list_size));
@@ -518,7 +508,6 @@ float BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, long lon
     long long* cost;
     CUDA_SAFE_CALL(cudaMallocManaged(&cost, sizeof(long long)*no_of_nodes));
     if(err != cudaSuccess) {
-        free(check);
         cudaFree(graph_nodes);
         cudaFree(graph_edges);
         cudaFree(graph_mask);
@@ -545,7 +534,7 @@ float BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, long lon
 
 	// setup execution parameters
 	dim3  grid( num_of_blocks, 1, 1);
-	dim3  threads( num_of_threads_per_block, 1, 1);
+	dim3  threads( num_of_threads_per_block, num_of_threads_per_block, 1);
 
     double kernelTime = 0;
 	long long k=0;
@@ -583,16 +572,7 @@ float BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, long lon
         printf("Kernel Executed %lld times\n",k);
     }
 
-    /*
-    for(long long i = 0; i < no_of_nodes; i++) {
-        if(cost[i] != check[i]) {
-            printf("Error: Results don't match at index %lld\n", i);
-            break;
-        }
-    }*/
-
     // cleanup memory
-    free(check);
 	cudaFree(graph_nodes);
 	cudaFree(graph_edges);
 	cudaFree(graph_mask);
@@ -600,7 +580,6 @@ float BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, long lon
 	cudaFree(graph_visited);
 	cudaFree(cost);
     cudaFree(over);
-
 
     char tmp[64];
     sprintf(tmp, "%lldV,%lldE", no_of_nodes, edge_list_size);

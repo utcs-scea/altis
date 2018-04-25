@@ -1,8 +1,8 @@
-==39505== NVPROF is profiling process 39505, command: ./src/cuda/level1/gemm/gemm -s 1 -n 1
-==39505== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
-==39505== Profiling application: ./src/cuda/level1/gemm/gemm -s 1 -n 1
-==39505== Profiling result:
-==39505== Metric result:
+==20696== NVPROF is profiling process 20696, command: ./src/cuda/level1/gemm/gemm -s 1 -n 1
+==20696== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==20696== Profiling application: ./src/cuda/level1/gemm/gemm -s 1 -n 1
+==20696== Profiling result:
+==20696== Metric result:
 Invocations                               Metric Name                            Metric Description         Min         Max         Avg
 Device "Tesla P100-SXM2-16GB (0)"
     Kernel: sgemm_32x32x32_TN_vec
@@ -25,15 +25,15 @@ Device "Tesla P100-SXM2-16GB (0)"
           5                        inst_compute_ld_st                       Load/Store Instructions     2433024     2433024     2433024
           5                                 inst_misc                             Misc Instructions      294912      294912      294912
           5           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
-          5                            l2_utilization                          L2 Cache Utilization     Low (3)     Low (3)     Low (3)
+          5                            l2_utilization                          L2 Cache Utilization     Low (2)     Low (2)     Low (2)
           5                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
     Kernel: sgemm_32x32x32_NN_vec
           5                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
           5                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          5                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (2)     Low (2)     Low (2)
+          5                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (2)     Low (1)
           5           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           5                    special_fu_utilization             Special Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          5           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Mid (5)    High (7)     Mid (6)
+          5           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Mid (5)    High (7)     Mid (5)
           5                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           5                             flop_count_sp   Floating Point Operations(Single Precision)    34693120    34693120    34693120
           5                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)
@@ -47,13 +47,13 @@ Device "Tesla P100-SXM2-16GB (0)"
           5                        inst_compute_ld_st                       Load/Store Instructions     2826240     2826240     2826240
           5                                 inst_misc                             Misc Instructions      368640      368640      368640
           5           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
-          5                            l2_utilization                          L2 Cache Utilization     Low (3)     Low (3)     Low (3)
+          5                            l2_utilization                          L2 Cache Utilization     Low (2)     Low (2)     Low (2)
           5                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
     Kernel: void gemm_kernel2x2_tile_multiple_core<double, bool=1, bool=0, bool=0, bool=0, bool=1>(double*, double const *, double const *, int, int, int, int, int, int, double*, double*, double, double, int)
           5                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
           5                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
           5                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (2)     Low (2)     Low (2)
-          5           double_precision_fu_utilization    Double-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5           double_precision_fu_utilization    Double-Precision Function Unit Utilization     Low (2)     Low (2)     Low (2)
           5                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           5           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
           5                             flop_count_dp   Floating Point Operations(Double Precision)     4210688     4210688     4210688
@@ -63,19 +63,19 @@ Device "Tesla P100-SXM2-16GB (0)"
           5                        shared_utilization                     Shared Memory Utilization     Low (1)     Low (1)     Low (1)
           5                                inst_fp_32                       FP Instructions(Single)           0           0           0
           5                                inst_fp_64                       FP Instructions(Double)     2117632     2117632     2117632
-          5                              inst_integer                          Integer Instructions      933888      933888      933888
+          5                              inst_integer                          Integer Instructions      847872      847872      847872
           5                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
-          5                              inst_control                     Control-Flow Instructions       36864       36864       36864
+          5                              inst_control                     Control-Flow Instructions       40960       40960       40960
           5                        inst_compute_ld_st                       Load/Store Instructions     2637824     2637824     2637824
-          5                                 inst_misc                             Misc Instructions      286720      286720      286720
+          5                                 inst_misc                             Misc Instructions      561152      561152      561152
           5           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
-          5                            l2_utilization                          L2 Cache Utilization     Low (2)     Low (2)     Low (2)
+          5                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
           5                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
     Kernel: void gemm_kernel2x2_tile_multiple_core<double, bool=1, bool=0, bool=0, bool=0, bool=0>(double*, double const *, double const *, int, int, int, int, int, int, double*, double*, double, double, int)
           5                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
           5                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
           5                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (2)     Low (2)     Low (2)
-          5           double_precision_fu_utilization    Double-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5           double_precision_fu_utilization    Double-Precision Function Unit Utilization     Low (1)     Low (2)     Low (1)
           5                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           5           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
           5                             flop_count_dp   Floating Point Operations(Double Precision)     4210688     4210688     4210688
@@ -85,11 +85,11 @@ Device "Tesla P100-SXM2-16GB (0)"
           5                        shared_utilization                     Shared Memory Utilization     Low (1)     Low (1)     Low (1)
           5                                inst_fp_32                       FP Instructions(Single)           0           0           0
           5                                inst_fp_64                       FP Instructions(Double)     2117632     2117632     2117632
-          5                              inst_integer                          Integer Instructions      913408      913408      913408
+          5                              inst_integer                          Integer Instructions      884736      884736      884736
           5                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
-          5                              inst_control                     Control-Flow Instructions       36864       36864       36864
+          5                              inst_control                     Control-Flow Instructions       40960       40960       40960
           5                        inst_compute_ld_st                       Load/Store Instructions     2637824     2637824     2637824
-          5                                 inst_misc                             Misc Instructions      339968      339968      339968
+          5                                 inst_misc                             Misc Instructions      421888      421888      421888
           5           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
-          5                            l2_utilization                          L2 Cache Utilization     Low (2)     Low (2)     Low (2)
+          5                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
           5                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)

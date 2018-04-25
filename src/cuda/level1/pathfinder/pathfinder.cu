@@ -75,7 +75,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   if(rowLen == 0 || colLen == 0 || pyramidHeight == 0) {
       printf("Parameters not fully specified, using preset problem size\n");
       long long rowSizes[4] = {8, 16, 32, 64};
-      long long colSizes[4] = {1, 8, 16, 32};
+      long long colSizes[4] = {8, 16, 32, 64};
       long long pyramidSizes[4] = {4, 8, 16, 32};
       rows = rowSizes[op.getOptionInt("size") - 1];
       cols = colSizes[op.getOptionInt("size") - 1] * 1024 * 1024;

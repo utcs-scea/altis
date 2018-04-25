@@ -63,7 +63,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   string filePath = op.getOptionString("inputFile");
   ifstream inputFile(filePath.c_str());
   if (filePath == "") {
-    int probSizes[4] = {8, 32, 128, 512};
+    int probSizes[4] = {32, 64, 128, 256};
     size = probSizes[op.getOptionInt("size") - 1] * 1024 * 1024;
   } else {
     inputFile >> size;

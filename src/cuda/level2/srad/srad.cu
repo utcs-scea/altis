@@ -204,6 +204,7 @@ float srad(ResultDatabase &resultDB, OptionParser &op, float* matrix, int imageS
     sprintf(atts, "img:%d,speckle:%d,iter:%d", imageSize, speckleSize, iters);
     resultDB.AddResult("srad_kernel_time", atts, "sec", kernelTime);
     resultDB.AddResult("srad_transfer_time", atts, "sec", transferTime);
+    resultDB.AddResult("srad_total_time", atts, "sec", kernelTime + transferTime);
     resultDB.AddResult("srad_parity", atts, "N", transferTime / kernelTime);
 
   string resultfile = op.getOptionString("resultfile");
@@ -359,6 +360,7 @@ float srad_gridsync(ResultDatabase &resultDB, OptionParser &op, float* matrix, i
     sprintf(atts, "img:%d,speckle:%d,iter:%d", imageSize, speckleSize, iters);
     resultDB.AddResult("srad_gridsync_kernel_time", atts, "sec", kernelTime);
     resultDB.AddResult("srad_gridsync_transer_time", atts, "sec", transferTime);
+    resultDB.AddResult("srad_gridsync_total_time", atts, "sec", kernelTime + transferTime);
     resultDB.AddResult("srad_gridsync_parity", atts, "N", transferTime / kernelTime);
 
   // validate result with result obtained by gridsync
