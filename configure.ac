@@ -137,7 +137,7 @@ AS_IF([test "x$with_cuda" != xno],
         AS_IF([test "x$with_cuda" = xyes],
             [AS_IF([test "x$CUDA_CPPFLAGS" = x],
                 [dnl generate CUDA code for broad spectrum of devices
-                 CUDA_CPPFLAGS=["-arch=sm_60 -gencode=arch=compute_60,code=sm_60"]
+                 CUDA_CPPFLAGS=["-arch=sm_50 -gencode=arch=compute_50,code=sm_50"]
                  AC_MSG_NOTICE([using CUDA_CPPFLAGS=$CUDA_CPPFLAGS])
                  AC_MSG_WARN([*** MIROVIA programs may fail if these -gencode values do not apply to your GPU.  If they don't apply, or if you want to shorten MIROVIA's compile time, determine the -gencode options that apply for your GPU and re-configure MIROVIA explicitly specifying only those options in CUDA_CPPFLAGS during the configure. ***])
                 ]
@@ -231,6 +231,7 @@ AC_CONFIG_FILES([Makefile
                  src/cuda/level2/nw/Makefile
                  src/cuda/level2/particlefilter/Makefile
                  src/cuda/level2/srad/Makefile
+                 src/cuda/level2/where/Makefile
                  ])
 AC_OUTPUT
 
