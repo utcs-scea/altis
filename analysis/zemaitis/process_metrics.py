@@ -34,7 +34,10 @@ for benchmark in benchmarks:
         print(name)
         res[name] = 'n/a'
         # Open file
-        f = open('%s/%d' % (benchmark, size))
+        try:
+            f = open('%s/%d' % (benchmark, size))
+        except:
+            continue
         # Read intro lines
         [f.readline() for i in range(0,7)]
         # Start parsing
