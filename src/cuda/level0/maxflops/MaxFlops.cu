@@ -3,13 +3,8 @@
 #include "ResultDatabase.h"
 #include "Utility.h"
 #include "cudacommon.h"
+#include "cuda_fp16.h"
 #include <stdio.h>
-
-// Forward Declarations for benchmark kernels
-__global__ void MAddU(float *target, float val1, float val2);
-__global__ void MAddU_DP(double *target, double val1, double val2);
-__global__ void MulMAddU(float *target, float val1, float val2);
-__global__ void MulMAddU_DP(double *target, double val1, double val2);
 
 // Add kernels
 template <class T> __global__ void Add1(T *data, int nIters, T v);
@@ -195,201 +190,44 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   // Run double precision kernels
   if (doDouble) {
     RunTest<double>(resultDB, passes, verbose, quiet, repeatF, pb, "DP-");
-  } else {
-    const char atts[] = "DP_Not_Supported";
-    for (int pas = 0; pas < passes; ++pas) {
-      resultDB.AddResult("DP-Add1", atts, "GFLOPS", FLT_MAX);
-      resultDB.AddResult("DP-Add2", atts, "GFLOPS", FLT_MAX);
-      resultDB.AddResult("DP-Add4", atts, "GFLOPS", FLT_MAX);
-      resultDB.AddResult("DP-Add8", atts, "GFLOPS", FLT_MAX);
-
-      resultDB.AddResult("DP-Mul1", atts, "GFLOPS", FLT_MAX);
-      resultDB.AddResult("DP-Mul2", atts, "GFLOPS", FLT_MAX);
-      resultDB.AddResult("DP-Mul4", atts, "GFLOPS", FLT_MAX);
-      resultDB.AddResult("DP-Mul8", atts, "GFLOPS", FLT_MAX);
-
-      resultDB.AddResult("DP-MAdd1", atts, "GFLOPS", FLT_MAX);
-      resultDB.AddResult("DP-MAdd2", atts, "GFLOPS", FLT_MAX);
-      resultDB.AddResult("DP-MAdd4", atts, "GFLOPS", FLT_MAX);
-      resultDB.AddResult("DP-MAdd8", atts, "GFLOPS", FLT_MAX);
-
-      resultDB.AddResult("DP-MulMAdd1", atts, "GFLOPS", FLT_MAX);
-      resultDB.AddResult("DP-MulMAdd2", atts, "GFLOPS", FLT_MAX);
-      resultDB.AddResult("DP-MulMAdd4", atts, "GFLOPS", FLT_MAX);
-      resultDB.AddResult("DP-MulMAdd8", atts, "GFLOPS", FLT_MAX);
-    }
   }
 
   // Run half precision kernels
   if (doHalf) {
-    RunTest<short>(resultDB, passes, verbose, quiet, repeatF, pb, "HP-");
-  } else {
-    const char atts[] = "HP_Not_Supported";
-    for (int pas = 0; pas < passes; ++pas) {
-      resultDB.AddResult("HP-Add1", atts, "GFLOPS", FLT_MAX);
-      resultDB.AddResult("HP-Add2", atts, "GFLOPS", FLT_MAX);
-      resultDB.AddResult("HP-Add4", atts, "GFLOPS", FLT_MAX);
-      resultDB.AddResult("HP-Add8", atts, "GFLOPS", FLT_MAX);
-
-      resultDB.AddResult("HP-Mul1", atts, "GFLOPS", FLT_MAX);
-      resultDB.AddResult("HP-Mul2", atts, "GFLOPS", FLT_MAX);
-      resultDB.AddResult("HP-Mul4", atts, "GFLOPS", FLT_MAX);
-      resultDB.AddResult("HP-Mul8", atts, "GFLOPS", FLT_MAX);
-
-      resultDB.AddResult("HP-MAdd1", atts, "GFLOPS", FLT_MAX);
-      resultDB.AddResult("HP-MAdd2", atts, "GFLOPS", FLT_MAX);
-      resultDB.AddResult("HP-MAdd4", atts, "GFLOPS", FLT_MAX);
-      resultDB.AddResult("HP-MAdd8", atts, "GFLOPS", FLT_MAX);
-
-      resultDB.AddResult("HP-MulMAdd1", atts, "GFLOPS", FLT_MAX);
-      resultDB.AddResult("HP-MulMAdd2", atts, "GFLOPS", FLT_MAX);
-      resultDB.AddResult("HP-MulMAdd4", atts, "GFLOPS", FLT_MAX);
-      resultDB.AddResult("HP-MulMAdd8", atts, "GFLOPS", FLT_MAX);
-    }
+    RunTest<half>(resultDB, passes, verbose, quiet, repeatF, pb, "HP-");
   }
-
-  // Problem Size
-  int w = 2048, h = 2048;
-
-  float root2 = 1.4142;
-  if (repeatF < 1)
-    while (repeatF * root2 < 1) {
-      repeatF *= 2;
-      if (w > h)
-        w >>= 1;
-      else
-        h >>= 1;
-    }
-  /*
-      When auto-scaling up, we must make sure that we do not exceed
-      some device limit for block size. Disable for now.
-   */
-  /*
-      else
-         while (repeatF>root2) {
-            repeatF *= 0.5;
-            if (w>h) h <<= 1;
-            else  w <<= 1;
-         }
-  */
-  const int nbytes_sp = w * h * sizeof(float);
-
-  // Allocate gpu memory
-  float *target_sp;
-  CUDA_SAFE_CALL(cudaMalloc((void **)&target_sp, nbytes_sp));
-
-  // Get a couple non-zero random numbers
-  float val1 = 0, val2 = 0;
-  while (val1 == 0 || val2 == 0) {
-    val1 = drand48();
-    val2 = drand48();
-  }
-
-  blocks.x = (w * h) / threads.x;
-  for (int p = 0; p < passes; p++) {
-    t = 0.0f;
-    cudaEventRecord(start, 0);
-    MAddU<<<blocks, threads>>>(target_sp, val1, val2);
-    cudaEventRecord(stop, 0);
-    cudaEventSynchronize(stop);
-    CHECK_CUDA_ERROR();
-    cudaEventElapsedTime(&t, start, stop);
-    t /= 1.e3;
-    // Add result
-    char atts[1024];
-    long int nflopsPerPixel = ((2 * 32) * 10 * 10 * 5) + 61;
-    sprintf(atts, "Size:%d", w * h);
-    resultDB.AddResult("SP-MAddU", atts, "GFLOPS",
-                       (((double)nflopsPerPixel) * w * h) / (t * 1.e9));
-
-    // update progress bar
-    updateProgressBar(pb, verbose, quiet);
-
-    cudaEventRecord(start, 0);
-    MulMAddU<<<blocks, threads>>>(target_sp, val1, val2);
-    cudaEventRecord(stop, 0);
-    cudaEventSynchronize(stop);
-    CHECK_CUDA_ERROR();
-    cudaEventElapsedTime(&t, start, stop);
-    t /= 1.e3;
-
-    // Add result
-    nflopsPerPixel = ((3 * 8) * 10 * 10 * 5) + 13;
-    sprintf(atts, "Size:%d", w * h);
-    resultDB.AddResult("SP-MulMAddU", atts, "GFLOPS",
-                       (((double)nflopsPerPixel) * w * h) / (t * 1.e9));
-
-    // update progress bar
-    updateProgressBar(pb, verbose, quiet);
-  }
-  CUDA_SAFE_CALL(cudaFree((void *)target_sp));
-
-  if (doDouble) {
-    const int nbytes_dp = w * h * sizeof(double);
-    double *target_dp;
-    CUDA_SAFE_CALL(cudaMalloc((void **)&target_dp, nbytes_dp));
-
-    // Thread block configuration
-    dim3 threads(BLOCK_SIZE_DP, 1, 1);
-    dim3 blocks((w * h) / BLOCK_SIZE_DP, 1, 1);
-
-    const unsigned int passes = op.getOptionInt("passes");
-    for (int p = 0; p < passes; p++) {
-      cudaEventRecord(start, 0);
-      MAddU_DP<<<blocks, threads>>>(target_dp, val1, val2);
-      cudaEventRecord(stop, 0);
-      cudaEventSynchronize(stop);
-      CHECK_CUDA_ERROR();
-      cudaEventElapsedTime(&t, start, stop);
-      t /= 1.e3;
-
-      // Add result
-      char atts[1024];
-      long int nflopsPerPixel = ((2 * 32) * 10 * 10 * 5) + 61;
-      sprintf(atts, "Size:%d", w * h);
-      resultDB.AddResult("DP-MAddU", atts, "GFLOPS",
-                         (((double)nflopsPerPixel) * w * h) / (t * 1.e9));
-
-      // update progress bar
-      updateProgressBar(pb, verbose, quiet);
-
-      cudaEventRecord(start, 0);
-      MulMAddU_DP<<<blocks, threads>>>(target_dp, val1, val2);
-      cudaEventRecord(stop, 0);
-      cudaEventSynchronize(stop);
-      CHECK_CUDA_ERROR();
-      cudaEventElapsedTime(&t, start, stop);
-      t /= 1.e3;
-
-      // Add result
-      nflopsPerPixel = ((3 * 8) * 10 * 10 * 5) + 13;
-      sprintf(atts, "Size:%d", w * h);
-      resultDB.AddResult("DP-MulMAddU", atts, "GFLOPS",
-                         (((double)nflopsPerPixel) * w * h) / (t * 1.e9));
-
-      // update progress bar
-      updateProgressBar(pb, verbose, quiet);
-    }
-    CUDA_SAFE_CALL(cudaFree((void *)target_dp));
-  } else {
-    // Add result
-    char atts[1024];
-    sprintf(atts, "Size:%d", w * h);
-    // resultDB requires neg entry for every possible result
-    const unsigned int passes = op.getOptionInt("passes");
-    for (int p = 0; p < passes; p++) {
-      resultDB.AddResult("MAddU-DP", atts, "GFLOPS", FLT_MAX);
-      resultDB.AddResult("MulMAddU-DP", atts, "GFLOPS", FLT_MAX);
-    }
-  }
-
-  if (!verbose)
-    fprintf(stdout, "\n\n");
 
   CUDA_SAFE_CALL(cudaEventDestroy(start));
   CUDA_SAFE_CALL(cudaEventDestroy(stop));
 }
 
+template <class T>
+bool checkResult(T *hostMem2, int numFloats, int halfNumFloats) {
+    if(sizeof(T) == 2) {
+        // CPU cannot do half precision functions
+        return true;
+    }
+    // Check the result -- At a minimum the first half of memory
+    // should match the second half exactly
+    for (int j = 0; j < halfNumFloats; ++j) {
+        if (hostMem2[j] != hostMem2[numFloats - j - 1]) {
+            cout << "Error; hostMem2[" << j << "]=" << (float)hostMem2[j]
+                << " is different from its twin element hostMem2["
+                << (numFloats - j - 1) << "]=" << (float)hostMem2[numFloats - j - 1]
+                << "; stopping check\n";
+            return false;
+        }
+    }
+    return true;
+}
+
+template <class T>
+void zeroOut(T *hostMem2, int numFloats) {
+    // Zero out the test host memory
+    for (int j = 0; j < numFloats; ++j) {
+      hostMem2[j] = (T)0.0;
+    }
+}
 // ****************************************************************************
 // Function: RunTest
 //
@@ -453,7 +291,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     // Execute the Add1 kernel
     t = 0.0f;
     cudaEventRecord(start, 0);
-    Add1<T><<<blocks, threads>>>(gpu_mem, realRepeats, 10.0);
+    Add1<T><<<blocks, threads>>>(gpu_mem, realRepeats, (T)10.0);
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
     CHECK_CUDA_ERROR();
@@ -468,9 +306,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     sprintf(sizeStr, "Size:%07d", numFloats);
     resultDB.AddResult(precision + string("Add1"), sizeStr, "GFLOPS", gflop);
 
-    // Zero out the test host memory
-    for (int j = 0; j < numFloats; ++j)
-      hostMem2[j] = 0.0;
+    zeroOut<T>(hostMem2, numFloats);
 
     // Read the result device memory back to the host
     cudaEventRecord(start, 0); // do I even need this if I do not need the time?
@@ -479,16 +315,8 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
 
-    // Check the result -- At a minimum the first half of memory
-    // should match the second half exactly
-    for (int j = 0; j < halfNumFloats; ++j) {
-      if (hostMem2[j] != hostMem2[numFloats - j - 1]) {
-        cout << "Error; hostMem2[" << j << "]=" << hostMem2[j]
-             << " is different from its twin element hostMem2["
-             << (numFloats - j - 1) << "]=" << hostMem2[numFloats - j - 1]
-             << "; stopping check\n";
+    if(!checkResult<T>(hostMem2, numFloats, halfNumFloats)) {
         break;
-      }
     }
 
     // update progress bar
@@ -524,9 +352,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     sprintf(sizeStr, "Size:%07d", numFloats);
     resultDB.AddResult(precision + string("Add2"), sizeStr, "GFLOPS", gflop);
 
-    // Zero out the test host memory
-    for (int j = 0; j < numFloats; ++j)
-      hostMem2[j] = 0.0;
+    zeroOut<T>(hostMem2, numFloats);
 
     // Read the result device memory back to the host
     cudaEventRecord(start, 0); // do I even need this if I do not need the time?
@@ -535,16 +361,8 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
 
-    // Check the result -- At a minimum the first half of memory
-    // should match the second half exactly
-    for (int j = 0; j < halfNumFloats; ++j) {
-      if (hostMem2[j] != hostMem2[numFloats - j - 1]) {
-        cout << "Error; hostMem2[" << j << "]=" << hostMem2[j]
-             << " is different from its twin element hostMem2["
-             << (numFloats - j - 1) << "]=" << hostMem2[numFloats - j - 1]
-             << "; stopping check\n";
+    if(!checkResult<T>(hostMem2, numFloats, halfNumFloats)) {
         break;
-      }
     }
 
     // update progress bar
@@ -565,7 +383,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     // Execute the Add4 kernel
     t = 0.0f;
     cudaEventRecord(start, 0);
-    Add4<T><<<blocks, threads>>>(gpu_mem, realRepeats, 10.0);
+    Add4<T><<<blocks, threads>>>(gpu_mem, realRepeats, (T)10.0);
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
     CHECK_CUDA_ERROR();
@@ -580,9 +398,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     sprintf(sizeStr, "Size:%07d", numFloats);
     resultDB.AddResult(precision + string("Add4"), sizeStr, "GFLOPS", gflop);
 
-    // Zero out the test host memory
-    for (int j = 0; j < numFloats; ++j)
-      hostMem2[j] = 0.0;
+    zeroOut<T>(hostMem2, numFloats);
 
     // Read the result device memory back to the host
     cudaEventRecord(start, 0); // do I even need this if I do not need the time?
@@ -591,16 +407,8 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
 
-    // Check the result -- At a minimum the first half of memory
-    // should match the second half exactly
-    for (int j = 0; j < halfNumFloats; ++j) {
-      if (hostMem2[j] != hostMem2[numFloats - j - 1]) {
-        cout << "Error; hostMem2[" << j << "]=" << hostMem2[j]
-             << " is different from its twin element hostMem2["
-             << (numFloats - j - 1) << "]=" << hostMem2[numFloats - j - 1]
-             << "; stopping check\n";
+    if(!checkResult<T>(hostMem2, numFloats, halfNumFloats)) {
         break;
-      }
     }
 
     // update progress bar
@@ -621,7 +429,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     // Execute the Add8 kernel
     t = 0.0f;
     cudaEventRecord(start, 0);
-    Add8<T><<<blocks, threads>>>(gpu_mem, realRepeats, 10.0);
+    Add8<T><<<blocks, threads>>>(gpu_mem, realRepeats, (T)10.0);
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
     CHECK_CUDA_ERROR();
@@ -636,9 +444,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     sprintf(sizeStr, "Size:%07d", numFloats);
     resultDB.AddResult(precision + string("Add8"), sizeStr, "GFLOPS", gflop);
 
-    // Zero out the test host memory
-    for (int j = 0; j < numFloats; ++j)
-      hostMem2[j] = 0.0;
+    zeroOut<T>(hostMem2, numFloats);
 
     // Read the result device memory back to the host
     cudaEventRecord(start, 0); // do I even need this if I do not need the time?
@@ -647,16 +453,8 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
 
-    // Check the result -- At a minimum the first half of memory
-    // should match the second half exactly
-    for (int j = 0; j < halfNumFloats; ++j) {
-      if (hostMem2[j] != hostMem2[numFloats - j - 1]) {
-        cout << "Error; hostMem2[" << j << "]=" << hostMem2[j]
-             << " is different from its twin element hostMem2["
-             << (numFloats - j - 1) << "]=" << hostMem2[numFloats - j - 1]
-             << "; stopping check\n";
+    if(!checkResult<T>(hostMem2, numFloats, halfNumFloats)) {
         break;
-      }
     }
 
     // update progress bar
@@ -692,9 +490,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     sprintf(sizeStr, "Size:%07d", numFloats);
     resultDB.AddResult(precision + string("Mul1"), sizeStr, "GFLOPS", gflop);
 
-    // Zero out the test host memory
-    for (int j = 0; j < numFloats; ++j)
-      hostMem2[j] = 0.0;
+    zeroOut<T>(hostMem2, numFloats);
 
     // Read the result device memory back to the host
     cudaEventRecord(start, 0); // do I even need this if I do not need the time?
@@ -703,16 +499,8 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
 
-    // Check the result -- At a minimum the first half of memory
-    // should match the second half exactly
-    for (int j = 0; j < halfNumFloats; ++j) {
-      if (hostMem2[j] != hostMem2[numFloats - j - 1]) {
-        cout << "Error; hostMem2[" << j << "]=" << hostMem2[j]
-             << " is different from its twin element hostMem2["
-             << (numFloats - j - 1) << "]=" << hostMem2[numFloats - j - 1]
-             << "; stopping check\n";
+    if(!checkResult<T>(hostMem2, numFloats, halfNumFloats)) {
         break;
-      }
     }
 
     // update progress bar
@@ -748,9 +536,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     sprintf(sizeStr, "Size:%07d", numFloats);
     resultDB.AddResult(precision + string("Mul2"), sizeStr, "GFLOPS", gflop);
 
-    // Zero out the test host memory
-    for (int j = 0; j < numFloats; ++j)
-      hostMem2[j] = 0.0;
+    zeroOut<T>(hostMem2, numFloats);
 
     // Read the result device memory back to the host
     cudaEventRecord(start, 0); // do I even need this if I do not need the time?
@@ -759,16 +545,8 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
 
-    // Check the result -- At a minimum the first half of memory
-    // should match the second half exactly
-    for (int j = 0; j < halfNumFloats; ++j) {
-      if (hostMem2[j] != hostMem2[numFloats - j - 1]) {
-        cout << "Error; hostMem2[" << j << "]=" << hostMem2[j]
-             << " is different from its twin element hostMem2["
-             << (numFloats - j - 1) << "]=" << hostMem2[numFloats - j - 1]
-             << "; stopping check\n";
+    if(!checkResult<T>(hostMem2, numFloats, halfNumFloats)) {
         break;
-      }
     }
 
     // update progress bar
@@ -804,9 +582,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     sprintf(sizeStr, "Size:%07d", numFloats);
     resultDB.AddResult(precision + string("Mul4"), sizeStr, "GFLOPS", gflop);
 
-    // Zero out the test host memory
-    for (int j = 0; j < numFloats; ++j)
-      hostMem2[j] = 0.0;
+    zeroOut<T>(hostMem2, numFloats);
 
     // Read the result device memory back to the host
     cudaEventRecord(start, 0); // do I even need this if I do not need the time?
@@ -815,16 +591,8 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
 
-    // Check the result -- At a minimum the first half of memory
-    // should match the second half exactly
-    for (int j = 0; j < halfNumFloats; ++j) {
-      if (hostMem2[j] != hostMem2[numFloats - j - 1]) {
-        cout << "Error; hostMem2[" << j << "]=" << hostMem2[j]
-             << " is different from its twin element hostMem2["
-             << (numFloats - j - 1) << "]=" << hostMem2[numFloats - j - 1]
-             << "; stopping check\n";
+    if(!checkResult<T>(hostMem2, numFloats, halfNumFloats)) {
         break;
-      }
     }
 
     // update progress bar
@@ -860,9 +628,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     sprintf(sizeStr, "Size:%07d", numFloats);
     resultDB.AddResult(precision + string("Mul8"), sizeStr, "GFLOPS", gflop);
 
-    // Zero out the test host memory
-    for (int j = 0; j < numFloats; ++j)
-      hostMem2[j] = 0.0;
+    zeroOut<T>(hostMem2, numFloats);
 
     // Read the result device memory back to the host
     cudaEventRecord(start, 0); // do I even need this if I do not need the time?
@@ -871,16 +637,8 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
 
-    // Check the result -- At a minimum the first half of memory
-    // should match the second half exactly
-    for (int j = 0; j < halfNumFloats; ++j) {
-      if (hostMem2[j] != hostMem2[numFloats - j - 1]) {
-        cout << "Error; hostMem2[" << j << "]=" << hostMem2[j]
-             << " is different from its twin element hostMem2["
-             << (numFloats - j - 1) << "]=" << hostMem2[numFloats - j - 1]
-             << "; stopping check\n";
+    if(!checkResult<T>(hostMem2, numFloats, halfNumFloats)) {
         break;
-      }
     }
 
     // update progress bar
@@ -916,9 +674,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     sprintf(sizeStr, "Size:%07d", numFloats);
     resultDB.AddResult(precision + string("MAdd1"), sizeStr, "GFLOPS", gflop);
 
-    // Zero out the test host memory
-    for (int j = 0; j < numFloats; ++j)
-      hostMem2[j] = 0.0;
+    zeroOut<T>(hostMem2, numFloats);
 
     // Read the result device memory back to the host
     cudaEventRecord(start, 0); // do I even need this if I do not need the time?
@@ -927,17 +683,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
 
-    // Check the result -- At a minimum the first half of memory
-    // should match the second half exactly
-    for (int j = 0; j < halfNumFloats; ++j) {
-      if (hostMem2[j] != hostMem2[numFloats - j - 1]) {
-        cout << "Error; hostMem2[" << j << "]=" << hostMem2[j]
-             << " is different from its twin element hostMem2["
-             << (numFloats - j - 1) << "]=" << hostMem2[numFloats - j - 1]
-             << "; stopping check\n";
-        break;
-      }
-    }
+    checkResult<T>(hostMem2, numFloats, halfNumFloats);
 
     // update progress bar
     updateProgressBar(pb, verbose, quiet);
@@ -972,9 +718,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     sprintf(sizeStr, "Size:%07d", numFloats);
     resultDB.AddResult(precision + string("MAdd2"), sizeStr, "GFLOPS", gflop);
 
-    // Zero out the test host memory
-    for (int j = 0; j < numFloats; ++j)
-      hostMem2[j] = 0.0;
+    zeroOut<T>(hostMem2, numFloats);
 
     // Read the result device memory back to the host
     cudaEventRecord(start, 0); // do I even need this if I do not need the time?
@@ -983,17 +727,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
 
-    // Check the result -- At a minimum the first half of memory
-    // should match the second half exactly
-    for (int j = 0; j < halfNumFloats; ++j) {
-      if (hostMem2[j] != hostMem2[numFloats - j - 1]) {
-        cout << "Error; hostMem2[" << j << "]=" << hostMem2[j]
-             << " is different from its twin element hostMem2["
-             << (numFloats - j - 1) << "]=" << hostMem2[numFloats - j - 1]
-             << "; stopping check\n";
-        break;
-      }
-    }
+    checkResult<T>(hostMem2, numFloats, halfNumFloats);
 
     // update progress bar
     updateProgressBar(pb, verbose, quiet);
@@ -1028,9 +762,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     sprintf(sizeStr, "Size:%07d", numFloats);
     resultDB.AddResult(precision + string("MAdd4"), sizeStr, "GFLOPS", gflop);
 
-    // Zero out the test host memory
-    for (int j = 0; j < numFloats; ++j)
-      hostMem2[j] = 0.0;
+    zeroOut<T>(hostMem2, numFloats);
 
     // Read the result device memory back to the host
     cudaEventRecord(start, 0); // do I even need this if I do not need the time?
@@ -1039,17 +771,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
 
-    // Check the result -- At a minimum the first half of memory
-    // should match the second half exactly
-    for (int j = 0; j < halfNumFloats; ++j) {
-      if (hostMem2[j] != hostMem2[numFloats - j - 1]) {
-        cout << "Error; hostMem2[" << j << "]=" << hostMem2[j]
-             << " is different from its twin element hostMem2["
-             << (numFloats - j - 1) << "]=" << hostMem2[numFloats - j - 1]
-             << "; stopping check\n";
-        break;
-      }
-    }
+    checkResult<T>(hostMem2, numFloats, halfNumFloats);
 
     // update progress bar
     updateProgressBar(pb, verbose, quiet);
@@ -1084,9 +806,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     sprintf(sizeStr, "Size:%07d", numFloats);
     resultDB.AddResult(precision + string("MAdd8"), sizeStr, "GFLOPS", gflop);
 
-    // Zero out the test host memory
-    for (int j = 0; j < numFloats; ++j)
-      hostMem2[j] = 0.0;
+    zeroOut<T>(hostMem2, numFloats);
 
     // Read the result device memory back to the host
     cudaEventRecord(start, 0); // do I even need this if I do not need the time?
@@ -1095,17 +815,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
 
-    // Check the result -- At a minimum the first half of memory
-    // should match the second half exactly
-    for (int j = 0; j < halfNumFloats; ++j) {
-      if (hostMem2[j] != hostMem2[numFloats - j - 1]) {
-        cout << "Error; hostMem2[" << j << "]=" << hostMem2[j]
-             << " is different from its twin element hostMem2["
-             << (numFloats - j - 1) << "]=" << hostMem2[numFloats - j - 1]
-             << "; stopping check\n";
-        break;
-      }
-    }
+    checkResult<T>(hostMem2, numFloats, halfNumFloats);
 
     // update progress bar
     updateProgressBar(pb, verbose, quiet);
@@ -1141,9 +851,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     resultDB.AddResult(precision + string("MulMAdd1"), sizeStr, "GFLOPS",
                        gflop);
 
-    // Zero out the test host memory
-    for (int j = 0; j < numFloats; ++j)
-      hostMem2[j] = 0.0;
+    zeroOut<T>(hostMem2, numFloats);
 
     // Read the result device memory back to the host
     cudaEventRecord(start, 0); // do I even need this if I do not need the time?
@@ -1152,17 +860,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
 
-    // Check the result -- At a minimum the first half of memory
-    // should match the second half exactly
-    for (int j = 0; j < halfNumFloats; ++j) {
-      if (hostMem2[j] != hostMem2[numFloats - j - 1]) {
-        cout << "Error; hostMem2[" << j << "]=" << hostMem2[j]
-             << " is different from its twin element hostMem2["
-             << (numFloats - j - 1) << "]=" << hostMem2[numFloats - j - 1]
-             << "; stopping check\n";
-        break;
-      }
-    }
+    checkResult<T>(hostMem2, numFloats, halfNumFloats);
 
     // update progress bar
     updateProgressBar(pb, verbose, quiet);
@@ -1198,9 +896,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     resultDB.AddResult(precision + string("MulMAdd2"), sizeStr, "GFLOPS",
                        gflop);
 
-    // Zero out the test host memory
-    for (int j = 0; j < numFloats; ++j)
-      hostMem2[j] = 0.0;
+    zeroOut<T>(hostMem2, numFloats);
 
     // Read the result device memory back to the host
     cudaEventRecord(start, 0); // do I even need this if I do not need the time?
@@ -1209,17 +905,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
 
-    // Check the result -- At a minimum the first half of memory
-    // should match the second half exactly
-    for (int j = 0; j < halfNumFloats; ++j) {
-      if (hostMem2[j] != hostMem2[numFloats - j - 1]) {
-        cout << "Error; hostMem2[" << j << "]=" << hostMem2[j]
-             << " is different from its twin element hostMem2["
-             << (numFloats - j - 1) << "]=" << hostMem2[numFloats - j - 1]
-             << "; stopping check\n";
-        break;
-      }
-    }
+    checkResult<T>(hostMem2, numFloats, halfNumFloats);
 
     // update progress bar
     updateProgressBar(pb, verbose, quiet);
@@ -1255,9 +941,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     resultDB.AddResult(precision + string("MulMAdd4"), sizeStr, "GFLOPS",
                        gflop);
 
-    // Zero out the test host memory
-    for (int j = 0; j < numFloats; ++j)
-      hostMem2[j] = 0.0;
+    zeroOut<T>(hostMem2, numFloats);
 
     // Read the result device memory back to the host
     cudaEventRecord(start, 0); // do I even need this if I do not need the time?
@@ -1266,17 +950,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
 
-    // Check the result -- At a minimum the first half of memory
-    // should match the second half exactly
-    for (int j = 0; j < halfNumFloats; ++j) {
-      if (hostMem2[j] != hostMem2[numFloats - j - 1]) {
-        cout << "Error; hostMem2[" << j << "]=" << hostMem2[j]
-             << " is different from its twin element hostMem2["
-             << (numFloats - j - 1) << "]=" << hostMem2[numFloats - j - 1]
-             << "; stopping check\n";
-        break;
-      }
-    }
+    checkResult<T>(hostMem2, numFloats, halfNumFloats);
 
     // update progress bar
     updateProgressBar(pb, verbose, quiet);
@@ -1312,9 +986,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     resultDB.AddResult(precision + string("MulMAdd8"), sizeStr, "GFLOPS",
                        gflop);
 
-    // Zero out the test host memory
-    for (int j = 0; j < numFloats; ++j)
-      hostMem2[j] = 0.0;
+    zeroOut<T>(hostMem2, numFloats);
 
     // Read the result device memory back to the host
     cudaEventRecord(start, 0); // do I even need this if I do not need the time?
@@ -1323,17 +995,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
 
-    // Check the result -- At a minimum the first half of memory
-    // should match the second half exactly
-    for (int j = 0; j < halfNumFloats; ++j) {
-      if (hostMem2[j] != hostMem2[numFloats - j - 1]) {
-        cout << "Error; hostMem2[" << j << "]=" << hostMem2[j]
-             << " is different from its twin element hostMem2["
-             << (numFloats - j - 1) << "]=" << hostMem2[numFloats - j - 1]
-             << "; stopping check\n";
-        break;
-      }
-    }
+    checkResult<T>(hostMem2, numFloats, halfNumFloats);
 
     // update progress bar
     updateProgressBar(pb, verbose, quiet);
@@ -1413,183 +1075,6 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
 // So each OP10 is 240 FLOPS
 #define MMOP10                                                                 \
   { MMOP MMOP MMOP MMOP MMOP MMOP MMOP MMOP MMOP MMOP }
-
-// Benchmark Kernels
-__global__ void MAddU(float *target, float val1, float val2) {
-  int index = blockIdx.x * blockDim.x + threadIdx.x;
-
-  // Create a bunch of local variables we can use up to 32 steps..
-  register float v0 = val1, v1 = val2, v2 = v0 + v1, v3 = v0 + v2;
-  register float v4 = v0 + v3, v5 = v0 + v4, v6 = v0 + v5, v7 = v0 + v6;
-  register float v8 = v0 + v7, v9 = v0 + v8, v10 = v0 + v9, v11 = v0 + v10;
-  register float v12 = v0 + v11, v13 = v0 + v12, v14 = v0 + v13, v15 = v0 + v14;
-  register float v16 = v0 + v15, v17 = v16 + v0, v18 = v16 + v1, v19 = v16 + v2;
-  register float v20 = v16 + v3, v21 = v16 + v4, v22 = v16 + v5, v23 = v16 + v6;
-  register float v24 = v16 + v7, v25 = v16 + v8, v26 = v16 + v9,
-                 v27 = v16 + v10;
-  register float v28 = v16 + v11, v29 = v16 + v12, v30 = v16 + v13,
-                 v31 = v16 + v14;
-  register float s0 = v0, s1 = v1, s2 = v2, s3 = v3;
-  register float s4 = v4, s5 = v5, s6 = v6, s7 = v7;
-  register float s8 = v8, s9 = v9, s10 = v10, s11 = v11;
-  register float s12 = v12, s13 = v13, s14 = v14, s15 = v15;
-  register float s16 = v16, s17 = v17, s18 = v18, s19 = v19;
-  register float s20 = v20, s21 = v21, s22 = v22, s23 = v23;
-  register float s24 = v24, s25 = v25, s26 = v26, s27 = v27;
-  register float s28 = v28, s29 = v29, s30 = v30, s31 = v31;
-
-  // 10 OP10s inside the loop = 6400 FLOPS in the .ptx code
-  // and 5 loops of 10 OP10s = 32000 FLOPS per pixel total
-  for (int i = 0; i < 5; i++) {
-    OP10;
-    OP10;
-    OP10;
-    OP10;
-    OP10;
-    OP10;
-    OP10;
-    OP10;
-    OP10;
-    OP10;
-  }
-
-  float result = (s0 + s1 + s2 + s3 + s4 + s5 + s6 + s7 + s8 + s9 + s10 + s11 +
-                  s12 + s13 + s14 + s15 + s16 + s17 + s18 + s19 + s20 + s21 +
-                  s22 + s23 + s24 + s25 + s26 + s27 + s28 + s29 + s30 + s31);
-
-  target[index] = result;
-}
-
-__global__ void MAddU_DP(double *target, double val1, double val2) {
-  int index = blockIdx.x * blockDim.x + threadIdx.x;
-  register double v0 = val1, v1 = val2, v2 = v0 + v1, v3 = v0 + v2;
-  register double v4 = v0 + v3, v5 = v0 + v4, v6 = v0 + v5, v7 = v0 + v6;
-  register double v8 = v0 + v7, v9 = v0 + v8, v10 = v0 + v9, v11 = v0 + v10;
-  register double v12 = v0 + v11, v13 = v0 + v12, v14 = v0 + v13,
-                  v15 = v0 + v14;
-  register double v16 = v0 + v15, v17 = v16 + v0, v18 = v16 + v1,
-                  v19 = v16 + v2;
-  register double v20 = v16 + v3, v21 = v16 + v4, v22 = v16 + v5,
-                  v23 = v16 + v6;
-  register double v24 = v16 + v7, v25 = v16 + v8, v26 = v16 + v9,
-                  v27 = v16 + v10;
-  register double v28 = v16 + v11, v29 = v16 + v12, v30 = v16 + v13,
-                  v31 = v16 + v14;
-  register double s0 = v0, s1 = v1, s2 = v2, s3 = v3;
-  register double s4 = v4, s5 = v5, s6 = v6, s7 = v7;
-  register double s8 = v8, s9 = v9, s10 = v10, s11 = v11;
-  register double s12 = v12, s13 = v13, s14 = v14, s15 = v15;
-  register double s16 = v16, s17 = v17, s18 = v18, s19 = v19;
-  register double s20 = v20, s21 = v21, s22 = v22, s23 = v23;
-  register double s24 = v24, s25 = v25, s26 = v26, s27 = v27;
-  register double s28 = v28, s29 = v29, s30 = v30, s31 = v31;
-
-  // 10 OP10s inside the loop = 6400 FLOPS in the .ptx code
-  // and 5 loops of 10 OP10s = 32000 FLOPS per pixel total
-  for (int i = 0; i < 5; i++) {
-    OP10;
-    OP10;
-    OP10;
-    OP10;
-    OP10;
-    OP10;
-    OP10;
-    OP10;
-    OP10;
-    OP10;
-  }
-  double result = (s0 + s1 + s2 + s3 + s4 + s5 + s6 + s7 + s8 + s9 + s10 + s11 +
-                   s12 + s13 + s14 + s15 + s16 + s17 + s18 + s19 + s20 + s21 +
-                   s22 + s23 + s24 + s25 + s26 + s27 + s28 + s29 + s30 + s31);
-  target[index] = result;
-}
-
-__global__ void MulMAddU(float *target, float val1, float val2) {
-  int index = blockIdx.x * blockDim.x + threadIdx.x;
-
-  register float v0 = val1, v1 = val2, v2 = v0 + v1, v3 = v0 + v2;
-  register float v4 = v0 + v3, v5 = v0 + v4, v6 = v0 + v5, v7 = v0 + v6;
-  register float v8 = v0 + v7, v9 = v0 + v8, v10 = v0 + v9, v11 = v0 + v10;
-  register float v12 = v0 + v11, v13 = v0 + v12, v14 = v0 + v13, v15 = v0 + v14;
-  register float v16 = v0 + v15, v17 = v16 + v0, v18 = v16 + v1, v19 = v16 + v2;
-  register float v20 = v16 + v3, v21 = v16 + v4, v22 = v16 + v5, v23 = v16 + v6;
-  register float v24 = v16 + v7, v25 = v16 + v8, v26 = v16 + v9,
-                 v27 = v16 + v10;
-  register float v28 = v16 + v11, v29 = v16 + v12, v30 = v16 + v13,
-                 v31 = v16 + v14;
-  register float s0 = v0, s1 = v1, s2 = v2, s3 = v3;
-  register float s4 = v4, s5 = v5, s6 = v6, s7 = v7;
-  register float s8 = v8, s9 = v9, s10 = v10, s11 = v11;
-  register float s12 = v12, s13 = v13, s14 = v14, s15 = v15;
-  register float s16 = v16, s17 = v17, s18 = v18, s19 = v19;
-  register float s20 = v20, s21 = v21, s22 = v22, s23 = v23;
-  register float s24 = v24, s25 = v25, s26 = v26, s27 = v27;
-  register float s28 = v28, s29 = v29, s30 = v30, s31 = v31;
-
-  // 10 OP10s inside the loop = 2400 FLOPS in the .ptx code
-  // and 5 loops of 10 OP10s = 12000 FLOPS per pixel total
-  for (int i = 0; i < 5; i++) {
-    MMOP10;
-    MMOP10;
-    MMOP10;
-    MMOP10;
-    MMOP10;
-    MMOP10;
-    MMOP10;
-    MMOP10;
-    MMOP10;
-    MMOP10;
-  }
-  float result = (s0 + s1 + s2 + s3 + s4 + s5 + s6 + s7 + s8 + s9 + s10 + s11 +
-                  s12 + s13 + s14 + s15 + s16 + s17 + s18 + s19 + s20 + s21 +
-                  s22 + s23 + s24 + s25 + s26 + s27 + s28 + s29 + s30 + s31);
-
-  target[index] = result;
-}
-
-__global__ void MulMAddU_DP(double *target, double val1, double val2) {
-  int index = blockIdx.x * blockDim.x + threadIdx.x;
-  register double v0 = val1, v1 = val2, v2 = v0 + v1, v3 = v0 + v2;
-  register double v4 = v0 + v3, v5 = v0 + v4, v6 = v0 + v5, v7 = v0 + v6;
-  register double v8 = v0 + v7, v9 = v0 + v8, v10 = v0 + v9, v11 = v0 + v10;
-  register double v12 = v0 + v11, v13 = v0 + v12, v14 = v0 + v13,
-                  v15 = v0 + v14;
-  register double v16 = v0 + v15, v17 = v16 + v0, v18 = v16 + v1,
-                  v19 = v16 + v2;
-  register double v20 = v16 + v3, v21 = v16 + v4, v22 = v16 + v5,
-                  v23 = v16 + v6;
-  register double v24 = v16 + v7, v25 = v16 + v8, v26 = v16 + v9,
-                  v27 = v16 + v10;
-  register double v28 = v16 + v11, v29 = v16 + v12, v30 = v16 + v13,
-                  v31 = v16 + v14;
-  register double s0 = v0, s1 = v1, s2 = v2, s3 = v3;
-  register double s4 = v4, s5 = v5, s6 = v6, s7 = v7;
-  register double s8 = v8, s9 = v9, s10 = v10, s11 = v11;
-  register double s12 = v12, s13 = v13, s14 = v14, s15 = v15;
-  register double s16 = v16, s17 = v17, s18 = v18, s19 = v19;
-  register double s20 = v20, s21 = v21, s22 = v22, s23 = v23;
-  register double s24 = v24, s25 = v25, s26 = v26, s27 = v27;
-  register double s28 = v28, s29 = v29, s30 = v30, s31 = v31;
-
-  // 10 OP10s inside the loop = 2400 FLOPS in the .ptx code
-  // and 5 loops of 10 OP10s = 12000 FLOPS per pixel total
-  for (int i = 0; i < 5; i++) {
-    MMOP10;
-    MMOP10;
-    MMOP10;
-    MMOP10;
-    MMOP10;
-    MMOP10;
-    MMOP10;
-    MMOP10;
-    MMOP10;
-    MMOP10;
-  }
-  double result = (s0 + s1 + s2 + s3 + s4 + s5 + s6 + s7 + s8 + s9 + s10 + s11 +
-                   s12 + s13 + s14 + s15 + s16 + s17 + s18 + s19 + s20 + s21 +
-                   s22 + s23 + s24 + s25 + s26 + s27 + s28 + s29 + s30 + s31);
-  target[index] = result;
-}
 
 // v = 10.0
 #define ADD1_OP s = v - s;
@@ -1709,7 +1194,7 @@ template <class T> __global__ void Add1(T *data, int nIters, T v) {
 
 template <class T> __global__ void Add2(T *data, int nIters, T v) {
   int gid = blockIdx.x * blockDim.x + threadIdx.x;
-  register T s = data[gid], s2 = 10.0f - s;
+  register T s = data[gid], s2 = (T)10.0f - s;
   for (int j = 0; j < nIters; ++j) {
     /* Each macro op has 20 operations.
        Unroll 6 more times for 120 operations total.
@@ -1721,7 +1206,7 @@ template <class T> __global__ void Add2(T *data, int nIters, T v) {
 
 template <class T> __global__ void Add4(T *data, int nIters, T v) {
   int gid = blockIdx.x * blockDim.x + threadIdx.x;
-  register T s = data[gid], s2 = 10.0f - s, s3 = 9.0f - s, s4 = 9.0f - s2;
+  register T s = data[gid], s2 = (T)10.0f - s, s3 = (T)9.0f - s, s4 = (T)9.0f - s2;
   for (int j = 0; j < nIters; ++j) {
     /* Each macro op has 10 operations.
        Unroll 6 more times for 60 operations total.
@@ -1733,8 +1218,8 @@ template <class T> __global__ void Add4(T *data, int nIters, T v) {
 
 template <class T> __global__ void Add8(T *data, int nIters, T v) {
   int gid = blockIdx.x * blockDim.x + threadIdx.x;
-  register T s = data[gid], s2 = 10.0f - s, s3 = 9.0f - s, s4 = 9.0f - s2,
-             s5 = 8.0f - s, s6 = 8.0f - s2, s7 = 7.0f - s, s8 = 7.0f - s2;
+  register T s = data[gid], s2 = (T)10.0f - s, s3 = (T)9.0f - s, s4 = (T)9.0f - s2,
+             s5 = (T)8.0f - s, s6 = (T)8.0f - s2, s7 = (T)7.0f - s, s8 = (T)7.0f - s2;
   for (int j = 0; j < nIters; ++j) {
     /* Each macro op has 5 operations.
        Unroll 6 more times for 30 operations total.
@@ -1746,7 +1231,7 @@ template <class T> __global__ void Add8(T *data, int nIters, T v) {
 
 template <class T> __global__ void Mul1(T *data, int nIters, T v) {
   int gid = blockIdx.x * blockDim.x + threadIdx.x;
-  register T s = data[gid] - data[gid] + 0.999f;
+  register T s = data[gid] - data[gid] + (T)0.999f;
   for (int j = 0; j < nIters; ++j) {
     /* Each macro op has 20 operations.
        Unroll 10 more times for 200 operations total.
@@ -1759,7 +1244,7 @@ template <class T> __global__ void Mul1(T *data, int nIters, T v) {
 
 template <class T> __global__ void Mul2(T *data, int nIters, T v) {
   int gid = blockIdx.x * blockDim.x + threadIdx.x;
-  register T s = data[gid] - data[gid] + 0.999f, s2 = s - 0.0001f;
+  register T s = data[gid] - data[gid] + (T)0.999f, s2 = s - (T)0.0001f;
   for (int j = 0; j < nIters; ++j) {
     /* Each macro op has 20 operations.
        Unroll 5 more times for 100 operations total.
@@ -1771,8 +1256,8 @@ template <class T> __global__ void Mul2(T *data, int nIters, T v) {
 
 template <class T> __global__ void Mul4(T *data, int nIters, T v) {
   int gid = blockIdx.x * blockDim.x + threadIdx.x;
-  register T s = data[gid] - data[gid] + 0.999f, s2 = s - 0.0001f,
-             s3 = s - 0.0002f, s4 = s - 0.0003f;
+  register T s = data[gid] - data[gid] + (T)0.999f, s2 = s - (T)0.0001f,
+             s3 = s - (T)0.0002f, s4 = s - (T)0.0003f;
   for (int j = 0; j < nIters; ++j) {
     /* Each macro op has 10 operations.
        Unroll 5 more times for 50 operations total.
@@ -1784,9 +1269,9 @@ template <class T> __global__ void Mul4(T *data, int nIters, T v) {
 
 template <class T> __global__ void Mul8(T *data, int nIters, T v) {
   int gid = blockIdx.x * blockDim.x + threadIdx.x;
-  register T s = data[gid] - data[gid] + 0.999f, s2 = s - 0.0001f,
-             s3 = s - 0.0002f, s4 = s - 0.0003f, s5 = s - 0.0004f,
-             s6 = s - 0.0005f, s7 = s - 0.0006f, s8 = s - 0.0007f;
+  register T s = data[gid] - data[gid] + (T)0.999f, s2 = s - (T)0.0001f,
+             s3 = s - (T)0.0002f, s4 = s - (T)0.0003f, s5 = s - (T)0.0004f,
+             s6 = s - (T)0.0005f, s7 = s - (T)0.0006f, s8 = s - (T)0.0007f;
   for (int j = 0; j < nIters; ++j) {
     /* Each macro op has 5 operations.
        Unroll 5 more times for 25 operations total.
@@ -1811,7 +1296,7 @@ template <class T> __global__ void MAdd1(T *data, int nIters, T v1, T v2) {
 
 template <class T> __global__ void MAdd2(T *data, int nIters, T v1, T v2) {
   int gid = blockIdx.x * blockDim.x + threadIdx.x;
-  register T s = data[gid], s2 = 10.0f - s;
+  register T s = data[gid], s2 = (T)10.0f - s;
   for (int j = 0; j < nIters; ++j) {
     /* Each macro op has 20 operations.
        Unroll 6 more times for 120 operations total.
@@ -1823,7 +1308,7 @@ template <class T> __global__ void MAdd2(T *data, int nIters, T v1, T v2) {
 
 template <class T> __global__ void MAdd4(T *data, int nIters, T v1, T v2) {
   int gid = blockIdx.x * blockDim.x + threadIdx.x;
-  register T s = data[gid], s2 = 10.0f - s, s3 = 9.0f - s, s4 = 9.0f - s2;
+  register T s = data[gid], s2 = (T)10.0f - s, s3 = (T)9.0f - s, s4 = (T)9.0f - s2;
   for (int j = 0; j < nIters; ++j) {
     /* Each macro op has 10 operations.
        Unroll 6 more times for 60 operations total.
@@ -1835,8 +1320,8 @@ template <class T> __global__ void MAdd4(T *data, int nIters, T v1, T v2) {
 
 template <class T> __global__ void MAdd8(T *data, int nIters, T v1, T v2) {
   int gid = blockIdx.x * blockDim.x + threadIdx.x;
-  register T s = data[gid], s2 = 10.0f - s, s3 = 9.0f - s, s4 = 9.0f - s2,
-             s5 = 8.0f - s, s6 = 8.0f - s2, s7 = 7.0f - s, s8 = 7.0f - s2;
+  register T s = data[gid], s2 = (T)10.0f - s, s3 = (T)9.0f - s, s4 = (T)9.0f - s2,
+             s5 = (T)8.0f - s, s6 = (T)8.0f - s2, s7 = (T)7.0f - s, s8 = (T)7.0f - s2;
   for (int j = 0; j < nIters; ++j) {
     /* Each macro op has 5 operations.
        Unroll 6 more times for 30 operations total.
@@ -1861,7 +1346,7 @@ template <class T> __global__ void MulMAdd1(T *data, int nIters, T v1, T v2) {
 
 template <class T> __global__ void MulMAdd2(T *data, int nIters, T v1, T v2) {
   int gid = blockIdx.x * blockDim.x + threadIdx.x;
-  register T s = data[gid], s2 = 10.0f - s;
+  register T s = data[gid], s2 = (T)10.0f - s;
   for (int j = 0; j < nIters; ++j) {
     /* Each macro op has 20 operations.
        Unroll 4 more times for 80 operations total.
@@ -1873,7 +1358,7 @@ template <class T> __global__ void MulMAdd2(T *data, int nIters, T v1, T v2) {
 
 template <class T> __global__ void MulMAdd4(T *data, int nIters, T v1, T v2) {
   int gid = blockIdx.x * blockDim.x + threadIdx.x;
-  register T s = data[gid], s2 = 10.0f - s, s3 = 9.0f - s, s4 = 9.0f - s2;
+  register T s = data[gid], s2 = (T)10.0f - s, s3 = (T)9.0f - s, s4 = (T)9.0f - s2;
   for (int j = 0; j < nIters; ++j) {
     /* Each macro op has 10 operations.
        Unroll 4 more times for 40 operations total.
@@ -1885,8 +1370,8 @@ template <class T> __global__ void MulMAdd4(T *data, int nIters, T v1, T v2) {
 
 template <class T> __global__ void MulMAdd8(T *data, int nIters, T v1, T v2) {
   int gid = blockIdx.x * blockDim.x + threadIdx.x;
-  register T s = data[gid], s2 = 10.0f - s, s3 = 9.0f - s, s4 = 9.0f - s2,
-             s5 = 8.0f - s, s6 = 8.0f - s2, s7 = 7.0f - s, s8 = 7.0f - s2;
+  register T s = data[gid], s2 = (T)10.0f - s, s3 = (T)9.0f - s, s4 = (T)9.0f - s2,
+             s5 = (T)8.0f - s, s6 = (T)8.0f - s2, s7 = (T)7.0f - s, s8 = (T)7.0f - s2;
   for (int j = 0; j < nIters; ++j) {
     /* Each macro op has 5 operations.
        Unroll 4 more times for 20 operations total.
