@@ -150,7 +150,6 @@ AS_IF([test "x$with_cuda" != xno],
 AM_CONDITIONAL([BUILD_CUDA], [test "x$with_cuda" = "xyes"])
 
 # test whether or not to build new cuda features in benchmarks
-'''
 unified_memory=yes
 grid_sync=yes
 hyperq=yes
@@ -199,7 +198,6 @@ AS_IF([test "x$dynamic_parallelism" = "xyes"],
     [
         AC_MSG_RESULT([supports dynamic parallelism: no])
     ])
-'''
 
 AC_SUBST([USE_CUDA])
 AC_SUBST([NVCXXFLAGS])
