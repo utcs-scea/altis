@@ -1,51 +1,53 @@
-==2451== NVPROF is profiling process 2451, command: ./src/cuda/level1/bfs/bfs -s 3 -n 1
-==2451== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
-==2451== Profiling application: ./src/cuda/level1/bfs/bfs -s 3 -n 1
-==2451== Profiling result:
-==2451== Metric result:
+==46578== NVPROF is profiling process 46578, command: ./src/cuda/level1/bfs/bfs -s 3 -n 1
+==46578== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==46578== Profiling application: ./src/cuda/level1/bfs/bfs -s 3 -n 1
+==46578== Profiling result:
+==46578== Metric result:
 Invocations                               Metric Name                            Metric Description         Min         Max         Avg
 Device "Tesla P100-SXM2-16GB (0)"
-    Kernel: Kernel2(bool*, bool*, bool*, bool*, __int64)
-         58                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
-         58                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (2)     Low (1)
-         58                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (2)     Low (1)
-         58           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-         58                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-         58           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (3)     Low (2)
-         58                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
-         58                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
-         58                          dram_utilization                     Device Memory Utilization     Low (2)     Low (3)     Low (2)
-         58                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (2)     Low (1)
-         58                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
-         58                                inst_fp_32                       FP Instructions(Single)           0           0           0
-         58                                inst_fp_64                       FP Instructions(Double)           0           0           0
-         58                              inst_integer                          Integer Instructions   838860800   958830488   852460855
-         58                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
-         58                              inst_control                     Control-Flow Instructions   104857600   104857600   104857600
-         58                        inst_compute_ld_st                       Load/Store Instructions   104857600   224827288   118457655
-         58                                 inst_misc                             Misc Instructions   734003200   943950154   757803296
-         58           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
-         58                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (2)     Low (1)
-         58                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
-    Kernel: Kernel(Node*, __int64*, bool*, bool*, bool*, __int64*, __int64)
-         58                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
-         58                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (2)     Low (1)
-         58                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (2)     Low (1)
-         58           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-         58                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-         58           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (3)     Low (2)
-         58                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
-         58                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
-         58                          dram_utilization                     Device Memory Utilization     Low (1)     Low (3)     Low (2)
-         58                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (2)     Low (1)
-         58                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
-         58                                inst_fp_32                       FP Instructions(Single)           0           0           0
-         58                                inst_fp_64                       FP Instructions(Double)           0           0           0
-         58                              inst_integer                          Integer Instructions   838860842  2306464430  1004500808
-         58                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
-         58                              inst_control                     Control-Flow Instructions   104857601   287972010   123313572
-         58                        inst_compute_ld_st                       Load/Store Instructions   104857617   573058820   157321407
-         58                                 inst_misc                             Misc Instructions   734003227  1471128392   816585216
-         58           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
-         58                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
-         58                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
+    Kernel: Kernel(Node*, int*, bool*, bool*, bool*, int*, int)
+         29                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         29                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (3)     Low (1)
+         29                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (2)     Low (1)
+         29           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+         29                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+         29             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+         29           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (2)     Low (1)
+         29                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
+         29                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
+         29                          dram_utilization                     Device Memory Utilization     Low (1)     Low (3)     Low (2)
+         29                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (3)     Low (1)
+         29                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
+         29                                inst_fp_32                       FP Instructions(Single)           0           0           0
+         29                                inst_fp_64                       FP Instructions(Double)           0           0           0
+         29                              inst_integer                          Integer Instructions   629145642  2016435932   785557446
+         29                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
+         29                              inst_control                     Control-Flow Instructions   104857601   287972010   123313572
+         29                        inst_compute_ld_st                       Load/Store Instructions   104857617   573058820   157321407
+         29                                 inst_misc                             Misc Instructions   838860817  1428036402   905407632
+         29           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
+         29                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
+         29                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
+    Kernel: Kernel2(bool*, bool*, bool*, bool*, int)
+         29                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         29                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (3)     Low (2)
+         29                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (2)     Low (1)
+         29           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+         29                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+         29             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+         29           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (2)     Low (1)
+         29                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
+         29                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
+         29                          dram_utilization                     Device Memory Utilization     Low (2)     Low (3)     Low (2)
+         29                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (3)     Low (2)
+         29                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
+         29                                inst_fp_32                       FP Instructions(Single)           0           0           0
+         29                                inst_fp_64                       FP Instructions(Double)           0           0           0
+         29                              inst_integer                          Integer Instructions   629145600   749115288   642745655
+         29                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
+         29                              inst_control                     Control-Flow Instructions   104857600   104857600   104857600
+         29                        inst_compute_ld_st                       Load/Store Instructions   104857600   224827288   118457655
+         29                                 inst_misc                             Misc Instructions   838860800  1048807754   862660896
+         29           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
+         29                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
+         29                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)

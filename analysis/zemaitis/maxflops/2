@@ -1,38 +1,17 @@
-==40372== NVPROF is profiling process 40372, command: ./src/cuda/level0/maxflops/maxflops -s 2 -n 1
-==40372== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
-==40372== Profiling application: ./src/cuda/level0/maxflops/maxflops -s 2 -n 1
-==40372== Profiling result:
-==40372== Metric result:
+==24384== NVPROF is profiling process 24384, command: ./src/cuda/level0/maxflops/maxflops -s 2 -n 1
+==24384== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==24384== Profiling application: ./src/cuda/level0/maxflops/maxflops -s 2 -n 1
+==24384== Profiling result:
+==24384== Metric result:
 Invocations                               Metric Name                            Metric Description         Min         Max         Avg
 Device "Tesla P100-SXM2-16GB (0)"
-    Kernel: void Mul1<float>(float*, int, float)
-          1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          1                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-          1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-          1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    High (9)    High (9)    High (9)
-          1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
-          1                             flop_count_sp   Floating Point Operations(Single Precision)  1681915904  1681915904  1681915904
-          1                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)
-          1                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (1)     Low (1)
-          1                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
-          1                                inst_fp_32                       FP Instructions(Single)  1681915904  1681915904  1681915904
-          1                                inst_fp_64                       FP Instructions(Double)           0           0           0
-          1                              inst_integer                          Integer Instructions    23068672    23068672    23068672
-          1                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
-          1                              inst_control                     Control-Flow Instructions     4194304     4194304     4194304
-          1                        inst_compute_ld_st                       Load/Store Instructions     4194304     4194304     4194304
-          1                                 inst_misc                             Misc Instructions    10485760    10485760    10485760
-          1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
-          1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
-          1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
     Kernel: void MulMAdd2<short>(short*, int, short, short)
           1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1                    special_fu_utilization             Special Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           1                             flop_count_sp   Floating Point Operations(Single Precision)     2097152     2097152     2097152
@@ -49,12 +28,36 @@ Device "Tesla P100-SXM2-16GB (0)"
           1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
           1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
           1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
+    Kernel: void Mul1<float>(float*, int, float)
+          1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    High (9)    High (9)    High (9)
+          1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
+          1                             flop_count_sp   Floating Point Operations(Single Precision)  1681915904  1681915904  1681915904
+          1                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)
+          1                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (1)     Low (1)
+          1                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
+          1                                inst_fp_32                       FP Instructions(Single)  1681915904  1681915904  1681915904
+          1                                inst_fp_64                       FP Instructions(Double)           0           0           0
+          1                              inst_integer                          Integer Instructions    23068672    23068672    23068672
+          1                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
+          1                              inst_control                     Control-Flow Instructions     4194304     4194304     4194304
+          1                        inst_compute_ld_st                       Load/Store Instructions     4194304     4194304     4194304
+          1                                 inst_misc                             Misc Instructions    10485760    10485760    10485760
+          1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
+          1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
+          1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
     Kernel: void MulMAdd4<short>(short*, int, short, short)
           1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1                    special_fu_utilization             Special Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           1                             flop_count_sp   Floating Point Operations(Single Precision)     6291456     6291456     6291456
@@ -77,6 +80,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1                    special_fu_utilization             Special Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           1                             flop_count_sp   Floating Point Operations(Single Precision)    14680064    14680064    14680064
@@ -94,11 +98,12 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
           1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
     Kernel: void Add8<short>(short*, int, short)
-          1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (2)     Low (2)     Low (2)
           1                        tex_fu_utilization             Texture Function Unit Utilization     Low (2)     Low (2)     Low (2)
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1                    special_fu_utilization             Special Function Unit Utilization     Mid (4)     Mid (4)     Mid (4)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    High (7)    High (7)    High (7)
           1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           1                             flop_count_sp   Floating Point Operations(Single Precision)    14680064    14680064    14680064
@@ -109,9 +114,9 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                                inst_fp_64                       FP Instructions(Double)           0           0           0
           1                              inst_integer                          Integer Instructions   119537664   119537664   119537664
           1                          inst_bit_convert                      Bit-Convert Instructions    18874368    18874368    18874368
-          1                              inst_control                     Control-Flow Instructions     8388608     8388608     8388608
+          1                              inst_control                     Control-Flow Instructions    10485760    10485760    10485760
           1                        inst_compute_ld_st                       Load/Store Instructions     6291456     6291456     6291456
-          1                                 inst_misc                             Misc Instructions    29360128    29360128    29360128
+          1                                 inst_misc                             Misc Instructions    31457280    31457280    31457280
           1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
           1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
           1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
@@ -121,6 +126,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1                    special_fu_utilization             Special Function Unit Utilization     Low (3)     Low (3)     Low (3)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Mid (6)     Mid (6)     Mid (6)
           1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           1                             flop_count_sp   Floating Point Operations(Single Precision)     6291456     6291456     6291456
@@ -131,9 +137,9 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                                inst_fp_64                       FP Instructions(Double)           0           0           0
           1                              inst_integer                          Integer Instructions    69206016    69206016    69206016
           1                          inst_bit_convert                      Bit-Convert Instructions    10485760    10485760    10485760
-          1                              inst_control                     Control-Flow Instructions     8388608     8388608     8388608
+          1                              inst_control                     Control-Flow Instructions    10485760    10485760    10485760
           1                        inst_compute_ld_st                       Load/Store Instructions     8388608     8388608     8388608
-          1                                 inst_misc                             Misc Instructions    25165824    25165824    25165824
+          1                                 inst_misc                             Misc Instructions    27262976    27262976    27262976
           1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
           1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
           1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
@@ -143,6 +149,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           1                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
@@ -165,6 +172,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           1                             flop_count_sp   Floating Point Operations(Single Precision)  1711276032  1711276032  1711276032
@@ -177,7 +185,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
           1                              inst_control                     Control-Flow Instructions     4194304     4194304     4194304
           1                        inst_compute_ld_st                       Load/Store Instructions     4194304     4194304     4194304
-          1                                 inst_misc                             Misc Instructions    12582912    12582912    12582912
+          1                                 inst_misc                             Misc Instructions    14680064    14680064    14680064
           1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
           1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
           1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
@@ -187,6 +195,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                             flop_count_dp   Floating Point Operations(Double Precision)  2101805056  2101805056  2101805056
           1                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
@@ -203,34 +212,13 @@ Device "Tesla P100-SXM2-16GB (0)"
           1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
           1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
           1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
-    Kernel: MAddU(float*, float, float)
-          1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          1                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-          1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-          1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    High (9)    High (9)    High (9)
-          1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
-          1                             flop_count_sp   Floating Point Operations(Single Precision)  2101805056  2101805056  2101805056
-          1                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)
-          1                           tex_utilization                     Unified Cache Utilization    Idle (0)    Idle (0)    Idle (0)
-          1                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
-          1                                inst_fp_32                       FP Instructions(Single)  1052901376  1052901376  1052901376
-          1                                inst_fp_64                       FP Instructions(Double)           0           0           0
-          1                              inst_integer                          Integer Instructions     1048576     1048576     1048576
-          1                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
-          1                              inst_control                     Control-Flow Instructions      327680      327680      327680
-          1                        inst_compute_ld_st                       Load/Store Instructions       65536       65536       65536
-          1                                 inst_misc                             Misc Instructions     2359296     2359296     2359296
-          1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
-          1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
-          1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
     Kernel: void Mul4<float>(float*, int, float)
           1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           1                             flop_count_sp   Floating Point Operations(Single Precision)  1694498816  1694498816  1694498816
@@ -247,12 +235,36 @@ Device "Tesla P100-SXM2-16GB (0)"
           1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
           1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
           1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
+    Kernel: MAddU(float*, float, float)
+          1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    High (9)    High (9)    High (9)
+          1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
+          1                             flop_count_sp   Floating Point Operations(Single Precision)  2101805056  2101805056  2101805056
+          1                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)
+          1                           tex_utilization                     Unified Cache Utilization    Idle (0)    Idle (0)    Idle (0)
+          1                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
+          1                                inst_fp_32                       FP Instructions(Single)  1052901376  1052901376  1052901376
+          1                                inst_fp_64                       FP Instructions(Double)           0           0           0
+          1                              inst_integer                          Integer Instructions     1048576     1048576     1048576
+          1                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
+          1                              inst_control                     Control-Flow Instructions      327680      327680      327680
+          1                        inst_compute_ld_st                       Load/Store Instructions       65536       65536       65536
+          1                                 inst_misc                             Misc Instructions     2293760     2293760     2293760
+          1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
+          1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
+          1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
     Kernel: void MAdd2<double>(double*, int, double, double)
           1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                             flop_count_dp   Floating Point Operations(Double Precision)  2017460224  2017460224  2017460224
           1                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
@@ -275,6 +287,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    High (8)    High (8)    High (8)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                             flop_count_dp   Floating Point Operations(Double Precision)  1006632960  1006632960  1006632960
           1                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
@@ -291,12 +304,36 @@ Device "Tesla P100-SXM2-16GB (0)"
           1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
           1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
           1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
+    Kernel: void MAdd2<float>(float*, int, float, float)
+          1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
+          1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
+          1                             flop_count_sp   Floating Point Operations(Single Precision)  2017460224  2017460224  2017460224
+          1                          dram_utilization                     Device Memory Utilization     Low (2)     Low (2)     Low (2)
+          1                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (1)     Low (1)
+          1                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
+          1                                inst_fp_32                       FP Instructions(Single)  1010827264  1010827264  1010827264
+          1                                inst_fp_64                       FP Instructions(Double)           0           0           0
+          1                              inst_integer                          Integer Instructions    23068672    23068672    23068672
+          1                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
+          1                              inst_control                     Control-Flow Instructions     4194304     4194304     4194304
+          1                        inst_compute_ld_st                       Load/Store Instructions     4194304     4194304     4194304
+          1                                 inst_misc                             Misc Instructions    16777216    16777216    16777216
+          1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
+          1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
+          1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
     Kernel: void MAdd4<double>(double*, int, double, double)
           1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                             flop_count_dp   Floating Point Operations(Double Precision)  2025848832  2025848832  2025848832
           1                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
@@ -313,34 +350,13 @@ Device "Tesla P100-SXM2-16GB (0)"
           1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
           1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
           1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
-    Kernel: void MAdd2<float>(float*, int, float, float)
-          1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          1                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-          1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-          1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
-          1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
-          1                             flop_count_sp   Floating Point Operations(Single Precision)  2017460224  2017460224  2017460224
-          1                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)
-          1                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (1)     Low (1)
-          1                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
-          1                                inst_fp_32                       FP Instructions(Single)  1010827264  1010827264  1010827264
-          1                                inst_fp_64                       FP Instructions(Double)           0           0           0
-          1                              inst_integer                          Integer Instructions    23068672    23068672    23068672
-          1                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
-          1                              inst_control                     Control-Flow Instructions     4194304     4194304     4194304
-          1                        inst_compute_ld_st                       Load/Store Instructions     4194304     4194304     4194304
-          1                                 inst_misc                             Misc Instructions    16777216    16777216    16777216
-          1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
-          1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
-          1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
     Kernel: void Mul2<double>(double*, int, double)
           1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                             flop_count_dp   Floating Point Operations(Double Precision)  1686110208  1686110208  1686110208
           1                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
@@ -363,10 +379,11 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           1                             flop_count_sp   Floating Point Operations(Single Precision)  2025848832  2025848832  2025848832
-          1                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)
+          1                          dram_utilization                     Device Memory Utilization     Low (2)     Low (2)     Low (2)
           1                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (1)     Low (1)
           1                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
           1                                inst_fp_32                       FP Instructions(Single)  1019215872  1019215872  1019215872
@@ -385,6 +402,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                             flop_count_dp   Floating Point Operations(Double Precision)  2042626048  2042626048  2042626048
           1                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
@@ -407,10 +425,11 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           1                             flop_count_sp   Floating Point Operations(Single Precision)  2042626048  2042626048  2042626048
-          1                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)
+          1                          dram_utilization                     Device Memory Utilization     Low (2)     Low (2)     Low (2)
           1                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (1)     Low (1)
           1                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
           1                                inst_fp_32                       FP Instructions(Single)  1035993088  1035993088  1035993088
@@ -419,7 +438,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
           1                              inst_control                     Control-Flow Instructions     4194304     4194304     4194304
           1                        inst_compute_ld_st                       Load/Store Instructions     4194304     4194304     4194304
-          1                                 inst_misc                             Misc Instructions    18874368    18874368    18874368
+          1                                 inst_misc                             Misc Instructions    20971520    20971520    20971520
           1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
           1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
           1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
@@ -429,6 +448,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           1                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
@@ -451,6 +471,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1                    special_fu_utilization             Special Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           1                             flop_count_sp   Floating Point Operations(Single Precision)     2097152     2097152     2097152
@@ -473,6 +494,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1                    special_fu_utilization             Special Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           1                             flop_count_sp   Floating Point Operations(Single Precision)     6291456     6291456     6291456
@@ -489,56 +511,13 @@ Device "Tesla P100-SXM2-16GB (0)"
           1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
           1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
           1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
-    Kernel: MulMAddU(float*, float, float)
-          1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          1                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-          1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-          1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
-          1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
-          1                             flop_count_sp   Floating Point Operations(Single Precision)   790626304   790626304   790626304
-          1                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)
-          1                           tex_utilization                     Unified Cache Utilization    Idle (0)    Idle (0)    Idle (0)
-          1                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
-          1                                inst_fp_32                       FP Instructions(Single)   528351232   528351232   528351232
-          1                                inst_fp_64                       FP Instructions(Double)           0           0           0
-          1                              inst_integer                          Integer Instructions     1048576     1048576     1048576
-          1                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
-          1                              inst_control                     Control-Flow Instructions      327680      327680      327680
-          1                        inst_compute_ld_st                       Load/Store Instructions       65536       65536       65536
-          1                                 inst_misc                             Misc Instructions      524288      524288      524288
-          1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
-          1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
-          1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
-    Kernel: void Mul4<short>(short*, int, short)
-          1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          1                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-          1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-          1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
-          1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
-          1                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
-          1                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)
-          1                           tex_utilization                     Unified Cache Utilization    Idle (0)    Idle (0)    Idle (0)
-          1                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
-          1                                inst_fp_32                       FP Instructions(Single)           0           0           0
-          1                                inst_fp_64                       FP Instructions(Double)           0           0           0
-          1                              inst_integer                          Integer Instructions  5869928448  5869928448  5869928448
-          1                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
-          1                              inst_control                     Control-Flow Instructions     4194304     4194304     4194304
-          1                        inst_compute_ld_st                       Load/Store Instructions     4194304     4194304     4194304
-          1                                 inst_misc                             Misc Instructions    23068672    23068672    23068672
-          1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
-          1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
-          1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
     Kernel: void MulMAdd1<double>(double*, int, double, double)
           1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    High (8)    High (8)    High (8)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                             flop_count_dp   Floating Point Operations(Double Precision)  2013265920  2013265920  2013265920
           1                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
@@ -555,12 +534,59 @@ Device "Tesla P100-SXM2-16GB (0)"
           1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
           1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
           1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
+    Kernel: void Mul4<short>(short*, int, short)
+          1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
+          1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
+          1                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
+          1                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)
+          1                           tex_utilization                     Unified Cache Utilization    Idle (0)    Idle (0)    Idle (0)
+          1                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
+          1                                inst_fp_32                       FP Instructions(Single)           0           0           0
+          1                                inst_fp_64                       FP Instructions(Double)           0           0           0
+          1                              inst_integer                          Integer Instructions  5869928448  5869928448  5869928448
+          1                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
+          1                              inst_control                     Control-Flow Instructions     4194304     4194304     4194304
+          1                        inst_compute_ld_st                       Load/Store Instructions     4194304     4194304     4194304
+          1                                 inst_misc                             Misc Instructions    23068672    23068672    23068672
+          1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
+          1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
+          1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
+    Kernel: MulMAddU(float*, float, float)
+          1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
+          1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
+          1                             flop_count_sp   Floating Point Operations(Single Precision)   790495232   790495232   790495232
+          1                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)
+          1                           tex_utilization                     Unified Cache Utilization    Idle (0)    Idle (0)    Idle (0)
+          1                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
+          1                                inst_fp_32                       FP Instructions(Single)   528285696   528285696   528285696
+          1                                inst_fp_64                       FP Instructions(Double)           0           0           0
+          1                              inst_integer                          Integer Instructions     1048576     1048576     1048576
+          1                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
+          1                              inst_control                     Control-Flow Instructions      327680      327680      327680
+          1                        inst_compute_ld_st                       Load/Store Instructions       65536       65536       65536
+          1                                 inst_misc                             Misc Instructions      458752      458752      458752
+          1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
+          1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
+          1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
     Kernel: void MulMAdd1<float>(float*, int, float, float)
           1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           1                             flop_count_sp   Floating Point Operations(Single Precision)  2013265920  2013265920  2013265920
@@ -583,6 +609,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1                    special_fu_utilization             Special Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           1                             flop_count_sp   Floating Point Operations(Single Precision)    14680064    14680064    14680064
@@ -595,7 +622,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                          inst_bit_convert                      Bit-Convert Instructions    18874368    18874368    18874368
           1                              inst_control                     Control-Flow Instructions     4194304     4194304     4194304
           1                        inst_compute_ld_st                       Load/Store Instructions     8388608     8388608     8388608
-          1                                 inst_misc                             Misc Instructions    12582912    12582912    12582912
+          1                                 inst_misc                             Misc Instructions    14680064    14680064    14680064
           1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
           1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
           1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
@@ -605,6 +632,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                             flop_count_dp   Floating Point Operations(Double Precision)  1035993088  1035993088  1035993088
           1                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
@@ -617,7 +645,30 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
           1                              inst_control                     Control-Flow Instructions     4194304     4194304     4194304
           1                        inst_compute_ld_st                       Load/Store Instructions     4194304     4194304     4194304
-          1                                 inst_misc                             Misc Instructions    10485760    10485760    10485760
+          1                                 inst_misc                             Misc Instructions    12582912    12582912    12582912
+          1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
+          1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
+          1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
+    Kernel: void Add2<float>(float*, int, float)
+          1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
+          1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
+          1                             flop_count_sp   Floating Point Operations(Single Precision)  1010827264  1010827264  1010827264
+          1                          dram_utilization                     Device Memory Utilization     Low (2)     Low (2)     Low (2)
+          1                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (1)     Low (1)
+          1                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
+          1                                inst_fp_32                       FP Instructions(Single)  1010827264  1010827264  1010827264
+          1                                inst_fp_64                       FP Instructions(Double)           0           0           0
+          1                              inst_integer                          Integer Instructions    23068672    23068672    23068672
+          1                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
+          1                              inst_control                     Control-Flow Instructions     4194304     4194304     4194304
+          1                        inst_compute_ld_st                       Load/Store Instructions     4194304     4194304     4194304
+          1                                 inst_misc                             Misc Instructions    12582912    12582912    12582912
           1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
           1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
           1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
@@ -627,6 +678,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                             flop_count_dp   Floating Point Operations(Double Precision)  1019215872  1019215872  1019215872
           1                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
@@ -643,34 +695,13 @@ Device "Tesla P100-SXM2-16GB (0)"
           1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
           1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
           1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
-    Kernel: void Add2<float>(float*, int, float)
-          1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          1                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-          1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-          1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
-          1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
-          1                             flop_count_sp   Floating Point Operations(Single Precision)  1010827264  1010827264  1010827264
-          1                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)
-          1                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (1)     Low (1)
-          1                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
-          1                                inst_fp_32                       FP Instructions(Single)  1010827264  1010827264  1010827264
-          1                                inst_fp_64                       FP Instructions(Double)           0           0           0
-          1                              inst_integer                          Integer Instructions    23068672    23068672    23068672
-          1                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
-          1                              inst_control                     Control-Flow Instructions     4194304     4194304     4194304
-          1                        inst_compute_ld_st                       Load/Store Instructions     4194304     4194304     4194304
-          1                                 inst_misc                             Misc Instructions    12582912    12582912    12582912
-          1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
-          1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
-          1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
     Kernel: void MulMAdd1<short>(short*, int, short, short)
           1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           1                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
@@ -693,6 +724,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    High (8)    High (8)    High (8)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                             flop_count_dp   Floating Point Operations(Double Precision)  1681915904  1681915904  1681915904
           1                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
@@ -711,23 +743,24 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
     Kernel: void Add2<short>(short*, int, short)
           1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (2)     Low (2)     Low (2)
-          1                        tex_fu_utilization             Texture Function Unit Utilization     Low (3)     Low (3)     Low (3)
+          1                        tex_fu_utilization             Texture Function Unit Utilization     Low (2)     Low (2)     Low (2)
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-          1                    special_fu_utilization             Special Function Unit Utilization     Low (2)     Low (2)     Low (2)
+          1                    special_fu_utilization             Special Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Mid (5)     Mid (5)     Mid (5)
           1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           1                             flop_count_sp   Floating Point Operations(Single Precision)     2097152     2097152     2097152
-          1                          dram_utilization                     Device Memory Utilization     Low (3)     Low (3)     Low (3)
+          1                          dram_utilization                     Device Memory Utilization     Mid (4)     Mid (4)     Mid (4)
           1                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (1)     Low (1)
           1                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
           1                                inst_fp_32                       FP Instructions(Single)     2097152     2097152     2097152
           1                                inst_fp_64                       FP Instructions(Double)           0           0           0
           1                              inst_integer                          Integer Instructions    46137344    46137344    46137344
           1                          inst_bit_convert                      Bit-Convert Instructions     4194304     4194304     4194304
-          1                              inst_control                     Control-Flow Instructions     6291456     6291456     6291456
+          1                              inst_control                     Control-Flow Instructions     8388608     8388608     8388608
           1                        inst_compute_ld_st                       Load/Store Instructions     6291456     6291456     6291456
-          1                                 inst_misc                             Misc Instructions    16777216    16777216    16777216
+          1                                 inst_misc                             Misc Instructions    18874368    18874368    18874368
           1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
           1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
           1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
@@ -737,6 +770,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                             flop_count_dp   Floating Point Operations(Double Precision)  1711276032  1711276032  1711276032
           1                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
@@ -759,6 +793,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    High (8)    High (8)    High (8)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                             flop_count_dp   Floating Point Operations(Double Precision)  2013265920  2013265920  2013265920
           1                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
@@ -781,10 +816,11 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           1                             flop_count_sp   Floating Point Operations(Single Precision)  1006632960  1006632960  1006632960
-          1                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)
+          1                          dram_utilization                     Device Memory Utilization     Low (2)     Low (2)     Low (2)
           1                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (1)     Low (1)
           1                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
           1                                inst_fp_32                       FP Instructions(Single)  1006632960  1006632960  1006632960
@@ -797,12 +833,36 @@ Device "Tesla P100-SXM2-16GB (0)"
           1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
           1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
           1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
+    Kernel: void MAdd1<float>(float*, int, float, float)
+          1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
+          1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
+          1                             flop_count_sp   Floating Point Operations(Single Precision)  2013265920  2013265920  2013265920
+          1                          dram_utilization                     Device Memory Utilization     Low (2)     Low (2)     Low (2)
+          1                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (1)     Low (1)
+          1                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
+          1                                inst_fp_32                       FP Instructions(Single)  1006632960  1006632960  1006632960
+          1                                inst_fp_64                       FP Instructions(Double)           0           0           0
+          1                              inst_integer                          Integer Instructions    23068672    23068672    23068672
+          1                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
+          1                              inst_control                     Control-Flow Instructions     4194304     4194304     4194304
+          1                        inst_compute_ld_st                       Load/Store Instructions     4194304     4194304     4194304
+          1                                 inst_misc                             Misc Instructions    14680064    14680064    14680064
+          1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
+          1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
+          1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
     Kernel: void Mul4<double>(double*, int, double)
           1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                             flop_count_dp   Floating Point Operations(Double Precision)  1694498816  1694498816  1694498816
           1                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
@@ -825,6 +885,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           1                             flop_count_sp   Floating Point Operations(Single Precision)  1686110208  1686110208  1686110208
@@ -841,42 +902,21 @@ Device "Tesla P100-SXM2-16GB (0)"
           1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
           1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
           1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
-    Kernel: void MAdd1<float>(float*, int, float, float)
-          1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          1                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-          1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-          1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
-          1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
-          1                             flop_count_sp   Floating Point Operations(Single Precision)  2013265920  2013265920  2013265920
-          1                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)
-          1                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (1)     Low (1)
-          1                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
-          1                                inst_fp_32                       FP Instructions(Single)  1006632960  1006632960  1006632960
-          1                                inst_fp_64                       FP Instructions(Double)           0           0           0
-          1                              inst_integer                          Integer Instructions    23068672    23068672    23068672
-          1                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
-          1                              inst_control                     Control-Flow Instructions     4194304     4194304     4194304
-          1                        inst_compute_ld_st                       Load/Store Instructions     4194304     4194304     4194304
-          1                                 inst_misc                             Misc Instructions    14680064    14680064    14680064
-          1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
-          1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
-          1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
     Kernel: MulMAddU_DP(double*, double, double)
           1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          1                             flop_count_dp   Floating Point Operations(Double Precision)   790626304   790626304   790626304
+          1                             flop_count_dp   Floating Point Operations(Double Precision)   790495232   790495232   790495232
           1                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
           1                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)
           1                           tex_utilization                     Unified Cache Utilization    Idle (0)    Idle (0)    Idle (0)
           1                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
           1                                inst_fp_32                       FP Instructions(Single)           0           0           0
-          1                                inst_fp_64                       FP Instructions(Double)   528351232   528351232   528351232
+          1                                inst_fp_64                       FP Instructions(Double)   528285696   528285696   528285696
           1                              inst_integer                          Integer Instructions     1048576     1048576     1048576
           1                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
           1                              inst_control                     Control-Flow Instructions      327680      327680      327680
@@ -891,6 +931,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           1                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
@@ -913,6 +954,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           1                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
@@ -935,6 +977,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                             flop_count_dp   Floating Point Operations(Double Precision)  2017460224  2017460224  2017460224
           1                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
@@ -957,6 +1000,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           1                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
@@ -979,6 +1023,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           2                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           2           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           2                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          2             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           2           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           2                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           2                             flop_count_sp   Floating Point Operations(Single Precision)  2017460224  2517630976  2267545600
@@ -1001,6 +1046,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                             flop_count_dp   Floating Point Operations(Double Precision)  2025848832  2025848832  2025848832
           1                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
@@ -1023,6 +1069,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           1                             flop_count_sp   Floating Point Operations(Single Precision)  2025848832  2025848832  2025848832
@@ -1045,10 +1092,11 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           1                             flop_count_sp   Floating Point Operations(Single Precision)  1035993088  1035993088  1035993088
-          1                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)
+          1                          dram_utilization                     Device Memory Utilization     Low (2)     Low (2)     Low (2)
           1                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (1)     Low (1)
           1                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
           1                                inst_fp_32                       FP Instructions(Single)  1035993088  1035993088  1035993088
@@ -1057,7 +1105,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
           1                              inst_control                     Control-Flow Instructions     4194304     4194304     4194304
           1                        inst_compute_ld_st                       Load/Store Instructions     4194304     4194304     4194304
-          1                                 inst_misc                             Misc Instructions    12582912    12582912    12582912
+          1                                 inst_misc                             Misc Instructions    14680064    14680064    14680064
           1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
           1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
           1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
@@ -1067,6 +1115,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                             flop_count_dp   Floating Point Operations(Double Precision)  2042626048  2042626048  2042626048
           1                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
@@ -1089,6 +1138,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           1                             flop_count_sp   Floating Point Operations(Single Precision)  2042626048  2042626048  2042626048
@@ -1111,10 +1161,11 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           1                             flop_count_sp   Floating Point Operations(Single Precision)  1019215872  1019215872  1019215872
-          1                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)
+          1                          dram_utilization                     Device Memory Utilization     Low (2)     Low (2)     Low (2)
           1                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (1)     Low (1)
           1                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
           1                                inst_fp_32                       FP Instructions(Single)  1019215872  1019215872  1019215872
@@ -1123,7 +1174,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
           1                              inst_control                     Control-Flow Instructions     4194304     4194304     4194304
           1                        inst_compute_ld_st                       Load/Store Instructions     4194304     4194304     4194304
-          1                                 inst_misc                             Misc Instructions    12582912    12582912    12582912
+          1                                 inst_misc                             Misc Instructions    14680064    14680064    14680064
           1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
           1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
           1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
@@ -1133,6 +1184,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           1                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
           1                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           1           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                             flop_count_dp   Floating Point Operations(Double Precision)  1010827264  1010827264  1010827264
           1                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0

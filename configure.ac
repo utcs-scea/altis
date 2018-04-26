@@ -4,10 +4,10 @@ AC_PREREQ([2.65])
 AC_INIT([MIROVIA], [1.0.0], [sarahgw@cs.utexas.edu])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CANONICAL_SYSTEM
-AM_INIT_AUTOMAKE([foreign]) 
 AC_CONFIG_SRCDIR([src/common/Timer.h])
 AC_CONFIG_HEADERS([config/config.h])
 AM_MAINTAINER_MODE([disable])
+AM_INIT_AUTOMAKE([foreign subdir-objects])
 
 # Mirovia is a collection of C++ programs AC_LANG([C++])
 AC_LANG([C++])
@@ -137,7 +137,7 @@ AS_IF([test "x$with_cuda" != xno],
         AS_IF([test "x$with_cuda" = xyes],
             [AS_IF([test "x$CUDA_CPPFLAGS" = x],
                 [dnl generate CUDA code for broad spectrum of devices
-                 CUDA_CPPFLAGS=["-arch=sm_50 -gencode=arch=compute_50,code=sm_50"]
+                 CUDA_CPPFLAGS=["-arch=sm_60 -gencode=arch=compute_60,code=sm_60"]
                  AC_MSG_NOTICE([using CUDA_CPPFLAGS=$CUDA_CPPFLAGS])
                  AC_MSG_WARN([*** MIROVIA programs may fail if these -gencode values do not apply to your GPU.  If they don't apply, or if you want to shorten MIROVIA's compile time, determine the -gencode options that apply for your GPU and re-configure MIROVIA explicitly specifying only those options in CUDA_CPPFLAGS during the configure. ***])
                 ]
@@ -150,7 +150,7 @@ AS_IF([test "x$with_cuda" != xno],
 AM_CONDITIONAL([BUILD_CUDA], [test "x$with_cuda" = "xyes"])
 
 # test whether or not to build new cuda features in benchmarks
-
+'''
 unified_memory=yes
 grid_sync=yes
 hyperq=yes
@@ -199,7 +199,7 @@ AS_IF([test "x$dynamic_parallelism" = "xyes"],
     [
         AC_MSG_RESULT([supports dynamic parallelism: no])
     ])
-
+'''
 
 AC_SUBST([USE_CUDA])
 AC_SUBST([NVCXXFLAGS])
@@ -228,6 +228,7 @@ AC_CONFIG_FILES([Makefile
                  src/cuda/level2/kmeans/Makefile
                  src/cuda/level2/lavamd/Makefile
                  src/cuda/level2/mandelbrot/Makefile
+                 src/cuda/level2/neuralnet/Makefile
                  src/cuda/level2/nw/Makefile
                  src/cuda/level2/particlefilter/Makefile
                  src/cuda/level2/srad/Makefile
