@@ -11,10 +11,12 @@
 
 #define BLOCK_SIZE 256
 #define STR_SIZE 256
-#define HALO 1  // halo width along one direction when advancing to the next iteration
+#define HALO \
+  1  // halo width along one direction when advancing to the next iteration
 #define SEED 7
 
-void run(long long borderCols, long long smallBlockCol, long long blockCols, ResultDatabase &resultDB, OptionParser &op);
+void run(long long borderCols, long long smallBlockCol, long long blockCols,
+         ResultDatabase &resultDB, OptionParser &op);
 
 long long rows, cols;
 long long *data;
@@ -71,19 +73,19 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   long long rowLen = op.getOptionInt("rows");
   long long colLen = op.getOptionInt("cols");
   long long pyramidHeight = op.getOptionInt("pyramidHeight");
-  
-  if(rowLen == 0 || colLen == 0 || pyramidHeight == 0) {
-      printf("Parameters not fully specified, using preset problem size\n");
-      long long rowSizes[4] = {8, 16, 32, 64};
-      long long colSizes[4] = {8, 16, 32, 64};
-      long long pyramidSizes[4] = {4, 8, 16, 32};
-      rows = rowSizes[op.getOptionInt("size") - 1];
-      cols = colSizes[op.getOptionInt("size") - 1] * 1024 * 1024;
-      pyramid_height = pyramidSizes[op.getOptionInt("size") - 1];
+
+  if (rowLen == 0 || colLen == 0 || pyramidHeight == 0) {
+    printf("Parameters not fully specified, using preset problem size\n");
+    long long rowSizes[4] = {8, 16, 32, 64};
+    long long colSizes[4] = {8, 16, 32, 64};
+    long long pyramidSizes[4] = {4, 8, 16, 32};
+    rows = rowSizes[op.getOptionInt("size") - 1];
+    cols = colSizes[op.getOptionInt("size") - 1] * 1024 * 1024;
+    pyramid_height = pyramidSizes[op.getOptionInt("size") - 1];
   } else {
-      rows = rowLen;
-      cols = colLen;
-      pyramid_height = pyramidHeight;
+    rows = rowLen;
+    cols = colLen;
+    pyramid_height = pyramidHeight;
   }
 
   printf("Row length: %lld\n", rows);
@@ -93,15 +95,16 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   /* --------------- pyramid parameters --------------- */
   long long borderCols = (pyramid_height)*HALO;
   long long smallBlockCol = BLOCK_SIZE - (pyramid_height)*HALO * 2;
-  long long blockCols = cols / smallBlockCol + ((cols % smallBlockCol == 0) ? 0 : 1);
+  long long blockCols =
+      cols / smallBlockCol + ((cols % smallBlockCol == 0) ? 0 : 1);
 
   printf(
-          "gridSize: [%lld],border:[%lld],blockSize: "
-          "[%d],blockGrid:[%lld],targetBlock:[%lld]\n",
-          cols, borderCols, BLOCK_SIZE, blockCols, smallBlockCol);
+      "gridSize: [%lld],border:[%lld],blockSize: "
+      "[%d],blockGrid:[%lld],targetBlock:[%lld]\n",
+      cols, borderCols, BLOCK_SIZE, blockCols, smallBlockCol);
 
   long long passes = op.getOptionInt("passes");
-  for(long long i = 0; i < passes; i++) {
+  for (long long i = 0; i < passes; i++) {
     printf("Pass %lld: ", i);
     run(borderCols, smallBlockCol, blockCols, resultDB, op);
     printf("Done.\n");
@@ -122,7 +125,7 @@ void init(OptionParser &op) {
     }
   }
   string resultsfile = op.getOptionString("resultsfile");
-  if(resultsfile != "") {
+  if (resultsfile != "") {
     std::fstream fs;
     fs.open(resultsfile.c_str(), std::fstream::in);
     fs.close();
@@ -135,8 +138,9 @@ void fatal(char *s) { fprintf(stderr, "error: %s\n", s); }
 #define CLAMP_RANGE(x, min, max) x = (x < (min)) ? min : ((x > (max)) ? max : x)
 #define MIN(a, b) ((a) <= (b) ? (a) : (b))
 
-__global__ void dynproc_kernel(long long iteration, long long *gpuWall, long long *gpuSrc,
-                               long long *gpuResults, long long cols, long long rows,
+__global__ void dynproc_kernel(long long iteration, long long *gpuWall,
+                               long long *gpuSrc, long long *gpuResults,
+                               long long cols, long long rows,
                                long long startStep, long long border) {
   __shared__ long long prev[BLOCK_SIZE];
   __shared__ long long result[BLOCK_SIZE];
@@ -154,7 +158,8 @@ __global__ void dynproc_kernel(long long iteration, long long *gpuWall, long lon
 
   // calculate the boundary for the block according to
   // the boundary of its small block
-  long long blkX = (long long)small_block_cols * (long long)bx - (long long)border;
+  long long blkX =
+      (long long)small_block_cols * (long long)bx - (long long)border;
   long long blkXmax = blkX + (long long)BLOCK_SIZE - 1;
 
   // calculate the global thread coordination
@@ -164,8 +169,10 @@ __global__ void dynproc_kernel(long long iteration, long long *gpuWall, long lon
   // the valid range of the input data
   // used to rule out computation outside the boundary.
   long long validXmin = (blkX < 0) ? -blkX : 0;
-  long long validXmax = (blkXmax > (long long)cols - 1) ? (long long)BLOCK_SIZE - 1 - (blkXmax - (long long)cols + 1)
-                                       : (long long)BLOCK_SIZE - 1;
+  long long validXmax =
+      (blkXmax > (long long)cols - 1)
+          ? (long long)BLOCK_SIZE - 1 - (blkXmax - (long long)cols + 1)
+          : (long long)BLOCK_SIZE - 1;
 
   long long W = tx - 1;
   long long E = tx + 1;
@@ -210,8 +217,10 @@ __global__ void dynproc_kernel(long long iteration, long long *gpuWall, long lon
 /*
    compute N time steps
 */
-long long calc_path(long long *gpuWall, long long *gpuResult[2], long long rows, long long cols,
-              long long pyramid_height, long long blockCols, long long borderCols, double& kernelTime) {
+long long calc_path(long long *gpuWall, long long *gpuResult[2], long long rows,
+                    long long cols, long long pyramid_height,
+                    long long blockCols, long long borderCols,
+                    double &kernelTime, bool hyperq) {
   dim3 dimBlock(BLOCK_SIZE);
   dim3 dimGrid(blockCols);
 
@@ -220,51 +229,52 @@ long long calc_path(long long *gpuWall, long long *gpuResult[2], long long rows,
   cudaEventCreate(&stop);
   float elapsedTime;
 
-  long long numStreams = 1;
+  long long numStreams = 32;
   cudaStream_t streams[numStreams];
-  for(long long s = 0; s < numStreams; s++) {
-      cudaStreamCreate(&streams[s]);
+  for (long long s = 0; s < numStreams; s++) {
+    cudaStreamCreate(&streams[s]);
   }
   long long src = 1, dst = 0;
   for (long long t = 0; t < rows - 1; t += pyramid_height) {
-    for(long long s = 0; s < numStreams; s++) {
-    long long temp = src;
-    src = dst;
-    dst = temp;
+    for (long long s = 0; s < numStreams; s++) {
+      long long temp = src;
+      src = dst;
+      dst = temp;
 
-#ifdef HYPERQ
-    if(t == 0 && s == 0) {
+    if(hyperq) {
+      if (t == 0 && s == 0) {
         cudaEventRecord(start, streams[s]);
-    }
-    dynproc_kernel<<<dimGrid, dimBlock, 0, streams[s]>>>(
-        MIN(pyramid_height, rows - t - 1), gpuWall, gpuResult[src],
-        gpuResult[dst], cols, rows, t, borderCols);
-    if(t + pyramid_height >= rows - 1 && s == numStreams - 1) {
+      }
+      dynproc_kernel<<<dimGrid, dimBlock, 0, streams[s]>>>(
+          MIN(pyramid_height, rows - t - 1), gpuWall, gpuResult[src],
+          gpuResult[dst], cols, rows, t, borderCols);
+      if (t + pyramid_height >= rows - 1 && s == numStreams - 1) {
         cudaDeviceSynchronize();
         cudaEventRecord(stop, streams[s]);
         cudaEventSynchronize(stop);
         CHECK_CUDA_ERROR();
         cudaEventElapsedTime(&elapsedTime, start, stop);
         kernelTime += elapsedTime * 1.e-3;
-    }
-#else
-    cudaEventRecord(start, 0);
-    dynproc_kernel<<<dimGrid, dimBlock>>>(
-        MIN(pyramid_height, rows - t - 1), gpuWall, gpuResult[src],
-        gpuResult[dst], cols, rows, t, borderCols);
-    cudaDeviceSynchronize();
-    cudaEventRecord(stop, 0);
-    cudaEventSynchronize(stop);
-    CHECK_CUDA_ERROR();
-    cudaEventElapsedTime(&elapsedTime, start, stop);
-    kernelTime += elapsedTime * 1.e-3;
-#endif
       }
+    } else {
+      cudaEventRecord(start, 0);
+      dynproc_kernel<<<dimGrid, dimBlock>>>(
+          MIN(pyramid_height, rows - t - 1), gpuWall, gpuResult[src],
+          gpuResult[dst], cols, rows, t, borderCols);
+      cudaDeviceSynchronize();
+      cudaEventRecord(stop, 0);
+      cudaEventSynchronize(stop);
+      CHECK_CUDA_ERROR();
+      cudaEventElapsedTime(&elapsedTime, start, stop);
+      kernelTime += elapsedTime * 1.e-3;
     }
+    }
+  }
   return dst;
 }
 
-void run(long long borderCols, long long smallBlockCol, long long blockCols, ResultDatabase &resultDB, OptionParser &op) {
+void run(long long borderCols, long long smallBlockCol, long long blockCols,
+         ResultDatabase &resultDB, OptionParser &op) {
   // initialize data
   init(op);
 
@@ -273,7 +283,8 @@ void run(long long borderCols, long long smallBlockCol, long long blockCols, Res
 
   CUDA_SAFE_CALL(cudaMalloc((void **)&gpuResult[0], sizeof(long long) * cols));
   CUDA_SAFE_CALL(cudaMalloc((void **)&gpuResult[1], sizeof(long long) * cols));
-  CUDA_SAFE_CALL(cudaMalloc((void **)&gpuWall, sizeof(long long) * (size - cols)));
+  CUDA_SAFE_CALL(
+      cudaMalloc((void **)&gpuWall, sizeof(long long) * (size - cols)));
 
   // Cuda events and times
   cudaEvent_t start, stop;
@@ -284,28 +295,35 @@ void run(long long borderCols, long long smallBlockCol, long long blockCols, Res
   double kernelTime = 0;
 
   cudaEventRecord(start, 0);
-  CUDA_SAFE_CALL(cudaMemcpy(gpuResult[0], data, sizeof(long long) * cols, cudaMemcpyHostToDevice));
-  CUDA_SAFE_CALL(cudaMemcpy(gpuWall, data+cols, sizeof(long long) * (size-cols),
-             cudaMemcpyHostToDevice));
+  CUDA_SAFE_CALL(cudaMemcpy(gpuResult[0], data, sizeof(long long) * cols,
+                            cudaMemcpyHostToDevice));
+  CUDA_SAFE_CALL(cudaMemcpy(gpuWall, data + cols,
+                            sizeof(long long) * (size - cols),
+                            cudaMemcpyHostToDevice));
   cudaEventRecord(stop, 0);
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&elapsedTime, start, stop);
-  transferTime += elapsedTime * 1.e-3; // convert to seconds
+  transferTime += elapsedTime * 1.e-3;  // convert to seconds
 
-  long long final_ret = calc_path(gpuWall, gpuResult, rows, cols, pyramid_height,
-                            blockCols, borderCols, kernelTime);
+  long long final_ret =
+      calc_path(gpuWall, gpuResult, rows, cols, pyramid_height, blockCols,
+                borderCols, kernelTime, false);
+#ifdef HYPERQ
+  double hyperqKernelTime = 0;
+  calc_path(gpuWall, gpuResult, rows, cols, pyramid_height, blockCols,
+            borderCols, hyperqKernelTime, true);
+#endif
 
   cudaEventRecord(start, 0);
-  CUDA_SAFE_CALL(cudaMemcpy(result, gpuResult[final_ret], sizeof(long long) * cols,
-             cudaMemcpyDeviceToHost));
+  CUDA_SAFE_CALL(cudaMemcpy(result, gpuResult[final_ret],
+                            sizeof(long long) * cols, cudaMemcpyDeviceToHost));
   cudaEventRecord(stop, 0);
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&elapsedTime, start, stop);
-  transferTime += elapsedTime * 1.e-3; // convert to seconds
-
+  transferTime += elapsedTime * 1.e-3;  // convert to seconds
 
   string resultsfile = op.getOptionString("resultsfile");
-  if(!resultsfile.empty()) {
+  if (!resultsfile.empty()) {
     std::fstream fs;
     fs.open(resultsfile.c_str(), std::fstream::app);
     fs << "***DATA***" << std::endl;
@@ -329,8 +347,16 @@ void run(long long borderCols, long long smallBlockCol, long long blockCols, Res
   delete[] result;
 
   string atts = toString(rows) + "x" + toString(cols);
-  resultDB.AddResult("Pathfinder-TransferTime", atts, "sec", transferTime);
-  resultDB.AddResult("Pathfinder-KernelTime", atts, "sec", kernelTime);
-  resultDB.AddResult("Pathfinder-TotalTime", atts, "sec", transferTime + kernelTime);
-  resultDB.AddResult("Pathfinder-Rate_Parity", atts, "N", transferTime/kernelTime);
+  resultDB.AddResult("Pathfinder_TransferTime", atts, "sec", transferTime);
+  resultDB.AddResult("Pathfinder_KernelTime", atts, "sec", kernelTime);
+  resultDB.AddResult("Pathfinder_Parity", atts, "N",
+                     transferTime / kernelTime);
+#ifdef HYPERQ
+  resultDB.AddResult("Pathfinder_Hyperq_TransferTime", atts, "sec", transferTime);
+  resultDB.AddResult("Pathfinder_Hyperq_KernelTime", atts, "sec", hyperqKernelTime);
+  resultDB.AddResult("Pathfinder_Hyperq_Parity", atts, "N",
+                     transferTime / hyperqKernelTime);
+  resultDB.AddResult("Pathfinder_Hyperq_Speedup", atts, "sec",
+                     transferTime + kernelTime);
+#endif
 }

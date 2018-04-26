@@ -296,23 +296,32 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 #else
     printf("Not using dynamic parallelism\n");
 #endif
+    
+    char atts[1024];
+    sprintf(atts, "img:%d,iter:%d", imageSize, iters);
 
     int passes = op.getOptionInt("passes");
     for(int i = 0; i < passes; i++) {
+        printf("Pass %d:\n", i);
+
         kernelTime = 0.0f;
         transferTime = 0.0f;
-        printf("Pass %d:\n", i);
-#ifdef DYNAMIC_PARALLELISM
-        mandelbrot_dyn(imageSize, iters);
-#else
         mandelbrot(imageSize, iters);
-#endif
-        printf("Done.\n");
-        char atts[1024];
-        sprintf(atts, "img:%d,iter:%d", imageSize, iters);
         resultDB.AddResult("mandelbrot_kernel_time", atts, "sec", kernelTime);
         resultDB.AddResult("mandelbrot_transfer_time", atts, "sec", transferTime);
         resultDB.AddResult("mandelbrot_parity", atts, "N", transferTime / kernelTime);
+#ifdef DYNAMIC_PARALLELISM
+        float totalTime = kernelTime + transferTime;
+        kernelTime = 0.0f;
+        transferTime = 0.0f;
+        mandelbrot_dyn(imageSize, iters);
+        resultDB.AddResult("mandelbrot_dynpar_kernel_time", atts, "sec", kernelTime);
+        resultDB.AddResult("mandelbrot_dynpar_transfer_time", atts, "sec", transferTime);
+        resultDB.AddResult("mandelbrot_dynpar_parity", atts, "N", transferTime / kernelTime);
+        resultDB.AddResult("mandelbrot_dynpar_speedup", atts, "N", totalTime / (kernelTime + transferTime));
+#endif
+
+        printf("Done.\n");
     }
 
 }
