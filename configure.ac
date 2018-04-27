@@ -226,7 +226,6 @@ AC_CONFIG_FILES([Makefile
                  src/cuda/level2/kmeans/Makefile
                  src/cuda/level2/lavamd/Makefile
                  src/cuda/level2/mandelbrot/Makefile
-                 src/cuda/level2/neuralnet/Makefile
                  src/cuda/level2/nw/Makefile
                  src/cuda/level2/particlefilter/Makefile
                  src/cuda/level2/srad/Makefile
