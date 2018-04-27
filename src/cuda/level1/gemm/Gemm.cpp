@@ -25,20 +25,6 @@ inline void devGEMM(char transa, char transb, int m, int n, int k, T alpha,
                     const T *A, int lda, const T *B, int ldb, T beta, T *C,
                     int ldc);
 
-// ********************************************************
-// Function: error
-//
-// Purpose:
-//   Simple routine to print an error message and exit
-//
-// Arguments:
-//   message: an error message to print before exiting
-//
-// ********************************************************
-void error(char *message) {
-  cerr << "ERROR: " << message << endl;
-  exit(1);
-}
 
 // ********************************************************
 // Function: fill
@@ -129,13 +115,19 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 
   srand(SEED);
 
-  cout << "Running single precision test" << endl;
+  bool quiet = op.getOptionBool("quiet");
+
+  if(!quiet) {
+    cout << "Running single precision test" << endl;
+  }
   RunTest<float>("SGEMM", resultDB, op);
 
   // Test to see if this device supports double precision
   if ((deviceProp.major == 1 && deviceProp.minor >= 3) ||
       (deviceProp.major >= 2)) {
-    cout << "Running double precision test" << endl;
+    if(!quiet) {
+        cout << "Running double precision test" << endl;
+    }
     RunTest<double>("DGEMM", resultDB, op);
   }
 }

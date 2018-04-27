@@ -101,7 +101,6 @@ __global__ void Kernel2( bool* g_graph_mask, bool *g_updating_graph_mask, bool* 
 //
 // ****************************************************************************
 void addBenchmarkSpecOptions(OptionParser &op) {
-  op.addOption("resultsfile", OPT_STRING, "", "file to write results to");
 }
 
 // ****************************************************************************
@@ -128,6 +127,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     cudaDeviceProp deviceProp;
     cudaGetDeviceProperties(&deviceProp, device);
 
+    // seed random number generator
 	srand(SEED);
 
     int no_of_nodes = 0;
@@ -142,21 +142,28 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     sprintf(tmp, "%dV,%dE", no_of_nodes, edge_list_size);
     string atts = string(tmp);
 
+    bool quiet = op.getOptionBool("quiet");
     int passes = op.getOptionInt("passes");
     for(int i = 0; i < passes; i++) {
-        printf("Pass %d:\n", i);
+        if(!quiet) {
+            printf("Pass %d:\n", i);
+        }
         float time = BFSGraph(resultDB, op, no_of_nodes, edge_list_size, source, h_graph_nodes, h_graph_edges);
-        if(time == FLT_MAX) {
-            printf("Executing BFS...Error.\n");
-        } else {
-            printf("Executing BFS...Done.\n");
+        if(!quiet) {
+            if(time == FLT_MAX) {
+                printf("Executing BFS...Error.\n");
+            } else {
+                printf("Executing BFS...Done.\n");
+            }
         }
 #ifdef UNIFIED_MEMORY
         float timeUM = BFSGraphUnifiedMemory(resultDB, op, no_of_nodes, edge_list_size, source, h_graph_nodes, h_graph_edges);
-        if(timeUM == FLT_MAX) {
-            printf("Executing BFS using unified memory...Error.\n");
-        } else {
-            printf("Executing BFS using unified memory...Done.\n");
+        if(!quiet) {
+            if(timeUM == FLT_MAX) {
+                printf("Executing BFS using unified memory...Error.\n");
+            } else {
+                printf("Executing BFS using unified memory...Done.\n");
+            }
         }
         if(time != FLT_MAX && timeUM != FLT_MAX) {
             resultDB.AddResult("BFS_Time/BFS_UM_Time", atts, "N", time/timeUM);
@@ -182,21 +189,24 @@ int uniform_distribution(int rangeLow, int rangeHigh) {
 //Initialize Graph
 ////////////////////////////////////////////////////////////////////////////////
 void initGraph(OptionParser &op, int &no_of_nodes, int &edge_list_size, int &source, Node* &h_graph_nodes, int* &h_graph_edges) {
+    bool quiet = op.getOptionBool("quiet");
     // open input file for reading
     FILE *fp = NULL;
     string infile = op.getOptionString("inputFile");
     if(infile != "") {
         fp = fopen(infile.c_str(),"r");
-        if(!fp)
+        if(!fp && !quiet)
         {
             printf("Error: Unable to read graph file %s.\n", infile.c_str());
         }
     }
 
-    if(fp) {
-        printf("Reading graph file\n");
-    } else {
-        printf("Generating graph with problem size %d\n", (int)op.getOptionInt("size"));
+    if(!quiet) {
+        if(fp) {
+            printf("Reading graph file\n");
+        } else {
+            printf("Generating graph with problem size %d\n", (int)op.getOptionInt("size"));
+        }
     }
 
     // initialize number of nodes
@@ -258,14 +268,15 @@ void initGraph(OptionParser &op, int &no_of_nodes, int &edge_list_size, int &sou
 		h_graph_edges[i] = id;
 	}
 
-    if(fp) {
-        fclose(fp);    
-        printf("Done reading graph file\n");
-    } else {
-        printf("Done generating graph\n");
+    if(!quiet) {
+        if(fp) {
+            fclose(fp);    
+            printf("Done reading graph file\n");
+        } else {
+            printf("Done generating graph\n");
+        }
+        printf("Graph size: %d nodes, %d edges\n", no_of_nodes, edge_list_size);
     }
-
-    printf("Graph size: %d nodes, %d edges\n", no_of_nodes, edge_list_size);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -362,18 +373,10 @@ double transferTime = 0.;
     cudaEventSynchronize(tstop);
     cudaEventElapsedTime(&elapsedTime, tstart, tstop);
     transferTime += elapsedTime * 1.e-3; // convert to seconds
-    if(verbose) {
-        printf("Transfer Time: %f\n", transferTime);
-	    printf("Copied Everything to GPU memory\n");
-    }
 
 	// setup execution parameters
 	dim3  grid( num_of_blocks, 1, 1);
 	dim3  threads( num_of_threads_per_block, 1, 1);
-
-    if(verbose) {
-	    printf("Start traversing the tree\n");
-    }
 
     double kernelTime = 0;
 	int k=0;
@@ -409,7 +412,6 @@ double transferTime = 0.;
 	while(stop);
 
     if(verbose) {
-        printf("Kernel Time: %f\n", kernelTime);
 	    printf("Kernel Executed %d times\n",k);
     }
 
@@ -422,16 +424,13 @@ double transferTime = 0.;
     transferTime += elapsedTime * 1.e-3; // convert to seconds
 
 	//Store the result into a file
-    string resultsfile = op.getOptionString("resultsfile");
-    if(resultsfile != "") {
-        FILE *fpo = fopen(resultsfile.c_str(),"w");
+    string outfile = op.getOptionString("outputFile");
+    if(outfile != "") {
+        FILE *fpo = fopen(outfile.c_str(),"w");
         for(int i=0;i<no_of_nodes;i++) {
             fprintf(fpo,"%d) cost:%d\n",i,h_cost[i]);
         }
         fclose(fpo);
-        if(verbose) {
-            printf("Result stored in %s\n", resultsfile.c_str());
-        }
     }
 
 	// cleanup memory
@@ -465,6 +464,8 @@ double transferTime = 0.;
 ////////////////////////////////////////////////////////////////////////////////
 float BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, int no_of_nodes, int edge_list_size, int source, Node* &h_graph_nodes, int* &h_graph_edges) {
     bool verbose = op.getOptionBool("verbose");
+    bool quiet = op.getOptionBool("quiet");
+
 	int num_of_blocks = 1;
 	int num_of_threads_per_block = no_of_nodes;
 	//Make execution Parameters according to the number of nodes
@@ -567,7 +568,7 @@ float BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, int no_o
 	}
 	while(stop);
 
-    if(verbose) {
+    if(verbose && !quiet) {
         printf("Kernel Time: %f\n", kernelTime);
         printf("Kernel Executed %d times\n",k);
     }

@@ -211,7 +211,7 @@ bool checkResult(T *hostMem2, int numFloats, int halfNumFloats) {
     // should match the second half exactly
     for (int j = 0; j < halfNumFloats; ++j) {
         if (hostMem2[j] != hostMem2[numFloats - j - 1]) {
-            cout << "Error; hostMem2[" << j << "]=" << (float)hostMem2[j]
+            cerr << "Error; hostMem2[" << j << "]=" << (float)hostMem2[j]
                 << " is different from its twin element hostMem2["
                 << (numFloats - j - 1) << "]=" << (float)hostMem2[numFloats - j - 1]
                 << "; stopping check\n";
