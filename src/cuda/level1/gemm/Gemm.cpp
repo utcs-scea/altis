@@ -6,6 +6,7 @@
 #include "cuda.h"
 #include "cuda_runtime.h"
 #include "cudacommon.h"
+#include "cuda_fp16.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -136,25 +137,6 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
       (deviceProp.major >= 2)) {
     cout << "Running double precision test" << endl;
     RunTest<double>("DGEMM", resultDB, op);
-  } else {
-    cout << "Skipping double precision test" << endl;
-    char atts[1024] = "DP_Not_Supported";
-    // resultDB requires neg entry for every possible result
-    int passes = op.getOptionInt("passes");
-    for (int i = 0; i < passes; i++) {
-      for (int i = 0; i < 2; i++) {
-        const char transb = i ? 'T' : 'N';
-        string testName = "DGEMM";
-        resultDB.AddResult(testName + "-" + transb + "-TransferTime", atts, "sec", FLT_MAX);
-        resultDB.AddResult(testName + "-" + transb + "-KernelTime", atts, "sec", FLT_MAX);
-        resultDB.AddResult(testName + "-" + transb + "-TotalTime", atts, "sec", FLT_MAX);
-        resultDB.AddResult(testName + "-" + transb, atts, "GFlops", FLT_MAX);
-        resultDB.AddResult(testName + "-" + transb + "_PCIe", atts, "GFlops",
-                           FLT_MAX);
-        resultDB.AddResult(testName + "-" + transb + "_Parity", atts, "N",
-                           FLT_MAX);
-      }
-    }
   }
 }
 
@@ -237,8 +219,8 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
       const int lda = dim;
       const int ldb = dim;
       const int ldc = dim;
-      const float alpha = 1;
-      const float beta = 0; //-1;
+      const T alpha = 1;
+      const T beta = 0; //-1;
 
       // Warm Up
       devGEMM<T>(transa, transb, m, n, k, alpha, dA, lda, dB, ldb, beta, dC,
@@ -300,6 +282,7 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
   cublasShutdown();
 }
 
+
 template <>
 inline void devGEMM<double>(char transa, char transb, int m, int n, int k,
                             double alpha, const double *A, int lda,
@@ -314,3 +297,4 @@ inline void devGEMM<float>(char transa, char transb, int m, int n, int k,
                            int ldb, float beta, float *C, int ldc) {
   cublasSgemm(transa, transb, m, n, k, alpha, A, lda, B, ldb, beta, C, ldc);
 }
+

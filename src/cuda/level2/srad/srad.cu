@@ -247,6 +247,7 @@ float srad(ResultDatabase &resultDB, OptionParser &op, float* matrix, int imageS
     return kernelTime + transferTime;
 }
 
+#ifdef GRID_SYNC
 float srad_gridsync(ResultDatabase &resultDB, OptionParser &op, float* matrix, int imageSize,
           int speckleSize, int iters) {
     kernelTime = 0.0f;
@@ -388,6 +389,8 @@ float srad_gridsync(ResultDatabase &resultDB, OptionParser &op, float* matrix, i
 #endif
     return kernelTime + transferTime;
 }
+
+#endif //GRID_SYNC
 
 void random_matrix(float *I, int rows, int cols) {
   for (int i = 0; i < rows; i++) {

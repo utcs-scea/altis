@@ -88,8 +88,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-cuda_PROGRAMS = busspeedreadback$(EXEEXT)
-subdir = src/cuda/level0/busspeedreadback
+cuda_PROGRAMS = neuralnet$(EXEEXT)
+subdir = src/cuda/level2/neuralnet
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -101,11 +101,10 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(cudadir)"
 PROGRAMS = $(cuda_PROGRAMS)
-am_busspeedreadback_OBJECTS = main.$(OBJEXT)
-busspeedreadback_OBJECTS = $(am_busspeedreadback_OBJECTS)
+am_neuralnet_OBJECTS = convolution.$(OBJEXT) main.$(OBJEXT)
+neuralnet_OBJECTS = $(am_neuralnet_OBJECTS)
 am__DEPENDENCIES_1 =
-busspeedreadback_DEPENDENCIES = BusSpeedReadback.o \
-	$(am__DEPENDENCIES_1)
+neuralnet_DEPENDENCIES = convolution.o $(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -135,8 +134,8 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(busspeedreadback_SOURCES)
-DIST_SOURCES = $(busspeedreadback_SOURCES)
+SOURCES = $(neuralnet_SOURCES)
+DIST_SOURCES = $(neuralnet_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -286,8 +285,16 @@ AM_CPPFLAGS = $(CUDA_INC)
 
 # What is the destination for programs built from this directory?
 cudadir = $(bindir)/CUDA
-busspeedreadback_SOURCES = main.cpp
-busspeedreadback_LDADD = BusSpeedReadback.o $(CUDA_LIBS) $(LIBS)
+
+# How to build those programs?
+neuralnet_SOURCES = \
+convolution.cpp \
+main.cpp
+
+neuralnet_LDADD = \
+convolution.o \
+$(CUDA_LIBS) $(LIBS) -lm
+
 all: all-am
 
 .SUFFIXES:
@@ -301,9 +308,9 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__confi
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/cuda/level0/busspeedreadback/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/cuda/level2/neuralnet/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign src/cuda/level0/busspeedreadback/Makefile
+	  $(AUTOMAKE) --foreign src/cuda/level2/neuralnet/Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
 	  *config.status*) \
@@ -364,9 +371,9 @@ uninstall-cudaPROGRAMS:
 clean-cudaPROGRAMS:
 	-test -z "$(cuda_PROGRAMS)" || rm -f $(cuda_PROGRAMS)
 
-busspeedreadback$(EXEEXT): $(busspeedreadback_OBJECTS) $(busspeedreadback_DEPENDENCIES) $(EXTRA_busspeedreadback_DEPENDENCIES) 
-	@rm -f busspeedreadback$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(busspeedreadback_OBJECTS) $(busspeedreadback_LDADD) $(LIBS)
+neuralnet$(EXEEXT): $(neuralnet_OBJECTS) $(neuralnet_DEPENDENCIES) $(EXTRA_neuralnet_DEPENDENCIES) 
+	@rm -f neuralnet$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(neuralnet_OBJECTS) $(neuralnet_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -374,6 +381,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/convolution.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 
 .cpp.o:

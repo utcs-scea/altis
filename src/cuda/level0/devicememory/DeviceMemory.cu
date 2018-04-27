@@ -129,7 +129,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   float t = 0.0f;
   cudaEventElapsedTime(&t, start, stop);
   t /= 1.e3;
-  double scalet = 0.15 / t;
+  double scalet = 0.1 / t;
   if (scalet < 1)
     scalet = 1;
 
@@ -283,9 +283,9 @@ void TestTextureMem(ResultDatabase &resultDB, OptionParser &op, double scalet) {
   const unsigned int passes = op.getOptionInt("passes");
   // Sizes of textures tested (in kb)
   const unsigned int nsizes = 5;
-  const unsigned int sizes[] = {16, 64, 256, 1024, 4096};
+  const unsigned int sizes[] = {256, 512, 1024, 2048, 4096};
   // Number of texel accesses by each kernel
-  const unsigned int kernelRepFactors[] = {1024, 1024, 1024, 1024, 256};
+  const unsigned int kernelRepFactors[] = {2048, 2048, 2048, 2048, 512};
   // Number of times to repeat each kernel per test
   const unsigned int iterations = 1 * scalet;
 
