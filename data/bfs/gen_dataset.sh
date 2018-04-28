@@ -28,6 +28,5 @@ python3 datagen.py -n 1048576
 python3 datagen.py -n 2097152
 python3 datagen.py -n 4194304
 python3 datagen.py -n 8388608
-python3 datagen.py -n 16777216
 
 
