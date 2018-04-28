@@ -1,0 +1,19 @@
+==17681== NVPROF is profiling process 17681, command: cuda/particlefilter/particlefilter_naive -x 128 -y 128 -z 10 -np 1000
+==17681== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==17681== Profiling application: cuda/particlefilter/particlefilter_naive -x 128 -y 128 -z 10 -np 1000
+==17681== Profiling result:
+==17681== Metric result:
+Invocations                               Metric Name                           Metric Description         Min         Max         Avg
+Device "Tesla M60 (0)"
+    Kernel: kernel(double*, double*, double*, double*, double*, double*, int)
+          9                         cf_fu_utilization       Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          9                        tex_fu_utilization            Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          9                       ldst_fu_utilization         Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          9           double_precision_fu_utilization   Double-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          9                    special_fu_utilization            Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          9           single_precision_fu_utilization   Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          9                          dram_utilization                    Device Memory Utilization    Idle (0)     Low (1)    Idle (0)
+          9                           tex_utilization                    Unified Cache Utilization     Low (1)     Low (1)     Low (1)
+          9                        shared_utilization                    Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
+          9                            l2_utilization                         L2 Cache Utilization     Low (1)     Low (1)     Low (1)
+          9                        sysmem_utilization                    System Memory Utilization     Low (1)     Low (1)     Low (1)

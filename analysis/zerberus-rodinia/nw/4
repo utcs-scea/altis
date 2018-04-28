@@ -1,0 +1,31 @@
+==17579== NVPROF is profiling process 17579, command: cuda/nw/needle 2048 10
+==17579== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==17579== Profiling application: cuda/nw/needle 2048 10
+==17579== Profiling result:
+==17579== Metric result:
+Invocations                               Metric Name                           Metric Description         Min         Max         Avg
+Device "Tesla M60 (0)"
+    Kernel: needle_cuda_shared_1(int*, int*, int, int, int, int)
+        128                         cf_fu_utilization       Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+        128                        tex_fu_utilization            Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+        128                       ldst_fu_utilization         Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
+        128           double_precision_fu_utilization   Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+        128                    special_fu_utilization            Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+        128           single_precision_fu_utilization   Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
+        128                          dram_utilization                    Device Memory Utilization     Low (1)     Mid (4)     Low (2)
+        128                           tex_utilization                    Unified Cache Utilization     Low (1)     Low (1)     Low (1)
+        128                        shared_utilization                    Shared Memory Utilization     Low (1)     Mid (4)     Low (2)
+        128                            l2_utilization                         L2 Cache Utilization     Low (1)     Low (1)     Low (1)
+        128                        sysmem_utilization                    System Memory Utilization     Low (1)     Low (1)     Low (1)
+    Kernel: needle_cuda_shared_2(int*, int*, int, int, int, int)
+        127                         cf_fu_utilization       Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+        127                        tex_fu_utilization            Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+        127                       ldst_fu_utilization         Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
+        127           double_precision_fu_utilization   Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+        127                    special_fu_utilization            Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+        127           single_precision_fu_utilization   Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
+        127                          dram_utilization                    Device Memory Utilization     Low (1)     Mid (4)     Low (2)
+        127                           tex_utilization                    Unified Cache Utilization     Low (1)     Low (1)     Low (1)
+        127                        shared_utilization                    Shared Memory Utilization     Low (1)     Mid (4)     Low (2)
+        127                            l2_utilization                         L2 Cache Utilization     Low (1)     Low (1)     Low (1)
+        127                        sysmem_utilization                    System Memory Utilization     Low (1)     Low (1)     Low (1)

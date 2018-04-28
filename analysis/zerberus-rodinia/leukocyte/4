@@ -1,0 +1,43 @@
+==19218== NVPROF is profiling process 19218, command: cuda/leukocyte/CUDA/leukocyte data/leukocyte/testfile.avi 5
+==19218== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==19218== Profiling application: cuda/leukocyte/CUDA/leukocyte data/leukocyte/testfile.avi 5
+==19218== Profiling result:
+==19218== Metric result:
+Invocations                               Metric Name                           Metric Description         Min         Max         Avg
+Device "Tesla M60 (0)"
+    Kernel: dilate_kernel(int, int, int, int, float*)
+          1                         cf_fu_utilization       Control-Flow Function Unit Utilization     Low (2)     Low (2)     Low (2)
+          1                        tex_fu_utilization            Texture Function Unit Utilization     Mid (6)     Mid (6)     Mid (6)
+          1                       ldst_fu_utilization         Load/Store Function Unit Utilization     Low (2)     Low (2)     Low (2)
+          1           double_precision_fu_utilization   Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1                    special_fu_utilization            Special Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1           single_precision_fu_utilization   Single-Precision Function Unit Utilization     Mid (6)     Mid (6)     Mid (6)
+          1                          dram_utilization                    Device Memory Utilization     Low (1)     Low (1)     Low (1)
+          1                           tex_utilization                    Unified Cache Utilization     Mid (6)     Mid (6)     Mid (6)
+          1                        shared_utilization                    Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
+          1                            l2_utilization                         L2 Cache Utilization     Low (3)     Low (3)     Low (3)
+          1                        sysmem_utilization                    System Memory Utilization     Low (1)     Low (1)     Low (1)
+    Kernel: IMGVF_kernel(float**, float**, int*, int*, float, float, float, int, float)
+          5                         cf_fu_utilization       Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5                        tex_fu_utilization            Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5                       ldst_fu_utilization         Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5           double_precision_fu_utilization   Double-Precision Function Unit Utilization    High (8)    High (8)    High (8)
+          5                    special_fu_utilization            Special Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5           single_precision_fu_utilization   Single-Precision Function Unit Utilization     Low (3)     Low (3)     Low (3)
+          5                          dram_utilization                    Device Memory Utilization     Low (1)     Low (1)     Low (1)
+          5                           tex_utilization                    Unified Cache Utilization     Low (1)     Low (1)     Low (1)
+          5                        shared_utilization                    Shared Memory Utilization     Low (1)     Low (1)     Low (1)
+          5                            l2_utilization                         L2 Cache Utilization     Low (1)     Low (1)     Low (1)
+          5                        sysmem_utilization                    System Memory Utilization     Low (1)     Low (1)     Low (1)
+    Kernel: GICOV_kernel(int, float*)
+          1                         cf_fu_utilization       Control-Flow Function Unit Utilization     Low (3)     Low (3)     Low (3)
+          1                        tex_fu_utilization            Texture Function Unit Utilization    High (7)    High (7)    High (7)
+          1                       ldst_fu_utilization         Load/Store Function Unit Utilization     Low (2)     Low (2)     Low (2)
+          1           double_precision_fu_utilization   Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1                    special_fu_utilization            Special Function Unit Utilization     Low (2)     Low (2)     Low (2)
+          1           single_precision_fu_utilization   Single-Precision Function Unit Utilization    High (7)    High (7)    High (7)
+          1                          dram_utilization                    Device Memory Utilization     Low (1)     Low (1)     Low (1)
+          1                           tex_utilization                    Unified Cache Utilization    High (7)    High (7)    High (7)
+          1                        shared_utilization                    Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
+          1                            l2_utilization                         L2 Cache Utilization     Low (2)     Low (2)     Low (2)
+          1                        sysmem_utilization                    System Memory Utilization     Low (1)     Low (1)     Low (1)

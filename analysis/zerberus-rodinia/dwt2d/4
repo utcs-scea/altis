@@ -1,0 +1,31 @@
+==19235== NVPROF is profiling process 19235, command: cuda/dwt2d/dwt2d cuda/dwt2d/192.bmp -d 192x192 -f -5 -l 3
+==19235== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==19235== Profiling application: cuda/dwt2d/dwt2d cuda/dwt2d/192.bmp -d 192x192 -f -5 -l 3
+==19235== Profiling result:
+==19235== Metric result:
+Invocations                               Metric Name                           Metric Description         Min         Max         Avg
+Device "Tesla M60 (0)"
+    Kernel: void dwt_cuda::fdwt53Kernel<int=64, int=8>(int const *, int*, int, int, int)
+          9                         cf_fu_utilization       Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          9                        tex_fu_utilization            Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          9                       ldst_fu_utilization         Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          9           double_precision_fu_utilization   Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          9                    special_fu_utilization            Special Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          9           single_precision_fu_utilization   Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          9                          dram_utilization                    Device Memory Utilization     Low (1)     Low (1)     Low (1)
+          9                           tex_utilization                    Unified Cache Utilization     Low (1)     Low (1)     Low (1)
+          9                        shared_utilization                    Shared Memory Utilization     Low (1)     Low (1)     Low (1)
+          9                            l2_utilization                         L2 Cache Utilization     Low (1)     Low (1)     Low (1)
+          9                        sysmem_utilization                    System Memory Utilization     Low (1)     Low (1)     Low (1)
+    Kernel: void c_CopySrcToComponents<int>(int*, int*, int*, unsigned char*, int)
+          1                         cf_fu_utilization       Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1                        tex_fu_utilization            Texture Function Unit Utilization     Low (3)     Low (3)     Low (3)
+          1                       ldst_fu_utilization         Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1           double_precision_fu_utilization   Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1                    special_fu_utilization            Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1           single_precision_fu_utilization   Single-Precision Function Unit Utilization     Low (2)     Low (2)     Low (2)
+          1                          dram_utilization                    Device Memory Utilization     Low (2)     Low (2)     Low (2)
+          1                           tex_utilization                    Unified Cache Utilization     Low (1)     Low (1)     Low (1)
+          1                        shared_utilization                    Shared Memory Utilization     Low (1)     Low (1)     Low (1)
+          1                            l2_utilization                         L2 Cache Utilization     Low (1)     Low (1)     Low (1)
+          1                        sysmem_utilization                    System Memory Utilization     Low (1)     Low (1)     Low (1)
