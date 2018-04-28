@@ -54,6 +54,7 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 // ****************************************************************************
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   const bool verbose = op.getOptionBool("verbose");
+  const bool quiet = op.getOptionBool("quiet");
   const bool pinned = op.getOptionBool("pinned");
 
   // Sizes are in kb
@@ -69,8 +70,9 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     cudaMallocHost((void **)&hostMem, sizeof(float) * numMaxFloats);
     while (cudaGetLastError() != cudaSuccess) {
       // drop the size and try again
-      if (verbose)
+      if (verbose && !quiet) {
         cout << " - dropping size allocating pinned mem\n";
+      }
       --nSizes;
       if (nSizes < 1) {
         cerr << "Error: Couldn't allocated any pinned buffer\n";
@@ -91,8 +93,9 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   cudaMalloc((void **)&device, sizeof(float) * numMaxFloats);
   while (cudaGetLastError() != cudaSuccess) {
     // drop the size and try again
-    if (verbose)
+    if (verbose && !quiet) {
       cout << " - dropping size allocating device mem\n";
+    }
     --nSizes;
     if (nSizes < 1) {
       cerr << "Error: Couldn't allocated any device buffer\n";
@@ -131,8 +134,8 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
       // times[sizeIndex] = t;
 
       // Convert to GB/sec
-      if (verbose) {
-        cerr << "size " << sizes[sizeIndex] << "k took " << t << " ms\n";
+      if (verbose && !quiet) {
+        cout << "size " << sizes[sizeIndex] << "k took " << t << " ms\n";
       }
 
       double speed = (double(sizes[sizeIndex]) * 1024. / (1000 * 1000)) / t;

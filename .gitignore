@@ -30,3 +30,6 @@ config/stamp-h1
 tools/buildFlags.txt
 tools/compilerVersion.txt
 tools/shocdriver
+
+# Ignore input files
+*/input/*

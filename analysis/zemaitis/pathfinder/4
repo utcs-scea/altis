@@ -1,8 +1,8 @@
-==46280== NVPROF is profiling process 46280, command: ./src/cuda/level1/pathfinder/pathfinder -s 4 -n 1
-==46280== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
-==46280== Profiling application: ./src/cuda/level1/pathfinder/pathfinder -s 4 -n 1
-==46280== Profiling result:
-==46280== Metric result:
+==15086== NVPROF is profiling process 15086, command: ./src/cuda/level1/pathfinder/pathfinder -s 4 -n 1
+==15086== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==15086== Profiling application: ./src/cuda/level1/pathfinder/pathfinder -s 4 -n 1
+==15086== Profiling result:
+==15086== Metric result:
 Invocations                               Metric Name                            Metric Description         Min         Max         Avg
 Device "Tesla P100-SXM2-16GB (0)"
     Kernel: dynproc_kernel(int, int*, int*, int*, int, int, int, int)
@@ -17,14 +17,14 @@ Device "Tesla P100-SXM2-16GB (0)"
           4                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
           4                          dram_utilization                     Device Memory Utilization     Mid (5)     Mid (5)     Mid (5)
           4                           tex_utilization                     Unified Cache Utilization     Low (2)     Low (2)     Low (2)
-          4                        shared_utilization                     Shared Memory Utilization     Low (3)     Low (3)     Low (3)
+          4                        shared_utilization                     Shared Memory Utilization     Low (2)     Low (2)     Low (2)
           4                                inst_fp_32                       FP Instructions(Single)           0           0           0
           4                                inst_fp_64                       FP Instructions(Double)           0           0           0
-          4                              inst_integer                          Integer Instructions  1.0121e+10  1.0755e+10  1.0596e+10
+          4                              inst_integer                          Integer Instructions  9609374874  1.0200e+10  1.0052e+10
           4                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
-          4                              inst_control                     Control-Flow Instructions  1323264722  1409293472  1387786284
-          4                        inst_compute_ld_st                       Load/Store Instructions  2863113258  3064837104  3014406142
-          4                                 inst_misc                             Misc Instructions  3325528196  3526823584  3476499737
+          4                              inst_control                     Control-Flow Instructions  1234919302  1315338880  1295233985
+          4                        inst_compute_ld_st                       Load/Store Instructions  2772625998  2960338368  2913410275
+          4                                 inst_misc                             Misc Instructions  3160954540  3348741248  3301794571
           4           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
           4                            l2_utilization                          L2 Cache Utilization     Low (2)     Low (2)     Low (2)
           4                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)

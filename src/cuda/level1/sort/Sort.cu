@@ -15,6 +15,7 @@
 #include <vector>
 
 #define SEED 7
+
 using namespace std;
 
 // ****************************************************************************
@@ -55,7 +56,8 @@ void addBenchmarkSpecOptions(OptionParser &op) {}
 //
 // ****************************************************************************
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
-    srand(SEED);
+  srand(SEED);
+  bool quiet = op.getOptionBool("quiet");
 
   // Determine size of the array to sort
   int size;
@@ -63,13 +65,18 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   string filePath = op.getOptionString("inputFile");
   ifstream inputFile(filePath.c_str());
   if (filePath == "") {
+    if(!quiet) {
+        printf("Using problem size %d\n", (int)op.getOptionInt("size"));
+    }
     int probSizes[4] = {32, 64, 128, 256};
     size = probSizes[op.getOptionInt("size") - 1] * 1024 * 1024;
   } else {
     inputFile >> size;
   }
   bytes = size * sizeof(uint);
-  printf("Size: %d items, Bytes: %lld\n", size, bytes);
+  if(!quiet) {
+    printf("Size: %d items, Bytes: %lld\n", size, bytes);
+  }
 
   // If input file given, populate array
   uint *sourceInput = (uint *)malloc(bytes);
@@ -145,7 +152,9 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   cudaEventCreate(&stop);
 
   for (int it = 0; it < iterations; it++) {
-    printf("Pass %d: ", it);
+    if(!quiet) {
+        printf("Pass %d: ", it);
+    }
     // Initialize host memory to some pattern
     for (uint i = 0; i < size; i++) {
       hKeys[i] = i % 1024;
@@ -189,7 +198,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     transferTime += elapsedTime * 1.e-3;
 
     // Test to make sure data was sorted properly, if not, return
-    if (!verifySort(hKeys, hVals, size, op.getOptionBool("verbose"))) {
+    if (!verifySort(hKeys, hVals, size, op.getOptionBool("verbose"), op.getOptionBool("quiet"))) {
       return;
     }
 
@@ -331,12 +340,12 @@ void scanArrayRecursive(uint *outArray, uint *inArray, int numElements,
 // Modifications:
 //
 // ****************************************************************************
-bool verifySort(uint *keys, uint *vals, const size_t size, bool verbose) {
+bool verifySort(uint *keys, uint *vals, const size_t size, bool verbose, bool quiet) {
   bool passed = true;
   for (unsigned int i = 0; i < size - 1; i++) {
     if (keys[i] > keys[i + 1]) {
       passed = false;
-      if(verbose)  {
+      if(verbose && !quiet)  {
           cout << "Failure: at idx: " << i << endl;
           cout << "Key: " << keys[i] << " Val: " << vals[i] << endl;
           cout << "Idx: " << i + 1 << " Key: " << keys[i + 1]
@@ -344,10 +353,13 @@ bool verifySort(uint *keys, uint *vals, const size_t size, bool verbose) {
       }
     }
   }
-  cout << "Test ";
-  if (passed)
-    cout << "Passed" << endl;
-  else
-    cout << "Failed" << endl;
+  if(!quiet) {
+      cout << "Test ";
+      if (passed) {
+          cout << "Passed" << endl;
+      } else {
+          cout << "Failed" << endl;
+      }
+  }
   return passed;
 }

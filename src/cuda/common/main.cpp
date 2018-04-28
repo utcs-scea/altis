@@ -25,7 +25,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op);
 //
 // Arguments:
 //   chooseDevice: logical number for the desired device
-//   verbose: whether or not to print verbose output
+//   properties: whether or not to print device properties and exit
 //
 // Returns:  nothing
 //
@@ -40,7 +40,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op);
 //   exits, but our results go to the console.
 //
 // ****************************************************************************
-void EnumerateDevicesAndChoose(int chooseDevice, bool verbose)
+void EnumerateDevicesAndChoose(int chooseDevice, bool properties, bool quiet)
 {
     cudaSetDevice(chooseDevice);
     int actualdevice;
@@ -48,7 +48,7 @@ void EnumerateDevicesAndChoose(int chooseDevice, bool verbose)
 
     int deviceCount;
     cudaGetDeviceCount(&deviceCount);
-    if (verbose)
+    if (properties)
     {
         cout << "Number of devices = " << deviceCount << "\n";
     }
@@ -59,7 +59,7 @@ void EnumerateDevicesAndChoose(int chooseDevice, bool verbose)
         cudaGetDeviceProperties(&deviceProp, device);
         if (device == actualdevice)
             deviceName = deviceProp.name;
-        if (verbose)
+        if (properties)
         {
             cout << "Device " << device << ":\n";
             cout << "  name               = '" << deviceProp.name << "'"
@@ -90,10 +90,15 @@ void EnumerateDevicesAndChoose(int chooseDevice, bool verbose)
                     << endl;
         }
     }
-    cout << "Chose device:"
-         << " name='"<<deviceName<<"'"
-         << " index="<<actualdevice
-         << endl;
+    if(properties) {
+        return;
+    }
+    if(!quiet) {
+        cout << "Chose device:"
+            << " name='"<<deviceName<<"'"
+            << " index="<<actualdevice
+            << endl;
+    }
 }
 
 // ****************************************************************************
@@ -138,6 +143,7 @@ int main(int argc, char *argv[])
         op.addOption("configFile", OPT_STRING, "", "path of configuration file", 'c');
         op.addOption("inputFile", OPT_STRING, "", "path of input file", 'i');
         op.addOption("outputFile", OPT_STRING, "", "path of output file", 'o');
+        op.addOption("metricsFile", OPT_STRING, "", "path of file to write metrics to", 'm');
 
         addBenchmarkSpecOptions(op);
 
@@ -148,8 +154,8 @@ int main(int argc, char *argv[])
         }
 
         bool properties = op.getOptionBool("properties");
-        bool verbose = op.getOptionBool("verbose");
-        string outfile = op.getOptionString("outputFile");
+        bool quiet = op.getOptionBool("quiet");
+        string metricsfile = op.getOptionString("metricsFile");
 
         int device;
         device = op.getOptionVecInt("device")[0];
@@ -162,7 +168,7 @@ int main(int argc, char *argv[])
         }
 
         // Initialization
-        EnumerateDevicesAndChoose(device, properties);
+        EnumerateDevicesAndChoose(device, properties, quiet);
         if(properties)
         {
             return 0;
@@ -172,13 +178,16 @@ int main(int argc, char *argv[])
         // Run the benchmark
         RunBenchmark(resultDB, op);
 
-        // Output results to output file or stdout
-        if(outfile.empty()) {
-            cout << endl;
-            resultDB.DumpSummary(cout);
+        // Output metrics to metrics file or stdout
+        if(metricsfile.empty()) {
+            // if quiet, don't give metrics
+            if(!quiet) {
+                cout << endl;
+                resultDB.DumpSummary(cout);
+            }
         } else {
             ofstream ofs;
-            ofs.open(outfile.c_str());
+            ofs.open(metricsfile.c_str());
             resultDB.DumpSummary(ofs);
             ofs.close();
         }

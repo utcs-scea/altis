@@ -1,14 +1,14 @@
-==25997== NVPROF is profiling process 25997, command: ./src/cuda/level1/sort/sort -s 3 -n 1
-==25997== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
-==25997== Profiling application: ./src/cuda/level1/sort/sort -s 3 -n 1
-==25997== Profiling result:
-==25997== Metric result:
+==38209== NVPROF is profiling process 38209, command: ./src/cuda/level1/sort/sort -s 3 -n 1
+==38209== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==38209== Profiling application: ./src/cuda/level1/sort/sort -s 3 -n 1
+==38209== Profiling result:
+==38209== Metric result:
 Invocations                               Metric Name                            Metric Description         Min         Max         Avg
 Device "Tesla P100-SXM2-16GB (0)"
     Kernel: findRadixOffsets(uint2*, unsigned int*, unsigned int*, unsigned int, unsigned int, unsigned int)
           8                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (2)     Low (2)     Low (2)
           8                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          8                       ldst_fu_utilization          Load/Store Function Unit Utilization     Mid (5)     Mid (5)     Mid (5)
+          8                       ldst_fu_utilization          Load/Store Function Unit Utilization     Mid (4)     Mid (4)     Mid (4)
           8           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           8                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           8             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
@@ -24,7 +24,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           8                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
           8                              inst_control                     Control-Flow Instructions   603979776   603979776   603979776
           8                        inst_compute_ld_st                       Load/Store Instructions   691798016   703594496   695042048
-          8                                 inst_misc                             Misc Instructions  1149239296  1149239296  1149239296
+          8                                 inst_misc                             Misc Instructions  1086324736  1086324736  1086324736
           8           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
           8                            l2_utilization                          L2 Cache Utilization     Low (2)     Low (2)     Low (2)
           8                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
@@ -47,7 +47,7 @@ Device "Tesla P100-SXM2-16GB (0)"
          24                          inst_bit_convert                      Bit-Convert Instructions        2048     2097152      700499
          24                              inst_control                     Control-Flow Instructions        2047     7340032     2449749
          24                        inst_compute_ld_st                       Load/Store Instructions        7426    32509952    10849708
-         24                                 inst_misc                             Misc Instructions       22271    90177536    30095957
+         24                                 inst_misc                             Misc Instructions       22528    92274688    30795776
          24           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
          24                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (2)     Low (1)
          24                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
@@ -85,7 +85,7 @@ Device "Tesla P100-SXM2-16GB (0)"
          16                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
          16                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
          16                          dram_utilization                     Device Memory Utilization     Low (1)    High (7)     Mid (4)
-         16                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (1)     Low (1)
+         16                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (2)     Low (1)
          16                        shared_utilization                     Shared Memory Utilization     Low (1)     Low (1)     Low (1)
          16                                inst_fp_32                       FP Instructions(Single)           0           0           0
          16                                inst_fp_64                       FP Instructions(Double)           0           0           0
@@ -116,7 +116,7 @@ Device "Tesla P100-SXM2-16GB (0)"
           8                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
           8                              inst_control                     Control-Flow Instructions   130023424   130023424   130023424
           8                        inst_compute_ld_st                       Load/Store Instructions  1090519040  1090519040  1090519040
-          8                                 inst_misc                             Misc Instructions   469762048   469762048   469762048
+          8                                 inst_misc                             Misc Instructions   536870912   536870912   536870912
           8           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
           8                            l2_utilization                          L2 Cache Utilization     Low (2)     Low (2)     Low (2)
           8                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)

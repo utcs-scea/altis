@@ -1,0 +1,4 @@
+for i in 1024 2048 4096 8192 65536 131072 261444 524288 1048576 2097152 4194304 8388608 16777216 33554432 67108864
+do
+    ./src/cuda/level1/bfs/bfs -i data/bfs/input/bfs_$i -o features/bfs/$i
+done

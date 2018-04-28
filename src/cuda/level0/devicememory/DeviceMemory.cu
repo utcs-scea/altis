@@ -80,10 +80,11 @@ void addBenchmarkSpecOptions(OptionParser &op) { ; }
 //
 // ****************************************************************************
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
-  // Enable verbose output
-  bool verbose = op.getOptionBool("verbose");
+  // Enable quiet output
+  bool quiet = op.getOptionBool("quiet");
   // Number of times to repeat each test
   const unsigned int passes = op.getOptionInt("passes");
+
   size_t minGroupSize = 32;
   size_t maxGroupSize = 512;
   size_t globalWorkSize = 32768;              // 64 * maxGroupSize = 64 * 512;
@@ -129,7 +130,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   float t = 0.0f;
   cudaEventElapsedTime(&t, start, stop);
   t /= 1.e3;
-  double scalet = 0.15 / t;
+  double scalet = 0.1 / t;
   if (scalet < 1)
     scalet = 1;
 
@@ -139,7 +140,9 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 
   for (int p = 0; p < passes; p++) {
     // Run the kernel for each group size
-    cout << "Running benchmarks, pass: " << p << "\n";
+    if(!quiet) {
+        cout << "Pass: " << p << "\n";
+    }
     for (int threads = minGroupSize; threads <= maxGroupSize; threads *= 2) {
       const unsigned int blocks = globalWorkSize / threads;
       double bdwth;
@@ -277,15 +280,15 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 //
 // ****************************************************************************
 void TestTextureMem(ResultDatabase &resultDB, OptionParser &op, double scalet) {
-  // Enable verbose output
-  bool verbose = op.getOptionBool("verbose");
+  // Enable quiet output
+  bool quiet = op.getOptionBool("quiet");
   // Number of times to repeat each test
   const unsigned int passes = op.getOptionInt("passes");
   // Sizes of textures tested (in kb)
   const unsigned int nsizes = 5;
-  const unsigned int sizes[] = {16, 64, 256, 1024, 4096};
+  const unsigned int sizes[] = {256, 512, 1024, 2048, 4096};
   // Number of texel accesses by each kernel
-  const unsigned int kernelRepFactors[] = {1024, 1024, 1024, 1024, 256};
+  const unsigned int kernelRepFactors[] = {2048, 2048, 2048, 2048, 512};
   // Number of times to repeat each kernel per test
   const unsigned int iterations = 1 * scalet;
 
@@ -300,7 +303,9 @@ void TestTextureMem(ResultDatabase &resultDB, OptionParser &op, double scalet) {
   texA.filterMode = cudaFilterModePoint;
 
   for (int j = 0; j < nsizes; j++) {
-    cout << "Benchmarking Texture Memory, Test Size: " << j + 1 << " / 5\n";
+    if(!quiet) {
+        cout << "Benchmarking Texture Memory, Test Size: " << j + 1 << " / 5\n";
+    }
     const unsigned int size = 1024 * sizes[j];
     const unsigned int numFloat = size / sizeof(float);
     const unsigned int numFloat4 = size / sizeof(float4);

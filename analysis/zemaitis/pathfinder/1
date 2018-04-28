@@ -1,30 +1,30 @@
-==46121== NVPROF is profiling process 46121, command: ./src/cuda/level1/pathfinder/pathfinder -s 1 -n 1
-==46121== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
-==46121== Profiling application: ./src/cuda/level1/pathfinder/pathfinder -s 1 -n 1
-==46121== Profiling result:
-==46121== Metric result:
+==14803== NVPROF is profiling process 14803, command: ./src/cuda/level1/pathfinder/pathfinder -s 1 -n 1
+==14803== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==14803== Profiling application: ./src/cuda/level1/pathfinder/pathfinder -s 1 -n 1
+==14803== Profiling result:
+==14803== Metric result:
 Invocations                               Metric Name                            Metric Description         Min         Max         Avg
 Device "Tesla P100-SXM2-16GB (0)"
     Kernel: dynproc_kernel(int, int*, int*, int*, int, int, int, int)
           4                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
           4                        tex_fu_utilization             Texture Function Unit Utilization     Low (2)     Low (2)     Low (2)
-          4                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (2)     Low (3)     Low (2)
+          4                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (2)     Low (2)     Low (2)
           4           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           4                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           4             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-          4           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Mid (6)     Mid (6)     Mid (6)
+          4           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Mid (5)     Mid (6)     Mid (5)
           4                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
           4                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
-          4                          dram_utilization                     Device Memory Utilization     Mid (6)    High (7)     Mid (6)
+          4                          dram_utilization                     Device Memory Utilization     Mid (6)     Mid (6)     Mid (6)
           4                           tex_utilization                     Unified Cache Utilization     Low (2)     Low (2)     Low (2)
           4                        shared_utilization                     Shared Memory Utilization     Low (1)     Low (2)     Low (1)
           4                                inst_fp_32                       FP Instructions(Single)           0           0           0
           4                                inst_fp_64                       FP Instructions(Double)           0           0           0
-          4                              inst_integer                          Integer Instructions   237552136   331062168   307684660
+          4                              inst_integer                          Integer Instructions   236211456   329100160   305877984
           4                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
-          4                              inst_control                     Control-Flow Instructions    17078270    29828080    26640627
-          4                        inst_compute_ld_st                       Load/Store Instructions    37814788    67475032    60059971
-          4                                 inst_misc                             Misc Instructions    84955136   114715920   107275724
+          4                              inst_control                     Control-Flow Instructions    16927168    29593344    26426800
+          4                        inst_compute_ld_st                       Load/Store Instructions    37781632    67290496    59913280
+          4                                 inst_misc                             Misc Instructions    88612864   118172416   110782528
           4           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
           4                            l2_utilization                          L2 Cache Utilization     Low (2)     Low (2)     Low (2)
           4                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)

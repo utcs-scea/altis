@@ -18,7 +18,7 @@ scanArrayRecursive(uint* outArray, uint* inArray, int numElements, int level,
         uint** blockSums);
 
 bool
-verifySort(uint *keys, uint* vals, const size_t size, bool verbose);
+verifySort(uint *keys, uint* vals, const size_t size, bool verbose, bool quiet);
 
 #ifdef __DEVICE_EMULATION__
 #define __SYNC __syncthreads();

@@ -1,1 +1,1 @@
-SUBDIRS=cfd dwt2d kmeans lavamd mandelbrot neuralnet nw particlefilter srad
+SUBDIRS=cfd dwt2d kmeans lavamd mandelbrot nw particlefilter srad where
