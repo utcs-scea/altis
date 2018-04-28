@@ -207,7 +207,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
     bool writeVisual = op.getOptionBool("writeVisual"); //write output (subbands) in visual (tiled) order instead of linear
     string inputFile = op.getOptionString("inputFile");
     if(inputFile.empty()) {
-        int probSizes[4] = {48, 192, 768, 3072};
+        int probSizes[4] = {48, 192, 768, 8192};
         inputFile = datagen(probSizes[op.getOptionInt("size")-1]);
     }
 

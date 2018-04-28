@@ -537,7 +537,7 @@ void cfd(ResultDatabase &resultDB, OptionParser &op)
         if(inputFile != "") {
 		    file >> nel;
         } else {
-            int problemSizes[4] = {97000, 200000, 1000000, 4000000};
+            int problemSizes[4] = {97000, 200000, 1000000, 60000000};
             nel = problemSizes[op.getOptionInt("size") - 1];
         }
 		nelr = BLOCK_SIZE_0*((nel / BLOCK_SIZE_0 )+ std::min(1, nel % BLOCK_SIZE_0));

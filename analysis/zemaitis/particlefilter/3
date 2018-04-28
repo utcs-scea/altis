@@ -1,0 +1,29 @@
+==26670== NVPROF is profiling process 26670, command: ./src/cuda/level2/particlefilter/particlefilter -s 3 -n 1 -d 3
+==26670== Some kernel(s) will be replayed on device 3 in order to collect all events/metrics.
+==26670== Profiling application: ./src/cuda/level2/particlefilter/particlefilter -s 3 -n 1 -d 3
+==26670== Profiling result:
+==26670== Metric result:
+Invocations                               Metric Name                            Metric Description         Min         Max         Avg
+Device "Tesla P100-SXM2-16GB (3)"
+    Kernel: kernel(double*, double*, double*, double*, double*, double*, int)
+         99                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         99                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         99                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         99           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+         99                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+         99           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         99                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
+         99                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
+         99                          dram_utilization                     Device Memory Utilization    Idle (0)     Low (1)    Idle (0)
+         99                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (1)     Low (1)
+         99                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
+         99                                inst_fp_32                       FP Instructions(Single)           0           0           0
+         99                                inst_fp_64                       FP Instructions(Double)      746931     2999102     2034044
+         99                              inst_integer                          Integer Instructions     3774847    15035702    10210415
+         99                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
+         99                              inst_control                     Control-Flow Instructions      750979     3003150     2038092
+         99                        inst_compute_ld_st                       Load/Store Instructions      756931     3009102     2044044
+         99                                 inst_misc                             Misc Instructions       16192       16192       16192
+         99           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
+         99                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
+         99                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)

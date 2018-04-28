@@ -129,7 +129,7 @@ int setup(ResultDatabase &resultDB, OptionParser &op) {
       printf("Generating a graph with a preset problem size...");
       int npointsPresets[4] = {1, 10, 100, 200};
       npoints = npointsPresets[op.getOptionInt("size") - 1] * 10000;
-      int nfeaturesPresets[4] = {10, 20, 35, 100};
+      int nfeaturesPresets[4] = {10, 20, 35, 50};
       nfeatures = nfeaturesPresets[op.getOptionInt("size") - 1];
   }
 
