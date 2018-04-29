@@ -214,7 +214,7 @@ void initGraph(OptionParser &op, int &no_of_nodes, int &edge_list_size, int &sou
 	    int n = fscanf(fp,"%d",&no_of_nodes);
         assert(n == 1);
     } else {
-        int problemSizes[4] = {10, 50, 100, 200};
+        int problemSizes[4] = {10, 50, 200, 400};
         no_of_nodes = problemSizes[op.getOptionInt("size") - 1] * 1024 * 1024;
     }
 

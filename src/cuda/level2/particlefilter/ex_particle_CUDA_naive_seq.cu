@@ -633,7 +633,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     if(preset) {
         int probSizes[4][4] = {{10, 10, 2, 100},
                                {40, 40, 5, 500},
-                               {200, 200, 10, 2000},
+                               {200, 200, 8, 500000},
                                {500, 500, 15, 1000000}};
         int size = op.getOptionInt("size") - 1;
         for(int i = 0; i < 4; i++) {

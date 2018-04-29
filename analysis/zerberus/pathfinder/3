@@ -1,1 +1,29 @@
-======== Error: Application returned non-zero code 1
+==174768== NVPROF is profiling process 174768, command: ./src/cuda/level1/pathfinder/pathfinder -s 3 -n 1 -d 0
+==174768== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==174768== Profiling application: ./src/cuda/level1/pathfinder/pathfinder -s 3 -n 1 -d 0
+==174768== Profiling result:
+==174768== Metric result:
+Invocations                               Metric Name                            Metric Description         Min         Max         Avg
+Device "Tesla M60 (0)"
+    Kernel: dynproc_kernel(int, int*, int*, int*, int, int, int, int)
+        128                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+        128                        tex_fu_utilization             Texture Function Unit Utilization     Low (2)     Low (2)     Low (2)
+        128                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (2)     Low (2)     Low (2)
+        128           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+        128                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+        128           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Mid (4)     Mid (4)     Mid (4)
+        128                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
+        128                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
+        128                          dram_utilization                     Device Memory Utilization    High (8)    High (9)    High (8)
+        128                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (2)     Low (1)
+        128                        shared_utilization                     Shared Memory Utilization     Low (3)     Low (3)     Low (3)
+        128                                inst_fp_32                       FP Instructions(Single)           0           0           0
+        128                                inst_fp_64                       FP Instructions(Double)           0           0           0
+        128                              inst_integer                          Integer Instructions  1.2813e+10  1.3600e+10  1.3206e+10
+        128                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
+        128                              inst_control                     Control-Flow Instructions  1646426112  1753801728  1700113920
+        128                        inst_compute_ld_st                       Load/Store Instructions  3696834688  3947119568  3821977128
+        128                                 inst_misc                             Misc Instructions  3539064728  3753657312  3646361020
+        128           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
+        128                            l2_utilization                          L2 Cache Utilization     Low (2)     Low (2)     Low (2)
+        128                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)

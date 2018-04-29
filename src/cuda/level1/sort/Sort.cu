@@ -68,7 +68,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     if(!quiet) {
         printf("Using problem size %d\n", (int)op.getOptionInt("size"));
     }
-    int probSizes[4] = {32, 64, 128, 256};
+    int probSizes[4] = {32, 64, 256, 512};
     size = probSizes[op.getOptionInt("size") - 1] * 1024 * 1024;
   } else {
     inputFile >> size;
