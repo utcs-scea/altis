@@ -1,0 +1,79 @@
+==191870== NVPROF is profiling process 191870, command: ./src/cuda/level2/where/where -s 1 -n 1
+==191870== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==191870== Profiling application: ./src/cuda/level2/where/where -s 1 -n 1
+==191870== Profiling result:
+==191870== Metric result:
+Invocations                               Metric Name                                    Metric Description         Min         Max         Avg
+Device "Tesla M60 (0)"
+    Kernel: void thrust::cuda_cub::core::_kernel_agent<thrust::cuda_cub::__scan::InitAgent<thrust::cuda_cub::cub::ScanTileState<int, bool=1>, int>, thrust::cuda_cub::cub::ScanTileState<int, bool=1>, int>(bool=1, thrust::cuda_cub::cub::ScanTileState<int, bool=1>)
+          1                             sm_efficiency                               Multiprocessor Activity       0.96%       0.96%       0.96%
+          1                        achieved_occupancy                                    Achieved Occupancy    0.056994    0.056994    0.056994
+          1                                       ipc                                          Executed IPC    0.095238    0.095238    0.095238
+          1                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
+          1                 warp_execution_efficiency                             Warp Execution Efficiency      88.65%      88.65%      88.65%
+          1                 shared_store_transactions                             Shared Store Transactions           0           0           0
+          1                  shared_load_transactions                              Shared Load Transactions           0           0           0
+          1                   local_load_transactions                               Local Load Transactions           0           0           0
+          1                  local_store_transactions                              Local Store Transactions           0           0           0
+          1                          gld_transactions                              Global Load Transactions           0           0           0
+          1                          gst_transactions                             Global Store Transactions           9           9           9
+          1                    dram_read_transactions                       Device Memory Read Transactions           3           3           3
+          1                   dram_write_transactions                      Device Memory Write Transactions           0           0           0
+          1                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
+          1                             inst_executed                                 Instructions Executed          60          60          60
+          1                               cf_executed                    Executed Control-Flow Instructions          14          14          14
+          1                             ldst_executed                      Executed Load/Store Instructions          10          10          10
+    Kernel: mapMatches(int*, int*, int*, int*, int)
+          1                             sm_efficiency                               Multiprocessor Activity       1.76%       1.76%       1.76%
+          1                        achieved_occupancy                                    Achieved Occupancy    0.466506    0.466506    0.466506
+          1                                       ipc                                          Executed IPC    0.765894    0.765894    0.765894
+          1                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
+          1                 warp_execution_efficiency                             Warp Execution Efficiency      98.24%      98.24%      98.24%
+          1                 shared_store_transactions                             Shared Store Transactions           0           0           0
+          1                  shared_load_transactions                              Shared Load Transactions           0           0           0
+          1                   local_load_transactions                               Local Load Transactions           0           0           0
+          1                  local_store_transactions                              Local Store Transactions           0           0           0
+          1                          gld_transactions                              Global Load Transactions         564         564         564
+          1                          gst_transactions                             Global Store Transactions          54          54          54
+          1                    dram_read_transactions                       Device Memory Read Transactions           0           0           0
+          1                   dram_write_transactions                      Device Memory Write Transactions         213         213         213
+          1                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
+          1                             inst_executed                                 Instructions Executed        1024        1024        1024
+          1                               cf_executed                    Executed Control-Flow Instructions          96          96          96
+          1                             ldst_executed                      Executed Load/Store Instructions         192         192         192
+    Kernel: void thrust::cuda_cub::core::_kernel_agent<thrust::cuda_cub::__scan::ScanAgent<int*, int*, thrust::plus<int>, int, int, thrust::detail::integral_constant<bool, bool=0>>, int*, int*, thrust::plus<int>, int, thrust::cuda_cub::cub::ScanTileState<int, bool=1>, thrust::cuda_cub::__scan::AddInitToExclusiveScan<int, thrust::plus<int>>>(int*, int, thrust::plus<int>, int, int, bool)
+          1                             sm_efficiency                               Multiprocessor Activity       3.32%       3.32%       3.32%
+          1                        achieved_occupancy                                    Achieved Occupancy    0.062063    0.062063    0.062063
+          1                                       ipc                                          Executed IPC    0.244659    0.244659    0.244659
+          1                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
+          1                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
+          1                 shared_store_transactions                             Shared Store Transactions         111         111         111
+          1                  shared_load_transactions                              Shared Load Transactions         116         116         116
+          1                   local_load_transactions                               Local Load Transactions           0           0           0
+          1                  local_store_transactions                              Local Store Transactions           0           0           0
+          1                          gld_transactions                              Global Load Transactions         266         266         266
+          1                          gst_transactions                             Global Store Transactions         125         125         125
+          1                    dram_read_transactions                       Device Memory Read Transactions           0           0           0
+          1                   dram_write_transactions                      Device Memory Write Transactions           5           5           5
+          1                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
+          1                             inst_executed                                 Instructions Executed         962         962         962
+          1                               cf_executed                    Executed Control-Flow Instructions          99          99          99
+          1                             ldst_executed                      Executed Load/Store Instructions         325         325         325
+    Kernel: markMatches(int*, int*, int, int)
+          1                             sm_efficiency                               Multiprocessor Activity       1.49%       1.49%       1.49%
+          1                        achieved_occupancy                                    Achieved Occupancy    0.462640    0.462640    0.462640
+          1                                       ipc                                          Executed IPC    0.748363    0.748363    0.748363
+          1                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
+          1                 warp_execution_efficiency                             Warp Execution Efficiency      98.41%      98.41%      98.41%
+          1                 shared_store_transactions                             Shared Store Transactions           0           0           0
+          1                  shared_load_transactions                              Shared Load Transactions           0           0           0
+          1                   local_load_transactions                               Local Load Transactions           0           0           0
+          1                  local_store_transactions                              Local Store Transactions           0           0           0
+          1                          gld_transactions                              Global Load Transactions         250         250         250
+          1                          gst_transactions                             Global Store Transactions         125         125         125
+          1                    dram_read_transactions                       Device Memory Read Transactions           0           0           0
+          1                   dram_write_transactions                      Device Memory Write Transactions          10          10          10
+          1                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
+          1                             inst_executed                                 Instructions Executed         800         800         800
+          1                               cf_executed                    Executed Control-Flow Instructions          96          96          96
+          1                             ldst_executed                      Executed Load/Store Instructions         128         128         128

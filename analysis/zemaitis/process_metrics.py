@@ -1,14 +1,12 @@
-import pprint
 import pandas as pd
 
-#benchmarks = ['devicememory', 'maxflops', 'bfs', 'gemm', 'sort', 'pathfinder', 'cfd', 'dwt2d', 'kmeans', 'lavamd', 'mandelbrot', 'nw', 'particlefilter', 'srad']
-benchmarks = ['cfd']
-metrics = ['cf_fu_utilization','tex_fu_utilization','ldst_fu_utilization','double_precision_fu_utilization','special_fu_utilization','half_precision_fu_utilization','single_precision_fu_utilization','flop_count_dp','flop_count_sp','dram_utilization','tex_utilization','shared_utilization','inst_fp_32','inst_fp_64','inst_integer','inst_bit_convert','inst_control','inst_compute_ld_st','inst_misc','inst_inter_thread_communication','l2_utilization','sysmem_utilization']
+benchmarks = ['devicememory', 'maxflops', 'bfs', 'gemm', 'sort', 'pathfinder', 'cfd', 'dwt2d', 'kmeans', 'lavamd', 'mandelbrot', 'nw', 'particlefilter_float', 'particlefilter_naive', 'srad', 'where']
+metrics = ['flop_count_dp','flop_count_sp','inst_fp_32','inst_fp_64','inst_integer','inst_bit_convert','inst_control','inst_compute_ld_st','inst_misc','inst_inter_thread_communication', 'sm_efficiency','achieved_occupancy','ipc','branch_efficiency','warp_execution_efficiency','shared_store_transactions','shared_load_transactions','local_load_transactions','local_store_transactions','gld_transactions','gst_transactions','dram_read_transactions','dram_write_transactions','flop_count_sp_special','inst_executed','cf_executed','ldst_executed']
 
 kernel_delim = 'Kernel: '
 col_1 = (0,0+len('Invocations'))
 col_2 = (col_1[1], col_1[1]+len('                               Metric Name'))
-col_3 = (col_2[1], col_2[1]+len('                            Metric Description'))
+col_3 = (col_2[1], col_2[1]+len('                                    Metric Description'))
 col_4 = (col_3[1], col_3[1]+len('         Min'))
 col_5 = (col_4[1], col_4[1]+len('         Max'))
 col_6 = (col_5[1], col_5[1]+len('         Avg'))
@@ -20,9 +18,10 @@ def parse_kernel(line):
     return line.split(kernel_delim)[1].split('(')[0].strip()
 
 def parse_val(val):
-    s = val.find('(')
-    e = val.find(')')
-    return val[s+1:e]
+    try:
+        return float(val[:-1])
+    except:
+        return int(val[:-1])
 
 res = pd.DataFrame()
 res['metric'] = metrics
@@ -35,8 +34,12 @@ for benchmark in benchmarks:
         res[name] = 'n/a'
         # Open file
         try:
-            f = open('%s/%d' % (benchmark, size))
+            if 'particlefilter' in name:
+                f = open('particlefilter/%s/%d' % (benchmark.split('_')[1], size))
+            else:
+                f = open('%s/%d' % (benchmark,size))
         except:
+            print('cant open %s %d' % (benchmark,size))
             continue
         # Read intro lines
         [f.readline() for i in range(0,7)]
@@ -53,9 +56,14 @@ for benchmark in benchmarks:
             # Parse metric
             metric = line[col_2[0]:col_2[1]].strip()
             val = line[col_6[0]:col_6[1]].strip()
+            # Parse metric value
             if not val.isdigit():
                 val = parse_val(val)
+            else:
+                val = int(val)
             #print('\t' + name)
+            #print('%s, %s, %s'%(kernel,metric,str(type(val))), end='\t')
+            #print(val)
             if res.at[metric, name] == 'n/a':
                 res.at[metric, name] = val
             elif res.at[metric, name] < val:

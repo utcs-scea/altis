@@ -1,0 +1,43 @@
+==191472== NVPROF is profiling process 191472, command: ./src/cuda/level2/kmeans/kmeans -s 2 -n 1
+==191472== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==191472== Profiling application: ./src/cuda/level2/kmeans/kmeans -s 2 -n 1
+==191472== Profiling result:
+==191472== Metric result:
+Invocations                               Metric Name                                    Metric Description         Min         Max         Avg
+Device "Tesla M60 (0)"
+    Kernel: invert_mapping(float*, float*, int, int)
+          1                             sm_efficiency                               Multiprocessor Activity      96.45%      96.45%      96.45%
+          1                        achieved_occupancy                                    Achieved Occupancy    0.950786    0.950786    0.950786
+          1                                       ipc                                          Executed IPC    0.067869    0.067869    0.067869
+          1                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
+          1                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
+          1                 shared_store_transactions                             Shared Store Transactions           0           0           0
+          1                  shared_load_transactions                              Shared Load Transactions           0           0           0
+          1                   local_load_transactions                               Local Load Transactions           0           0           0
+          1                  local_store_transactions                              Local Store Transactions           0           0           0
+          1                          gld_transactions                              Global Load Transactions     2000000     2000000     2000000
+          1                          gst_transactions                             Global Store Transactions      250000      250000      250000
+          1                    dram_read_transactions                       Device Memory Read Transactions     2028283     2028283     2028283
+          1                   dram_write_transactions                      Device Memory Write Transactions      324235      324235      324235
+          1                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
+          1                             inst_executed                                 Instructions Executed      478800      478800      478800
+          1                               cf_executed                    Executed Control-Flow Instructions       28200       28200       28200
+          1                             ldst_executed                      Executed Load/Store Instructions      131400      131400      131400
+    Kernel: kmeansPoint(float*, int, int, int, int*, float*, float*, int*)
+          2                             sm_efficiency                               Multiprocessor Activity      93.22%      94.16%      93.69%
+          2                        achieved_occupancy                                    Achieved Occupancy    0.963895    0.964105    0.964000
+          2                                       ipc                                          Executed IPC    0.682492    0.685890    0.684191
+          2                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
+          2                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
+          2                 shared_store_transactions                             Shared Store Transactions           0           0           0
+          2                  shared_load_transactions                              Shared Load Transactions           0           0           0
+          2                   local_load_transactions                               Local Load Transactions           0           0           0
+          2                  local_store_transactions                              Local Store Transactions           0           0           0
+          2                          gld_transactions                              Global Load Transactions           0           0           0
+          2                          gst_transactions                             Global Store Transactions       12500       12500       12500
+          2                    dram_read_transactions                       Device Memory Read Transactions     1440181     1454747     1447464
+          2                   dram_write_transactions                      Device Memory Write Transactions       29442       30199       29820
+          2                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
+          2                             inst_executed                                 Instructions Executed     2489000     2489000     2489000
+          2                               cf_executed                    Executed Control-Flow Instructions      468975      468975      468975
+          2                             ldst_executed                      Executed Load/Store Instructions      640850      640850      640850

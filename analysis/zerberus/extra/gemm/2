@@ -1,0 +1,79 @@
+==184366== NVPROF is profiling process 184366, command: ./src/cuda/level1/gemm/gemm -s 2 -n 1
+==184366== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==184366== Profiling application: ./src/cuda/level1/gemm/gemm -s 2 -n 1
+==184366== Profiling result:
+==184366== Metric result:
+Invocations                               Metric Name                                    Metric Description         Min         Max         Avg
+Device "Tesla M60 (0)"
+    Kernel: maxwell_sgemm_128x64_nn
+          5                             sm_efficiency                               Multiprocessor Activity      93.83%      96.31%      95.33%
+          5                        achieved_occupancy                                    Achieved Occupancy    0.227693    0.231353    0.229688
+          5                                       ipc                                          Executed IPC    3.931871    4.001459    3.982642
+          5                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
+          5                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
+          5                 shared_store_transactions                             Shared Store Transactions      406080      406080      406080
+          5                  shared_load_transactions                              Shared Load Transactions     1824768     1824768     1824768
+          5                   local_load_transactions                               Local Load Transactions           0           0           0
+          5                  local_store_transactions                              Local Store Transactions           0           0           0
+          5                          gld_transactions                              Global Load Transactions     2802816     2819100     2807616
+          5                          gst_transactions                             Global Store Transactions      147600      147600      147600
+          5                    dram_read_transactions                       Device Memory Read Transactions      440787      480760      456232
+          5                   dram_write_transactions                      Device Memory Write Transactions      164028      174895      170820
+          5                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
+          5                             inst_executed                                 Instructions Executed    16914612    16931787    16920129
+          5                               cf_executed                    Executed Control-Flow Instructions       49258       50779       49925
+          5                             ldst_executed                      Executed Load/Store Instructions     1728288     1732359     1729488
+    Kernel: maxwell_sgemm_128x64_nt
+          5                             sm_efficiency                               Multiprocessor Activity      94.25%      96.97%      95.48%
+          5                        achieved_occupancy                                    Achieved Occupancy    0.228401    0.231285    0.229946
+          5                                       ipc                                          Executed IPC    3.984652    4.015608    3.999009
+          5                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
+          5                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
+          5                 shared_store_transactions                             Shared Store Transactions      406080      406080      406080
+          5                  shared_load_transactions                              Shared Load Transactions     1824768     1824768     1824768
+          5                   local_load_transactions                               Local Load Transactions           0           0           0
+          5                  local_store_transactions                              Local Store Transactions           0           0           0
+          5                          gld_transactions                              Global Load Transactions     2803584     2817880     2807244
+          5                          gst_transactions                             Global Store Transactions      147600      147600      147600
+          5                    dram_read_transactions                       Device Memory Read Transactions      379336      416976      399261
+          5                   dram_write_transactions                      Device Memory Write Transactions      165705      168716      167027
+          5                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
+          5                             inst_executed                                 Instructions Executed    16798974    16806114    16801723
+          5                               cf_executed                    Executed Control-Flow Instructions       49317       51541       50285
+          5                             ldst_executed                      Executed Load/Store Instructions     1728480     1732054     1729395
+    Kernel: void magma_lds128_dgemm_kernel<bool=0, bool=0, int=5, int=5, int=3, int=3, int=3>(int, int, int, double const *, int, double const *, int, double*, int, int, int, double const *, double const *, double, double, int)
+          5                             sm_efficiency                               Multiprocessor Activity      92.11%      94.02%      92.84%
+          5                        achieved_occupancy                                    Achieved Occupancy    0.261440    0.264310    0.263159
+          5                                       ipc                                          Executed IPC    0.161664    0.165854    0.164125
+          5                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
+          5                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
+          5                 shared_store_transactions                             Shared Store Transactions      221184      221184      221184
+          5                  shared_load_transactions                              Shared Load Transactions     1327104     1327104     1327104
+          5                   local_load_transactions                               Local Load Transactions           0           0           0
+          5                  local_store_transactions                              Local Store Transactions           0           0           0
+          5                          gld_transactions                              Global Load Transactions           0           0           0
+          5                          gst_transactions                             Global Store Transactions       73728       73728       73728
+          5                    dram_read_transactions                       Device Memory Read Transactions       72024       78296       74601
+          5                   dram_write_transactions                      Device Memory Write Transactions       41256       43588       42287
+          5                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
+          5                             inst_executed                                 Instructions Executed     2759616     2759616     2759616
+          5                               cf_executed                    Executed Control-Flow Instructions       24768       24768       24768
+          5                             ldst_executed                      Executed Load/Store Instructions      697248      697248      697248
+    Kernel: void magma_lds128_dgemm_kernel<bool=0, bool=1, int=5, int=5, int=3, int=3, int=3>(int, int, int, double const *, int, double const *, int, double*, int, int, int, double const *, double const *, double, double, int)
+          5                             sm_efficiency                               Multiprocessor Activity      91.96%      94.00%      93.07%
+          5                        achieved_occupancy                                    Achieved Occupancy    0.261436    0.264347    0.262600
+          5                                       ipc                                          Executed IPC    0.161410    0.165841    0.163226
+          5                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
+          5                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
+          5                 shared_store_transactions                             Shared Store Transactions      221184      221184      221184
+          5                  shared_load_transactions                              Shared Load Transactions     1327104     1327104     1327104
+          5                   local_load_transactions                               Local Load Transactions           0           0           0
+          5                  local_store_transactions                              Local Store Transactions           0           0           0
+          5                          gld_transactions                              Global Load Transactions           0           0           0
+          5                          gst_transactions                             Global Store Transactions       73728       73728       73728
+          5                    dram_read_transactions                       Device Memory Read Transactions       63905       70350       66897
+          5                   dram_write_transactions                      Device Memory Write Transactions       40197       41798       41107
+          5                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
+          5                             inst_executed                                 Instructions Executed     2759616     2759616     2759616
+          5                               cf_executed                    Executed Control-Flow Instructions       24768       24768       24768
+          5                             ldst_executed                      Executed Load/Store Instructions      697248      697248      697248

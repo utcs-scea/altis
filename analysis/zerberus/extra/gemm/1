@@ -1,0 +1,79 @@
+==184326== NVPROF is profiling process 184326, command: ./src/cuda/level1/gemm/gemm -s 1 -n 1
+==184326== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==184326== Profiling application: ./src/cuda/level1/gemm/gemm -s 1 -n 1
+==184326== Profiling result:
+==184326== Metric result:
+Invocations                               Metric Name                                    Metric Description         Min         Max         Avg
+Device "Tesla M60 (0)"
+    Kernel: sgemm_32x32x32_TN_vec
+          5                             sm_efficiency                               Multiprocessor Activity      70.27%      81.54%      78.45%
+          5                        achieved_occupancy                                    Achieved Occupancy    0.153373    0.156261    0.155270
+          5                                       ipc                                          Executed IPC    2.632097    3.115505    2.816884
+          5                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
+          5                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
+          5                 shared_store_transactions                             Shared Store Transactions       50176       50176       50176
+          5                  shared_load_transactions                              Shared Load Transactions       90112       90112       90112
+          5                   local_load_transactions                               Local Load Transactions           0           0           0
+          5                  local_store_transactions                              Local Store Transactions           0           0           0
+          5                          gld_transactions                              Global Load Transactions      131072      131072      131072
+          5                          gst_transactions                             Global Store Transactions        8192        8192        8192
+          5                    dram_read_transactions                       Device Memory Read Transactions           0           0           0
+          5                   dram_write_transactions                      Device Memory Write Transactions         122        1691        1013
+          5                     flop_count_sp_special   Floating Point Operations(Single Precision Special)        8192        8192        8192
+          5                             inst_executed                                 Instructions Executed      724224      724224      724224
+          5                               cf_executed                    Executed Control-Flow Instructions        3328        3328        3328
+          5                             ldst_executed                      Executed Load/Store Instructions       87296       87296       87296
+    Kernel: sgemm_32x32x32_NN_vec
+          5                             sm_efficiency                               Multiprocessor Activity      72.17%      77.24%      74.32%
+          5                        achieved_occupancy                                    Achieved Occupancy    0.153394    0.164586    0.159193
+          5                                       ipc                                          Executed IPC    2.677300    3.114075    2.854503
+          5                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
+          5                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
+          5                 shared_store_transactions                             Shared Store Transactions       50176       50176       50176
+          5                  shared_load_transactions                              Shared Load Transactions       90112       90112       90112
+          5                   local_load_transactions                               Local Load Transactions           0           0           0
+          5                  local_store_transactions                              Local Store Transactions           0           0           0
+          5                          gld_transactions                              Global Load Transactions      131072      131072      131072
+          5                          gst_transactions                             Global Store Transactions        8192        8192        8192
+          5                    dram_read_transactions                       Device Memory Read Transactions           0           0           0
+          5                   dram_write_transactions                      Device Memory Write Transactions         106         716         401
+          5                     flop_count_sp_special   Floating Point Operations(Single Precision Special)        8192        8192        8192
+          5                             inst_executed                                 Instructions Executed      740608      740608      740608
+          5                               cf_executed                    Executed Control-Flow Instructions        3328        3328        3328
+          5                             ldst_executed                      Executed Load/Store Instructions      101120      101120      101120
+    Kernel: void gemm_kernel2x2_tile_multiple_core<double, bool=1, bool=0, bool=0, bool=0, bool=1>(double*, double const *, double const *, int, int, int, int, int, int, double*, double*, double, double, int)
+          5                             sm_efficiency                               Multiprocessor Activity      91.01%      91.93%      91.53%
+          5                        achieved_occupancy                                    Achieved Occupancy    0.124052    0.124227    0.124157
+          5                                       ipc                                          Executed IPC    0.281621    0.287224    0.284981
+          5                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
+          5                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
+          5                 shared_store_transactions                             Shared Store Transactions       16384       16384       16384
+          5                  shared_load_transactions                              Shared Load Transactions       65536       65536       65536
+          5                   local_load_transactions                               Local Load Transactions           0           0           0
+          5                  local_store_transactions                              Local Store Transactions           0           0           0
+          5                          gld_transactions                              Global Load Transactions       65536       65536       65536
+          5                          gst_transactions                             Global Store Transactions        4096        4096        4096
+          5                    dram_read_transactions                       Device Memory Read Transactions           0           0           0
+          5                   dram_write_transactions                      Device Memory Write Transactions          48          99          72
+          5                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
+          5                             inst_executed                                 Instructions Executed      196096      196096      196096
+          5                               cf_executed                    Executed Control-Flow Instructions        1152        1152        1152
+          5                             ldst_executed                      Executed Load/Store Instructions       86016       86016       86016
+    Kernel: void gemm_kernel2x2_tile_multiple_core<double, bool=1, bool=0, bool=0, bool=0, bool=0>(double*, double const *, double const *, int, int, int, int, int, int, double*, double*, double, double, int)
+          5                             sm_efficiency                               Multiprocessor Activity      90.82%      91.31%      91.13%
+          5                        achieved_occupancy                                    Achieved Occupancy    0.124468    0.124512    0.124485
+          5                                       ipc                                          Executed IPC    0.274246    0.277683    0.276229
+          5                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
+          5                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
+          5                 shared_store_transactions                             Shared Store Transactions       16384       16384       16384
+          5                  shared_load_transactions                              Shared Load Transactions       65536       65536       65536
+          5                   local_load_transactions                               Local Load Transactions           0           0           0
+          5                  local_store_transactions                              Local Store Transactions           0           0           0
+          5                          gld_transactions                              Global Load Transactions       65536       65536       65536
+          5                          gst_transactions                             Global Store Transactions        4096        4096        4096
+          5                    dram_read_transactions                       Device Memory Read Transactions           0           0           0
+          5                   dram_write_transactions                      Device Memory Write Transactions          53         122          71
+          5                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
+          5                             inst_executed                                 Instructions Executed      193664      193664      193664
+          5                               cf_executed                    Executed Control-Flow Instructions        1152        1152        1152
+          5                             ldst_executed                      Executed Load/Store Instructions       86016       86016       86016

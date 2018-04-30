@@ -1,99 +1,119 @@
-==24741== NVPROF is profiling process 24741, command: ./src/cuda/level1/gemm/gemm -s 1 -n 1
-==24741== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
-==24741== Profiling application: ./src/cuda/level1/gemm/gemm -s 1 -n 1
-==24741== Profiling result:
-==24741== Metric result:
-Invocations                               Metric Name                            Metric Description         Min         Max         Avg
+==18854== NVPROF is profiling process 18854, command: ./src/cuda/level1/gemm/gemm -s 1 -n 1
+==18854== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==18854== Profiling application: ./src/cuda/level1/gemm/gemm -s 1 -n 1
+==18854== Profiling result:
+==18854== Metric result:
+Invocations                               Metric Name                                    Metric Description         Min         Max         Avg
 Device "Tesla P100-SXM2-16GB (0)"
     Kernel: sgemm_32x32x32_TN_vec
-          5                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          5                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          5                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (2)     Low (2)     Low (2)
-          5           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-          5                    special_fu_utilization             Special Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          5             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-          5           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Mid (5)    High (7)     Mid (6)
-          5                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
-          5                             flop_count_sp   Floating Point Operations(Single Precision)    34693120    34693120    34693120
-          5                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)
-          5                           tex_utilization                     Unified Cache Utilization     Low (2)     Low (2)     Low (2)
-          5                        shared_utilization                     Shared Memory Utilization     Low (2)     Low (2)     Low (2)
-          5                                inst_fp_32                       FP Instructions(Single)    17850368    17850368    17850368
-          5                                inst_fp_64                       FP Instructions(Double)           0           0           0
-          5                              inst_integer                          Integer Instructions     2064384     2064384     2064384
-          5                          inst_bit_convert                      Bit-Convert Instructions       24576       24576       24576
-          5                              inst_control                     Control-Flow Instructions       98304       98304       98304
-          5                        inst_compute_ld_st                       Load/Store Instructions     2433024     2433024     2433024
-          5                                 inst_misc                             Misc Instructions      294912      294912      294912
-          5           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
-          5                            l2_utilization                          L2 Cache Utilization     Low (2)     Low (2)     Low (2)
-          5                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
+          5                             flop_count_dp           Floating Point Operations(Double Precision)           0           0           0
+          5                             flop_count_sp           Floating Point Operations(Single Precision)    34693120    34693120    34693120
+          5                                inst_fp_32                               FP Instructions(Single)    17850368    17850368    17850368
+          5                                inst_fp_64                               FP Instructions(Double)           0           0           0
+          5                              inst_integer                                  Integer Instructions     2064384     2064384     2064384
+          5                          inst_bit_convert                              Bit-Convert Instructions       24576       24576       24576
+          5                              inst_control                             Control-Flow Instructions       98304       98304       98304
+          5                        inst_compute_ld_st                               Load/Store Instructions     2433024     2433024     2433024
+          5                                 inst_misc                                     Misc Instructions      294912      294912      294912
+          5           inst_inter_thread_communication                             Inter-Thread Instructions           0           0           0
+          5                             sm_efficiency                               Multiprocessor Activity      46.58%      57.29%      52.10%
+          5                        achieved_occupancy                                    Achieved Occupancy    0.070944    0.071288    0.071077
+          5                                       ipc                                          Executed IPC    1.159374    1.522823    1.305760
+          5                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
+          5                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
+          5                 shared_store_transactions                             Shared Store Transactions       50176       50176       50176
+          5                  shared_load_transactions                              Shared Load Transactions       90112       90112       90112
+          5                   local_load_transactions                               Local Load Transactions           0           0           0
+          5                  local_store_transactions                              Local Store Transactions           0           0           0
+          5                          gld_transactions                              Global Load Transactions      131072      131072      131072
+          5                          gst_transactions                             Global Store Transactions        8192        8192        8192
+          5                    dram_read_transactions                       Device Memory Read Transactions           0          32           6
+          5                   dram_write_transactions                      Device Memory Write Transactions          60        3816        2111
+          5                     flop_count_sp_special   Floating Point Operations(Single Precision Special)        8192        8192        8192
+          5                             inst_executed                                 Instructions Executed      724224      724224      724224
+          5                               cf_executed                    Executed Control-Flow Instructions        3328        3328        3328
+          5                             ldst_executed                      Executed Load/Store Instructions       87296       87296       87296
     Kernel: sgemm_32x32x32_NN_vec
-          5                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          5                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          5                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (2)     Low (2)     Low (2)
-          5           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-          5                    special_fu_utilization             Special Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          5             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-          5           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Mid (5)    High (7)     Mid (6)
-          5                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
-          5                             flop_count_sp   Floating Point Operations(Single Precision)    34693120    34693120    34693120
-          5                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)
-          5                           tex_utilization                     Unified Cache Utilization     Low (2)     Low (2)     Low (2)
-          5                        shared_utilization                     Shared Memory Utilization     Low (2)     Low (2)     Low (2)
-          5                                inst_fp_32                       FP Instructions(Single)    17850368    17850368    17850368
-          5                                inst_fp_64                       FP Instructions(Double)           0           0           0
-          5                              inst_integer                          Integer Instructions     1998848     1998848     1998848
-          5                          inst_bit_convert                      Bit-Convert Instructions       24576       24576       24576
-          5                              inst_control                     Control-Flow Instructions       98304       98304       98304
-          5                        inst_compute_ld_st                       Load/Store Instructions     2826240     2826240     2826240
-          5                                 inst_misc                             Misc Instructions      368640      368640      368640
-          5           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
-          5                            l2_utilization                          L2 Cache Utilization     Low (2)     Low (2)     Low (2)
-          5                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
+          5                             flop_count_dp           Floating Point Operations(Double Precision)           0           0           0
+          5                             flop_count_sp           Floating Point Operations(Single Precision)    34693120    34693120    34693120
+          5                                inst_fp_32                               FP Instructions(Single)    17850368    17850368    17850368
+          5                                inst_fp_64                               FP Instructions(Double)           0           0           0
+          5                              inst_integer                                  Integer Instructions     1998848     1998848     1998848
+          5                          inst_bit_convert                              Bit-Convert Instructions       24576       24576       24576
+          5                              inst_control                             Control-Flow Instructions       98304       98304       98304
+          5                        inst_compute_ld_st                               Load/Store Instructions     2826240     2826240     2826240
+          5                                 inst_misc                                     Misc Instructions      368640      368640      368640
+          5           inst_inter_thread_communication                             Inter-Thread Instructions           0           0           0
+          5                             sm_efficiency                               Multiprocessor Activity      42.12%      57.74%      49.42%
+          5                        achieved_occupancy                                    Achieved Occupancy    0.071041    0.071843    0.071454
+          5                                       ipc                                          Executed IPC    1.136252    1.600055    1.413608
+          5                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
+          5                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
+          5                 shared_store_transactions                             Shared Store Transactions       50176       50176       50176
+          5                  shared_load_transactions                              Shared Load Transactions       90112       90112       90112
+          5                   local_load_transactions                               Local Load Transactions           0           0           0
+          5                  local_store_transactions                              Local Store Transactions           0           0           0
+          5                          gld_transactions                              Global Load Transactions      131072      131072      131072
+          5                          gst_transactions                             Global Store Transactions        8192        8192        8192
+          5                    dram_read_transactions                       Device Memory Read Transactions           0           0           0
+          5                   dram_write_transactions                      Device Memory Write Transactions         266        6492        2731
+          5                     flop_count_sp_special   Floating Point Operations(Single Precision Special)        8192        8192        8192
+          5                             inst_executed                                 Instructions Executed      740608      740608      740608
+          5                               cf_executed                    Executed Control-Flow Instructions        3328        3328        3328
+          5                             ldst_executed                      Executed Load/Store Instructions      101120      101120      101120
     Kernel: void gemm_kernel2x2_tile_multiple_core<double, bool=1, bool=0, bool=0, bool=0, bool=1>(double*, double const *, double const *, int, int, int, int, int, int, double*, double*, double, double, int)
-          5                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          5                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          5                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (2)     Low (2)     Low (2)
-          5           double_precision_fu_utilization    Double-Precision Function Unit Utilization     Low (2)     Low (2)     Low (2)
-          5                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-          5             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-          5           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          5                             flop_count_dp   Floating Point Operations(Double Precision)     4210688     4210688     4210688
-          5                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
-          5                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)
-          5                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (1)     Low (1)
-          5                        shared_utilization                     Shared Memory Utilization     Low (1)     Low (2)     Low (1)
-          5                                inst_fp_32                       FP Instructions(Single)           0           0           0
-          5                                inst_fp_64                       FP Instructions(Double)     2117632     2117632     2117632
-          5                              inst_integer                          Integer Instructions      847872      847872      847872
-          5                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
-          5                              inst_control                     Control-Flow Instructions       40960       40960       40960
-          5                        inst_compute_ld_st                       Load/Store Instructions     2637824     2637824     2637824
-          5                                 inst_misc                             Misc Instructions      561152      561152      561152
-          5           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
-          5                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
-          5                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
+          5                             flop_count_dp           Floating Point Operations(Double Precision)     4210688     4210688     4210688
+          5                             flop_count_sp           Floating Point Operations(Single Precision)           0           0           0
+          5                                inst_fp_32                               FP Instructions(Single)           0           0           0
+          5                                inst_fp_64                               FP Instructions(Double)     2117632     2117632     2117632
+          5                              inst_integer                                  Integer Instructions      847872      847872      847872
+          5                          inst_bit_convert                              Bit-Convert Instructions           0           0           0
+          5                              inst_control                             Control-Flow Instructions       40960       40960       40960
+          5                        inst_compute_ld_st                               Load/Store Instructions     2637824     2637824     2637824
+          5                                 inst_misc                                     Misc Instructions      561152      561152      561152
+          5           inst_inter_thread_communication                             Inter-Thread Instructions           0           0           0
+          5                             sm_efficiency                               Multiprocessor Activity      58.59%      63.66%      61.29%
+          5                        achieved_occupancy                                    Achieved Occupancy    0.035656    0.035828    0.035725
+          5                                       ipc                                          Executed IPC    0.346573    0.412424    0.373391
+          5                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
+          5                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
+          5                 shared_store_transactions                             Shared Store Transactions       16384       16384       16384
+          5                  shared_load_transactions                              Shared Load Transactions       65536       65536       65536
+          5                   local_load_transactions                               Local Load Transactions           0           0           0
+          5                  local_store_transactions                              Local Store Transactions           0           0           0
+          5                          gld_transactions                              Global Load Transactions       65536       65536       65536
+          5                          gst_transactions                             Global Store Transactions        4096        4096        4096
+          5                    dram_read_transactions                       Device Memory Read Transactions           0           0           0
+          5                   dram_write_transactions                      Device Memory Write Transactions          52        3104        1852
+          5                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
+          5                             inst_executed                                 Instructions Executed      195072      195072      195072
+          5                               cf_executed                    Executed Control-Flow Instructions        1536        1536        1536
+          5                             ldst_executed                      Executed Load/Store Instructions       84992       84992       84992
     Kernel: void gemm_kernel2x2_tile_multiple_core<double, bool=1, bool=0, bool=0, bool=0, bool=0>(double*, double const *, double const *, int, int, int, int, int, int, double*, double*, double, double, int)
-          5                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          5                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          5                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (2)     Low (2)     Low (2)
-          5           double_precision_fu_utilization    Double-Precision Function Unit Utilization     Low (2)     Low (2)     Low (2)
-          5                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-          5             half_precision_fu_utilization      Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-          5           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
-          5                             flop_count_dp   Floating Point Operations(Double Precision)     4210688     4210688     4210688
-          5                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
-          5                          dram_utilization                     Device Memory Utilization     Low (1)     Low (1)     Low (1)
-          5                           tex_utilization                     Unified Cache Utilization     Low (1)     Low (1)     Low (1)
-          5                        shared_utilization                     Shared Memory Utilization     Low (1)     Low (1)     Low (1)
-          5                                inst_fp_32                       FP Instructions(Single)           0           0           0
-          5                                inst_fp_64                       FP Instructions(Double)     2117632     2117632     2117632
-          5                              inst_integer                          Integer Instructions      884736      884736      884736
-          5                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
-          5                              inst_control                     Control-Flow Instructions       40960       40960       40960
-          5                        inst_compute_ld_st                       Load/Store Instructions     2637824     2637824     2637824
-          5                                 inst_misc                             Misc Instructions      421888      421888      421888
-          5           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
-          5                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
-          5                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
+          5                             flop_count_dp           Floating Point Operations(Double Precision)     4210688     4210688     4210688
+          5                             flop_count_sp           Floating Point Operations(Single Precision)           0           0           0
+          5                                inst_fp_32                               FP Instructions(Single)           0           0           0
+          5                                inst_fp_64                               FP Instructions(Double)     2117632     2117632     2117632
+          5                              inst_integer                                  Integer Instructions      884736      884736      884736
+          5                          inst_bit_convert                              Bit-Convert Instructions           0           0           0
+          5                              inst_control                             Control-Flow Instructions       40960       40960       40960
+          5                        inst_compute_ld_st                               Load/Store Instructions     2637824     2637824     2637824
+          5                                 inst_misc                                     Misc Instructions      421888      421888      421888
+          5           inst_inter_thread_communication                             Inter-Thread Instructions           0           0           0
+          5                             sm_efficiency                               Multiprocessor Activity      59.48%      65.00%      63.43%
+          5                        achieved_occupancy                                    Achieved Occupancy    0.035695    0.035878    0.035732
+          5                                       ipc                                          Executed IPC    0.321420    0.379830    0.333641
+          5                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
+          5                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
+          5                 shared_store_transactions                             Shared Store Transactions       16384       16384       16384
+          5                  shared_load_transactions                              Shared Load Transactions       65536       65536       65536
+          5                   local_load_transactions                               Local Load Transactions           0           0           0
+          5                  local_store_transactions                              Local Store Transactions           0           0           0
+          5                          gld_transactions                              Global Load Transactions       65536       65536       65536
+          5                          gst_transactions                             Global Store Transactions        4096        4096        4096
+          5                    dram_read_transactions                       Device Memory Read Transactions           0           0           0
+          5                   dram_write_transactions                      Device Memory Write Transactions          48        4388        1506
+          5                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
+          5                             inst_executed                                 Instructions Executed      191872      191872      191872
+          5                               cf_executed                    Executed Control-Flow Instructions        1536        1536        1536
+          5                             ldst_executed                      Executed Load/Store Instructions       84992       84992       84992
