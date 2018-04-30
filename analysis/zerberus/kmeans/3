@@ -1,10 +1,10 @@
-==150115== NVPROF is profiling process 150115, command: ./src/cuda/level2/kmeans/kmeans -s 3 -n 1
-==150115== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
-==150115== Profiling application: ./src/cuda/level2/kmeans/kmeans -s 3 -n 1
-==150115== Profiling result:
-==150115== Metric result:
+==160037== NVPROF is profiling process 160037, command: ./src/cuda/level2/kmeans/kmeans -s 3 -n 1 -d 1
+==160037== Some kernel(s) will be replayed on device 1 in order to collect all events/metrics.
+==160037== Profiling application: ./src/cuda/level2/kmeans/kmeans -s 3 -n 1 -d 1
+==160037== Profiling result:
+==160037== Metric result:
 Invocations                               Metric Name                            Metric Description         Min         Max         Avg
-Device "Tesla M60 (0)"
+Device "Tesla M60 (1)"
     Kernel: invert_mapping(float*, float*, int, int)
           1                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
           1                        tex_fu_utilization             Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
@@ -19,13 +19,13 @@ Device "Tesla M60 (0)"
           1                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
           1                                inst_fp_32                       FP Instructions(Single)           0           0           0
           1                                inst_fp_64                       FP Instructions(Double)           0           0           0
-          1                              inst_integer                          Integer Instructions   164080320   164080320   164080320
+          1                              inst_integer                          Integer Instructions   328138880   328138880   328138880
           1                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
-          1                              inst_control                     Control-Flow Instructions     8016064     8016064     8016064
-          1                        inst_compute_ld_st                       Load/Store Instructions    70000000    70000000    70000000
-          1                                 inst_misc                             Misc Instructions    18048192    18048192    18048192
+          1                              inst_control                     Control-Flow Instructions    16027776    16027776    16027776
+          1                        inst_compute_ld_st                       Load/Store Instructions   140000000   140000000   140000000
+          1                                 inst_misc                             Misc Instructions    36083328    36083328    36083328
           1           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
-          1                            l2_utilization                          L2 Cache Utilization     Low (1)     Low (1)     Low (1)
+          1                            l2_utilization                          L2 Cache Utilization     Low (2)     Low (2)     Low (2)
           1                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
     Kernel: kmeansPoint(float*, int, int, int, int*, float*, float*, int*)
           2                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
@@ -35,17 +35,17 @@ Device "Tesla M60 (0)"
           2                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
           2           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
           2                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
-          2                             flop_count_sp   Floating Point Operations(Single Precision)   525000000   525000000   525000000
+          2                             flop_count_sp   Floating Point Operations(Single Precision)  1050000000  1050000000  1050000000
           2                          dram_utilization                     Device Memory Utilization    Max (10)    Max (10)    Max (10)
           2                           tex_utilization                     Unified Cache Utilization     Low (3)     Low (3)     Low (3)
           2                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
-          2                                inst_fp_32                       FP Instructions(Single)   355000000   355000000   355000000
+          2                                inst_fp_32                       FP Instructions(Single)   710000000   710000000   710000000
           2                                inst_fp_64                       FP Instructions(Double)           0           0           0
-          2                              inst_integer                          Integer Instructions   450192768   450192768   450192768
+          2                              inst_integer                          Integer Instructions   900333312   900333312   900333312
           2                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
-          2                              inst_control                     Control-Flow Instructions    42048192    42048192    42048192
-          2                        inst_compute_ld_st                       Load/Store Instructions   347000000   347000000   347000000
-          2                                 inst_misc                             Misc Instructions    89080320    89080320    89080320
+          2                              inst_control                     Control-Flow Instructions    84083328    84083328    84083328
+          2                        inst_compute_ld_st                       Load/Store Instructions   694000000   694000000   694000000
+          2                                 inst_misc                             Misc Instructions   178138880   178138880   178138880
           2           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
           2                            l2_utilization                          L2 Cache Utilization     Low (2)     Low (2)     Low (2)
           2                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)

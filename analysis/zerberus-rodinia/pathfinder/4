@@ -1,0 +1,19 @@
+==17542== NVPROF is profiling process 17542, command: cuda/pathfinder/pathfinder 100000 100 20
+==17542== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==17542== Profiling application: cuda/pathfinder/pathfinder 100000 100 20
+==17542== Profiling result:
+==17542== Metric result:
+Invocations                               Metric Name                           Metric Description         Min         Max         Avg
+Device "Tesla M60 (0)"
+    Kernel: dynproc_kernel(int, int*, int*, int*, int, int, int, int)
+          5                         cf_fu_utilization       Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5                        tex_fu_utilization            Texture Function Unit Utilization     Low (2)     Low (2)     Low (2)
+          5                       ldst_fu_utilization         Load/Store Function Unit Utilization     Low (3)     Low (3)     Low (3)
+          5           double_precision_fu_utilization   Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          5                    special_fu_utilization            Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          5           single_precision_fu_utilization   Single-Precision Function Unit Utilization     Mid (5)     Mid (5)     Mid (5)
+          5                          dram_utilization                    Device Memory Utilization    High (7)    High (7)    High (7)
+          5                           tex_utilization                    Unified Cache Utilization     Low (2)     Low (2)     Low (2)
+          5                        shared_utilization                    Shared Memory Utilization     Mid (4)     Mid (4)     Mid (4)
+          5                            l2_utilization                         L2 Cache Utilization     Low (2)     Low (2)     Low (2)
+          5                        sysmem_utilization                    System Memory Utilization     Low (1)     Low (1)     Low (1)

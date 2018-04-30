@@ -1,0 +1,31 @@
+==17521== NVPROF is profiling process 17521, command: cuda/bfs/bfs data/bfs/graph65536.txt
+==17521== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==17521== Profiling application: cuda/bfs/bfs data/bfs/graph65536.txt
+==17521== Profiling result:
+==17521== Metric result:
+Invocations                               Metric Name                           Metric Description         Min         Max         Avg
+Device "Tesla M60 (0)"
+    Kernel: Kernel(Node*, int*, bool*, bool*, bool*, int*, int)
+         10                         cf_fu_utilization       Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         10                        tex_fu_utilization            Texture Function Unit Utilization     Low (1)     Low (2)     Low (1)
+         10                       ldst_fu_utilization         Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         10           double_precision_fu_utilization   Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+         10                    special_fu_utilization            Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+         10           single_precision_fu_utilization   Single-Precision Function Unit Utilization     Low (1)     Low (2)     Low (1)
+         10                          dram_utilization                    Device Memory Utilization     Low (1)     Low (3)     Low (1)
+         10                           tex_utilization                    Unified Cache Utilization     Low (1)     Low (2)     Low (1)
+         10                        shared_utilization                    Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
+         10                            l2_utilization                         L2 Cache Utilization     Low (1)     Low (3)     Low (1)
+         10                        sysmem_utilization                    System Memory Utilization     Low (1)     Low (1)     Low (1)
+    Kernel: Kernel2(bool*, bool*, bool*, bool*, int)
+         10                         cf_fu_utilization       Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         10                        tex_fu_utilization            Texture Function Unit Utilization     Low (2)     Low (3)     Low (2)
+         10                       ldst_fu_utilization         Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
+         10           double_precision_fu_utilization   Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+         10                    special_fu_utilization            Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+         10           single_precision_fu_utilization   Single-Precision Function Unit Utilization     Low (2)     Low (2)     Low (2)
+         10                          dram_utilization                    Device Memory Utilization     Low (1)     Low (2)     Low (1)
+         10                           tex_utilization                    Unified Cache Utilization     Low (1)     Low (1)     Low (1)
+         10                        shared_utilization                    Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
+         10                            l2_utilization                         L2 Cache Utilization     Low (1)     Low (1)     Low (1)
+         10                        sysmem_utilization                    System Memory Utilization     Low (1)     Low (1)     Low (1)

@@ -44,8 +44,8 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   int speckleSize = op.getOptionInt("speckleSize");
   int iters = op.getOptionInt("iterations");
   if (imageSize == 0 || speckleSize == 0 || iters == 0) {
-    int imageSizes[4] = {128, 512, 4096, 8192};
-    int iterSizes[4] = {5, 20, 80, 160};
+    int imageSizes[4] = {128, 512, 4096, 2 << 13};
+    int iterSizes[4] = {5, 10, 15, 20};
     imageSize = imageSizes[op.getOptionInt("size") - 1];
     speckleSize = imageSize / 2;
     iters = iterSizes[op.getOptionInt("size") - 1];

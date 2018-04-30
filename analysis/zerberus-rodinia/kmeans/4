@@ -1,0 +1,31 @@
+==19124== NVPROF is profiling process 19124, command: cuda/kmeans/kmeans -o -i data/kmeans/kdd_cup
+==19124== Some kernel(s) will be replayed on device 1 in order to collect all events/metrics.
+==19124== Profiling application: cuda/kmeans/kmeans -o -i data/kmeans/kdd_cup
+==19124== Profiling result:
+==19124== Metric result:
+Invocations                               Metric Name                           Metric Description         Min         Max         Avg
+Device "Tesla M60 (1)"
+    Kernel: invert_mapping(float*, float*, int, int)
+          1                         cf_fu_utilization       Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1                        tex_fu_utilization            Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1                       ldst_fu_utilization         Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1           double_precision_fu_utilization   Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1                    special_fu_utilization            Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          1           single_precision_fu_utilization   Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          1                          dram_utilization                    Device Memory Utilization    High (8)    High (8)    High (8)
+          1                           tex_utilization                    Unified Cache Utilization     Low (1)     Low (1)     Low (1)
+          1                        shared_utilization                    Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
+          1                            l2_utilization                         L2 Cache Utilization     Low (2)     Low (2)     Low (2)
+          1                        sysmem_utilization                    System Memory Utilization     Low (1)     Low (1)     Low (1)
+    Kernel: kmeansPoint(float*, int, int, int, int*, float*, float*, int*)
+          2                         cf_fu_utilization       Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          2                        tex_fu_utilization            Texture Function Unit Utilization     Low (3)     Low (3)     Low (3)
+          2                       ldst_fu_utilization         Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          2           double_precision_fu_utilization   Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          2                    special_fu_utilization            Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          2           single_precision_fu_utilization   Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          2                          dram_utilization                    Device Memory Utilization    High (9)    High (9)    High (9)
+          2                           tex_utilization                    Unified Cache Utilization     Low (3)     Low (3)     Low (3)
+          2                        shared_utilization                    Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
+          2                            l2_utilization                         L2 Cache Utilization     Low (2)     Low (2)     Low (2)
+          2                        sysmem_utilization                    System Memory Utilization     Low (1)     Low (1)     Low (1)

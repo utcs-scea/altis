@@ -48,7 +48,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 	// get boxes1d arg value
     int boxes1d = op.getOptionInt("boxes1d");
     if(boxes1d == 0) {
-        int probSizes[4] = {1, 8, 32, 64};
+        int probSizes[4] = {1, 8, 64, 64};
         boxes1d = probSizes[op.getOptionInt("size") - 1];
     }
 	printf("Configuration used: boxes1d = %d\n", boxes1d);

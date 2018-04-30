@@ -1,0 +1,95 @@
+==39153== NVPROF is profiling process 39153, command: ./src/cuda/level2/cfd/cfd -s 3 -n 1 -d 1
+==39153== Some kernel(s) will be replayed on device 1 in order to collect all events/metrics.
+==39153== Profiling application: ./src/cuda/level2/cfd/cfd -s 3 -n 1 -d 1
+==39153== Profiling result:
+==39153== Metric result:
+Invocations                               Metric Name                            Metric Description         Min         Max         Avg
+Device "Tesla P100-SXM2-16GB (1)"
+    Kernel: cuda_initialize_variables(int, float*)
+          3                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          3                        tex_fu_utilization             Texture Function Unit Utilization     Low (3)     Low (3)     Low (3)
+          3                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          3           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          3                    special_fu_utilization             Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          3           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (2)     Low (2)     Low (2)
+          3                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
+          3                             flop_count_sp   Floating Point Operations(Single Precision)           0           0           0
+          3                          dram_utilization                     Device Memory Utilization    High (8)    High (8)    High (8)
+          3                           tex_utilization                     Unified Cache Utilization    Idle (0)    Idle (0)    Idle (0)
+          3                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
+          3                                inst_fp_32                       FP Instructions(Single)           0           0           0
+          3                                inst_fp_64                       FP Instructions(Double)           0           0           0
+          3                              inst_integer                          Integer Instructions    16002048    16002048    16002048
+          3                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
+          3                              inst_control                     Control-Flow Instructions     1000128     1000128     1000128
+          3                        inst_compute_ld_st                       Load/Store Instructions     5000640     5000640     5000640
+          3                                 inst_misc                             Misc Instructions    10001280    10001280    10001280
+          3           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
+          3                            l2_utilization                          L2 Cache Utilization     Low (2)     Low (2)     Low (2)
+          3                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
+    Kernel: cuda_compute_step_factor(int, float*, float*, float*)
+        100                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (2)     Low (3)     Low (2)
+        100                        tex_fu_utilization             Texture Function Unit Utilization     Low (2)     Low (2)     Low (2)
+        100                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
+        100           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+        100                    special_fu_utilization             Special Function Unit Utilization     Low (1)     Low (2)     Low (1)
+        100           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Mid (5)     Mid (5)     Mid (5)
+        100                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
+        100                             flop_count_sp   Floating Point Operations(Single Precision)    26003902   106231203    29074189
+        100                          dram_utilization                     Device Memory Utilization     Mid (6)    High (7)     Mid (6)
+        100                           tex_utilization                     Unified Cache Utilization     Low (2)     Low (2)     Low (2)
+        100                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
+        100                                inst_fp_32                       FP Instructions(Single)    41005500    76223173    42405025
+        100                                inst_fp_64                       FP Instructions(Double)           0           0           0
+        100                              inst_integer                          Integer Instructions    27804716    64007933    62687105
+        100                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
+        100                              inst_control                     Control-Flow Instructions    20587106    47005827    45996033
+        100                        inst_compute_ld_st                       Load/Store Instructions     7000896     7000896     7000896
+        100                                 inst_misc                             Misc Instructions    21635084    50006197    48954315
+        100           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
+        100                            l2_utilization                          L2 Cache Utilization     Low (2)     Low (2)     Low (2)
+        100                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
+    Kernel: cuda_time_step(int, int, float*, float*, float*, float*)
+        300                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+        300                        tex_fu_utilization             Texture Function Unit Utilization     Low (3)     Low (3)     Low (3)
+        300                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
+        300           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+        300                    special_fu_utilization             Special Function Unit Utilization     Low (1)     Low (1)     Low (1)
+        300           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Low (2)     Low (2)     Low (2)
+        300                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
+        300                             flop_count_sp   Floating Point Operations(Single Precision)    11001506    25003200    11576193
+        300                          dram_utilization                     Device Memory Utilization    High (7)    High (8)    High (7)
+        300                           tex_utilization                     Unified Cache Utilization     Low (2)     Low (2)     Low (2)
+        300                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
+        300                                inst_fp_32                       FP Instructions(Single)     9001194    15001920     9247488
+        300                                inst_fp_64                       FP Instructions(Double)           0           0           0
+        300                              inst_integer                          Integer Instructions    43005504    50006351    49719007
+        300                          inst_bit_convert                      Bit-Convert Instructions     1000128     1000128     1000128
+        300                              inst_control                     Control-Flow Instructions     3000384     8000989     7795743
+        300                        inst_compute_ld_st                       Load/Store Instructions    16002048    16002048    16002048
+        300                                 inst_misc                             Misc Instructions    16002048    20002532    19838335
+        300           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
+        300                            l2_utilization                          L2 Cache Utilization     Low (2)     Low (2)     Low (2)
+        300                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)
+    Kernel: cuda_compute_flux(int, int*, float*, float*, float*)
+        300                         cf_fu_utilization        Control-Flow Function Unit Utilization     Low (1)     Low (2)     Low (1)
+        300                        tex_fu_utilization             Texture Function Unit Utilization     Low (2)     Low (3)     Low (2)
+        300                       ldst_fu_utilization          Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
+        300           double_precision_fu_utilization    Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+        300                    special_fu_utilization             Special Function Unit Utilization     Low (1)     Low (1)     Low (1)
+        300           single_precision_fu_utilization    Single-Precision Function Unit Utilization     Mid (5)     Mid (5)     Mid (5)
+        300                             flop_count_dp   Floating Point Operations(Double Precision)           0           0           0
+        300                             flop_count_sp   Floating Point Operations(Single Precision)   453058549   793038952   465421826
+        300                          dram_utilization                     Device Memory Utilization     Mid (4)     Mid (5)     Mid (4)
+        300                           tex_utilization                     Unified Cache Utilization     Low (2)     Low (3)     Low (2)
+        300                        shared_utilization                     Shared Memory Utilization    Idle (0)    Idle (0)    Idle (0)
+        300                                inst_fp_32                       FP Instructions(Single)   387047901   537025414   392588970
+        300                                inst_fp_64                       FP Instructions(Double)           0           0           0
+        300                              inst_integer                          Integer Instructions   147029417   297035750   291693487
+        300                          inst_bit_convert                      Bit-Convert Instructions           0           0           0
+        300                              inst_control                     Control-Flow Instructions    95029507   215026249   210652786
+        300                        inst_compute_ld_st                       Load/Store Instructions    46005823    46005823    46005823
+        300                                 inst_misc                             Misc Instructions   103039477   205026361   201367711
+        300           inst_inter_thread_communication                     Inter-Thread Instructions           0           0           0
+        300                            l2_utilization                          L2 Cache Utilization     Low (2)     Low (3)     Low (2)
+        300                        sysmem_utilization                     System Memory Utilization     Low (1)     Low (1)     Low (1)

@@ -1,0 +1,55 @@
+==42911== NVPROF is profiling process 42911, command: ./gemm/GEMM -n 1 -s 4
+==42911== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==42911== Profiling application: ./gemm/GEMM -n 1 -s 4
+==42911== Profiling result:
+==42911== Metric result:
+Invocations                               Metric Name                           Metric Description         Min         Max         Avg
+Device "Tesla M60 (0)"
+    Kernel: sgemm_128x128x8_TN_vec
+          5                         cf_fu_utilization       Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5                        tex_fu_utilization            Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5                       ldst_fu_utilization         Load/Store Function Unit Utilization     Low (2)     Low (2)     Low (2)
+          5           double_precision_fu_utilization   Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          5                    special_fu_utilization            Special Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5           single_precision_fu_utilization   Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
+          5                          dram_utilization                    Device Memory Utilization     Mid (6)     Mid (6)     Mid (6)
+          5                           tex_utilization                    Unified Cache Utilization     Low (2)     Low (2)     Low (2)
+          5                        shared_utilization                    Shared Memory Utilization     Mid (6)     Mid (6)     Mid (6)
+          5                            l2_utilization                         L2 Cache Utilization     Low (2)     Low (2)     Low (2)
+          5                        sysmem_utilization                    System Memory Utilization     Low (1)     Low (1)     Low (1)
+    Kernel: sgemm_128x128x8_NN_vec
+          5                         cf_fu_utilization       Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5                        tex_fu_utilization            Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5                       ldst_fu_utilization         Load/Store Function Unit Utilization     Low (2)     Low (2)     Low (2)
+          5           double_precision_fu_utilization   Double-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          5                    special_fu_utilization            Special Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5           single_precision_fu_utilization   Single-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
+          5                          dram_utilization                    Device Memory Utilization     Mid (5)    High (8)     Mid (6)
+          5                           tex_utilization                    Unified Cache Utilization     Low (2)     Low (2)     Low (2)
+          5                        shared_utilization                    Shared Memory Utilization     Mid (6)     Mid (6)     Mid (6)
+          5                            l2_utilization                         L2 Cache Utilization     Low (2)     Low (2)     Low (2)
+          5                        sysmem_utilization                    System Memory Utilization     Low (1)     Low (1)     Low (1)
+    Kernel: maxwell_dgemm_128x64_nn
+          5                         cf_fu_utilization       Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5                        tex_fu_utilization            Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5                       ldst_fu_utilization         Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5           double_precision_fu_utilization   Double-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
+          5                    special_fu_utilization            Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          5           single_precision_fu_utilization   Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5                          dram_utilization                    Device Memory Utilization     Low (1)     Low (1)     Low (1)
+          5                           tex_utilization                    Unified Cache Utilization     Low (1)     Low (1)     Low (1)
+          5                        shared_utilization                    Shared Memory Utilization     Low (1)     Low (1)     Low (1)
+          5                            l2_utilization                         L2 Cache Utilization     Low (1)     Low (1)     Low (1)
+          5                        sysmem_utilization                    System Memory Utilization     Low (1)     Low (1)     Low (1)
+    Kernel: maxwell_dgemm_128x64_nt
+          5                         cf_fu_utilization       Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5                        tex_fu_utilization            Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5                       ldst_fu_utilization         Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5           double_precision_fu_utilization   Double-Precision Function Unit Utilization    Max (10)    Max (10)    Max (10)
+          5                    special_fu_utilization            Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          5           single_precision_fu_utilization   Single-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5                          dram_utilization                    Device Memory Utilization     Low (1)     Low (1)     Low (1)
+          5                           tex_utilization                    Unified Cache Utilization     Low (1)     Low (1)     Low (1)
+          5                        shared_utilization                    Shared Memory Utilization     Low (1)     Low (1)     Low (1)
+          5                            l2_utilization                         L2 Cache Utilization     Low (1)     Low (1)     Low (1)
+          5                        sysmem_utilization                    System Memory Utilization     Low (1)     Low (1)     Low (1)

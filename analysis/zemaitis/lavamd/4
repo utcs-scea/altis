@@ -1,1 +1,7 @@
-======== Error: CUDA device error.
+==21997== NVPROF is profiling process 21997, command: ./src/cuda/level2/lavamd/lavamd -n 1 -d 2 -s 4
+==21997== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
+==21997== Profiling application: ./src/cuda/level2/lavamd/lavamd -n 1 -d 2 -s 4
+==21997== Profiling result:
+         Device   Context    Stream                Kernel  cf_fu_utilization  tex_fu_utilization  ldst_fu_utilization  double_precision_fu_utilization  special_fu_utilization  single_precision_fu_utilization  flop_count_dp  flop_count_sp  dram_utilization  tex_utilization  shared_utilization  inst_fp_32  inst_fp_64  inst_integer  inst_bit_convert  inst_control  inst_compute_ld_st   inst_misc  inst_inter_thread_communication  l2_utilization  sysmem_utilization
+
+Tesla P100-SXM2         1         7  kernel_gpu_cuda(par_            Low (1)             Low (1)              Low (1)                         High (9)                Idle (0)                          Low (2)  3.5667471e+12              0           Low (1)          Low (1)             Low (2)  6.8590e+10  2.1949e+12  2.455811e+11  6.8590000000e+10  1.781280e+11  2.207488448320e+11  2.8805e+11                                0         Low (1)             Low (1)

@@ -2,7 +2,7 @@ import pprint
 import pandas as pd
 
 #benchmarks = ['devicememory', 'maxflops', 'bfs', 'gemm', 'sort', 'pathfinder', 'cfd', 'dwt2d', 'kmeans', 'lavamd', 'mandelbrot', 'nw', 'particlefilter', 'srad']
-benchmarks = ['bfs', 'sort', 'pathfinder']
+benchmarks = ['cfd']
 metrics = ['cf_fu_utilization','tex_fu_utilization','ldst_fu_utilization','double_precision_fu_utilization','special_fu_utilization','half_precision_fu_utilization','single_precision_fu_utilization','flop_count_dp','flop_count_sp','dram_utilization','tex_utilization','shared_utilization','inst_fp_32','inst_fp_64','inst_integer','inst_bit_convert','inst_control','inst_compute_ld_st','inst_misc','inst_inter_thread_communication','l2_utilization','sysmem_utilization']
 
 kernel_delim = 'Kernel: '
