@@ -76,11 +76,11 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 
   if (rowLen == 0 || colLen == 0 || pyramidHeight == 0) {
     printf("Using preset problem size %d\n", (int)op.getOptionInt("size"));
-    int rowSizes[4] = {8, 16, 32, 64};
-    int colSizes[4] = {8, 16, 32, 64};
+    int rowSizes[4] = {8, 16, 32, 40};
+    int colSizes[4] = {8, 16, 32, 40};
     int pyramidSizes[4] = {4, 8, 16, 32};
-    rows = rowSizes[op.getOptionInt("size") - 1];
-    cols = colSizes[op.getOptionInt("size") - 1] * 1024 * 1024;
+    rows = rowSizes[op.getOptionInt("size") - 1] * 1024;
+    cols = colSizes[op.getOptionInt("size") - 1] * 1024;
     pyramid_height = pyramidSizes[op.getOptionInt("size") - 1];
   } else {
     rows = rowLen;
