@@ -1,0 +1,13 @@
+test	atts	units	median	mean	stddev	min	max	
+pathfinder_hyperq_kernel_time	32x33554432	sec	2.56919	2.56922	0.000618003	2.56822	2.5703	
+pathfinder_hyperq_parity	32x33554432	N	0.315555	0.346673	0.0835018	0.234964	0.488797	
+pathfinder_hyperq_speedup	32x33554432	sec	1.00939	1.00767	0.00796951	0.998461	1.0193	
+pathfinder_hyperq_total_time	32x33554432	sec	3.37932	3.45992	0.214816	3.17306	3.82478	
+pathfinder_hyperq_transfer_time	32x33554432	sec	0.810577	0.890697	0.214615	0.603705	1.25574	
+pathfinder_kernel_time	32x33554432	sec	2.60053	2.59604	0.0282637	2.56342	2.64297	
+pathfinder_parity	32x33554432	N	0.311357	0.342952	0.0821089	0.235366	0.489868	
+pathfinder_total_time	32x33554432	sec	3.41381	3.48673	0.222356	3.16866	3.83823	
+pathfinder_transfer_time	32x33554432	sec	0.810577	0.890697	0.214615	0.603705	1.25574	
+
+Note: results marked with (*) had missing values such as
+might occur with a mixture of architectural capabilities.

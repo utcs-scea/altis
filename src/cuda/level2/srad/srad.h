@@ -9,7 +9,3 @@
 #else
         #define BLOCK_SIZE 16
 #endif
-
-#define GPU
-#define TIMER
-//#define OUTPUT
