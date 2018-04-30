@@ -309,16 +309,18 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
         mandelbrot(imageSize, iters);
         resultDB.AddResult("mandelbrot_kernel_time", atts, "sec", kernelTime);
         resultDB.AddResult("mandelbrot_transfer_time", atts, "sec", transferTime);
+        resultDB.AddResult("mandelbrot_total_time", atts, "sec", transferTime + kernelTime);
         resultDB.AddResult("mandelbrot_parity", atts, "N", transferTime / kernelTime);
 #ifdef DYNAMIC_PARALLELISM
-        float totalTime = kernelTime + transferTime;
+        float totalTime = kernelTime;
         kernelTime = 0.0f;
         transferTime = 0.0f;
         mandelbrot_dyn(imageSize, iters);
         resultDB.AddResult("mandelbrot_dynpar_kernel_time", atts, "sec", kernelTime);
         resultDB.AddResult("mandelbrot_dynpar_transfer_time", atts, "sec", transferTime);
+        resultDB.AddResult("mandelbrot_dynpar_total_time", atts, "sec", transferTime + kernelTime);
         resultDB.AddResult("mandelbrot_dynpar_parity", atts, "N", transferTime / kernelTime);
-        resultDB.AddResult("mandelbrot_dynpar_speedup", atts, "N", totalTime / (kernelTime + transferTime));
+        resultDB.AddResult("mandelbrot_dynpar_speedup", atts, "N", totalTime/kernelTime);
 #endif
 
         printf("Done.\n");

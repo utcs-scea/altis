@@ -166,7 +166,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
             }
         }
         if(time != FLT_MAX && timeUM != FLT_MAX) {
-            resultDB.AddResult("BFS_Time/BFS_UM_Time", atts, "N", time/timeUM);
+            resultDB.AddResult("bfs_unifiedmem_speedup", atts, "N", time/timeUM);
         }
 #endif
     }
@@ -449,12 +449,12 @@ double transferTime = 0.;
     char tmp[64];
     sprintf(tmp, "%dV,%dE", no_of_nodes, edge_list_size);
     string atts = string(tmp);
-    resultDB.AddResult("BFS-TransferTime", atts, "sec", transferTime);
-    resultDB.AddResult("BFS-KernelTime", atts, "sec", kernelTime);
-    resultDB.AddResult("BFS-TotalTime", atts, "sec", transferTime + kernelTime);
-    resultDB.AddResult("BFS-Rate_Nodes", atts, "Nodes/s", no_of_nodes/kernelTime);
-    resultDB.AddResult("BFS-Rate_Edges", atts, "Edges/s", edge_list_size/kernelTime);
-    resultDB.AddResult("BFS-Rate_Parity", atts, "N", transferTime / kernelTime);
+    resultDB.AddResult("bfs_transfer_time", atts, "sec", transferTime);
+    resultDB.AddResult("bfs_kernel_time", atts, "sec", kernelTime);
+    resultDB.AddResult("bfs_total_time", atts, "sec", transferTime + kernelTime);
+    resultDB.AddResult("bfs_rate_nodes", atts, "Nodes/s", no_of_nodes/kernelTime);
+    resultDB.AddResult("bfs_rate_edges", atts, "Edges/s", edge_list_size/kernelTime);
+    resultDB.AddResult("bfs_rate_parity", atts, "N", transferTime / kernelTime);
     return transferTime + kernelTime;
 }
 
@@ -585,9 +585,9 @@ float BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, int no_o
     char tmp[64];
     sprintf(tmp, "%dV,%dE", no_of_nodes, edge_list_size);
     string atts = string(tmp);
-    resultDB.AddResult("BFS-UM-TotalTime", atts, "sec", kernelTime);
-    resultDB.AddResult("BFS-UM-Rate_Nodes", atts, "Nodes/s", no_of_nodes/kernelTime);
-    resultDB.AddResult("BFS-UM-Rate_Edges", atts, "Edges/s", edge_list_size/kernelTime);
+    resultDB.AddResult("bfs_unifiedmem_total_time", atts, "sec", kernelTime);
+    resultDB.AddResult("bfs_unifiedmem_rate_nodes", atts, "Nodes/s", no_of_nodes/kernelTime);
+    resultDB.AddResult("bfs_unifiedmem_rate_edges", atts, "Edges/s", edge_list_size/kernelTime);
     return kernelTime;
 }
 #endif

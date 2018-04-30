@@ -1,21 +1,54 @@
 #!/bin/bash
 
-#for f in gemm pathfinder sort bfs
-for f in sort
+for f in devicememory maxflops
+do
+echo $f
+nvprof --metrics sm_efficiency,achieved_occupancy,ipc,branch_efficiency,warp_execution_efficiency,shared_store_transactions,shared_load_transactions,local_load_transactions,local_store_transactions,gld_transactions,gst_transactions,dram_read_transactions,dram_write_transactions,flop_count_sp_special,inst_executed,cf_executed,ldst_executed --log-file analysis/zerberus/$f/1 ./src/cuda/level0/$f/$f -n 1
+done
+
+for f in gemm pathfinder sort bfs
 do
 for i in 1 2 3 4
 do
-nvprof --metrics cf_fu_utilization,tex_fu_utilization,ldst_fu_utilization,double_precision_fu_utilization,special_fu_utilization,half_precision_fu_utilization,single_precision_fu_utilization,flop_count_dp,flop_count_sp,dram_utilization,tex_utilization,shared_utilization,inst_fp_32,inst_fp_64,inst_integer,inst_bit_convert,inst_control,inst_compute_ld_st,inst_misc,inst_inter_thread_communication,l2_utilization,sysmem_utilization --log-file analysis/zemaitis/$f/$i ./src/cuda/level1/$f/$f -s $i -n 1
+nvprof --metrics sm_efficiency,achieved_occupancy,ipc,branch_efficiency,warp_execution_efficiency,shared_store_transactions,shared_load_transactions,local_load_transactions,local_store_transactions,gld_transactions,gst_transactions,dram_read_transactions,dram_write_transactions,flop_count_sp_special,inst_executed,cf_executed,ldst_executed --log-file analysis/zerberus/$f/$i ./src/cuda/level1/$f/$f -s $i -n 1
 done
 done
 
-#for f in cfd kmeans lavamd nw srad
-#do
-#for i in 1 2 3 4
-#do
-#nvprof --metrics cf_fu_utilization,tex_fu_utilization,ldst_fu_utilization,double_precision_fu_utilization,special_fu_utilization,single_precision_fu_utilization,flop_count_dp,flop_count_sp,dram_utilization,tex_utilization,shared_utilization,inst_fp_32,inst_fp_64,inst_integer,inst_bit_convert,inst_control,inst_compute_ld_st,inst_misc,inst_inter_thread_communication,l2_utilization,sysmem_utilization --log-file analysis/$f/$i ./src/cuda/level2/$f/$f -s $i -n 1
-#done
-#done
+for f in cfd dwt2d kmeans lavamd mandelbrot nw srad where
+do
+for i in 1 2 3 4
+do
+nvprof --metrics sm_efficiency,achieved_occupancy,ipc,branch_efficiency,warp_execution_efficiency,shared_store_transactions,shared_load_transactions,local_load_transactions,local_store_transactions,gld_transactions,gst_transactions,dram_read_transactions,dram_write_transactions,flop_count_sp_special,inst_executed,cf_executed,ldst_executed --log-file analysis/zerberus/$f/$i ./src/cuda/level2/$f/$f -s $i -n 1
+done
+done
+
+for f in naive float
+do
+for i in 1 2 3 4
+do
+nvprof --metrics sm_efficiency,achieved_occupancy,ipc,branch_efficiency,warp_execution_efficiency,shared_store_transactions,shared_load_transactions,local_load_transactions,local_store_transactions,gld_transactions,gst_transactions,dram_read_transactions,dram_write_transactions,flop_count_sp_special,inst_executed,cf_executed,ldst_executed --log-file analysis/zerberus/particlefilter/$f/$i ./src/cuda/level2/particlefilter/particlefilter_$f -s $i -n 1
+done
+done
+
+
+#sm_efficiency:  The percentage of time at least one warp is active on a specific multiprocessor
+#achieved_occupancy:  Ratio of the average active warps per active cycle to the maximum number of warps supported on a multiprocessor
+#ipc:  Instructions executed per cycle
+#branch_efficiency:  Ratio of non-divergent branches to total branches
+#warp_execution_efficiency:  Ratio of the average active threads per warp to the maximum number of threads per warp supported on a multiprocessor
+#shared_store_transactions:  Number of shared memory store transactions
+#shared_load_transactions:  Number of shared memory load transactions
+#local_load_transactions:  Number of local memory load transactions
+#local_store_transactions:  Number of local memory store transactions
+#gld_transactions:  Number of global memory load transactions
+#gst_transactions:  Number of global memory store transactions
+#dram_read_transactions:  Device memory read transactions
+#dram_write_transactions:  Device memory write transactions
+#flop_count_sp_special:  Number of single-precision floating-point special operations executed by non-predicated threads.
+#inst_executed:  The number of instructions executed
+#cf_executed:  Number of executed control-flow instructions
+#ldst_executed:  Number of executed local, global, shared and texture memory load and store instructions
+
 
 #cf_fu_utilization:  The utilization level of the multiprocessor function units that execute control-flow instructions on a scale of 0 to 10
 #tex_fu_utilization:  The utilization level of the multiprocessor function units that execute global, local and texture memory instructions on a scale of 0 to 10

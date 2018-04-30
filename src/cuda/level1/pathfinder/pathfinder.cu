@@ -42,6 +42,7 @@ void addBenchmarkSpecOptions(OptionParser &op) {
   op.addOption("rows", OPT_INT, "0", "number of rows");
   op.addOption("cols", OPT_INT, "0", "number of cols");
   op.addOption("pyramidHeight", OPT_INT, "0", "pyramid height");
+  op.addOption("instances", OPT_INT, "32", "number of pathfinder instances to run");
 }
 
 // ****************************************************************************
@@ -223,7 +224,7 @@ __global__ void dynproc_kernel(int iteration, int *gpuWall,
 int calc_path(int *gpuWall, int *gpuResult[2], int rows,
                     int cols, int pyramid_height,
                     int blockCols, int borderCols,
-                    double &kernelTime, bool hyperq) {
+                    double &kernelTime, bool hyperq, int numStreams) {
   dim3 dimBlock(BLOCK_SIZE);
   dim3 dimGrid(blockCols);
 
@@ -232,7 +233,6 @@ int calc_path(int *gpuWall, int *gpuResult[2], int rows,
   cudaEventCreate(&stop);
   float elapsedTime;
 
-  int numStreams = 32;
   cudaStream_t streams[numStreams];
   for (int s = 0; s < numStreams; s++) {
     cudaStreamCreate(&streams[s]);
@@ -308,13 +308,14 @@ void run(int borderCols, int smallBlockCol, int blockCols,
   cudaEventElapsedTime(&elapsedTime, start, stop);
   transferTime += elapsedTime * 1.e-3;  // convert to seconds
 
+  int instances = op.getOptionInt("instances");
   int final_ret =
       calc_path(gpuWall, gpuResult, rows, cols, pyramid_height, blockCols,
-                borderCols, kernelTime, false);
+                borderCols, kernelTime, false, instances);
 #ifdef HYPERQ
   double hyperqKernelTime = 0;
   calc_path(gpuWall, gpuResult, rows, cols, pyramid_height, blockCols,
-            borderCols, hyperqKernelTime, true);
+            borderCols, hyperqKernelTime, true, instances);
 #endif
 
   cudaEventRecord(start, 0);
@@ -350,16 +351,18 @@ void run(int borderCols, int smallBlockCol, int blockCols,
   delete[] result;
 
   string atts = toString(rows) + "x" + toString(cols);
-  resultDB.AddResult("Pathfinder_TransferTime", atts, "sec", transferTime);
-  resultDB.AddResult("Pathfinder_KernelTime", atts, "sec", kernelTime);
-  resultDB.AddResult("Pathfinder_Parity", atts, "N",
+  resultDB.AddResult("pathfinder_transfer_time", atts, "sec", transferTime);
+  resultDB.AddResult("pathfinder_kernel_time", atts, "sec", kernelTime);
+  resultDB.AddResult("pathfinder_total_time", atts, "sec", kernelTime + transferTime);
+  resultDB.AddResult("pathfinder_parity", atts, "N",
                      transferTime / kernelTime);
 #ifdef HYPERQ
-  resultDB.AddResult("Pathfinder_Hyperq_TransferTime", atts, "sec", transferTime);
-  resultDB.AddResult("Pathfinder_Hyperq_KernelTime", atts, "sec", hyperqKernelTime);
-  resultDB.AddResult("Pathfinder_Hyperq_Parity", atts, "N",
+  resultDB.AddResult("pathfinder_hyperq_transfer_time", atts, "sec", transferTime);
+  resultDB.AddResult("pathfinder_hyperq_kernel_time", atts, "sec", hyperqKernelTime);
+  resultDB.AddResult("pathfinder_hyperq_total_time", atts, "sec", hyperqKernelTime + transferTime);
+  resultDB.AddResult("pathfinder_hyperq_parity", atts, "N",
                      transferTime / hyperqKernelTime);
-  resultDB.AddResult("Pathfinder_Hyperq_Speedup", atts, "sec",
-                     transferTime + kernelTime);
+  resultDB.AddResult("pathfinder_hyperq_speedup", atts, "sec",
+                     kernelTime/hyperqKernelTime);
 #endif
 }

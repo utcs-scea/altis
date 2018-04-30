@@ -1,6 +1,34 @@
 #ifdef GRID_SYNC
+
 #include <cooperative_groups.h>
 using namespace cooperative_groups;
+struct srad_params {
+    float *E_C;
+    float *W_C;
+    float *N_C;
+    float *S_C;
+    float *J_cuda;
+    float *C_cuda;
+    int cols;
+    int rows;
+    float lambda;
+    float q0sqr;
+    /*
+    srad_params(float *E, float *W, float *N, float *S, float *J_c, float *C_c, int c, int r, float l, float q) {
+        E_C = E;
+        W_C = W;
+        N_C = N;
+        S_C = S;
+        J_cuda = J_c;
+        C_cuda = C_c;
+        cols = c;
+        rows = r;
+        lambda = l;
+        q0sqr = q;
+    }
+    */
+};
+
 #endif
 
 __global__ void
@@ -271,20 +299,19 @@ srad_cuda_2(
 
 #ifdef GRID_SYNC
 __global__ void
-srad_cuda_3(
-		  float *E_C, 
-		  float *W_C, 
-		  float *N_C, 
-		  float *S_C,	
-		  float * J_cuda, 
-		  float * C_cuda, 
-		  int cols, 
-		  int rows, 
-		  float lambda,
-		  float q0sqr
-) {
-  grid_group g = this_grid();
+srad_cuda_3(srad_params params) {
+    float *E_C = params.E_C;
+    float *W_C = params.W_C;
+    float *N_C = params.N_C;
+    float *S_C = params.S_C;
+    float * J_cuda = params.J_cuda;
+    float * C_cuda = params.C_cuda;
+    int cols = params.cols;
+    int rows = params.rows;
+    float lambda = params.lambda;
+    float q0sqr = params.q0sqr;
 
+  grid_group g = this_grid();
   //block id
   int bx = blockIdx.x;
   int by = blockIdx.y;
@@ -300,17 +327,6 @@ srad_cuda_3(
   int index_w = cols * BLOCK_SIZE * by + BLOCK_SIZE * bx + cols * ty - 1;
   int index_e = cols * BLOCK_SIZE * by + BLOCK_SIZE * bx + cols * ty + BLOCK_SIZE;
 
-  if(index_n >= rows * cols ||
-     index_s >= rows * cols ||
-     index_e >= rows * cols ||
-     index_w >= rows * cols ||
-     index_n < 0 ||
-     index_s < 0||
-     index_e < 0 ||
-     index_w < 0) {
-      return;
-  }
-
   float n, w, e, s, jc, g2, l, num, den, qsqr, c;
 
   //shared memory allocation
@@ -322,6 +338,15 @@ srad_cuda_3(
   __shared__ float  east[BLOCK_SIZE][BLOCK_SIZE];
   __shared__ float  west[BLOCK_SIZE][BLOCK_SIZE];
 
+  if(index_n >= rows * cols ||
+     index_s >= rows * cols ||
+     index_e >= rows * cols ||
+     index_w >= rows * cols ||
+     index_n < 0 ||
+     index_s < 0||
+     index_e < 0 ||
+     index_w < 0) {
+  } else {
   //load data to shared memory
   north[ty][tx] = J_cuda[index_n]; 
   south[ty][tx] = J_cuda[index_s];
@@ -332,7 +357,7 @@ srad_cuda_3(
   south[ty][tx] = J_cuda[cols * BLOCK_SIZE * (gridDim.y - 1) + BLOCK_SIZE * bx + cols * ( BLOCK_SIZE - 1 ) + tx];
   }
    __syncthreads();
- 
+
   west[ty][tx] = J_cuda[index_w];
   east[ty][tx] = J_cuda[index_e];
 
@@ -345,8 +370,6 @@ srad_cuda_3(
  
   __syncthreads();
   
- 
-
   temp[ty][tx]      = J_cuda[index];
 
   __syncthreads();
@@ -409,7 +432,6 @@ srad_cuda_3(
     e  = temp[ty][tx+1] - jc;
    }
 
-
     g2 = ( n * n + s * s + w * w + e * e ) / (jc * jc);
 
     l = ( n + s + w + e ) / jc;
@@ -434,6 +456,10 @@ srad_cuda_3(
 	W_C[index] = w;
 	S_C[index] = s;
 	N_C[index] = n;
+
+    __syncthreads();
+
+  }
 
     /* GRID SYNC */
     g.sync();

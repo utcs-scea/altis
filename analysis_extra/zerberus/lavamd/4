@@ -1,0 +1,25 @@
+==191598== NVPROF is profiling process 191598, command: ./src/cuda/level2/lavamd/lavamd -s 4 -n 1
+==191598== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==191598== Profiling application: ./src/cuda/level2/lavamd/lavamd -s 4 -n 1
+==191598== Profiling result:
+==191598== Metric result:
+Invocations                               Metric Name                                    Metric Description         Min         Max         Avg
+Device "Tesla M60 (0)"
+    Kernel: kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)
+          1                        achieved_occupancy                                    Achieved Occupancy    0.562476    0.562476    0.562476
+          1                                       ipc                                          Executed IPC    0.176139    0.176139    0.176139
+          1                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
+          1                 warp_execution_efficiency                             Warp Execution Efficiency      78.25%      78.25%      78.25%
+          1                 shared_store_transactions                             Shared Store Transactions   453656064   453656064   453656064
+          1                  shared_load_transactions                              Shared Load Transactions  1.4102e+10  1.4102e+10  1.4102e+10
+          1                   local_load_transactions                               Local Load Transactions           0           0           0
+          1                  local_store_transactions                              Local Store Transactions           0           0           0
+          1                          gld_transactions                              Global Load Transactions  6076381904  6076381904  6076381904
+          1                          gst_transactions                             Global Store Transactions  2743600000  2743600000  2743600000
+          1                    dram_read_transactions                       Device Memory Read Transactions   300098887   300098887   300098887
+          1                   dram_write_transactions                      Device Memory Write Transactions    31570355    31570355    31570355
+          1                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
+          1                             inst_executed                                 Instructions Executed  1.3043e+11  1.3043e+11  1.3043e+11
+          1                               cf_executed                    Executed Control-Flow Instructions  7254638336  7254638336  7254638336
+          1                             ldst_executed                      Executed Load/Store Instructions  8899749760  8899749760  8899749760
+==191598== Warning: One or more events or metrics overflowed. Rerun with "--print-gpu-trace" for detail.

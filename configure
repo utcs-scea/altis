@@ -5878,7 +5878,7 @@ fi
 
         if test "x$with_cuda" = xyes; then :
   if test "x$CUDA_CPPFLAGS" = x; then :
-                   CUDA_CPPFLAGS="-arch=sm_60 -gencode=arch=compute_60,code=sm_60"
+                   CUDA_CPPFLAGS="-arch=sm_50 -gencode=arch=compute_50,code=sm_50"
                  { $as_echo "$as_me:${as_lineno-$LINENO}: using CUDA_CPPFLAGS=$CUDA_CPPFLAGS" >&5
 $as_echo "$as_me: using CUDA_CPPFLAGS=$CUDA_CPPFLAGS" >&6;}
                  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: *** MIROVIA programs may fail if these -gencode values do not apply to your GPU.  If they don't apply, or if you want to shorten MIROVIA's compile time, determine the -gencode options that apply for your GPU and re-configure MIROVIA explicitly specifying only those options in CUDA_CPPFLAGS during the configure. ***" >&5
@@ -5987,7 +5987,7 @@ fi
 
 
 
-ac_config_files="$ac_config_files Makefile config/common.mk config/config.mk config/dirtargets.mk config/targets.mk src/Makefile src/common/Makefile src/cuda/Makefile src/cuda/level0/Makefile src/cuda/level0/busspeeddownload/Makefile src/cuda/level0/busspeedreadback/Makefile src/cuda/level0/devicememory/Makefile src/cuda/level0/maxflops/Makefile src/cuda/level1/Makefile src/cuda/level1/bfs/Makefile src/cuda/level1/gemm/Makefile src/cuda/level1/pathfinder/Makefile src/cuda/level1/sort/Makefile src/cuda/level2/Makefile src/cuda/level2/cfd/Makefile src/cuda/level2/dwt2d/Makefile src/cuda/level2/kmeans/Makefile src/cuda/level2/lavamd/Makefile src/cuda/level2/mandelbrot/Makefile src/cuda/level2/nw/Makefile src/cuda/level2/particlefilter/Makefile src/cuda/level2/srad/Makefile src/cuda/level2/where/Makefile"
+ac_config_files="$ac_config_files Makefile config/common.mk config/config.mk config/dirtargets.mk config/targets.mk src/Makefile src/common/Makefile src/cuda/Makefile src/cuda/level0/Makefile src/cuda/level0/busspeeddownload/Makefile src/cuda/level0/busspeedreadback/Makefile src/cuda/level0/devicememory/Makefile src/cuda/level0/maxflops/Makefile src/cuda/level1/Makefile src/cuda/level1/bfs/Makefile src/cuda/level1/gemm/Makefile src/cuda/level1/pathfinder/Makefile src/cuda/level1/sort/Makefile src/cuda/level2/Makefile src/cuda/level2/cfd/Makefile src/cuda/level2/dwt2d/Makefile src/cuda/level2/kmeans/Makefile src/cuda/level2/lavamd/Makefile src/cuda/level2/mandelbrot/Makefile src/cuda/level2/neuralnet/Makefile src/cuda/level2/nw/Makefile src/cuda/level2/particlefilter/Makefile src/cuda/level2/srad/Makefile src/cuda/level2/where/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -6752,6 +6752,7 @@ do
     "src/cuda/level2/kmeans/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level2/kmeans/Makefile" ;;
     "src/cuda/level2/lavamd/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level2/lavamd/Makefile" ;;
     "src/cuda/level2/mandelbrot/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level2/mandelbrot/Makefile" ;;
+    "src/cuda/level2/neuralnet/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level2/neuralnet/Makefile" ;;
     "src/cuda/level2/nw/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level2/nw/Makefile" ;;
     "src/cuda/level2/particlefilter/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level2/particlefilter/Makefile" ;;
     "src/cuda/level2/srad/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level2/srad/Makefile" ;;

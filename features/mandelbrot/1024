@@ -1,0 +1,13 @@
+test	atts	units	median	mean	stddev	min	max	
+mandelbrot_dynpar_kernel_time	img:1024,iter:2048	sec	0.0021877	0.00225319	0.000219171	0.00201021	0.0025745	
+mandelbrot_dynpar_parity	img:1024,iter:2048	N	0.226958	0.321034	0.303208	0.192318	1.22857	
+mandelbrot_dynpar_speedup	img:1024,iter:2048	N	1.29665	1.38707	0.321991	1.01165	2.26343	
+mandelbrot_dynpar_total_time	img:1024,iter:2048	sec	0.00285643	0.00295366	0.000590931	0.00250515	0.00461082	
+mandelbrot_dynpar_transfer_time	img:1024,iter:2048	sec	0.000495264	0.000700467	0.000613801	0.00049248	0.00254186	
+mandelbrot_kernel_time	img:1024,iter:2048	sec	0.00317851	0.00318862	5.74795e-05	0.00311098	0.00328381	
+mandelbrot_parity	img:1024,iter:2048	N	0.157484	0.249942	0.199965	0.15082	0.776004	
+mandelbrot_total_time	img:1024,iter:2048	sec	0.00368376	0.00398928	0.000673932	0.0036049	0.00580205	
+mandelbrot_transfer_time	img:1024,iter:2048	sec	0.000494912	0.000800659	0.000652299	0.000493664	0.00253514	
+
+Note: results marked with (*) had missing values such as
+might occur with a mixture of architectural capabilities.

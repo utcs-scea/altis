@@ -1,0 +1,8 @@
+test	atts	units	median	mean	stddev	min	max	
+srad_kernel_time	img:1024,speckle:8,iter:50	sec	0.00826616	0.00821721	8.90551e-05	0.00804611	0.00829767	
+srad_parity	img:1024,speckle:8,iter:50	N	8.31552	8.1015	0.528791	7.24858	8.67256	
+srad_total_time	img:1024,speckle:8,iter:50	sec	0.0770421	0.0748333	0.00507968	0.0669364	0.0802597	
+srad_transfer_time	img:1024,speckle:8,iter:50	sec	0.0687687	0.0666161	0.00499453	0.0588902	0.071962	
+
+Note: results marked with (*) had missing values such as
+might occur with a mixture of architectural capabilities.

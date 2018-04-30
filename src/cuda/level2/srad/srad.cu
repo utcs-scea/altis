@@ -76,7 +76,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
         printf("Running SRAD with cooperative groups...Failed.\n");
     } else {
         printf("Running SRAD with cooperative groups...Done.\n");
-        resultDB.AddResult("srad_time/srad_cg_time", atts, "N", time/time_gridsync);
+        resultDB.AddResult("srad_gridsync_speedup", atts, "N", time/time_gridsync);
     }
 #endif
       free(matrix);
@@ -90,13 +90,9 @@ float srad(ResultDatabase &resultDB, OptionParser &op, float* matrix, int imageS
     int rows, cols, size_I, size_R, niter, iter;
     float *I, *J, lambda, q0sqr, sum, sum2, tmp, meanROI, varROI;
 
-#ifdef GPU
-
   float *J_cuda;
   float *C_cuda;
   float *E_C, *W_C, *N_C, *S_C;
-
-#endif
 
   unsigned int r1, r2, c1, c2;
   float *c;
@@ -121,8 +117,6 @@ float srad(ResultDatabase &resultDB, OptionParser &op, float* matrix, int imageS
   J = (float *)malloc(size_I * sizeof(float));
   c = (float *)malloc(sizeof(float) * size_I);
 
-#ifdef GPU
-
   // Allocate device memory
   CUDA_SAFE_CALL(cudaMalloc((void **)&J_cuda, sizeof(float) * size_I));
   CUDA_SAFE_CALL(cudaMalloc((void **)&C_cuda, sizeof(float) * size_I));
@@ -130,8 +124,6 @@ float srad(ResultDatabase &resultDB, OptionParser &op, float* matrix, int imageS
   CUDA_SAFE_CALL(cudaMalloc((void **)&W_C, sizeof(float) * size_I));
   CUDA_SAFE_CALL(cudaMalloc((void **)&S_C, sizeof(float) * size_I));
   CUDA_SAFE_CALL(cudaMalloc((void **)&N_C, sizeof(float) * size_I));
-
-#endif
 
   // copy random matrix
   memcpy(I, matrix, rows*cols*sizeof(float));
@@ -153,7 +145,6 @@ float srad(ResultDatabase &resultDB, OptionParser &op, float* matrix, int imageS
     varROI = (sum2 / size_R) - meanROI * meanROI;
     q0sqr = varROI / (meanROI * meanROI);
 
-#ifdef GPU
     // Currently the input size must be divided by 16 - the block size
     int block_x = cols / BLOCK_SIZE;
     int block_y = rows / BLOCK_SIZE;
@@ -197,7 +188,6 @@ float srad(ResultDatabase &resultDB, OptionParser &op, float* matrix, int imageS
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&elapsed, start, stop);
     transferTime += elapsed * 1.e-3;
-#endif
   }
 
     char atts[1024];
@@ -236,33 +226,25 @@ float srad(ResultDatabase &resultDB, OptionParser &op, float* matrix, int imageS
   free(I);
   free(J);
   free(c);
-#ifdef GPU
   CUDA_SAFE_CALL(cudaFree(C_cuda));
   CUDA_SAFE_CALL(cudaFree(J_cuda));
   CUDA_SAFE_CALL(cudaFree(E_C));
   CUDA_SAFE_CALL(cudaFree(W_C));
   CUDA_SAFE_CALL(cudaFree(N_C));
   CUDA_SAFE_CALL(cudaFree(S_C));
-#endif
-    return kernelTime + transferTime;
+    return kernelTime;
 }
 
 #ifdef GRID_SYNC
-float srad_gridsync(ResultDatabase &resultDB, OptionParser &op, float* matrix, int imageSize,
-          int speckleSize, int iters) {
+float srad_gridsync(ResultDatabase &resultDB, OptionParser &op, float* matrix, int imageSize, int speckleSize, int iters) {
     kernelTime = 0.0f;
     transferTime = 0.0f;
     int rows, cols, size_I, size_R, niter, iter;
     float *I, *J, lambda, q0sqr, sum, sum2, tmp, meanROI, varROI;
 
-
-#ifdef GPU
-
   float *J_cuda;
   float *C_cuda;
   float *E_C, *W_C, *N_C, *S_C;
-
-#endif
 
   unsigned int r1, r2, c1, c2;
   float *c;
@@ -287,8 +269,6 @@ float srad_gridsync(ResultDatabase &resultDB, OptionParser &op, float* matrix, i
   J = (float *)malloc(size_I * sizeof(float));
   c = (float *)malloc(sizeof(float) * size_I);
 
-#ifdef GPU
-
   // Allocate device memory
   CUDA_SAFE_CALL(cudaMalloc((void **)&J_cuda, sizeof(float) * size_I));
   CUDA_SAFE_CALL(cudaMalloc((void **)&C_cuda, sizeof(float) * size_I));
@@ -296,8 +276,6 @@ float srad_gridsync(ResultDatabase &resultDB, OptionParser &op, float* matrix, i
   CUDA_SAFE_CALL(cudaMalloc((void **)&W_C, sizeof(float) * size_I));
   CUDA_SAFE_CALL(cudaMalloc((void **)&S_C, sizeof(float) * size_I));
   CUDA_SAFE_CALL(cudaMalloc((void **)&N_C, sizeof(float) * size_I));
-
-#endif
 
   // Generate a random matrix
   memcpy(I, matrix, rows*cols*sizeof(float));
@@ -319,7 +297,6 @@ float srad_gridsync(ResultDatabase &resultDB, OptionParser &op, float* matrix, i
     varROI = (sum2 / size_R) - meanROI * meanROI;
     q0sqr = varROI / (meanROI * meanROI);
 
-#ifdef GPU
     // Currently the input size must be divided by 16 - the block size
     int block_x = cols / BLOCK_SIZE;
     int block_y = rows / BLOCK_SIZE;
@@ -336,15 +313,45 @@ float srad_gridsync(ResultDatabase &resultDB, OptionParser &op, float* matrix, i
     cudaEventElapsedTime(&elapsed, start, stop);
     transferTime += elapsed * 1.e-3;
 
+    // Create srad_params struct
+    srad_params params;
+    params.E_C = E_C;
+    params.W_C = W_C;
+    params.N_C = N_C;
+    params.S_C = S_C;
+    params.J_cuda = J_cuda;
+    params.C_cuda = C_cuda;
+    params.cols = cols;
+    params.rows = rows;
+    params.lambda = lambda;
+    params.q0sqr = q0sqr;
+    void* p_params = {&params};
+
     // Run kernels
     cudaEventRecord(start, 0);
-    srad_cuda_3<<<dimGrid, dimBlock>>>(E_C, W_C, N_C, S_C, J_cuda, C_cuda, cols,
-                                       rows, lambda, q0sqr);
+    cudaLaunchCooperativeKernel((void*)srad_cuda_3, dimGrid, dimBlock, &p_params);
+    //srad_cuda_3<<<dimGrid, dimBlock>>>(E_C, W_C, N_C, S_C, J_cuda, C_cuda, cols,
+                                       //rows, lambda, q0sqr);
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&elapsed, start, stop);
     kernelTime += elapsed * 1.e-3;
-    CHECK_CUDA_ERROR();
+    cudaError_t err = cudaGetLastError();                                     \
+    if (err != cudaSuccess)                                                   \
+    {                                                                         \
+        printf("error=%d name=%s at "                                         \
+               "ln: %d\n  ",err,cudaGetErrorString(err),__LINE__);            \
+        free(I);
+        free(J);
+        free(c);
+        CUDA_SAFE_CALL(cudaFree(C_cuda));
+        CUDA_SAFE_CALL(cudaFree(J_cuda));
+        CUDA_SAFE_CALL(cudaFree(E_C));
+        CUDA_SAFE_CALL(cudaFree(W_C));
+        CUDA_SAFE_CALL(cudaFree(N_C));
+        CUDA_SAFE_CALL(cudaFree(S_C));
+        return FLT_MAX;
+    }                                                                         \
 
     // Copy data from device memory to main memory
     cudaEventRecord(start, 0);
@@ -354,7 +361,6 @@ float srad_gridsync(ResultDatabase &resultDB, OptionParser &op, float* matrix, i
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&elapsed, start, stop);
     transferTime += elapsed * 1.e-3;
-#endif
   }
 
     char atts[1024];
@@ -367,7 +373,7 @@ float srad_gridsync(ResultDatabase &resultDB, OptionParser &op, float* matrix, i
   // validate result with result obtained by gridsync
   for (int i = 0; i < rows; i++) {
       for (int j = 0; j < cols; j++) {
-          if(check[i*cols+j] - J[i*cols+j] < 0.001) {
+          if(check[i*cols+j] - J[i*cols+j] > 0.0001) {
               // known bug: with and without gridsync have 10e-5 difference in row 16
               printf("Error: Validation failed at row %d, col %d\n", i, j);
               printf("%0.6f vs %0.6f\n", check[i*cols+j], J[i*cols+j]);
@@ -379,15 +385,13 @@ float srad_gridsync(ResultDatabase &resultDB, OptionParser &op, float* matrix, i
   free(I);
   free(J);
   free(c);
-#ifdef GPU
   CUDA_SAFE_CALL(cudaFree(C_cuda));
   CUDA_SAFE_CALL(cudaFree(J_cuda));
   CUDA_SAFE_CALL(cudaFree(E_C));
   CUDA_SAFE_CALL(cudaFree(W_C));
   CUDA_SAFE_CALL(cudaFree(N_C));
   CUDA_SAFE_CALL(cudaFree(S_C));
-#endif
-    return kernelTime + transferTime;
+  return kernelTime;
 }
 
 #endif //GRID_SYNC

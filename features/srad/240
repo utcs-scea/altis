@@ -1,0 +1,13 @@
+test	atts	units	median	mean	stddev	min	max	
+srad_gridsync_kernel_time	img:240,speckle:8,iter:50	sec	0.00136134	0.00139299	8.08927e-05	0.00135795	0.00163373	
+srad_gridsync_parity	img:240,speckle:8,iter:50	N	4.85819	4.88244	0.121941	4.77337	5.23644	
+srad_gridsync_speedup	img:240,speckle:8,iter:50	N	0.980483	0.959923	0.0629904	0.771121	0.985702	
+srad_gridsync_total_time	img:240,speckle:8,iter:50	sec	0.00798149	0.00820336	0.000662082	0.00795158	0.0101886	
+srad_gridsync_transer_time	img:240,speckle:8,iter:50	sec	0.00661504	0.00681036	0.000581648	0.00659296	0.00855491	
+srad_kernel_time	img:240,speckle:8,iter:50	sec	0.00125394	0.0012562	9.42657e-06	0.00124093	0.00127258	
+srad_parity	img:240,speckle:8,iter:50	N	5.23884	5.23563	0.0291452	5.17693	5.27574	
+srad_total_time	img:240,speckle:8,iter:50	sec	0.00783838	0.00783293	2.85502e-05	0.00778774	0.0078624	
+srad_transfer_time	img:240,speckle:8,iter:50	sec	0.00657722	0.00657674	2.0873e-05	0.00654682	0.00660365	
+
+Note: results marked with (*) had missing values such as
+might occur with a mixture of architectural capabilities.

@@ -1,0 +1,14 @@
+test	atts	units	median	mean	stddev	min	max	
+bfs_kernel_time	1024V,5174E	sec	0.000595296	0.000557446	0.000135032	0.000154528	0.000627104	
+bfs_rate_edges	1024V,5174E	Edges/s	8.69159e+06	1.10853e+07	7.46838e+06	8.25063e+06	3.34826e+07	
+bfs_rate_nodes	1024V,5174E	Nodes/s	1.72018e+06	2.19392e+06	1.47809e+06	1.6329e+06	6.62663e+06	
+bfs_rate_parity	1024V,5174E	N	0.170587	0.207434	0.106196	0.165666	0.525575	
+bfs_total_time	1024V,5174E	sec	0.000696608	0.000658893	0.000142324	0.000235744	0.000744928	
+bfs_transfer_time	1024V,5174E	sec	0.000101744	0.000101446	8.67556e-06	8.1216e-05	0.000117824	
+bfs_unifiedmem_rate_edges	1024V,5174E	Edges/s	2.36033e+06	2.35396e+06	101649	2.11735e+06	2.4809e+06	
+bfs_unifiedmem_rate_nodes	1024V,5174E	Nodes/s	467140	465878	20117.7	419051	491001	
+bfs_unifiedmem_speedup	1024V,5174E	N	0.323269	0.30177	0.0688363	0.0964734	0.338418	
+bfs_unifiedmem_total_time	1024V,5174E	sec	0.00219206	0.0022023	9.96346e-05	0.00208554	0.00244362	
+
+Note: results marked with (*) had missing values such as
+might occur with a mixture of architectural capabilities.

@@ -1,0 +1,25 @@
+==191998== NVPROF is profiling process 191998, command: ./src/cuda/level2/particlefilter/particlefilter_naive -s 4 -n 1
+==191998== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==191998== Profiling application: ./src/cuda/level2/particlefilter/particlefilter_naive -s 4 -n 1
+==191998== Profiling result:
+==191998== Metric result:
+Invocations                               Metric Name                                    Metric Description         Min         Max         Avg
+Device "Tesla M60 (0)"
+    Kernel: kernel(double*, double*, double*, double*, double*, double*, int)
+        999                             sm_efficiency                               Multiprocessor Activity      78.99%      98.18%      92.31%
+        999                        achieved_occupancy                                    Achieved Occupancy    0.123872    0.213139    0.169438
+        999                                       ipc                                          Executed IPC    0.224640    0.383814    0.305727
+        999                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
+        999                 warp_execution_efficiency                             Warp Execution Efficiency      99.10%      99.63%      99.39%
+        999                 shared_store_transactions                             Shared Store Transactions           0           0           0
+        999                  shared_load_transactions                              Shared Load Transactions           0           0           0
+        999                   local_load_transactions                               Local Load Transactions           0           0           0
+        999                  local_store_transactions                              Local Store Transactions           0           0           0
+        999                          gld_transactions                              Global Load Transactions     4541918     8493877     6263317
+        999                          gst_transactions                             Global Store Transactions        5000        5000        5000
+        999                    dram_read_transactions                       Device Memory Read Transactions           0          16           0
+        999                   dram_write_transactions                      Device Memory Write Transactions          15        1339         390
+        999                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
+        999                             inst_executed                                 Instructions Executed    10295477    19182734    14159210
+        999                               cf_executed                    Executed Control-Flow Instructions     2286386     4261332     3144993
+        999                             ldst_executed                      Executed Load/Store Instructions     1144919     2132392     1574222

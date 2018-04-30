@@ -1,0 +1,4 @@
+==191796== NVPROF is profiling process 191796, command: ./src/cuda/level2/nw/nw -s 4 -n 1
+==191796== Profiling application: ./src/cuda/level2/nw/nw -s 4 -n 1
+==191796== Profiling result:
+No events/metrics were profiled.

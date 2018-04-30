@@ -1,0 +1,25 @@
+==184492== NVPROF is profiling process 184492, command: ./src/cuda/level1/pathfinder/pathfinder -s 3 -n 1
+==184492== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==184492== Profiling application: ./src/cuda/level1/pathfinder/pathfinder -s 3 -n 1
+==184492== Profiling result:
+==184492== Metric result:
+Invocations                               Metric Name                                    Metric Description         Min         Max         Avg
+Device "Tesla M60 (0)"
+    Kernel: dynproc_kernel(int, int*, int*, int*, int, int, int, int)
+        128                             sm_efficiency                               Multiprocessor Activity      99.97%      99.98%      99.97%
+        128                        achieved_occupancy                                    Achieved Occupancy    0.991504    0.991943    0.991724
+        128                                       ipc                                          Executed IPC    2.036429    2.052515    2.044114
+        128                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
+        128                 warp_execution_efficiency                             Warp Execution Efficiency      98.54%      98.63%      98.58%
+        128                 shared_store_transactions                             Shared Store Transactions    33415230    35791424    34603327
+        128                  shared_load_transactions                              Shared Load Transactions    66830460    71582848    69206654
+        128                   local_load_transactions                               Local Load Transactions           0           0           0
+        128                  local_store_transactions                              Local Store Transactions           0           0           0
+        128                          gld_transactions                              Global Load Transactions   148198736   156633500   152416118
+        128                          gst_transactions                             Global Store Transactions     4194304     5047084     4620694
+        128                    dram_read_transactions                       Device Memory Read Transactions    72931127    77558494    75243080
+        128                   dram_write_transactions                      Device Memory Write Transactions     4866955     4896251     4882003
+        128                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
+        128                             inst_executed                                 Instructions Executed   723491318   769521104   746506211
+        128                               cf_executed                    Executed Control-Flow Instructions    86049712    91716434    88883073
+        128                             ldst_executed                      Executed Load/Store Instructions   155112509   165536260   160324384
