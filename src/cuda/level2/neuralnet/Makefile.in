@@ -101,10 +101,10 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(cudadir)"
 PROGRAMS = $(cuda_PROGRAMS)
-am_convolution_OBJECTS = convolution.$(OBJEXT) main.$(OBJEXT)
+am_convolution_OBJECTS = main.$(OBJEXT)
 convolution_OBJECTS = $(am_convolution_OBJECTS)
 am__DEPENDENCIES_1 =
-convolution_DEPENDENCIES = convolution.o $(am__DEPENDENCIES_1)
+convolution_DEPENDENCIES = neuralnet.o $(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -289,11 +289,10 @@ cudadir = $(bindir)/CUDA
 
 # How to build those programs?
 convolution_SOURCES = \
-convolution.cpp \
 main.cpp
 
 convolution_LDADD = \
-convolution.o \
+neuralnet.o \
 $(CUDA_LIBS) $(LIBS) -lm
 
 all: all-am
@@ -382,7 +381,6 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/convolution.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 
 .cpp.o:

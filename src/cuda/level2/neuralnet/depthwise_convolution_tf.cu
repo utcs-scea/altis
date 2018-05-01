@@ -194,7 +194,8 @@ enum DepthwiseConv2dDirection { DIRECTION_FORWARD, DIRECTION_BACKWARD };
 // rotated by 180°.
 template <typename DType, DepthwiseConv2dDirection kDirection,
           int kBlockSlices, bool kEvenHeight, int kFilterHeight, int kFilterWidth>
-__global__ __launch_bounds__(1024, 2) void DepthwiseConv2dKernelSmall(
+__global__ __launch_bounds__(1024, 2)
+void DepthwiseConv2dKernelSmall(
     const DepthwiseArgs args, const DType* input, const DType* filter, DType* output) {
   extern __shared__ __align__(sizeof(DType)) unsigned char shared_memory[];
   DType* const shared_data = reinterpret_cast<DType*>(shared_memory);
