@@ -16,11 +16,10 @@ cuda_PROGRAMS = convolution
 
 # How to build those programs?
 convolution_SOURCES = \
-convolution.cpp \
 main.cpp
 
 convolution_LDADD = \
-convolution.o \
+neuralnet.o \
 $(CUDA_LIBS) $(LIBS) -lm
 
 
