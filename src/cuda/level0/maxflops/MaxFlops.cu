@@ -96,6 +96,7 @@ void addBenchmarkSpecOptions(OptionParser &op) {}
 //
 // ****************************************************************************
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
+  cout << "Running MaxFlops" << endl;
   bool verbose = op.getOptionBool("verbose");
   bool quiet = op.getOptionBool("quiet");
   const unsigned int passes = op.getOptionInt("passes");
@@ -305,6 +306,7 @@ void RunTest(ResultDatabase &resultDB, int npasses, int verbose, int quiet,
 
     sprintf(sizeStr, "Size:%07d", numFloats);
     resultDB.AddResult(precision + string("Add1"), sizeStr, "GFLOPS", gflop);
+    resultDB.AddOverall("FLOPS", "", gflop);
 
     zeroOut<T>(hostMem2, numFloats);
 

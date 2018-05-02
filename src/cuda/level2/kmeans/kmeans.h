@@ -52,9 +52,9 @@ int     find_nearest_point   (float* , int, float**, int);
 float	rms_err(float**, int, int, float**, int);
 
 /* cluster.c */
-int     cluster(int, int, float**, int, int, float, int*, float***, float*, int, int, ResultDatabase&);
+int     cluster(int, int, float**, int, int, float, int*, float***, float*, int, int, ResultDatabase&, bool);
 
 /* kmeans_clustering.c */
-float **kmeans_clustering(float**, int, int, int, float, int*, ResultDatabase&);
+float **kmeans_clustering(float**, int, int, int, float, int*, ResultDatabase&, bool);
 
 #endif

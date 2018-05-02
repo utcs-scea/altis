@@ -20,6 +20,7 @@
 #define BLOCK_Y 16
 
 bool verbose = false;
+bool quiet = false;
 
 /**
 @var M value for Linear Congruential Generator (LCG); use GCC's value
@@ -36,17 +37,6 @@ int C = 12345;
 
 const int threads_per_block = 128;
 
-/*****************************
-* CHECK_ERROR
-* Checks for CUDA errors and prints them to the screen to help with
-* debugging of CUDA related programming
-*****************************/
-void check_error(cudaError e) {
-     if (e != cudaSuccess) {
-     	printf("\nCUDA error: %s\n", cudaGetErrorString(e));
-	    exit(1);
-     }
-}
 __device__ int findIndexSeq(double * CDF, int lengthCDF, double value)
 {
 	int index = -1;
@@ -456,12 +446,12 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 	double * u_GPU;
 	
 	//CUDA memory allocation
-	check_error(cudaMalloc((void **) &arrayX_GPU, sizeof(double)*Nparticles));
-	check_error(cudaMalloc((void **) &arrayY_GPU, sizeof(double)*Nparticles));
-	check_error(cudaMalloc((void **) &xj_GPU, sizeof(double)*Nparticles));
-	check_error(cudaMalloc((void **) &yj_GPU, sizeof(double)*Nparticles));
-	check_error(cudaMalloc((void **) &CDF_GPU, sizeof(double)*Nparticles));
-	check_error(cudaMalloc((void **) &u_GPU, sizeof(double)*Nparticles));
+	CUDA_SAFE_CALL(cudaMalloc((void **) &arrayX_GPU, sizeof(double)*Nparticles));
+	CUDA_SAFE_CALL(cudaMalloc((void **) &arrayY_GPU, sizeof(double)*Nparticles));
+	CUDA_SAFE_CALL(cudaMalloc((void **) &xj_GPU, sizeof(double)*Nparticles));
+	CUDA_SAFE_CALL(cudaMalloc((void **) &yj_GPU, sizeof(double)*Nparticles));
+	CUDA_SAFE_CALL(cudaMalloc((void **) &CDF_GPU, sizeof(double)*Nparticles));
+	CUDA_SAFE_CALL(cudaMalloc((void **) &u_GPU, sizeof(double)*Nparticles));
 	
 	for(x = 0; x < Nparticles; x++){
 		arrayX[x] = xe;
@@ -516,7 +506,7 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 			xe += arrayX[x] * weights[x];
 			ye += arrayY[x] * weights[x];
 		}
-        if(verbose) {
+        if(verbose && !quiet) {
             printf("XE: %lf\n", xe);
             printf("YE: %lf\n", ye);
             double distance = sqrt( pow((double)(xe-(int)roundDouble(IszY/2.0)),2) + pow((double)(ye-(int)roundDouble(IszX/2.0)),2) );
@@ -585,7 +575,9 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
     sprintf(atts, "dimx:%d, dimy:%d, numframes:%d, numparticles:%d", IszX, IszY, Nfr, Nparticles);
     resultDB.AddResult("particlefilter_naive_kernel_time", atts, "sec", kernelTime);
     resultDB.AddResult("particlefilter_naive_transfer_time", atts, "sec", transferTime);
+    resultDB.AddResult("particlefilter_naive_total_time", atts, "sec", kernelTime+transferTime);
     resultDB.AddResult("particlefilter_naive_parity", atts, "N", transferTime / kernelTime);
+    resultDB.AddOverall("Time", "sec", kernelTime+transferTime);
 	
 	//CUDA freeing of memory
 	cudaFree(u_GPU);
@@ -619,12 +611,16 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 void particlefilter_naive(ResultDatabase &resultDB, int args[]);
 
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
+    printf("Running ParticleFilter (naive)\n");
     int args[4];
     args[0] = op.getOptionInt("dimx");
     args[1] = op.getOptionInt("dimy");
     args[2] = op.getOptionInt("framecount");
     args[3] = op.getOptionInt("np");
     bool preset = false;
+    verbose = op.getOptionBool("verbose");
+    quiet = op.getOptionBool("quiet");
+
     for(int i = 0; i < 4; i++) {
         if(args[i] <= 0) {
             preset = true;
@@ -640,14 +636,21 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
             args[i] = probSizes[size][i];
         }
     }
+
+    if(!quiet) {
     printf("Using dimx=%d, dimy=%d, framecount=%d, numparticles=%d\n",
            args[0], args[1], args[2], args[3]);
-    verbose = op.getOptionBool("verbose");
+    }
+
     int passes = op.getOptionInt("passes");
     for(int i = 0; i < passes; i++) {
-        printf("Pass %d: \n", i);
+        if(!quiet) {
+            printf("Pass %d: ", i);
+        }
         particlefilter_naive(resultDB, args);
-        printf("Done.\n");
+        if(!quiet) {
+            printf("Done.\n");
+        }
     }
 }
 

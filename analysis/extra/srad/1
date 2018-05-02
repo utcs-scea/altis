@@ -1,0 +1,33 @@
+==29696== NVPROF is profiling process 29696, command: ./src/cuda/level2/srad/srad -s 1 -n 1 -d 1
+==29696== Some kernel(s) will be replayed on device 1 in order to collect all events/metrics.
+==29696== Profiling application: ./src/cuda/level2/srad/srad -s 1 -n 1 -d 1
+==29696== Profiling result:
+==29696== Metric result:
+Invocations                               Metric Name                           Metric Description         Min         Max         Avg
+Device "Tesla P100-SXM2-16GB (1)"
+    Kernel: srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)
+          5                         cf_fu_utilization       Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5                        tex_fu_utilization            Texture Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5                       ldst_fu_utilization         Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5           double_precision_fu_utilization   Double-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5             half_precision_fu_utilization     Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          5                    special_fu_utilization            Special Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5           single_precision_fu_utilization   Single-Precision Function Unit Utilization     Low (3)     Low (3)     Low (3)
+          5                          dram_utilization                    Device Memory Utilization     Low (1)     Low (1)     Low (1)
+          5                           tex_utilization                    Unified Cache Utilization     Low (1)     Low (1)     Low (1)
+          5                        shared_utilization                    Shared Memory Utilization     Low (1)     Low (1)     Low (1)
+          5                            l2_utilization                         L2 Cache Utilization     Low (1)     Low (1)     Low (1)
+          5                        sysmem_utilization                    System Memory Utilization     Low (1)     Low (1)     Low (1)
+    Kernel: srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)
+          5                         cf_fu_utilization       Control-Flow Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5                        tex_fu_utilization            Texture Function Unit Utilization     Low (2)     Low (2)     Low (2)
+          5                       ldst_fu_utilization         Load/Store Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5           double_precision_fu_utilization   Double-Precision Function Unit Utilization     Low (1)     Low (1)     Low (1)
+          5             half_precision_fu_utilization     Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          5                    special_fu_utilization            Special Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
+          5           single_precision_fu_utilization   Single-Precision Function Unit Utilization     Low (2)     Low (2)     Low (2)
+          5                          dram_utilization                    Device Memory Utilization     Low (1)     Low (1)     Low (1)
+          5                           tex_utilization                    Unified Cache Utilization     Low (1)     Low (1)     Low (1)
+          5                        shared_utilization                    Shared Memory Utilization     Low (1)     Low (1)     Low (1)
+          5                            l2_utilization                         L2 Cache Utilization     Low (1)     Low (1)     Low (1)
+          5                        sysmem_utilization                    System Memory Utilization     Low (1)     Low (1)     Low (1)

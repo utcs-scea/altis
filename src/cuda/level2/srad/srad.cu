@@ -32,12 +32,13 @@ void addBenchmarkSpecOptions(OptionParser &op) {
   op.addOption("imageSize", OPT_INT, "0", "image height and width");
   op.addOption("speckleSize", OPT_INT, "0", "speckle height and width");
   op.addOption("iterations", OPT_INT, "0", "iterations of algorithm");
-  op.addOption("resultfile", OPT_STRING, "", "file to write results to");
 }
 
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
+  printf("Running SRAD\n");
+
   srand(SEED);
-  printf("WG size of kernel = %d X %d\n", BLOCK_SIZE, BLOCK_SIZE);
+  bool quiet = op.getOptionBool("quiet");
 
   // set parameters
   int imageSize = op.getOptionInt("imageSize");
@@ -55,27 +56,38 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
 
-  printf("Image Size: %d x %d\n", imageSize, imageSize);
-  printf("Speckle size: %d x %d\n", speckleSize, speckleSize);
-  printf("Num Iterations: %d\n", iters);
+  if(!quiet) {
+    printf("WG size of kernel = %d X %d\n", BLOCK_SIZE, BLOCK_SIZE);
+      printf("Image Size: %d x %d\n", imageSize, imageSize);
+      printf("Speckle size: %d x %d\n", speckleSize, speckleSize);
+      printf("Num Iterations: %d\n\n", iters);
+  }
 
   // run workload
   int passes = op.getOptionInt("passes");
   for (int i = 0; i < passes; i++) {
     float *matrix = (float*)malloc(imageSize * imageSize * sizeof(float));
     random_matrix(matrix, imageSize, imageSize);
-    printf("Pass %d:\n", i);
+    if(!quiet) {
+        printf("Pass %d:\n", i);
+    }
     float time = srad(resultDB, op, matrix, imageSize, speckleSize, iters);
-    printf("Running SRAD...Done.\n");
+    if(!quiet) {
+        printf("Running SRAD...Done.\n");
+    }
 #ifdef GRID_SYNC
     // if using cooperative groups, add result to compare the 2 times
     char atts[1024];
     sprintf(atts, "img:%d,speckle:%d,iter:%d", imageSize, speckleSize, iters);
     float time_gridsync = srad_gridsync(resultDB, op, matrix, imageSize, speckleSize, iters);
+    if(!quiet) {
+        if(time_gridsync == FLT_MAX) {
+            printf("Running SRAD with cooperative groups...Failed.\n");
+        } else {
+            printf("Running SRAD with cooperative groups...Done.\n");
+        }
+    }
     if(time_gridsync == FLT_MAX) {
-        printf("Running SRAD with cooperative groups...Failed.\n");
-    } else {
-        printf("Running SRAD with cooperative groups...Done.\n");
         resultDB.AddResult("srad_gridsync_speedup", atts, "N", time/time_gridsync);
     }
 #endif
@@ -196,15 +208,18 @@ float srad(ResultDatabase &resultDB, OptionParser &op, float* matrix, int imageS
     resultDB.AddResult("srad_transfer_time", atts, "sec", transferTime);
     resultDB.AddResult("srad_total_time", atts, "sec", kernelTime + transferTime);
     resultDB.AddResult("srad_parity", atts, "N", transferTime / kernelTime);
+    resultDB.AddOverall("Time", "sec", kernelTime+transferTime);
 
-  string resultfile = op.getOptionString("resultfile");
-  if(!resultfile.empty()) {
+  string outfile = op.getOptionString("outputFile");
+  if(!outfile.empty()) {
       // Printing output
-      printf("Writing output to %s\n", resultfile.c_str());
+      if(!op.getOptionBool("quiet")) {
+        printf("Writing output to %s\n", outfile.c_str());
+      }
       FILE *fp = NULL;
-      fp = fopen(resultfile.c_str(), "w");
+      fp = fopen(outfile.c_str(), "w");
       if(!fp) {
-          printf("Error: Unable to write to file %s\n", resultfile.c_str());
+          printf("Error: Unable to write to file %s\n", outfile.c_str());
       } else {
           for (int i = 0; i < rows; i++) {
               for (int j = 0; j < cols; j++) {
@@ -376,7 +391,6 @@ float srad_gridsync(ResultDatabase &resultDB, OptionParser &op, float* matrix, i
           if(check[i*cols+j] - J[i*cols+j] > 0.0001) {
               // known bug: with and without gridsync have 10e-5 difference in row 16
               printf("Error: Validation failed at row %d, col %d\n", i, j);
-              printf("%0.6f vs %0.6f\n", check[i*cols+j], J[i*cols+j]);
               return FLT_MAX;
           }
       }

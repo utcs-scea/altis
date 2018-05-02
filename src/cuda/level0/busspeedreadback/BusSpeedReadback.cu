@@ -49,10 +49,11 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 //
 // Modifications:
 //    Jeremy Meredith, Wed Dec  1 17:05:27 EST 2010
-//    Added calculation of latency estimate.
-//
+//    Added calculation of latency estimate.  //
 // ****************************************************************************
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
+  cout << "Running BusSpeedReadback" << endl;
+
   const bool verbose = op.getOptionBool("verbose");
   const bool quiet = op.getOptionBool("quiet");
   const bool pinned = op.getOptionBool("pinned");
@@ -152,10 +153,8 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
       }
 
       double speed = (double(sizes[sizeIndex]) * 1024. / (1000 * 1000)) / t;
-      char sizeStr[256];
-      sprintf(sizeStr, "% 7dkB", sizes[sizeIndex]);
-      resultDB.AddResult("ReadbackSpeed", sizeStr, "GB/sec", speed);
-      resultDB.AddResult("ReadbackTime", sizeStr, "ms", t);
+      resultDB.AddResult("ReadbackSpeed", "---", "GB/sec", speed);
+      resultDB.AddOverall("ReadbackSpeed", "GB/sec", speed);
     }
   }
 

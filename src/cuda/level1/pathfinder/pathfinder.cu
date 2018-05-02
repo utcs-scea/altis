@@ -64,6 +64,7 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 //
 // ****************************************************************************
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
+  printf("Running Pathfinder\n");
   int device;
   cudaGetDevice(&device);
   cudaDeviceProp deviceProp;
@@ -356,6 +357,7 @@ void run(int borderCols, int smallBlockCol, int blockCols,
   resultDB.AddResult("pathfinder_total_time", atts, "sec", kernelTime + transferTime);
   resultDB.AddResult("pathfinder_parity", atts, "N",
                      transferTime / kernelTime);
+  resultDB.AddOverall("Time", "sec", kernelTime+transferTime);
 #ifdef HYPERQ
   resultDB.AddResult("pathfinder_hyperq_transfer_time", atts, "sec", transferTime);
   resultDB.AddResult("pathfinder_hyperq_kernel_time", atts, "sec", hyperqKernelTime);

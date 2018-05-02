@@ -38,7 +38,7 @@
 #include "dwt.h"
 #include "common.h"
 
-inline float fdwt(float *in, float *out, int width, int height, int levels)
+inline float fdwt(float *in, float *out, int width, int height, int levels, bool verbose, bool quiet)
 {
         return dwt_cuda::fdwt97(in, out, width, height, levels);
 }
@@ -49,9 +49,9 @@ inline void fdwt(float *in, float *out, int width, int height, int levels, float
 }
 */
 
-inline float fdwt(int *in, int *out, int width, int height, int levels)
+inline float fdwt(int *in, int *out, int width, int height, int levels, bool verbose, bool quiet)
 {
-        return dwt_cuda::fdwt53(in, out, width, height, levels);
+        return dwt_cuda::fdwt53(in, out, width, height, levels, verbose, quiet);
 }
 /*
 inline void fdwt(int *in, int *out, int width, int height, int levels, int *diffOut)
@@ -71,9 +71,9 @@ inline float rdwt(int *in, int *out, int width, int height, int levels)
 }
 
 template<typename T>
-int nStage2dDWT(T * in, T * out, T * backup, int pixWidth, int pixHeight, int stages, bool forward, float &transferTime, float &kernelTime, bool verbose)
+int nStage2dDWT(T * in, T * out, T * backup, int pixWidth, int pixHeight, int stages, bool forward, float &transferTime, float &kernelTime, bool verbose, bool quiet)
 {
-    if(verbose) {
+    if(verbose && !quiet) {
         printf("%d stages of 2D DWT:\n", stages);
     }
     
@@ -95,15 +95,15 @@ int nStage2dDWT(T * in, T * out, T * backup, int pixWidth, int pixHeight, int st
     
     /* Measure time of individual levels. */
     if(forward) {
-        kernelTime += fdwt(in, out, pixWidth, pixHeight, stages);
+        kernelTime += fdwt(in, out, pixWidth, pixHeight, stages, verbose, quiet);
     } else {
         kernelTime += rdwt(in, out, pixWidth, pixHeight, stages);
     }
     
     return 0;
 }
-template int nStage2dDWT<float>(float*, float*, float*, int, int, int, bool, float&, float&, bool);
-template int nStage2dDWT<int>(int*, int*, int*, int, int, int, bool, float&, float&, bool);
+template int nStage2dDWT<float>(float*, float*, float*, int, int, int, bool, float&, float&, bool, bool);
+template int nStage2dDWT<int>(int*, int*, int*, int, int, int, bool, float&, float&, bool, bool);
 
 
 
@@ -111,8 +111,6 @@ template int nStage2dDWT<int>(int*, int*, int*, int, int, int, bool, float&, flo
 template<typename T>
 int nStage2dDWT(T * in, T * out, T * backup, int pixWidth, int pixHeight, int stages, bool forward, T * diffOut)
 {
-    printf("*** %d stages of 2D forward DWT:\n", stages);
-    
     // create backup of input, because each test iteration overwrites it 
     const int size = pixHeight * pixWidth * sizeof(T);
     cudaMemcpy(backup, in, size, cudaMemcpyDeviceToDevice);
@@ -263,16 +261,6 @@ int writeNStage2DDWT(T *component_cuda, int pixWidth, int pixHeight,
         bandDims[i].HH.dimY = bandDims[i].LH.dimY;
     }
 
-#if 0
-    printf("Original image pixWidth x pixHeight: %d x %d\n", pixWidth, pixHeight);
-    for (i = 0; i < stages; i++) {
-        printf("Stage %d: LL: pixWidth x pixHeight: %d x %d\n", i, bandDims[i].LL.dimX, bandDims[i].LL.dimY);
-        printf("Stage %d: HL: pixWidth x pixHeight: %d x %d\n", i, bandDims[i].HL.dimX, bandDims[i].HL.dimY);
-        printf("Stage %d: LH: pixWidth x pixHeight: %d x %d\n", i, bandDims[i].LH.dimX, bandDims[i].LH.dimY);
-        printf("Stage %d: HH: pixWidth x pixHeight: %d x %d\n", i, bandDims[i].HH.dimX, bandDims[i].HH.dimY);
-    }
-#endif
-    
     size = samplesNum*sizeof(T);
     CUDA_SAFE_CALL(cudaMallocHost((void **)&src, size));
     dst = (T*)malloc(size);

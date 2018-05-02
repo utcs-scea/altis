@@ -53,6 +53,7 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 //
 // ****************************************************************************
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
+  cout << "Running BusSpeedDownload" << endl;
   const bool verbose = op.getOptionBool("verbose");
   const bool quiet = op.getOptionBool("quiet");
   const bool pinned = op.getOptionBool("pinned");
@@ -139,10 +140,8 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
       }
 
       double speed = (double(sizes[sizeIndex]) * 1024. / (1000 * 1000)) / t;
-      char sizeStr[256];
-      sprintf(sizeStr, "% 7dkB", sizes[sizeIndex]);
-      resultDB.AddResult("DownloadSpeed", sizeStr, "GB/sec", speed);
-      resultDB.AddResult("DownloadTime", sizeStr, "ms", t);
+      resultDB.AddResult("DownloadSpeed", "---", "GB/sec", speed);
+      resultDB.AddOverall("DownloadSpeed", "GB/sec", speed);
     }
   }
 

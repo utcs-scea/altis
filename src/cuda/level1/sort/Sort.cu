@@ -56,6 +56,7 @@ void addBenchmarkSpecOptions(OptionParser &op) {}
 //
 // ****************************************************************************
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
+    cout << "Running Sort" << endl;
   srand(SEED);
   bool quiet = op.getOptionBool("quiet");
 
@@ -213,6 +214,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
                        gb / (kernelTime + transferTime));
     resultDB.AddResult("Sort-Rate_Parity", atts, "N",
                        transferTime / kernelTime);
+    resultDB.AddOverall("Rate", "GB/s", gb/kernelTime);
   }
   // Clean up
   for (int i = 0; i < numLevelsAllocated; i++) {

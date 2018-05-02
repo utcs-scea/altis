@@ -69,7 +69,7 @@ namespace dwt_cuda {
   /// @param sizeX   width of input image (in pixels)
   /// @param sizeY   height of input image (in pixels)
   /// @param levels  number of recursive DWT levels
-  float fdwt53(int * in, int * out, int sizeX, int sizeY, int levels);
+  float fdwt53(int * in, int * out, int sizeX, int sizeY, int levels, bool verbose, bool quiet);
   
   
   /// Reverse 5/3 2D DWT. See common rules (above) for more details.

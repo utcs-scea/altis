@@ -76,6 +76,9 @@ class ResultDatabase
     vector<Result> results;
 
   public:
+    void AddOverall(const string &name,
+                   const string &unit,
+                   double value);
     void AddResult(const string &test,
                    const string &atts,
                    const string &unit,
@@ -90,6 +93,7 @@ class ResultDatabase
     void DumpDetailed(ostream&);
     void DumpSummary(ostream&);
     void DumpCsv(string fileName);
+    void DumpOverall();
 
   private:
     bool IsFileEmpty(string fileName);

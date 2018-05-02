@@ -90,6 +90,8 @@ extern double wtime(void);
 int setup(ResultDatabase &resultDB, OptionParser &op) {
   srand(SEED); /* seed for future random number generator */
 
+  bool verbose = op.getOptionBool("verbose");
+  bool quiet = op.getOptionBool("quiet");
   int nloops = op.getOptionInt("passes");
   bool isRMSE = op.getOptionBool("rmse");
   bool isOutput = op.getOptionBool("outputCenters");
@@ -118,15 +120,20 @@ int setup(ResultDatabase &resultDB, OptionParser &op) {
       if(!fp)
       {
           printf("Error: Unable to read graph file %s.\n", infile.c_str());
+          exit(0);
       }
   }
 
   // set npoints and nfeatures
   if(fp) {
-      printf("Reading input file...");
+      if(!quiet) {
+        printf("Reading input file...");
+      }
       int n = fscanf(fp, "%d %d", &npoints, &nfeatures);
   } else {
-      printf("Generating a graph with a preset problem size...");
+      if(!quiet) {
+          printf("Generating graph with a preset problem size %d", (int)op.getOptionInt("size"));
+      }
       int npointsPresets[4] = {1, 10, 200, 200};
       npoints = npointsPresets[op.getOptionInt("size") - 1] * 10000;
       int nfeaturesPresets[4] = {10, 20, 35, 50};
@@ -150,7 +157,7 @@ int setup(ResultDatabase &resultDB, OptionParser &op) {
       }
       for (j = 0; j < nfeatures; j++) {
           if(fp) {
-            fscanf(fp, "%f", &buf[i++]);
+            int n = fscanf(fp, "%f", &buf[i++]);
           } else {
             buf[i++] = rand() % 256;
           }
@@ -162,9 +169,10 @@ int setup(ResultDatabase &resultDB, OptionParser &op) {
     fclose(fp);
   }
 
-  printf("Done.\n");
-  printf("\nNumber of objects: %d\n", npoints);
-  printf("Number of features: %d\n", nfeatures);
+  if(!quiet) {
+      printf("\nNumber of objects: %d\n", npoints);
+      printf("Number of features: %d\n", nfeatures);
+  }
   /* ============== I/O end ==============*/
 
   // error check for clusters
@@ -190,28 +198,31 @@ int setup(ResultDatabase &resultDB, OptionParser &op) {
                   &rmse,            /* Root Mean Squared Error */
                   isRMSE,           /* calculate RMSE */
                   nloops,
-                  resultDB); /* number of iteration for each number of clusters */
+                  resultDB,
+                  quiet); /* number of iteration for each number of clusters */
 
   /* =============== Command Line Output =============== */
 
   /* cluster center coordinates
      :displayed only for when k=1*/
-  if ((min_nclusters == max_nclusters) && (isOutput == 1)) {
-    printf("\n================= Centroid Coordinates =================\n");
-    for (i = 0; i < max_nclusters; i++) {
-      printf("%d:", i);
-      for (j = 0; j < nfeatures; j++) {
-        printf(" %.2f", cluster_centres[i][j]);
+  if(!quiet) {
+      if ((min_nclusters == max_nclusters) && (isOutput == 1)) {
+          printf("\n================= Centroid Coordinates =================\n");
+          for (i = 0; i < max_nclusters; i++) {
+              printf("%d:", i);
+              for (j = 0; j < nfeatures; j++) {
+                  printf(" %.2f", cluster_centres[i][j]);
+              }
+              printf("\n\n");
+          }
       }
-      printf("\n\n");
-    }
-  }
 
-  if (min_nclusters != max_nclusters) {
-      printf("Best number of clusters is %d\n", best_nclusters);
-  }
-  if (isRMSE) { // if calculated RMSE
-      printf("Best Root Mean Squared Error: %.3f\n", rmse);
+      if (min_nclusters != max_nclusters) {
+          printf("Best number of clusters is %d\n", best_nclusters);
+      }
+      if (isRMSE) { // if calculated RMSE
+          printf("Best Root Mean Squared Error: %.3f\n", rmse);
+      }
   }
 
   /* free up memory */

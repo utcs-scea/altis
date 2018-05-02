@@ -108,11 +108,14 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 //
 // ****************************************************************************
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
+  printf("Running Needleman-Wunsch\n");
+
   int device;
   cudaGetDevice(&device);
   cudaDeviceProp deviceProp;
   cudaGetDeviceProperties(&deviceProp, device);
 
+  bool quiet = op.getOptionBool("quiet");
   int dim = op.getOptionInt("dimensions");
   penalty = op.getOptionInt("penalty");
 
@@ -136,25 +139,29 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
       return;
   }
 
-  printf("WG size of kernel = %d \n", BLOCK_SIZE);
-  printf("Max Rows: %d\n", dim);
-  printf("Max Columns: %d\n", dim);
-  printf("Penalty: %d\n", penalty);
+  if(!quiet) {
+      printf("WG size of kernel = %d \n", BLOCK_SIZE);
+      printf("Max Rows x Cols: %dx%d\n", dim, dim);
+      printf("Penalty: %d\n\n", penalty);
+  }
   srand(SEED);
 
   int passes = op.getOptionInt("passes");
   for (int i = 0; i < passes; i++) {
-    printf("Pass %d: ", i);
-    max_rows = dim;
-    max_cols = dim;
-    runTest(resultDB, op);
-    printf("Done.\n");
+      if(!quiet) {
+          printf("Pass %d: ", i);
+      }
+      max_rows = dim;
+      max_cols = dim;
+      runTest(resultDB, op);
+      if(!quiet) {
+          printf("Done.\n");
+      }
   }
 }
 
 void runTest(ResultDatabase &resultDB, OptionParser &op) {
-  bool verbose = op.getOptionBool("verbose");
-
+  bool quiet = op.getOptionBool("quiet");
   int *input_itemsets, *output_itemsets, *referrence;
   int *matrix_cuda, *referrence_cuda;
   int size;
@@ -167,16 +174,13 @@ void runTest(ResultDatabase &resultDB, OptionParser &op) {
 
   if (!input_itemsets) {
       fprintf(stderr, "Error: Can not allocate memory\n");
+      exit(0);
   }
 
   for (int i = 0; i < max_cols; i++) {
     for (int j = 0; j < max_rows; j++) {
       input_itemsets[i * max_cols + j] = 0;
     }
-  }
-
-  if(verbose) {
-    printf("Start Needleman-Wunsch\n");
   }
 
   for (int i = 1; i < max_rows; i++) {  // please define your own sequence.
@@ -222,9 +226,6 @@ void runTest(ResultDatabase &resultDB, OptionParser &op) {
   dim3 dimBlock(BLOCK_SIZE, 1);
   int block_width = (max_cols - 1) / BLOCK_SIZE;
 
-  if(verbose) {
-      printf("Processing top-left matrix\n");
-  }
   // process top-left matrix
   for (int i = 1; i <= block_width; i++) {
     dimGrid.x = i;
@@ -237,9 +238,6 @@ void runTest(ResultDatabase &resultDB, OptionParser &op) {
     cudaEventElapsedTime(&elapsedTime, start, stop);
     kernelTime += elapsedTime * 1.e-3;
     CHECK_CUDA_ERROR();
-  }
-  if(verbose) {
-      printf("Processing bottom-right matrix\n");
   }
   // process bottom-right matrix
   for (int i = block_width - 1; i >= 1; i--) {
@@ -263,11 +261,11 @@ void runTest(ResultDatabase &resultDB, OptionParser &op) {
   cudaEventElapsedTime(&elapsedTime, start, stop);
   transferTime += elapsedTime * 1.e-3; // convert to seconds
 
-  string resultsfile = op.getOptionString("resultsfile");
-  if(resultsfile != "") {
-      FILE *fpo = fopen(resultsfile.c_str(), "w");
-      if(verbose) {
-        fprintf(fpo, "Print traceback value GPU to %s:\n", resultsfile.c_str());
+  string outfile = op.getOptionString("outputFile");
+  if(outfile != "") {
+      FILE *fpo = fopen(outfile.c_str(), "w");
+      if(!quiet) {
+        fprintf(fpo, "Print traceback value GPU to %s:\n", outfile.c_str());
       }
 
       for (int i = max_rows - 2, j = max_rows - 2; i >= 0, j >= 0;) {
@@ -323,7 +321,6 @@ void runTest(ResultDatabase &resultDB, OptionParser &op) {
           } else {
           }
       }
-
       fclose(fpo);
   }
 
@@ -334,11 +331,6 @@ void runTest(ResultDatabase &resultDB, OptionParser &op) {
   free(input_itemsets);
   free(output_itemsets);
 
-  if(verbose) {
-      printf("TransferTime: %f\n", transferTime);
-      printf("KernelTime: %f\n", kernelTime);
-  }
-
   char tmp[32];
   sprintf(tmp, "%ditems", size);
   string atts = string(tmp);
@@ -346,4 +338,5 @@ void runTest(ResultDatabase &resultDB, OptionParser &op) {
   resultDB.AddResult("NW-KernelTime", atts, "sec", kernelTime);
   resultDB.AddResult("NW-TotalTime", atts, "sec", transferTime + kernelTime);
   resultDB.AddResult("NW-Rate_Parity", atts, "N", transferTime / kernelTime);
+  resultDB.AddOverall("Time", "sec", kernelTime+transferTime);
 }

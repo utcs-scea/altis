@@ -178,18 +178,20 @@ int main(int argc, char *argv[])
         // Run the benchmark
         RunBenchmark(resultDB, op);
 
-        // Output metrics to metrics file or stdout
-        if(metricsfile.empty()) {
-            // if quiet, don't give metrics
-            if(!quiet) {
+        // If quiet, output overall result
+        // else output metrics
+        if(quiet) {
+            resultDB.DumpOverall();
+        } else {
+            if(metricsfile.empty()) {
                 cout << endl;
                 resultDB.DumpSummary(cout);
+            } else {
+                ofstream ofs;
+                ofs.open(metricsfile.c_str());
+                resultDB.DumpSummary(ofs);
+                ofs.close();
             }
-        } else {
-            ofstream ofs;
-            ofs.open(metricsfile.c_str());
-            resultDB.DumpSummary(ofs);
-            ofs.close();
         }
     }
     catch( std::exception& e )

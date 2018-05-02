@@ -1,33 +1,27 @@
 #!/bin/bash
 
-for f in devicememory maxflops
-do
-echo $f
-nvprof --metrics sm_efficiency,achieved_occupancy,ipc,branch_efficiency,warp_execution_efficiency,shared_store_transactions,shared_load_transactions,local_load_transactions,local_store_transactions,gld_transactions,gst_transactions,dram_read_transactions,dram_write_transactions,flop_count_sp_special,inst_executed,cf_executed,ldst_executed --log-file analysis/zerberus/$f/1 ./src/cuda/level0/$f/$f -n 1
-done
+#for f in devicememory maxflops
+#do
+#echo $f
+#nvprof --metrics flop_count_dp,flop_count_sp,inst_fp_32,inst_fp_64,inst_integer,inst_bit_convert,inst_control,inst_compute_ld_st,inst_misc,inst_inter_thread_communication,sm_efficiency,achieved_occupancy,ipc,branch_efficiency,warp_execution_efficiency,shared_store_transactions,shared_load_transactions,local_load_transactions,local_store_transactions,gld_transactions,gst_transactions,dram_read_transactions,dram_write_transactions,flop_count_sp_special,inst_executed,cf_executed,ldst_executed --log-file analysis/zemaitis/$f/1 ./src/cuda/level0/$f/$f -n 1 -d 1
+#nvprof --metrics sm_efficiency,achieved_occupancy,ipc,branch_efficiency,warp_execution_efficiency,shared_store_transactions,shared_load_transactions,local_load_transactions,local_store_transactions,gld_transactions,gst_transactions,dram_read_transactions,dram_write_transactions,flop_count_sp_special,inst_executed,cf_executed,ldst_executed --log-file analysis/zerberus/$f/1 ./src/cuda/level0/$f/$f -n 1
+#done
 
-for f in gemm pathfinder sort bfs
+for f in pathfinder sort bfs
 do
-for i in 1 2 3 4
-do
-nvprof --metrics sm_efficiency,achieved_occupancy,ipc,branch_efficiency,warp_execution_efficiency,shared_store_transactions,shared_load_transactions,local_load_transactions,local_store_transactions,gld_transactions,gst_transactions,dram_read_transactions,dram_write_transactions,flop_count_sp_special,inst_executed,cf_executed,ldst_executed --log-file analysis/zerberus/$f/$i ./src/cuda/level1/$f/$f -s $i -n 1
-done
+nvprof --metrics flop_count_dp,flop_count_sp,inst_fp_32,inst_fp_64,inst_integer,inst_bit_convert,inst_control,inst_compute_ld_st,inst_misc,inst_inter_thread_communication,sm_efficiency,achieved_occupancy,ipc,branch_efficiency,warp_execution_efficiency,shared_store_transactions,shared_load_transactions,local_load_transactions,local_store_transactions,gld_transactions,gst_transactions,dram_read_transactions,dram_write_transactions,flop_count_sp_special,inst_executed,cf_executed,ldst_executed --log-file analysis/zemaitis/$f/4 ./src/cuda/level1/$f/$f -s 4 -n 1 -d 1
+#nvprof --metrics sm_efficiency,achieved_occupancy,ipc,branch_efficiency,warp_execution_efficiency,shared_store_transactions,shared_load_transactions,local_load_transactions,local_store_transactions,gld_transactions,gst_transactions,dram_read_transactions,dram_write_transactions,flop_count_sp_special,inst_executed,cf_executed,ldst_executed --log-file analysis/zerberus/$f/$i ./src/cuda/level1/$f/$f -s $i -n 1
 done
 
 for f in cfd dwt2d kmeans lavamd mandelbrot nw srad where
 do
-for i in 1 2 3 4
-do
-nvprof --metrics sm_efficiency,achieved_occupancy,ipc,branch_efficiency,warp_execution_efficiency,shared_store_transactions,shared_load_transactions,local_load_transactions,local_store_transactions,gld_transactions,gst_transactions,dram_read_transactions,dram_write_transactions,flop_count_sp_special,inst_executed,cf_executed,ldst_executed --log-file analysis/zerberus/$f/$i ./src/cuda/level2/$f/$f -s $i -n 1
+nvprof --metrics flop_count_dp,flop_count_sp,inst_fp_32,inst_fp_64,inst_integer,inst_bit_convert,inst_control,inst_compute_ld_st,inst_misc,inst_inter_thread_communication,sm_efficiency,achieved_occupancy,ipc,branch_efficiency,warp_execution_efficiency,shared_store_transactions,shared_load_transactions,local_load_transactions,local_store_transactions,gld_transactions,gst_transactions,dram_read_transactions,dram_write_transactions,flop_count_sp_special,inst_executed,cf_executed,ldst_executed --log-file analysis/zemaitis/$f/4 ./src/cuda/level2/$f/$f -s 4 -n 1 -d 1
+#nvprof --metrics sm_efficiency,achieved_occupancy,ipc,branch_efficiency,warp_execution_efficiency,shared_store_transactions,shared_load_transactions,local_load_transactions,local_store_transactions,gld_transactions,gst_transactions,dram_read_transactions,dram_write_transactions,flop_count_sp_special,inst_executed,cf_executed,ldst_executed --log-file analysis/zerberus/$f/$i ./src/cuda/level2/$f/$f -s $i -n 1
 done
-done
-
 for f in naive float
 do
-for i in 1 2 3 4
-do
-nvprof --metrics sm_efficiency,achieved_occupancy,ipc,branch_efficiency,warp_execution_efficiency,shared_store_transactions,shared_load_transactions,local_load_transactions,local_store_transactions,gld_transactions,gst_transactions,dram_read_transactions,dram_write_transactions,flop_count_sp_special,inst_executed,cf_executed,ldst_executed --log-file analysis/zerberus/particlefilter/$f/$i ./src/cuda/level2/particlefilter/particlefilter_$f -s $i -n 1
-done
+nvprof --metrics flop_count_dp,flop_count_sp,inst_fp_32,inst_fp_64,inst_integer,inst_bit_convert,inst_control,inst_compute_ld_st,inst_misc,inst_inter_thread_communication,sm_efficiency,achieved_occupancy,ipc,branch_efficiency,warp_execution_efficiency,shared_store_transactions,shared_load_transactions,local_load_transactions,local_store_transactions,gld_transactions,gst_transactions,dram_read_transactions,dram_write_transactions,flop_count_sp_special,inst_executed,cf_executed,ldst_executed --log-file analysis/zemaitis/particlefilter/$f/4 ./src/cuda/level2/particlefilter/particlefilter_$f -s 4 -n 1 -d 1
+#nvprof --metrics sm_efficiency,achieved_occupancy,ipc,branch_efficiency,warp_execution_efficiency,shared_store_transactions,shared_load_transactions,local_load_transactions,local_store_transactions,gld_transactions,gst_transactions,dram_read_transactions,dram_write_transactions,flop_count_sp_special,inst_executed,cf_executed,ldst_executed --log-file analysis/zerberus/particlefilter/$f/$i ./src/cuda/level2/particlefilter/particlefilter_$f -s $i -n 1
 done
 
 

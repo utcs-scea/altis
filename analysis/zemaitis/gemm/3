@@ -1,10 +1,10 @@
-==19428== NVPROF is profiling process 19428, command: ./src/cuda/level1/gemm/gemm -s 3 -n 1
-==19428== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
-==19428== Profiling application: ./src/cuda/level1/gemm/gemm -s 3 -n 1
-==19428== Profiling result:
-==19428== Metric result:
+==44334== NVPROF is profiling process 44334, command: ./src/cuda/level1/gemm/gemm -s 3 -n 1 -d 1
+==44334== Some kernel(s) will be replayed on device 1 in order to collect all events/metrics.
+==44334== Profiling application: ./src/cuda/level1/gemm/gemm -s 3 -n 1 -d 1
+==44334== Profiling result:
+==44334== Metric result:
 Invocations                               Metric Name                                    Metric Description         Min         Max         Avg
-Device "Tesla P100-SXM2-16GB (0)"
+Device "Tesla P100-SXM2-16GB (1)"
     Kernel: sgemm_128x128x8_TN_vec
           5                             flop_count_dp           Floating Point Operations(Double Precision)           0           0           0
           5                             flop_count_sp           Floating Point Operations(Single Precision)  2.1478e+12  2.1478e+12  2.1478e+12
@@ -16,9 +16,9 @@ Device "Tesla P100-SXM2-16GB (0)"
           5                        inst_compute_ld_st                               Load/Store Instructions  7.5761e+10  7.5761e+10  7.5761e+10
           5                                 inst_misc                                     Misc Instructions  2223308800  2223308800  2223308800
           5           inst_inter_thread_communication                             Inter-Thread Instructions           0           0           0
-          5                             sm_efficiency                               Multiprocessor Activity      99.47%      99.54%      99.51%
-          5                        achieved_occupancy                                    Achieved Occupancy    0.249601    0.249615    0.249607
-          5                                       ipc                                          Executed IPC    2.136714    2.136745    2.136724
+          5                             sm_efficiency                               Multiprocessor Activity      99.55%      99.58%      99.57%
+          5                        achieved_occupancy                                    Achieved Occupancy    0.249593    0.249606    0.249598
+          5                                       ipc                                          Executed IPC    2.136644    2.136672    2.136661
           5                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
           5                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
           5                 shared_store_transactions                             Shared Store Transactions   527769600   527769600   527769600
@@ -27,8 +27,8 @@ Device "Tesla P100-SXM2-16GB (0)"
           5                  local_store_transactions                              Local Store Transactions           0           0           0
           5                          gld_transactions                              Global Load Transactions  2097152000  2097152000  2097152000
           5                          gst_transactions                             Global Store Transactions    13107200    13107200    13107200
-          5                    dram_read_transactions                       Device Memory Read Transactions   934327260  1028576989   991357684
-          5                   dram_write_transactions                      Device Memory Write Transactions    13134652    13150920    13138465
+          5                    dram_read_transactions                       Device Memory Read Transactions  1050113988  1099270120  1073592532
+          5                   dram_write_transactions                      Device Memory Write Transactions    13134628    13135246    13134896
           5                     flop_count_sp_special   Floating Point Operations(Single Precision Special)     1638400     1638400     1638400
           5                             inst_executed                                 Instructions Executed  3.6872e+10  3.6872e+10  3.6872e+10
           5                               cf_executed                    Executed Control-Flow Instructions    66406400    66406400    66406400
@@ -44,9 +44,9 @@ Device "Tesla P100-SXM2-16GB (0)"
           5                        inst_compute_ld_st                               Load/Store Instructions  8.2059e+10  8.2059e+10  8.2059e+10
           5                                 inst_misc                                     Misc Instructions  6419251200  6419251200  6419251200
           5           inst_inter_thread_communication                             Inter-Thread Instructions           0           0           0
-          5                             sm_efficiency                               Multiprocessor Activity      99.47%      99.54%      99.50%
-          5                        achieved_occupancy                                    Achieved Occupancy    0.249554    0.249579    0.249565
-          5                                       ipc                                          Executed IPC    2.160253    2.160366    2.160319
+          5                             sm_efficiency                               Multiprocessor Activity      99.53%      99.56%      99.55%
+          5                        achieved_occupancy                                    Achieved Occupancy    0.249551    0.249581    0.249566
+          5                                       ipc                                          Executed IPC    2.160253    2.160282    2.160263
           5                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
           5                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
           5                 shared_store_transactions                             Shared Store Transactions   527974400   527974400   527974400
@@ -55,8 +55,8 @@ Device "Tesla P100-SXM2-16GB (0)"
           5                  local_store_transactions                              Local Store Transactions           0           0           0
           5                          gld_transactions                              Global Load Transactions  2097152000  2097152000  2097152000
           5                          gst_transactions                             Global Store Transactions    13107200    13107200    13107200
-          5                    dram_read_transactions                       Device Memory Read Transactions  1125118447  1192676667  1168360373
-          5                   dram_write_transactions                      Device Memory Write Transactions    13134966    13138022    13136797
+          5                    dram_read_transactions                       Device Memory Read Transactions  1157108527  1211379705  1194965402
+          5                   dram_write_transactions                      Device Memory Write Transactions    13134442    13142957    13136591
           5                     flop_count_sp_special   Floating Point Operations(Single Precision Special)     1638400     1638400     1638400
           5                             inst_executed                                 Instructions Executed  3.7659e+10  3.7659e+10  3.7659e+10
           5                               cf_executed                    Executed Control-Flow Instructions    66406400    66406400    66406400
@@ -72,9 +72,9 @@ Device "Tesla P100-SXM2-16GB (0)"
           5                        inst_compute_ld_st                               Load/Store Instructions  2.3148e+10  2.3148e+10  2.3148e+10
           5                                 inst_misc                                     Misc Instructions   829849600   829849600   829849600
           5           inst_inter_thread_communication                             Inter-Thread Instructions           0           0           0
-          5                             sm_efficiency                               Multiprocessor Activity      98.74%      98.89%      98.79%
-          5                        achieved_occupancy                                    Achieved Occupancy    0.124281    0.124457    0.124369
-          5                                       ipc                                          Executed IPC    1.172581    1.173450    1.173038
+          5                             sm_efficiency                               Multiprocessor Activity      98.73%      98.90%      98.81%
+          5                        achieved_occupancy                                    Achieved Occupancy    0.124299    0.124372    0.124330
+          5                                       ipc                                          Executed IPC    1.172547    1.173219    1.172844
           5                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
           5                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
           5                 shared_store_transactions                             Shared Store Transactions   265433600   265433600   265433600
@@ -83,8 +83,8 @@ Device "Tesla P100-SXM2-16GB (0)"
           5                  local_store_transactions                              Local Store Transactions           0           0           0
           5                          gld_transactions                              Global Load Transactions   786432000   786432000   786432000
           5                          gst_transactions                             Global Store Transactions     6553600     6553600     6553600
-          5                    dram_read_transactions                       Device Memory Read Transactions   545481028   560236622   553222011
-          5                   dram_write_transactions                      Device Memory Write Transactions     6579073     6593113     6586397
+          5                    dram_read_transactions                       Device Memory Read Transactions   547262610   557281614   551916722
+          5                   dram_write_transactions                      Device Memory Write Transactions     6579213     6584073     6582011
           5                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
           5                             inst_executed                                 Instructions Executed  5122777600  5122777600  5122777600
           5                               cf_executed                    Executed Control-Flow Instructions     8614400     8614400     8614400
@@ -100,9 +100,9 @@ Device "Tesla P100-SXM2-16GB (0)"
           5                        inst_compute_ld_st                               Load/Store Instructions  2.3148e+10  2.3148e+10  2.3148e+10
           5                                 inst_misc                                     Misc Instructions   829849600   829849600   829849600
           5           inst_inter_thread_communication                             Inter-Thread Instructions           0           0           0
-          5                             sm_efficiency                               Multiprocessor Activity      98.62%      98.67%      98.65%
-          5                        achieved_occupancy                                    Achieved Occupancy    0.124236    0.124355    0.124286
-          5                                       ipc                                          Executed IPC    1.174461    1.174575    1.174526
+          5                             sm_efficiency                               Multiprocessor Activity      98.66%      98.70%      98.68%
+          5                        achieved_occupancy                                    Achieved Occupancy    0.124258    0.124383    0.124311
+          5                                       ipc                                          Executed IPC    1.174479    1.174594    1.174528
           5                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
           5                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
           5                 shared_store_transactions                             Shared Store Transactions   199897600   199897600   199897600
@@ -111,8 +111,8 @@ Device "Tesla P100-SXM2-16GB (0)"
           5                  local_store_transactions                              Local Store Transactions           0           0           0
           5                          gld_transactions                              Global Load Transactions   786432000   786432000   786432000
           5                          gst_transactions                             Global Store Transactions     6553600     6553600     6553600
-          5                    dram_read_transactions                       Device Memory Read Transactions   535334342   544553302   541137468
-          5                   dram_write_transactions                      Device Memory Write Transactions     6582181     6586781     6584103
+          5                    dram_read_transactions                       Device Memory Read Transactions   538183582   548025102   542858880
+          5                   dram_write_transactions                      Device Memory Write Transactions     6577865     6585677     6581988
           5                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
           5                             inst_executed                                 Instructions Executed  5089894400  5089894400  5089894400
           5                               cf_executed                    Executed Control-Flow Instructions     8614400     8614400     8614400

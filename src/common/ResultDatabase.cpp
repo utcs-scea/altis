@@ -163,6 +163,37 @@ void ResultDatabase::AddResult(const string &test_orig,
     results[index].value.push_back(value);
 }
 
+void ResultDatabase::AddOverall(const string &name_orig,
+                               const string &unit_orig,
+                               double value)
+{
+    string test = "Overall";
+    string name = RemoveAllButLeadingSpaces(name_orig);
+    string unit = RemoveAllButLeadingSpaces(unit_orig);
+    int index;
+    for (index = 0; index < results.size(); index++)
+    {
+        if (results[index].test == test)
+        {
+            if (results[index].unit != unit) {
+                throw "Internal error: mixed units";
+            }
+            break;
+        }
+    }
+
+    if (index >= results.size())
+    {
+        Result r;
+        r.test = test;
+        r.atts = name;
+        r.unit = unit;
+        results.push_back(r);
+    }
+
+    results[index].value.push_back(value);
+}
+
 // ****************************************************************************
 //  Method:  ResultDatabase::DumpDetailed
 //
@@ -216,6 +247,9 @@ void ResultDatabase::DumpDetailed(ostream &out)
     for (int i=0; i<sorted.size(); i++)
     {
         Result &r = sorted[i];
+        if(r.test == "Overall") {
+            continue;
+        }
         out << r.test << "\t";
         out << r.atts << "\t";
         out << r.unit << "\t";
@@ -295,6 +329,9 @@ void ResultDatabase::DumpSummary(ostream &out)
     for (int i=0; i<sorted.size(); i++)
     {
         Result &r = sorted[i];
+        if(r.test == "Overall") {
+            continue;
+        }
         out << r.test << "\t";
         out << r.atts << "\t";
         out << r.unit << "\t";
@@ -396,6 +433,9 @@ void ResultDatabase::DumpCsv(string fileName)
     for (int i=0; i<sorted.size(); i++)
     {
         Result &r = sorted[i];
+        if(r.test == "Overall") {
+            continue;
+        }
         out << r.test << ", ";
         out << r.atts << ", ";
         out << r.unit << ", ";
@@ -425,6 +465,17 @@ void ResultDatabase::DumpCsv(string fileName)
     out << endl;
 
     out.close();
+}
+
+void ResultDatabase::DumpOverall() {
+    for (int i=0; i<results.size(); i++)
+    {
+        Result &r = results[i];
+        if (r.test == "Overall") {
+            cout << r.atts << ": " << r.GetMean() << " " << r.unit << endl;
+            break;
+        }
+    }
 }
 
 // ****************************************************************************

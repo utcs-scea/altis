@@ -276,10 +276,12 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 }
 
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
+    printf("Running Mandelbrot\n");
 
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
 
+    bool quiet = op.getOptionBool("quiet");
     int imageSize = op.getOptionInt("imageSize");
     int iters = op.getOptionInt("iterations");
     if(imageSize == 0 || iters == 0) {
@@ -289,20 +291,24 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
         iters = iterSizes[op.getOptionInt("size") - 1];
     }
     
-    printf("Image Size: %d by %d\n", imageSize, imageSize);
-    printf("Num Iterations: %d\n", iters);
+    if(!quiet) {
+        printf("Image Size: %d by %d\n", imageSize, imageSize);
+        printf("Num Iterations: %d\n", iters);
 #ifdef DYNAMIC_PARALLELISM
-    printf("Using dynamic parallelism\n");
+        printf("Using dynamic parallelism\n");
 #else
-    printf("Not using dynamic parallelism\n");
+        printf("Not using dynamic parallelism\n");
 #endif
+    }
     
     char atts[1024];
     sprintf(atts, "img:%d,iter:%d", imageSize, iters);
 
     int passes = op.getOptionInt("passes");
     for(int i = 0; i < passes; i++) {
-        printf("Pass %d:\n", i);
+        if(!quiet) {
+            printf("Pass %d:\n", i);
+        }
 
         kernelTime = 0.0f;
         transferTime = 0.0f;
@@ -311,6 +317,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
         resultDB.AddResult("mandelbrot_transfer_time", atts, "sec", transferTime);
         resultDB.AddResult("mandelbrot_total_time", atts, "sec", transferTime + kernelTime);
         resultDB.AddResult("mandelbrot_parity", atts, "N", transferTime / kernelTime);
+        resultDB.AddOverall("Time", "sec", kernelTime+transferTime);
 #ifdef DYNAMIC_PARALLELISM
         float totalTime = kernelTime;
         kernelTime = 0.0f;
@@ -323,7 +330,9 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
         resultDB.AddResult("mandelbrot_dynpar_speedup", atts, "N", totalTime/kernelTime);
 #endif
 
-        printf("Done.\n");
+        if(!quiet) {
+            printf("Done.\n");
+        }
     }
 
 }

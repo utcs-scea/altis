@@ -134,7 +134,9 @@ void where(ResultDatabase &resultDB, int size, int coverage) {
     sprintf(atts, "size:%d, coverage:%d", size, coverage);
     resultDB.AddResult("where_kernel_time", atts, "sec", kernelTime);
     resultDB.AddResult("where_transfer_time", atts, "sec", transferTime);
+    resultDB.AddResult("where_total_time", atts, "sec", kernelTime+transferTime);
     resultDB.AddResult("where_parity", atts, "N", transferTime / kernelTime);
+    resultDB.AddOverall("Time", "sec", kernelTime+transferTime);
 }
 
 void addBenchmarkSpecOptions(OptionParser &op) {
@@ -143,7 +145,11 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 }
 
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
+    printf("Running Where\n");
+
     srand(7);
+
+    bool quiet = op.getOptionBool("quiet");
     int size = op.getOptionInt("length");
     int coverage = op.getOptionInt("coverage");
     if(size == 0 || coverage == -1) {
@@ -153,7 +159,10 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
         coverage = coverages[op.getOptionInt("size") - 1];
     }
 
-    printf("Using size=%d, coverage=%d\n", size, coverage);
+    if(!quiet) {
+        printf("Using size=%d, coverage=%d\n", size, coverage);
+    }
+
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
 
@@ -161,9 +170,12 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     for(int i = 0; i < passes; i++) {
         kernelTime = 0.0f;
         transferTime = 0.0f;
-        printf("Pass %d: ", i);
+        if(!quiet) {
+            printf("Pass %d: ", i);
+        }
         where(resultDB, size, coverage);
-        printf("Done.\n");
+        if(!quiet) {
+            printf("Done.\n");
+        }
     }
-
 }

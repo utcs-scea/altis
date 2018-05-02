@@ -17,6 +17,7 @@
 const int threads_per_block = 512;
 
 bool verbose = false;
+bool quiet = false;
 
 /**
 @var M value for Linear Congruential Generator (LCG); use GCC's value
@@ -30,38 +31,6 @@ int A = 1103515245;
 @var C value for LCG
  */
 int C = 12345;
-
-/*****************************
- * CHECK_ERROR
- * Checks for CUDA errors and prints them to the screen to help with
- * debugging of CUDA related programming
- *****************************/
-void check_error(cudaError e) {
-    if (e != cudaSuccess) {
-        printf("\nCUDA error: %s\n", cudaGetErrorString(e));
-        exit(1);
-    }
-}
-
-void cuda_print_double_array(double *array_GPU, size_t size) {
-    //allocate temporary array for printing
-    double* mem = (double*) malloc(sizeof (double) *size);
-
-    //transfer data from device
-    cudaMemcpy(mem, array_GPU, sizeof (double) *size, cudaMemcpyDeviceToHost);
-
-
-    printf("PRINTING ARRAY VALUES\n");
-    //print values in memory
-    for (size_t i = 0; i < size; ++i) {
-        printf("[%lu]:%0.6f\n", i, mem[i]);
-    }
-    printf("FINISHED PRINTING ARRAY VALUES\n");
-
-    //clean up memory
-    free(mem);
-    mem = NULL;
-}
 
 /********************************
  * CALC LIKELIHOOD SUM
@@ -686,21 +655,21 @@ void particleFilter(unsigned char * I, int IszX, int IszY, int Nfr, int * seed, 
     double* partial_sums;
 
     //CUDA memory allocation
-    check_error(cudaMalloc((void **) &arrayX_GPU, sizeof (double) *Nparticles));
-    check_error(cudaMalloc((void **) &arrayY_GPU, sizeof (double) *Nparticles));
-    check_error(cudaMalloc((void **) &xj_GPU, sizeof (double) *Nparticles));
-    check_error(cudaMalloc((void **) &yj_GPU, sizeof (double) *Nparticles));
-    check_error(cudaMalloc((void **) &CDF_GPU, sizeof (double) *Nparticles));
-    check_error(cudaMalloc((void **) &u_GPU, sizeof (double) *Nparticles));
-    check_error(cudaMalloc((void **) &likelihood_GPU, sizeof (double) *Nparticles));
+    CUDA_SAFE_CALL(cudaMalloc((void **) &arrayX_GPU, sizeof (double) *Nparticles));
+    CUDA_SAFE_CALL(cudaMalloc((void **) &arrayY_GPU, sizeof (double) *Nparticles));
+    CUDA_SAFE_CALL(cudaMalloc((void **) &xj_GPU, sizeof (double) *Nparticles));
+    CUDA_SAFE_CALL(cudaMalloc((void **) &yj_GPU, sizeof (double) *Nparticles));
+    CUDA_SAFE_CALL(cudaMalloc((void **) &CDF_GPU, sizeof (double) *Nparticles));
+    CUDA_SAFE_CALL(cudaMalloc((void **) &u_GPU, sizeof (double) *Nparticles));
+    CUDA_SAFE_CALL(cudaMalloc((void **) &likelihood_GPU, sizeof (double) *Nparticles));
     //set likelihood to zero
-    check_error(cudaMemset((void *) likelihood_GPU, 0, sizeof (double) *Nparticles));
-    check_error(cudaMalloc((void **) &weights_GPU, sizeof (double) *Nparticles));
-    check_error(cudaMalloc((void **) &I_GPU, sizeof (unsigned char) *IszX * IszY * Nfr));
-    check_error(cudaMalloc((void **) &objxy_GPU, sizeof (int) *2 * countOnes));
-    check_error(cudaMalloc((void **) &ind_GPU, sizeof (int) *countOnes * Nparticles));
-    check_error(cudaMalloc((void **) &seed_GPU, sizeof (int) *Nparticles));
-    check_error(cudaMalloc((void **) &partial_sums, sizeof (double) *Nparticles));
+    CUDA_SAFE_CALL(cudaMemset((void *) likelihood_GPU, 0, sizeof (double) *Nparticles));
+    CUDA_SAFE_CALL(cudaMalloc((void **) &weights_GPU, sizeof (double) *Nparticles));
+    CUDA_SAFE_CALL(cudaMalloc((void **) &I_GPU, sizeof (unsigned char) *IszX * IszY * Nfr));
+    CUDA_SAFE_CALL(cudaMalloc((void **) &objxy_GPU, sizeof (int) *2 * countOnes));
+    CUDA_SAFE_CALL(cudaMalloc((void **) &ind_GPU, sizeof (int) *countOnes * Nparticles));
+    CUDA_SAFE_CALL(cudaMalloc((void **) &seed_GPU, sizeof (int) *Nparticles));
+    CUDA_SAFE_CALL(cudaMalloc((void **) &partial_sums, sizeof (double) *Nparticles));
 
 
     //Donnie - this loop is different because in this kernel, arrayX and arrayY
@@ -717,12 +686,12 @@ void particleFilter(unsigned char * I, int IszX, int IszY, int Nfr, int * seed, 
     //start send
     cudaEventRecord(start, 0);
 
-    check_error(cudaMemcpy(I_GPU, I, sizeof (unsigned char) *IszX * IszY*Nfr, cudaMemcpyHostToDevice));
-    check_error(cudaMemcpy(objxy_GPU, objxy, sizeof (int) *2 * countOnes, cudaMemcpyHostToDevice));
-    check_error(cudaMemcpy(weights_GPU, weights, sizeof (double) *Nparticles, cudaMemcpyHostToDevice));
-    check_error(cudaMemcpy(xj_GPU, xj, sizeof (double) *Nparticles, cudaMemcpyHostToDevice));
-    check_error(cudaMemcpy(yj_GPU, yj, sizeof (double) *Nparticles, cudaMemcpyHostToDevice));
-    check_error(cudaMemcpy(seed_GPU, seed, sizeof (int) *Nparticles, cudaMemcpyHostToDevice));
+    CUDA_SAFE_CALL(cudaMemcpy(I_GPU, I, sizeof (unsigned char) *IszX * IszY*Nfr, cudaMemcpyHostToDevice));
+    CUDA_SAFE_CALL(cudaMemcpy(objxy_GPU, objxy, sizeof (int) *2 * countOnes, cudaMemcpyHostToDevice));
+    CUDA_SAFE_CALL(cudaMemcpy(weights_GPU, weights, sizeof (double) *Nparticles, cudaMemcpyHostToDevice));
+    CUDA_SAFE_CALL(cudaMemcpy(xj_GPU, xj, sizeof (double) *Nparticles, cudaMemcpyHostToDevice));
+    CUDA_SAFE_CALL(cudaMemcpy(yj_GPU, yj, sizeof (double) *Nparticles, cudaMemcpyHostToDevice));
+    CUDA_SAFE_CALL(cudaMemcpy(seed_GPU, seed, sizeof (int) *Nparticles, cudaMemcpyHostToDevice));
     int num_blocks = ceil((double) Nparticles / (double) threads_per_block);
     
     cudaEventRecord(stop, 0);
@@ -782,9 +751,9 @@ void particleFilter(unsigned char * I, int IszX, int IszY, int Nfr, int * seed, 
     cudaFree(partial_sums);
 
     cudaEventRecord(start, 0);
-    check_error(cudaMemcpy(arrayX, arrayX_GPU, sizeof (double) *Nparticles, cudaMemcpyDeviceToHost));
-    check_error(cudaMemcpy(arrayY, arrayY_GPU, sizeof (double) *Nparticles, cudaMemcpyDeviceToHost));
-    check_error(cudaMemcpy(weights, weights_GPU, sizeof (double) *Nparticles, cudaMemcpyDeviceToHost));
+    CUDA_SAFE_CALL(cudaMemcpy(arrayX, arrayX_GPU, sizeof (double) *Nparticles, cudaMemcpyDeviceToHost));
+    CUDA_SAFE_CALL(cudaMemcpy(arrayY, arrayY_GPU, sizeof (double) *Nparticles, cudaMemcpyDeviceToHost));
+    CUDA_SAFE_CALL(cudaMemcpy(weights, weights_GPU, sizeof (double) *Nparticles, cudaMemcpyDeviceToHost));
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&elapsedTime, start, stop);
@@ -797,7 +766,7 @@ void particleFilter(unsigned char * I, int IszX, int IszY, int Nfr, int * seed, 
         xe += arrayX[x] * weights[x];
         ye += arrayY[x] * weights[x];
     }
-    if(verbose) {
+    if(verbose && !quiet) {
         printf("XE: %lf\n", xe);
         printf("YE: %lf\n", ye);
         double distance = sqrt(pow((double) (xe - (int) roundDouble(IszY / 2.0)), 2) + pow((double) (ye - (int) roundDouble(IszX / 2.0)), 2));
@@ -808,7 +777,9 @@ void particleFilter(unsigned char * I, int IszX, int IszY, int Nfr, int * seed, 
     sprintf(atts, "dimx:%d, dimy:%d, numframes:%d, numparticles:%d", IszX, IszY, Nfr, Nparticles);
     resultDB.AddResult("particlefilter_float_kernel_time", atts, "sec", kernelTime);
     resultDB.AddResult("particlefilter_float_transfer_time", atts, "sec", transferTime);
+    resultDB.AddResult("particlefilter_float_total_time", atts, "sec", kernelTime+transferTime);
     resultDB.AddResult("particlefilter_float_parity", atts, "N", transferTime / kernelTime);
+    resultDB.AddOverall("Time", "sec", kernelTime+transferTime);
 
     //CUDA freeing of memory
     cudaFree(weights_GPU);
@@ -836,12 +807,16 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 void particlefilter_float(ResultDatabase &resultDB, int args[]);
 
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
+    printf("Running ParticleFilter (float)\n");
     int args[4];
     args[0] = op.getOptionInt("dimx");
     args[1] = op.getOptionInt("dimy");
     args[2] = op.getOptionInt("framecount");
     args[3] = op.getOptionInt("np");
     bool preset = false;
+    verbose = op.getOptionBool("verbose");
+    quiet = op.getOptionBool("quiet");
+
     for(int i = 0; i < 4; i++) {
         if(args[i] <= 0) {
             preset = true;
@@ -857,14 +832,21 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
             args[i] = probSizes[size][i];
         }
     }
-    printf("Using dimx=%d, dimy=%d, framecount=%d, numparticles=%d\n",
-           args[0], args[1], args[2], args[3]);
-    verbose = op.getOptionBool("verbose");
+
+    if(!quiet) {
+        printf("Using dimx=%d, dimy=%d, framecount=%d, numparticles=%d\n",
+                args[0], args[1], args[2], args[3]);
+    }
+
     int passes = op.getOptionInt("passes");
     for(int i = 0; i < passes; i++) {
-        printf("Pass %d: ", i);
+        if(!quiet) {
+            printf("Pass %d: ", i);
+        }
         particlefilter_float(resultDB, args);
-        printf("Done.\n");
+        if(!quiet) {
+            printf("Done.\n");
+        }
     }
 }
 

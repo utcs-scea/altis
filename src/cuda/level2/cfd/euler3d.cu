@@ -459,7 +459,11 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 void cfd(ResultDatabase &resultDB, OptionParser &op);
 
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
+    printf("Running CFDSolver\n");
+    bool quiet = op.getOptionBool("quiet");
+    if(!quiet) {
     printf("WG size of kernel:initialize = %d, WG size of kernel:compute_step_factor = %d, WG size of kernel:compute_flux = %d, WG size of kernel:time_step = %d\n", BLOCK_SIZE_1, BLOCK_SIZE_2, BLOCK_SIZE_3, BLOCK_SIZE_4);
+    }
 
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
@@ -468,9 +472,13 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     for(int i = 0; i < passes; i++) {
         kernelTime = 0.0f;
         transferTime = 0.0f;
-        printf("Pass %d:\n", i);
+        if(!quiet) {
+            printf("Pass %d:\n", i);
+        }
         cfd(resultDB, op);
-        printf("Done.\n");
+        if(!quiet) {
+            printf("Done.\n");
+        }
     }
 
 }
@@ -667,4 +675,5 @@ void cfd(ResultDatabase &resultDB, OptionParser &op)
     resultDB.AddResult("cfd_kernel_time", atts, "sec", kernelTime);
     resultDB.AddResult("cfd_transfer_time", atts, "sec", transferTime);
     resultDB.AddResult("cfd_parity", atts, "N", transferTime / kernelTime);
+    resultDB.AddOverall("Time", "sec", kernelTime+transferTime);
 }

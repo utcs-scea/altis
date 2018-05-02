@@ -7,8 +7,9 @@
 #include "cuda.h"
 
 #define fp double
-
+#define SEED 7
 #define NUMBER_PAR_PER_BOX 100							// keep this low to allow more blocks that share shared memory to run concurrently, code does not work for larger than 110, more speedup can be achieved with larger number and no shared memory used
+
 
 /* #define NUMBER_THREADS 128								// this should be roughly equal to NUMBER_PAR_PER_BOX for best performance */
 
@@ -25,10 +26,6 @@
 
 
 #define DOT(A,B) ((A.x)*(B.x)+(A.y)*(B.y)+(A.z)*(B.z))	// STABLE
-
-//===============================================================================================================================================================================================================200
-//	STRUCTURES
-//===============================================================================================================================================================================================================200
 
 typedef struct
 {
@@ -91,8 +88,4 @@ typedef struct dim_str
 
 } dim_str;
 
-//===============================================================================================================================================================================================================200
-//	FUNCTION PROTOTYPES
-//===============================================================================================================================================================================================================200
-
-void runTest(ResultDatabase &resultDB, int boxes1d);
+void runTest(ResultDatabase &resultDB, OptionParser &op, int boxes1d);

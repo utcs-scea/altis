@@ -62,6 +62,7 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 }
 
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
+    printf("Running KMeans\n");
     setup(resultDB, op);
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -185,6 +186,7 @@ kmeansCuda(float  **feature,				/* in: [npoints][nfeatures] */
 	err = cudaBindTexture(NULL, &t_features, feature_d, &chDesc0, npoints*nfeatures*sizeof(float));
     if(err != cudaSuccess) {
         printf("Error: Couldn't bind features array to texture, %d", err);
+        exit(0);
     }
 
 	cudaChannelFormatDesc chDesc1 = cudaCreateChannelDesc<float>();
@@ -195,6 +197,7 @@ kmeansCuda(float  **feature,				/* in: [npoints][nfeatures] */
 	err = cudaBindTexture(NULL, &t_features_flipped, feature_flipped_d, &chDesc1, npoints*nfeatures*sizeof(float));
     if(err != cudaSuccess) {
         printf("Error: Couldn't bind features_flipped array to texture, %d", err);
+        exit(0);
     }
 
 	cudaChannelFormatDesc chDesc2 = cudaCreateChannelDesc<float>();
@@ -205,6 +208,7 @@ kmeansCuda(float  **feature,				/* in: [npoints][nfeatures] */
 	err = cudaBindTexture(NULL, &t_clusters, clusters_d, &chDesc2, nclusters*nfeatures*sizeof(float));
     if(err != cudaSuccess) {
         printf("Error: Couldn't bind clusters array to texture, %d", err);
+        exit(0);
     }
 
   cudaEventRecord(start, 0);
@@ -306,9 +310,7 @@ kmeansCuda(float  **feature,				/* in: [npoints][nfeatures] */
     /*** calculate global sums from per block sums for delta and the new centers ***/    
 	
 	//debug
-	//printf("\t \t reducing %d block sums to global sum \n",num_blocks_perdim * num_blocks_perdim);
     for(i = 0; i < num_blocks_perdim * num_blocks_perdim; i++) {
-		//printf("block %d delta is %d \n",i,block_deltas_h[i]);
         delta += block_deltas_h[i];
     }
         
@@ -329,17 +331,6 @@ kmeansCuda(float  **feature,				/* in: [npoints][nfeatures] */
 		}
     }
 	
-#ifdef CPU_CENTER_REDUCE
-	//debug
-	/*for(int j = 0; j < nclusters;j++) {
-		for(int k = 0; k < nfeatures;k++) {
-			if(new_centers[j][k] >	1.001 * block_new_centers[j*nfeatures + k] || new_centers[j][k] <	0.999 * block_new_centers[j*nfeatures + k]) {
-				printf("\t \t for %d:%d, normal value is %e and gpu reduced value id %e \n",j,k,new_centers[j][k],block_new_centers[j*nfeatures + k]);
-			}
-		}
-	}*/
-#endif
-
 #ifdef BLOCK_CENTER_REDUCE
 	for(int j = 0; j < nclusters;j++) {
 		for(int k = 0; k < nfeatures;k++)

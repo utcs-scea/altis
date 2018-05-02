@@ -108,6 +108,7 @@ void addBenchmarkSpecOptions(OptionParser &op) {}
 //
 // ****************************************************************************
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
+   cout << "Running GEMM" << endl;
   int device;
   cudaGetDevice(&device);
   cudaDeviceProp deviceProp;
@@ -259,6 +260,7 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
       resultDB.AddResult(testName + "-" + transb, atts, "GFlops", cublasGflops);
       resultDB.AddResult(testName + "-" + transb + "_PCIe", atts, "GFlops", pcieGflops);
       resultDB.AddResult(testName + "-" + transb + "_Parity", atts, "N", transferTime / cublasTime);
+      resultDB.AddOverall("GFlops", "", cublasGflops);
     }
   }
 

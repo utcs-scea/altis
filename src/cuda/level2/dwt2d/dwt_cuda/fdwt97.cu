@@ -332,7 +332,6 @@ namespace dwt_cuda {
     float elapsedTime;
 
     // run kernel, possibly measure time and finally check the call
-    //printf("fdwt97Kernel in launch\n");
     cudaEventRecord(start, 0);
     fdwt97Kernel<WIN_SX, WIN_SY><<<gSize, WIN_SX>>>(in, out, sx, sy, steps);
     cudaEventRecord(stop, 0);
@@ -340,7 +339,6 @@ namespace dwt_cuda {
     cudaEventElapsedTime(&elapsedTime, start, stop);
     kernelTime += elapsedTime * 1.e-3;
     CHECK_CUDA_ERROR();
-    //printf("fdwt97Kernel has finished\n");
   }
   
   

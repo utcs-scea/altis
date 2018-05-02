@@ -53,24 +53,25 @@ struct dwt {
     int dwtLvls;
 };
 
-int getImg(char * srcFilename, unsigned char *srcImg, int inputSize)
+int getImg(char * srcFilename, unsigned char *srcImg, int inputSize, bool quiet)
 {
-    printf("Loading input: %s\n", srcFilename);
-
     int i = open(srcFilename, O_RDONLY, 0644);
     if (i == -1) { 
         error(0,errno,"Error: cannot access %s", srcFilename);
         return -1;
     }
     int ret = read(i, srcImg, inputSize);
-    printf("precteno %d, inputsize %d\n", ret, inputSize);
     close(i);
+
+    if(!quiet) {
+        printf("precteno %d, inputsize %d\n", ret, inputSize);
+    }
 
     return 0;
 }
 
 template <typename T>
-void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &resultDB, bool verbose, bool lastPass)
+void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &resultDB, bool verbose, bool quiet, bool lastPass)
 {
     // times
     float transferTime = 0;
@@ -106,9 +107,9 @@ void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &res
 
         rgbToComponents(c_r, c_g, c_b, d->srcImg, d->pixWidth, d->pixHeight, transferTime, kernelTime);
         /* Compute DWT and always store into file */
-        nStage2dDWT(c_r, c_r_out, backup, d->pixWidth, d->pixHeight, d->dwtLvls, forward, transferTime, kernelTime, verbose);
-        nStage2dDWT(c_g, c_g_out, backup, d->pixWidth, d->pixHeight, d->dwtLvls, forward, transferTime, kernelTime, verbose);
-        nStage2dDWT(c_b, c_b_out, backup, d->pixWidth, d->pixHeight, d->dwtLvls, forward, transferTime, kernelTime, verbose);
+        nStage2dDWT(c_r, c_r_out, backup, d->pixWidth, d->pixHeight, d->dwtLvls, forward, transferTime, kernelTime, verbose, quiet);
+        nStage2dDWT(c_g, c_g_out, backup, d->pixWidth, d->pixHeight, d->dwtLvls, forward, transferTime, kernelTime, verbose, quiet);
+        nStage2dDWT(c_b, c_b_out, backup, d->pixWidth, d->pixHeight, d->dwtLvls, forward, transferTime, kernelTime, verbose, quiet);
 
         // -------test----------
         // T *h_r_out=(T*)malloc(componentSize);
@@ -131,7 +132,7 @@ void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &res
             writeLinear(c_g_out, d->pixWidth, d->pixHeight, d->outFilename, ".g");
             writeLinear(c_b_out, d->pixWidth, d->pixHeight, d->outFilename, ".b");
         }
-        if(lastPass) {
+        if(lastPass && !quiet) {
             printf("Writing to %s.r (%d x %d)\n", d->outFilename, d->pixWidth, d->pixHeight);
             printf("Writing to %s.g (%d x %d)\n", d->outFilename, d->pixWidth, d->pixHeight);
             printf("Writing to %s.b (%d x %d)\n", d->outFilename, d->pixWidth, d->pixHeight);
@@ -155,17 +156,17 @@ void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &res
         bwToComponent(c_r, d->srcImg, d->pixWidth, d->pixHeight, transferTime, kernelTime);
 
         // Compute DWT 
-        nStage2dDWT(c_r, c_r_out, backup, d->pixWidth, d->pixHeight, d->dwtLvls, forward, transferTime, kernelTime, verbose);
+        nStage2dDWT(c_r, c_r_out, backup, d->pixWidth, d->pixHeight, d->dwtLvls, forward, transferTime, kernelTime, verbose, quiet);
 
         // Store DWT to file 
         if (writeVisual) {
             writeNStage2DDWT(c_r_out, d->pixWidth, d->pixHeight, d->dwtLvls, d->outFilename, ".out");
-            if(lastPass) {
+            if(lastPass && !quiet) {
                 printf("Writing to %s.out (%d x %d)\n", d->outFilename, d->pixWidth, d->pixHeight);
             }
         } else {
             writeLinear(c_r_out, d->pixWidth, d->pixHeight, d->outFilename, ".lin.out");
-            if(lastPass) {
+            if(lastPass && !quiet) {
                 printf("Writing to %s.lin.out (%d x %d)\n", d->outFilename, d->pixWidth, d->pixHeight);
             }
         }
@@ -181,6 +182,7 @@ void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &res
     resultDB.AddResult("dwt_transfer_time", atts, "sec", transferTime);
     resultDB.AddResult("dwt_total_time", atts, "sec", kernelTime+transferTime);
     resultDB.AddResult("dwt_parity", atts, "N", transferTime/kernelTime);
+    resultDB.AddOverall("Time", "sec", kernelTime+transferTime);
 }
 
 void addBenchmarkSpecOptions(OptionParser &op) {
@@ -196,6 +198,8 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
 {
+    printf("Running DWT2D\n");
+    bool quiet      = op.getOptionBool("quiet");
     bool verbose    = op.getOptionBool("verbose");
     int pixWidth    = op.getOptionInt("pixWidth"); //<real pixWidth
     int pixHeight   = op.getOptionInt("pixHeight"); //<real pixHeight
@@ -239,50 +243,54 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
     strcpy(d->outFilename+strlen(d->srcFilename), ".dwt");
 
     //Input review
-    printf("Source file:\t\t%s\n", d->srcFilename);
-    printf(" Dimensions:\t\t%dx%d\n", pixWidth, pixHeight);
-    printf(" Components count:\t%d\n", compCount);
-    printf(" Bit depth:\t\t%d\n", bitDepth);
-    printf(" DWT levels:\t\t%d\n", dwtLvls);
-    printf(" Forward transform:\t%d\n", forward);
-    printf(" 9/7 transform:\t\t%d\n", dwt97);
-    printf(" Write visual:\t\t%d\n", writeVisual);
+    if(!quiet) {
+        printf("Source file:\t\t%s\n", d->srcFilename);
+        printf(" Dimensions:\t\t%dx%d\n", pixWidth, pixHeight);
+        printf(" Components count:\t%d\n", compCount);
+        printf(" Bit depth:\t\t%d\n", bitDepth);
+        printf(" DWT levels:\t\t%d\n", dwtLvls);
+        printf(" Forward transform:\t%d\n", forward);
+        printf(" 9/7 transform:\t\t%d\n", dwt97);
+        printf(" Write visual:\t\t%d\n", writeVisual);
+    }
     
     //data sizes
     int inputSize = pixWidth*pixHeight*compCount; //<amount of data (in bytes) to proccess
 
     //load img source image
-    cudaMallocHost((void **)&d->srcImg, inputSize);
-    cudaCheckError("Alloc host memory");
-    if (getImg(d->srcFilename, d->srcImg, inputSize) == -1) 
+    CUDA_SAFE_CALL(cudaMallocHost((void **)&d->srcImg, inputSize));
+    if (getImg(d->srcFilename, d->srcImg, inputSize, quiet) == -1) 
         return;
 
     int passes = op.getOptionInt("passes");
     for(int i = 0; i < passes; i++) {
         bool lastPass = i+1 == passes;
-        printf("Pass %d:\n", i);
+        if(!quiet) {
+            printf("Pass %d:\n", i);
+        }
         /* DWT */
         if (forward == 1) {
             if(dwt97 == 1 ) {
-                processDWT<float>(d, forward, writeVisual, resultDB, verbose, lastPass);
+                processDWT<float>(d, forward, writeVisual, resultDB, verbose, quiet, lastPass);
             } else { // 5/3
-                processDWT<int>(d, forward, writeVisual, resultDB, verbose, lastPass);
+                processDWT<int>(d, forward, writeVisual, resultDB, verbose, quiet, lastPass);
             }
         }
         else { // reverse
             if(dwt97 == 1 ) {
-                processDWT<float>(d, forward, writeVisual, resultDB, verbose, lastPass);
+                processDWT<float>(d, forward, writeVisual, resultDB, verbose, quiet, lastPass);
             } else { // 5/3
-                processDWT<int>(d, forward, writeVisual, resultDB, verbose, lastPass);
+                processDWT<int>(d, forward, writeVisual, resultDB, verbose, quiet, lastPass);
             }
         }
-        printf("Done.\n");
+        if(!quiet) {
+            printf("Done.\n");
+        }
     }
 
     //writeComponent(r_cuda, pixWidth, pixHeight, srcFilename, ".g");
     //writeComponent(g_wave_cuda, 512000, ".g");
     //writeComponent(g_cuda, componentSize, ".g");
     //writeComponent(b_wave_cuda, componentSize, ".b");
-    cudaFreeHost(d->srcImg);
-    cudaCheckError("Cuda free host");
+    CUDA_SAFE_CALL(cudaFreeHost(d->srcImg));
 }

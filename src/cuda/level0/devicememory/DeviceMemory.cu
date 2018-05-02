@@ -80,6 +80,7 @@ void addBenchmarkSpecOptions(OptionParser &op) { ; }
 //
 // ****************************************************************************
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
+  cout << "Running DeviceMemory" << endl;
   // Enable quiet output
   bool quiet = op.getOptionBool("quiet");
   // Number of times to repeat each test
@@ -183,6 +184,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
       bdwth = ((double)globalWorkSize * maxRepeatsUnit * 16 * sizeof(float)) /
               (t * 1000. * 1000. * 1000.);
       resultDB.AddResult("readGlobalMemoryUnit", sizeStr, "GB/s", bdwth);
+      resultDB.AddOverall("Bandwidth", "GB/s", bdwth);
 
       // Test 3
       cudaEventRecord(start, 0);
@@ -222,6 +224,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
       bdwth = ((double)globalWorkSize * maxRepeatsUnit * 16 * sizeof(float)) /
               (t * 1000. * 1000. * 1000.);
       resultDB.AddResult("writeGlobalMemoryUnit", sizeStr, "GB/s", bdwth);
+      resultDB.AddOverall("Bandwidth", "GB/s", bdwth);
 
       // Test 6
       cudaEventRecord(start, 0);

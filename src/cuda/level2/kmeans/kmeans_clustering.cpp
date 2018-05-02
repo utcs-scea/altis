@@ -81,7 +81,8 @@ float** kmeans_clustering(float **feature,    /* in: [npoints][nfeatures] */
                           int     nclusters,
                           float   threshold,
                           int    *membership,
-                          ResultDatabase &resultDB) /* out: [npoints] */
+                          ResultDatabase &resultDB,
+                          bool quiet) /* out: [npoints] */
 {    
     int      i, j, n = 0;				/* counters */
 	int		 loop=0, temp;
@@ -168,6 +169,7 @@ float** kmeans_clustering(float **feature,    /* in: [npoints][nfeatures] */
         resultDB.AddResult("KMeans-KernelTime", atts, "sec/iteration", kernelTime);
         resultDB.AddResult("KMeans-TotalTime", atts, "sec/iteration", transferTime+kernelTime);
         resultDB.AddResult("KMeans-Rate_Parity", atts, "N", transferTime/kernelTime);
+        resultDB.AddOverall("Time", "sec", kernelTime+transferTime);
 
 		/* replace old cluster centers with new_centers */
 		/* CPU side of reduction */
@@ -181,7 +183,10 @@ float** kmeans_clustering(float **feature,    /* in: [npoints][nfeatures] */
 		}	 
 		c++;
     } while ((delta > threshold) && (loop++ < 500));	/* makes sure loop terminates */
-	printf("Iterated %d times\n", c);
+    if(!quiet) {
+        printf("Iterated %d times\n", c);
+    }
+
     free(new_centers[0]);
     free(new_centers);
     free(new_centers_len);

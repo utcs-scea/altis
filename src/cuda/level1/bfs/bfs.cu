@@ -122,6 +122,7 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 //
 // ****************************************************************************
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
+    printf("Running BFS\n");
     int device;
     cudaGetDevice(&device);
     cudaDeviceProp deviceProp;
@@ -455,6 +456,7 @@ double transferTime = 0.;
     resultDB.AddResult("bfs_rate_nodes", atts, "Nodes/s", no_of_nodes/kernelTime);
     resultDB.AddResult("bfs_rate_edges", atts, "Edges/s", edge_list_size/kernelTime);
     resultDB.AddResult("bfs_rate_parity", atts, "N", transferTime / kernelTime);
+    resultDB.AddOverall("Time", "sec", kernelTime+transferTime);
     return transferTime + kernelTime;
 }
 
