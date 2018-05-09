@@ -467,6 +467,7 @@ double transferTime = 0.;
 float BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, int no_of_nodes, int edge_list_size, int source, Node* &h_graph_nodes, int* &h_graph_edges) {
     bool verbose = op.getOptionBool("verbose");
     bool quiet = op.getOptionBool("quiet");
+    int device = op.getOptionInt("device");
 
 	int num_of_blocks = 1;
 	int num_of_threads_per_block = no_of_nodes;
@@ -482,11 +483,24 @@ float BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, int no_o
     Node* graph_nodes;
     CUDA_SAFE_CALL(cudaMallocManaged(&graph_nodes, sizeof(Node)*no_of_nodes));
     memcpy(graph_nodes, h_graph_nodes, sizeof(Node)*no_of_nodes);
+    cudaError_t x;
+    x = cudaMemPrefetchAsync(graph_nodes, sizeof(Node)*no_of_nodes, device);
+    if(x != cudaSuccess) {
+        printf("failed\n");
+    }
+    //cudaMemAdvise(graph_nodes, sizeof(Node)*no_of_nodes, cudaMemAdviseSetReadMostly, device);
+    //cudaMemAdvise(graph_nodes, sizeof(Node)*no_of_nodes, cudaMemAdviseSetPreferredLocation, device);
 
     // copy graph edges to unified memory
     int* graph_edges;
     CUDA_SAFE_CALL(cudaMallocManaged(&graph_edges, sizeof(int)*edge_list_size));
     memcpy(graph_edges, h_graph_edges, sizeof(int)*edge_list_size);
+    x = cudaMemPrefetchAsync(graph_edges, sizeof(int)*edge_list_size, device);
+    if(x != cudaSuccess) {
+        printf("failed\n");
+    }
+    cudaMemAdvise(graph_edges, sizeof(int)*edge_list_size, cudaMemAdviseSetReadMostly, device);
+    cudaMemAdvise(graph_edges, sizeof(int)*edge_list_size, cudaMemAdviseSetPreferredLocation, device);
 
 	// allocate and initalize the memory
     bool* graph_mask;
@@ -495,6 +509,21 @@ float BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, int no_o
     CUDA_SAFE_CALL(cudaMallocManaged(&graph_mask, sizeof(bool)*no_of_nodes));
     CUDA_SAFE_CALL(cudaMallocManaged(&updating_graph_mask, sizeof(bool)*no_of_nodes));
     CUDA_SAFE_CALL(cudaMallocManaged(&graph_visited, sizeof(bool)*no_of_nodes));
+    x = cudaMemPrefetchAsync(graph_mask, sizeof(bool)*no_of_nodes, device);
+    if(x != cudaSuccess) {
+        printf("failed\n");
+    }
+    x = cudaMemPrefetchAsync(updating_graph_mask, sizeof(bool)*no_of_nodes, device);
+    if(x != cudaSuccess) {
+        printf("failed\n");
+    }
+    x = cudaMemPrefetchAsync(graph_visited, sizeof(bool)*no_of_nodes, device);
+    if(x != cudaSuccess) {
+        printf("failed\n");
+    }
+    cudaMemAdvise(graph_mask, sizeof(bool)*no_of_nodes, cudaMemAdviseSetPreferredLocation, device);
+    cudaMemAdvise(updating_graph_mask, sizeof(bool)*no_of_nodes, cudaMemAdviseSetPreferredLocation, device);
+    cudaMemAdvise(graph_visited, sizeof(bool)*no_of_nodes, cudaMemAdviseSetPreferredLocation, device);
     cudaError_t err = cudaGetLastError();
     for( int i = 0; i < no_of_nodes; i++) 
     {

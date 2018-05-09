@@ -285,7 +285,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     int imageSize = op.getOptionInt("imageSize");
     int iters = op.getOptionInt("iterations");
     if(imageSize == 0 || iters == 0) {
-        int imageSizes[4] = {2 << 11, 2 << 13, 2 << 14, 2 << 15};
+        int imageSizes[4] = {2 << 11, 2 << 12, 2 << 13, 2 << 14};
         int iterSizes[4] = {32, 128, 512, 1024};
         imageSize = imageSizes[op.getOptionInt("size") - 1];
         iters = iterSizes[op.getOptionInt("size") - 1];

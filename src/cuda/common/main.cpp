@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
             } else {
                 ofstream ofs;
                 ofs.open(metricsfile.c_str());
-                resultDB.DumpSummary(ofs);
+                resultDB.DumpCsv(metricsfile);
                 ofs.close();
             }
         }

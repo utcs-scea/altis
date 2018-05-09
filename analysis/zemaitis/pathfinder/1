@@ -1,0 +1,28 @@
+==30279== NVPROF is profiling process 30279, command: ./src/cuda/level1/pathfinder/pathfinder -s 1 -n 1 -d 1
+==30279== Some kernel(s) will be replayed on device 1 in order to collect all events/metrics.
+==30279== Profiling application: ./src/cuda/level1/pathfinder/pathfinder -s 1 -n 1 -d 1
+==30279== Profiling result:
+==30279== Metric result:
+Invocations                               Metric Name                         Metric Description         Min         Max         Avg
+Device "Tesla P100-SXM2-16GB (1)"
+    Kernel: dynproc_kernel(int, int*, int*, int*, int, int, int, int)
+      65536                            gld_throughput                     Global Load Throughput  40.401GB/s  58.878GB/s  44.214GB/s
+      65536                            gst_throughput                    Global Store Throughput  4.9411GB/s  7.7090GB/s  5.4075GB/s
+      65536                      dram_read_throughput              Device Memory Read Throughput  39.211MB/s  20.335GB/s  17.495GB/s
+      65536                     dram_write_throughput             Device Memory Write Throughput  7.9275GB/s  31.530GB/s  16.636GB/s
+      65536                     local_load_throughput               Local Memory Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+      65536                    local_store_throughput              Local Memory Store Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+      65536                    shared_load_throughput              Shared Memory Load Throughput  65.091GB/s  94.859GB/s  71.229GB/s
+      65536                   shared_store_throughput             Shared Memory Store Throughput  32.546GB/s  47.429GB/s  35.614GB/s
+      65536                            gld_efficiency              Global Memory Load Efficiency      44.32%      49.77%      49.77%
+      65536                            gst_efficiency             Global Memory Store Efficiency      80.76%      83.73%      80.76%
+      65536                   stall_memory_dependency         Issue Stall Reasons (Data Request)      12.85%      49.64%      34.54%
+      65536                                stall_sync      Issue Stall Reasons (Synchronization)       9.99%      21.35%      15.23%
+      65536          stall_constant_memory_dependency   Issue Stall Reasons (Immediate constant)       7.70%      24.13%      10.65%
+      65536                           stall_pipe_busy            Issue Stall Reasons (Pipe Busy)       0.80%       1.90%       1.16%
+      65536                         shared_efficiency                   Shared Memory Efficiency      98.72%      98.91%      98.72%
+      65536                     stall_memory_throttle      Issue Stall Reasons (Memory Throttle)       0.02%       0.06%       0.03%
+      65536                  eligible_warps_per_cycle            Eligible Warps Per Active Cycle    0.646685    1.342909    0.894661
+      65536                        flop_hp_efficiency                 FLOP Efficiency(Peak Half)       0.00%       0.00%       0.00%
+      65536                        flop_sp_efficiency               FLOP Efficiency(Peak Single)       0.00%       0.00%       0.00%
+      65536                        flop_dp_efficiency               FLOP Efficiency(Peak Double)       0.00%       0.00%       0.00%

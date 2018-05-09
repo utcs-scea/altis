@@ -1,4 +1,0 @@
-==42105== NVPROF is profiling process 42105, command: ./src/cuda/level2/nw/nw -s 4 -n 1 -d 1
-==42105== Profiling application: ./src/cuda/level2/nw/nw -s 4 -n 1 -d 1
-==42105== Profiling result:
-No events/metrics were profiled.

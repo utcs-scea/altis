@@ -1,259 +1,196 @@
-==43822== NVPROF is profiling process 43822, command: ./src/cuda/level0/devicememory/devicememory -n 1 -d 1
-==43822== Some kernel(s) will be replayed on device 1 in order to collect all events/metrics.
-==43822== Profiling application: ./src/cuda/level0/devicememory/devicememory -n 1 -d 1
-==43822== Profiling result:
-==43822== Metric result:
-Invocations                               Metric Name                                    Metric Description         Min         Max         Avg
+==30015== NVPROF is profiling process 30015, command: ./src/cuda/level0/devicememory/devicememory -n 1 -d 1
+==30015== Some kernel(s) will be replayed on device 1 in order to collect all events/metrics.
+==30015== Profiling application: ./src/cuda/level0/devicememory/devicememory -n 1 -d 1
+==30015== Profiling result:
+==30015== Metric result:
+Invocations                               Metric Name                         Metric Description         Min         Max         Avg
 Device "Tesla P100-SXM2-16GB (1)"
     Kernel: writeGlobalMemoryUnit(float*, int, int)
-          5                             flop_count_dp           Floating Point Operations(Double Precision)           0           0           0
-          5                             flop_count_sp           Floating Point Operations(Single Precision)           0           0           0
-          5                                inst_fp_32                               FP Instructions(Single)           0           0           0
-          5                                inst_fp_64                               FP Instructions(Double)           0           0           0
-          5                              inst_integer                                  Integer Instructions    42631168    42631168    42631168
-          5                          inst_bit_convert                              Bit-Convert Instructions       32768       32768       32768
-          5                              inst_control                             Control-Flow Instructions      163840      163840      163840
-          5                        inst_compute_ld_st                               Load/Store Instructions     8388608     8388608     8388608
-          5                                 inst_misc                                     Misc Instructions    11730944    11730944    11730944
-          5           inst_inter_thread_communication                             Inter-Thread Instructions           0           0           0
-          5                             sm_efficiency                               Multiprocessor Activity      79.55%      94.79%      89.36%
-          5                        achieved_occupancy                                    Achieved Occupancy    0.277185    0.284622    0.280422
-          5                                       ipc                                          Executed IPC    0.029153    0.033702    0.030932
-          5                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
-          5                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
-          5                 shared_store_transactions                             Shared Store Transactions           0           0           0
-          5                  shared_load_transactions                              Shared Load Transactions           0           0           0
-          5                   local_load_transactions                               Local Load Transactions           0           0           0
-          5                  local_store_transactions                              Local Store Transactions           0           0           0
-          5                          gld_transactions                              Global Load Transactions           0           0           0
-          5                          gst_transactions                             Global Store Transactions     8388608     8388608     8388608
-          5                    dram_read_transactions                       Device Memory Read Transactions     1055794     1218358     1156431
-          5                   dram_write_transactions                      Device Memory Write Transactions     3295916     3628563     3517467
-          5                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
-          5                             inst_executed                                 Instructions Executed     1970176     1970176     1970176
-          5                               cf_executed                    Executed Control-Flow Instructions        8192        8192        8192
-          5                             ldst_executed                      Executed Load/Store Instructions      264192      264192      264192
+          5                            gld_throughput                     Global Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                            gst_throughput                    Global Store Throughput  252.01GB/s  272.25GB/s  263.14GB/s
+          5                      dram_read_throughput              Device Memory Read Throughput  33.469GB/s  38.686GB/s  36.909GB/s
+          5                     dram_write_throughput             Device Memory Write Throughput  111.26GB/s  120.02GB/s  114.88GB/s
+          5                     local_load_throughput               Local Memory Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                    local_store_throughput              Local Memory Store Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                    shared_load_throughput              Shared Memory Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                   shared_store_throughput             Shared Memory Store Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                            gld_efficiency              Global Memory Load Efficiency       0.00%       0.00%       0.00%
+          5                            gst_efficiency             Global Memory Store Efficiency      12.50%      12.50%      12.50%
+          5                   stall_memory_dependency         Issue Stall Reasons (Data Request)       0.00%       0.00%       0.00%
+          5                                stall_sync      Issue Stall Reasons (Synchronization)       0.00%       0.00%       0.00%
+          5          stall_constant_memory_dependency   Issue Stall Reasons (Immediate constant)       0.02%       0.06%       0.04%
+          5                           stall_pipe_busy            Issue Stall Reasons (Pipe Busy)       0.02%       0.02%       0.02%
+          5                         shared_efficiency                   Shared Memory Efficiency       0.00%       0.00%       0.00%
+          5                     stall_memory_throttle      Issue Stall Reasons (Memory Throttle)       0.14%       0.19%       0.17%
+          5                  eligible_warps_per_cycle            Eligible Warps Per Active Cycle    0.026813    0.032217    0.029416
+          5                        flop_hp_efficiency                 FLOP Efficiency(Peak Half)       0.00%       0.00%       0.00%
+          5                        flop_sp_efficiency               FLOP Efficiency(Peak Single)       0.00%       0.00%       0.00%
+          5                        flop_dp_efficiency               FLOP Efficiency(Peak Double)       0.00%       0.00%       0.00%
     Kernel: readGlobalMemoryCoalesced(float*, float*, int, int)
-          6                             flop_count_dp           Floating Point Operations(Double Precision)           0           0           0
-          6                             flop_count_sp           Floating Point Operations(Single Precision)   134217728   134217728   134217728
-          6                                inst_fp_32                               FP Instructions(Single)   134217728   134217728   134217728
-          6                                inst_fp_64                               FP Instructions(Double)           0           0           0
-          6                              inst_integer                                  Integer Instructions   696516608   696516608   696516608
-          6                          inst_bit_convert                              Bit-Convert Instructions           0           0           0
-          6                              inst_control                             Control-Flow Instructions     8388608     8388608     8388608
-          6                        inst_compute_ld_st                               Load/Store Instructions   134250496   134250496   134250496
-          6                                 inst_misc                                     Misc Instructions   168099840   168099840   168099840
-          6           inst_inter_thread_communication                             Inter-Thread Instructions           0           0           0
-          6                             sm_efficiency                               Multiprocessor Activity      70.20%      95.13%      87.84%
-          6                        achieved_occupancy                                    Achieved Occupancy    0.283406    0.295890    0.288165
-          6                                       ipc                                          Executed IPC    0.455683    0.562090    0.530332
-          6                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
-          6                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
-          6                 shared_store_transactions                             Shared Store Transactions           0           0           0
-          6                  shared_load_transactions                              Shared Load Transactions           0           0           0
-          6                   local_load_transactions                               Local Load Transactions           0           0           0
-          6                  local_store_transactions                              Local Store Transactions           0           0           0
-          6                          gld_transactions                              Global Load Transactions    33554432    33554432    33554432
-          6                          gst_transactions                             Global Store Transactions        4096        4096        4096
-          6                    dram_read_transactions                       Device Memory Read Transactions    16777263    16777463    16777324
-          6                   dram_write_transactions                      Device Memory Write Transactions       61864       67113       65259
-          6                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
-          6                             inst_executed                                 Instructions Executed    35673088    35673088    35673088
-          6                               cf_executed                    Executed Control-Flow Instructions      264192      264192      264192
-          6                             ldst_executed                      Executed Load/Store Instructions     4197376     4197376     4197376
+          6                            gld_throughput                     Global Load Throughput  832.17GB/s  1059.3GB/s  994.75GB/s
+          6                            gst_throughput                    Global Store Throughput  104.02MB/s  132.42MB/s  124.34MB/s
+          6                      dram_read_throughput              Device Memory Read Throughput  416.09GB/s  529.67GB/s  497.38GB/s
+          6                     dram_write_throughput             Device Memory Write Throughput  1.6199GB/s  18.213GB/s  4.6988GB/s
+          6                     local_load_throughput               Local Memory Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          6                    local_store_throughput              Local Memory Store Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          6                    shared_load_throughput              Shared Memory Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          6                   shared_store_throughput             Shared Memory Store Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          6                            gld_efficiency              Global Memory Load Efficiency      50.00%      50.00%      50.00%
+          6                            gst_efficiency             Global Memory Store Efficiency     100.00%     100.00%     100.00%
+          6                   stall_memory_dependency         Issue Stall Reasons (Data Request)      28.95%      34.39%      32.83%
+          6                                stall_sync      Issue Stall Reasons (Synchronization)       0.00%       0.00%       0.00%
+          6          stall_constant_memory_dependency   Issue Stall Reasons (Immediate constant)       0.02%       0.05%       0.03%
+          6                           stall_pipe_busy            Issue Stall Reasons (Pipe Busy)       0.42%       0.50%       0.44%
+          6                         shared_efficiency                   Shared Memory Efficiency       0.00%       0.00%       0.00%
+          6                     stall_memory_throttle      Issue Stall Reasons (Memory Throttle)       0.01%       0.02%       0.01%
+          6                  eligible_warps_per_cycle            Eligible Warps Per Active Cycle    0.669727    0.774735    0.705175
+          6                        flop_hp_efficiency                 FLOP Efficiency(Peak Half)       0.00%       0.00%       0.00%
+          6                        flop_sp_efficiency               FLOP Efficiency(Peak Single)       1.16%       1.48%       1.40%
+          6                        flop_dp_efficiency               FLOP Efficiency(Peak Double)       0.00%       0.00%       0.00%
     Kernel: readGlobalMemoryUnit(float*, float*, int, int)
-          5                             flop_count_dp           Floating Point Operations(Double Precision)           0           0           0
-          5                             flop_count_sp           Floating Point Operations(Single Precision)     8388608     8388608     8388608
-          5                                inst_fp_32                               FP Instructions(Single)     8388608     8388608     8388608
-          5                                inst_fp_64                               FP Instructions(Double)           0           0           0
-          5                              inst_integer                                  Integer Instructions    43810816    43810816    43810816
-          5                          inst_bit_convert                              Bit-Convert Instructions           0           0           0
-          5                              inst_control                             Control-Flow Instructions      524288      524288      524288
-          5                        inst_compute_ld_st                               Load/Store Instructions     8421376     8421376     8421376
-          5                                 inst_misc                                     Misc Instructions    10256384    10256384    10256384
-          5           inst_inter_thread_communication                             Inter-Thread Instructions           0           0           0
-          5                             sm_efficiency                               Multiprocessor Activity      61.21%      93.97%      81.89%
-          5                        achieved_occupancy                                    Achieved Occupancy    0.281186    0.300588    0.287890
-          5                                       ipc                                          Executed IPC    0.099350    0.110854    0.105088
-          5                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
-          5                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
-          5                 shared_store_transactions                             Shared Store Transactions           0           0           0
-          5                  shared_load_transactions                              Shared Load Transactions           0           0           0
-          5                   local_load_transactions                               Local Load Transactions           0           0           0
-          5                  local_store_transactions                              Local Store Transactions           0           0           0
-          5                          gld_transactions                              Global Load Transactions     8388608     8388608     8388608
-          5                          gst_transactions                             Global Store Transactions        4096        4096        4096
-          5                    dram_read_transactions                       Device Memory Read Transactions     1112770     1450590     1208965
-          5                   dram_write_transactions                      Device Memory Write Transactions       60770       65424       63252
-          5                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
-          5                             inst_executed                                 Instructions Executed     2233344     2233344     2233344
-          5                               cf_executed                    Executed Control-Flow Instructions       18432       18432       18432
-          5                             ldst_executed                      Executed Load/Store Instructions      265216      265216      265216
+          5                            gld_throughput                     Global Load Throughput  574.62GB/s  835.70GB/s  722.60GB/s
+          5                            gst_throughput                    Global Store Throughput  287.31MB/s  417.85MB/s  361.30MB/s
+          5                      dram_read_throughput              Device Memory Read Throughput  76.043GB/s  127.72GB/s  104.73GB/s
+          5                     dram_write_throughput             Device Memory Write Throughput  4.5585GB/s  6.3112GB/s  5.4443GB/s
+          5                     local_load_throughput               Local Memory Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                    local_store_throughput              Local Memory Store Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                    shared_load_throughput              Shared Memory Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                   shared_store_throughput             Shared Memory Store Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                            gld_efficiency              Global Memory Load Efficiency      12.50%      12.50%      12.50%
+          5                            gst_efficiency             Global Memory Store Efficiency     100.00%     100.00%     100.00%
+          5                   stall_memory_dependency         Issue Stall Reasons (Data Request)       7.06%       8.09%       7.44%
+          5                                stall_sync      Issue Stall Reasons (Synchronization)       0.00%       0.00%       0.00%
+          5          stall_constant_memory_dependency   Issue Stall Reasons (Immediate constant)       0.08%       0.16%       0.13%
+          5                           stall_pipe_busy            Issue Stall Reasons (Pipe Busy)       0.06%       0.06%       0.06%
+          5                         shared_efficiency                   Shared Memory Efficiency       0.00%       0.00%       0.00%
+          5                     stall_memory_throttle      Issue Stall Reasons (Memory Throttle)       0.45%       0.48%       0.47%
+          5                  eligible_warps_per_cycle            Eligible Warps Per Active Cycle    0.097147    0.110441    0.102818
+          5                        flop_hp_efficiency                 FLOP Efficiency(Peak Half)       0.00%       0.00%       0.00%
+          5                        flop_sp_efficiency               FLOP Efficiency(Peak Single)       0.20%       0.29%       0.26%
+          5                        flop_dp_efficiency               FLOP Efficiency(Peak Double)       0.00%       0.00%       0.00%
     Kernel: readTexels(int, float*, int)
-          5                             flop_count_dp           Floating Point Operations(Double Precision)           0           0           0
-          5                             flop_count_sp           Floating Point Operations(Single Precision)    33554432   268435456   127506841
-          5                                inst_fp_32                               FP Instructions(Single)    33554432   268435456   127506841
-          5                                inst_fp_64                               FP Instructions(Double)           0           0           0
-          5                              inst_integer                                  Integer Instructions    84164608   673316864   320493977
-          5                          inst_bit_convert                              Bit-Convert Instructions    33570816   268566528   127608422
-          5                              inst_control                             Control-Flow Instructions     8404992    67239936    31978291
-          5                        inst_compute_ld_st                               Load/Store Instructions    33570816   268566528   127608422
-          5                                 inst_misc                                     Misc Instructions     8585216    68681728    33095680
-          5           inst_inter_thread_communication                             Inter-Thread Instructions           0           0           0
-          5                             sm_efficiency                               Multiprocessor Activity      64.59%      90.54%      83.55%
-          5                        achieved_occupancy                                    Achieved Occupancy    0.143923    0.968705    0.586278
-          5                                       ipc                                          Executed IPC    0.563667    0.747751    0.648439
-          5                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
-          5                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
-          5                 shared_store_transactions                             Shared Store Transactions           0           0           0
-          5                  shared_load_transactions                              Shared Load Transactions           0           0           0
-          5                   local_load_transactions                               Local Load Transactions           0           0           0
-          5                  local_store_transactions                              Local Store Transactions           0           0           0
-          5                          gld_transactions                              Global Load Transactions           0           0           0
-          5                          gst_transactions                             Global Store Transactions        1536       32768       12595
-          5                    dram_read_transactions                       Device Memory Read Transactions           0      131115       28734
-          5                   dram_write_transactions                      Device Memory Write Transactions         232       63196       15323
-          5                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
-          5                             inst_executed                                 Instructions Executed     6309376    50475008    24018636
-          5                               cf_executed                    Executed Control-Flow Instructions      264192     2113536     1008844
-          5                             ldst_executed                      Executed Load/Store Instructions     1051136     8409088     4000460
+          5                            gld_throughput                     Global Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                            gst_throughput                    Global Store Throughput  270.71MB/s  1.3712GB/s  556.41MB/s
+          5                      dram_read_throughput              Device Memory Read Throughput  0.00000B/s  5.4899GB/s  1.2501GB/s
+          5                     dram_write_throughput             Device Memory Write Throughput  21.729MB/s  2.6525GB/s  706.49MB/s
+          5                     local_load_throughput               Local Memory Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                    local_store_throughput              Local Memory Store Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                    shared_load_throughput              Shared Memory Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                   shared_store_throughput             Shared Memory Store Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                            gld_efficiency              Global Memory Load Efficiency       0.00%       0.00%       0.00%
+          5                            gst_efficiency             Global Memory Store Efficiency     100.00%     100.00%     100.00%
+          5                   stall_memory_dependency         Issue Stall Reasons (Data Request)      23.25%      67.50%      45.16%
+          5                                stall_sync      Issue Stall Reasons (Synchronization)       0.00%       0.00%       0.00%
+          5          stall_constant_memory_dependency   Issue Stall Reasons (Immediate constant)       0.02%       0.24%       0.09%
+          5                           stall_pipe_busy            Issue Stall Reasons (Pipe Busy)       0.00%       0.02%       0.01%
+          5                         shared_efficiency                   Shared Memory Efficiency       0.00%       0.00%       0.00%
+          5                     stall_memory_throttle      Issue Stall Reasons (Memory Throttle)       0.01%       0.19%       0.06%
+          5                  eligible_warps_per_cycle            Eligible Warps Per Active Cycle    0.471608    0.642346    0.544305
+          5                        flop_hp_efficiency                 FLOP Efficiency(Peak Half)       0.00%       0.00%       0.00%
+          5                        flop_sp_efficiency               FLOP Efficiency(Peak Single)       1.51%       2.82%       2.27%
+          5                        flop_dp_efficiency               FLOP Efficiency(Peak Double)       0.00%       0.00%       0.00%
     Kernel: readTexelsRandom(int, float*, int, int)
-          5                             flop_count_dp           Floating Point Operations(Double Precision)           0           0           0
-          5                             flop_count_sp           Floating Point Operations(Single Precision)    33554432   268435456   127506841
-          5                                inst_fp_32                               FP Instructions(Single)    33554432   268435456   127506841
-          5                                inst_fp_64                               FP Instructions(Double)           0           0           0
-          5                              inst_integer                                  Integer Instructions   218398720  1747189760   830622924
-          5                          inst_bit_convert                              Bit-Convert Instructions    67108864   536870912   255013683
-          5                              inst_control                             Control-Flow Instructions     8404992    67239936    31978291
-          5                        inst_compute_ld_st                               Load/Store Instructions    33570816   268566528   127608422
-          5                                 inst_misc                                     Misc Instructions    25362432   202899456    96849100
-          5           inst_inter_thread_communication                             Inter-Thread Instructions           0           0           0
-          5                             sm_efficiency                               Multiprocessor Activity      81.33%      94.67%      85.45%
-          5                        achieved_occupancy                                    Achieved Occupancy    0.146125    0.950178    0.573532
-          5                                       ipc                                          Executed IPC    0.180119    0.210076    0.191706
-          5                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
-          5                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
-          5                 shared_store_transactions                             Shared Store Transactions           0           0           0
-          5                  shared_load_transactions                              Shared Load Transactions           0           0           0
-          5                   local_load_transactions                               Local Load Transactions           0           0           0
-          5                  local_store_transactions                              Local Store Transactions           0           0           0
-          5                          gld_transactions                              Global Load Transactions           0           0           0
-          5                          gst_transactions                             Global Store Transactions        1536       32768       12595
-          5                    dram_read_transactions                       Device Memory Read Transactions           0      446777       92238
-          5                   dram_write_transactions                      Device Memory Write Transactions         865       80335       19125
-          5                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
-          5                             inst_executed                                 Instructions Executed    12076544    96612352    45933875
-          5                               cf_executed                    Executed Control-Flow Instructions      264192     2113536     1008844
-          5                             ldst_executed                      Executed Load/Store Instructions     1051136     8409088     4000460
+          5                            gld_throughput                     Global Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                            gst_throughput                    Global Store Throughput  50.217MB/s  223.95MB/s  99.367MB/s
+          5                      dram_read_throughput              Device Memory Read Throughput  0.00000B/s  2.9856GB/s  728.18MB/s
+          5                     dram_write_throughput             Device Memory Write Throughput  190.15KB/s  551.52MB/s  147.19MB/s
+          5                     local_load_throughput               Local Memory Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                    local_store_throughput              Local Memory Store Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                    shared_load_throughput              Shared Memory Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                   shared_store_throughput             Shared Memory Store Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                            gld_efficiency              Global Memory Load Efficiency       0.00%       0.00%       0.00%
+          5                            gst_efficiency             Global Memory Store Efficiency     100.00%     100.00%     100.00%
+          5                   stall_memory_dependency         Issue Stall Reasons (Data Request)       7.01%      75.62%      29.36%
+          5                                stall_sync      Issue Stall Reasons (Synchronization)       0.00%       0.00%       0.00%
+          5          stall_constant_memory_dependency   Issue Stall Reasons (Immediate constant)       0.00%       0.04%       0.01%
+          5                           stall_pipe_busy            Issue Stall Reasons (Pipe Busy)       0.00%       0.00%       0.00%
+          5                         shared_efficiency                   Shared Memory Efficiency       0.00%       0.00%       0.00%
+          5                     stall_memory_throttle      Issue Stall Reasons (Memory Throttle)       0.03%       0.29%       0.09%
+          5                  eligible_warps_per_cycle            Eligible Warps Per Active Cycle    0.136988    0.157264    0.144760
+          5                        flop_hp_efficiency                 FLOP Efficiency(Peak Half)       0.00%       0.00%       0.00%
+          5                        flop_sp_efficiency               FLOP Efficiency(Peak Single)       0.31%       0.39%       0.36%
+          5                        flop_dp_efficiency               FLOP Efficiency(Peak Double)       0.00%       0.00%       0.00%
     Kernel: writeLocalMemory(float*, int, int)
-          5                             flop_count_dp           Floating Point Operations(Double Precision)           0           0           0
-          5                             flop_count_sp           Floating Point Operations(Single Precision)           0           0           0
-          5                                inst_fp_32                               FP Instructions(Single)       32768       32768       32768
-          5                                inst_fp_64                               FP Instructions(Double)           0           0           0
-          5                              inst_integer                                  Integer Instructions   480378880   480378880   480378880
-          5                          inst_bit_convert                              Bit-Convert Instructions      163840      163840      163840
-          5                              inst_control                             Control-Flow Instructions     2490368     2490368     2490368
-          5                        inst_compute_ld_st                               Load/Store Instructions   157351936   157351936   157351936
-          5                                 inst_misc                                     Misc Instructions      458752      458752      458752
-          5           inst_inter_thread_communication                             Inter-Thread Instructions           0           0           0
-          5                             sm_efficiency                               Multiprocessor Activity      56.57%      92.04%      80.22%
-          5                        achieved_occupancy                                    Achieved Occupancy    0.107933    0.311367    0.228704
-          5                                       ipc                                          Executed IPC    2.136196    2.449739    2.312640
-          5                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
-          5                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
-          5                 shared_store_transactions                             Shared Store Transactions     4915200     4915200     4915200
-          5                  shared_load_transactions                              Shared Load Transactions        1024        1024        1024
-          5                   local_load_transactions                               Local Load Transactions           0           0           0
-          5                  local_store_transactions                              Local Store Transactions           0           0           0
-          5                          gld_transactions                              Global Load Transactions           0           0           0
-          5                          gst_transactions                             Global Store Transactions        4096        4096        4096
-          5                    dram_read_transactions                       Device Memory Read Transactions          88         171         124
-          5                   dram_write_transactions                      Device Memory Write Transactions        2228       69295       16097
-          5                     flop_count_sp_special   Floating Point Operations(Single Precision Special)       32768       32768       32768
-          5                             inst_executed                                 Instructions Executed    20033536    20033536    20033536
-          5                               cf_executed                    Executed Control-Flow Instructions       81920       81920       81920
-          5                             ldst_executed                      Executed Load/Store Instructions     4920320     4920320     4920320
+          5                            gld_throughput                     Global Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                            gst_throughput                    Global Store Throughput  658.08MB/s  987.85MB/s  855.36MB/s
+          5                      dram_read_throughput              Device Memory Read Throughput  5.7882MB/s  39.393MB/s  25.728MB/s
+          5                     dram_write_throughput             Device Memory Write Throughput  485.85MB/s  593.64MB/s  546.63MB/s
+          5                     local_load_throughput               Local Memory Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                    local_store_throughput              Local Memory Store Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                    shared_load_throughput              Shared Memory Load Throughput  658.08MB/s  987.85MB/s  855.36MB/s
+          5                   shared_store_throughput             Shared Memory Store Throughput  3084.8GB/s  4630.5GB/s  4009.5GB/s
+          5                            gld_efficiency              Global Memory Load Efficiency       0.00%       0.00%       0.00%
+          5                            gst_efficiency             Global Memory Store Efficiency     100.00%     100.00%     100.00%
+          5                   stall_memory_dependency         Issue Stall Reasons (Data Request)       0.00%       0.00%       0.00%
+          5                                stall_sync      Issue Stall Reasons (Synchronization)       0.05%       3.60%       1.53%
+          5          stall_constant_memory_dependency   Issue Stall Reasons (Immediate constant)       0.66%       1.02%       0.79%
+          5                           stall_pipe_busy            Issue Stall Reasons (Pipe Busy)      10.68%      21.83%      17.20%
+          5                         shared_efficiency                   Shared Memory Efficiency     100.00%     100.00%     100.00%
+          5                     stall_memory_throttle      Issue Stall Reasons (Memory Throttle)       0.00%       0.00%       0.00%
+          5                  eligible_warps_per_cycle            Eligible Warps Per Active Cycle    3.665566    7.187455    5.621800
+          5                        flop_hp_efficiency                 FLOP Efficiency(Peak Half)       0.00%       0.00%       0.00%
+          5                        flop_sp_efficiency               FLOP Efficiency(Peak Single)       0.00%       0.00%       0.00%
+          5                        flop_dp_efficiency               FLOP Efficiency(Peak Double)       0.00%       0.00%       0.00%
     Kernel: readLocalMemory(float const *, float*, int, int)
-          5                             flop_count_dp           Floating Point Operations(Double Precision)           0           0           0
-          5                             flop_count_sp           Floating Point Operations(Single Precision)   157286400   157286400   157286400
-          5                                inst_fp_32                               FP Instructions(Single)   157319168   157319168   157319168
-          5                                inst_fp_64                               FP Instructions(Double)           0           0           0
-          5                              inst_integer                                  Integer Instructions   481492992   485916672   483026534
-          5                          inst_bit_convert                              Bit-Convert Instructions      131072      131072      131072
-          5                              inst_control                             Control-Flow Instructions     2686976     3178496     2857369
-          5                        inst_compute_ld_st                               Load/Store Instructions   157581312   161513472   158944460
-          5                                 inst_misc                                     Misc Instructions      524288     1507328      865075
-          5           inst_inter_thread_communication                             Inter-Thread Instructions           0           0           0
-          5                             sm_efficiency                               Multiprocessor Activity      57.39%      91.41%      80.77%
-          5                        achieved_occupancy                                    Achieved Occupancy    0.109629    0.304025    0.227963
-          5                                       ipc                                          Executed IPC    1.838843    2.362876    2.155781
-          5                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
-          5                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
-          5                 shared_store_transactions                             Shared Store Transactions       16384     2097152      697958
-          5                  shared_load_transactions                              Shared Load Transactions     4915200     4915200     4915200
-          5                   local_load_transactions                               Local Load Transactions           0           0           0
-          5                  local_store_transactions                              Local Store Transactions           0           0           0
-          5                          gld_transactions                              Global Load Transactions       65536     2097152      799539
-          5                          gst_transactions                             Global Store Transactions        4096        4096        4096
-          5                    dram_read_transactions                       Device Memory Read Transactions        4384        4536        4487
-          5                   dram_write_transactions                      Device Memory Write Transactions        3048        4308        3419
-          5                     flop_count_sp_special   Floating Point Operations(Single Precision Special)       32768       32768       32768
-          5                             inst_executed                                 Instructions Executed    24999936    25307136    25106432
-          5                               cf_executed                    Executed Control-Flow Instructions       90112      105472       95436
-          5                             ldst_executed                      Executed Load/Store Instructions     4927488     5050368     4970086
+          5                            gld_throughput                     Global Load Throughput  8.0195GB/s  320.01GB/s  122.55GB/s
+          5                            gst_throughput                    Global Store Throughput  513.25MB/s  759.58MB/s  642.88MB/s
+          5                      dram_read_throughput              Device Memory Read Throughput  558.36MB/s  835.24MB/s  714.07MB/s
+          5                     dram_write_throughput             Device Memory Write Throughput  421.53MB/s  712.26MB/s  572.44MB/s
+          5                     local_load_throughput               Local Memory Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                    local_store_throughput              Local Memory Store Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                    shared_load_throughput              Shared Memory Load Throughput  2405.9GB/s  3560.5GB/s  3013.5GB/s
+          5                   shared_store_throughput             Shared Memory Store Throughput  8.0195GB/s  1280.0GB/s  427.91GB/s
+          5                            gld_efficiency              Global Memory Load Efficiency      12.50%      25.00%      15.00%
+          5                            gst_efficiency             Global Memory Store Efficiency     100.00%     100.00%     100.00%
+          5                   stall_memory_dependency         Issue Stall Reasons (Data Request)       0.82%      12.75%       6.19%
+          5                                stall_sync      Issue Stall Reasons (Synchronization)       0.09%       0.44%       0.25%
+          5          stall_constant_memory_dependency   Issue Stall Reasons (Immediate constant)       0.39%       0.59%       0.50%
+          5                           stall_pipe_busy            Issue Stall Reasons (Pipe Busy)       5.90%      16.07%      11.35%
+          5                         shared_efficiency                   Shared Memory Efficiency      71.03%      99.75%      89.57%
+          5                     stall_memory_throttle      Issue Stall Reasons (Memory Throttle)       0.01%       0.02%       0.01%
+          5                  eligible_warps_per_cycle            Eligible Warps Per Active Cycle    3.249330    7.886897    6.009602
+          5                        flop_hp_efficiency                 FLOP Efficiency(Peak Half)       0.00%       0.00%       0.00%
+          5                        flop_sp_efficiency               FLOP Efficiency(Peak Single)       6.67%       9.81%       8.49%
+          5                        flop_dp_efficiency               FLOP Efficiency(Peak Double)       0.00%       0.00%       0.00%
     Kernel: writeGlobalMemoryCoalesced(float*, int, int)
-          5                             flop_count_dp           Floating Point Operations(Double Precision)           0           0           0
-          5                             flop_count_sp           Floating Point Operations(Single Precision)           0           0           0
-          5                                inst_fp_32                               FP Instructions(Single)           0           0           0
-          5                                inst_fp_64                               FP Instructions(Double)           0           0           0
-          5                              inst_integer                                  Integer Instructions   677642240   677642240   677642240
-          5                          inst_bit_convert                              Bit-Convert Instructions       32768       32768       32768
-          5                              inst_control                             Control-Flow Instructions     2129920     2129920     2129920
-          5                        inst_compute_ld_st                               Load/Store Instructions   134217728   134217728   134217728
-          5                                 inst_misc                                     Misc Instructions   182812672   182812672   182812672
-          5           inst_inter_thread_communication                             Inter-Thread Instructions           0           0           0
-          5                             sm_efficiency                               Multiprocessor Activity      82.40%      93.92%      89.17%
-          5                        achieved_occupancy                                    Achieved Occupancy    0.282699    0.287803    0.285264
-          5                                       ipc                                          Executed IPC    0.363721    0.386532    0.373305
-          5                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
-          5                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
-          5                 shared_store_transactions                             Shared Store Transactions           0           0           0
-          5                  shared_load_transactions                              Shared Load Transactions           0           0           0
-          5                   local_load_transactions                               Local Load Transactions           0           0           0
-          5                  local_store_transactions                              Local Store Transactions           0           0           0
-          5                          gld_transactions                              Global Load Transactions           0           0           0
-          5                          gst_transactions                             Global Store Transactions    16777216    16777216    16777216
-          5                    dram_read_transactions                       Device Memory Read Transactions         134         233         180
-          5                   dram_write_transactions                      Device Memory Write Transactions    16763484    17390114    16889601
-          5                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
-          5                             inst_executed                                 Instructions Executed    31154176    31154176    31154176
-          5                               cf_executed                    Executed Control-Flow Instructions       69632       69632       69632
-          5                             ldst_executed                      Executed Load/Store Instructions     4196352     4196352     4196352
+          5                            gld_throughput                     Global Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                            gst_throughput                    Global Store Throughput  381.70GB/s  411.12GB/s  401.51GB/s
+          5                      dram_read_throughput              Device Memory Read Throughput  4.2909MB/s  13.046MB/s  7.8419MB/s
+          5                     dram_write_throughput             Device Memory Write Throughput  381.42GB/s  410.82GB/s  401.22GB/s
+          5                     local_load_throughput               Local Memory Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                    local_store_throughput              Local Memory Store Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                    shared_load_throughput              Shared Memory Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                   shared_store_throughput             Shared Memory Store Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                            gld_efficiency              Global Memory Load Efficiency       0.00%       0.00%       0.00%
+          5                            gst_efficiency             Global Memory Store Efficiency     100.00%     100.00%     100.00%
+          5                   stall_memory_dependency         Issue Stall Reasons (Data Request)       0.00%       0.00%       0.00%
+          5                                stall_sync      Issue Stall Reasons (Synchronization)       0.00%       0.00%       0.00%
+          5          stall_constant_memory_dependency   Issue Stall Reasons (Immediate constant)       0.02%       0.04%       0.03%
+          5                           stall_pipe_busy            Issue Stall Reasons (Pipe Busy)       0.21%       0.28%       0.24%
+          5                         shared_efficiency                   Shared Memory Efficiency       0.00%       0.00%       0.00%
+          5                     stall_memory_throttle      Issue Stall Reasons (Memory Throttle)       0.01%       0.01%       0.01%
+          5                  eligible_warps_per_cycle            Eligible Warps Per Active Cycle    0.345226    0.410877    0.372901
+          5                        flop_hp_efficiency                 FLOP Efficiency(Peak Half)       0.00%       0.00%       0.00%
+          5                        flop_sp_efficiency               FLOP Efficiency(Peak Single)       0.00%       0.00%       0.00%
+          5                        flop_dp_efficiency               FLOP Efficiency(Peak Double)       0.00%       0.00%       0.00%
     Kernel: readTexelsInCache(int, float*)
-          5                             flop_count_dp           Floating Point Operations(Double Precision)           0           0           0
-          5                             flop_count_sp           Floating Point Operations(Single Precision)    33554432   268435456   127506841
-          5                                inst_fp_32                               FP Instructions(Single)    33554432   268435456   127506841
-          5                                inst_fp_64                               FP Instructions(Double)           0           0           0
-          5                              inst_integer                                  Integer Instructions     4554752    36438016    18173132
-          5                          inst_bit_convert                              Bit-Convert Instructions       32768      524288      203161
-          5                              inst_control                             Control-Flow Instructions     2146304    17170432     8273920
-          5                        inst_compute_ld_st                               Load/Store Instructions       32768      524288      203161
-          5                                 inst_misc                                     Misc Instructions      163840     2621440     1015808
-          5           inst_inter_thread_communication                             Inter-Thread Instructions           0           0           0
-          5                             sm_efficiency                               Multiprocessor Activity      69.69%      92.38%      81.82%
-          5                        achieved_occupancy                                    Achieved Occupancy    0.138203    0.795725    0.442170
-          5                                       ipc                                          Executed IPC    1.363056    1.721329    1.590137
-          5                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
-          5                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
-          5                 shared_store_transactions                             Shared Store Transactions           0           0           0
-          5                  shared_load_transactions                              Shared Load Transactions           0           0           0
-          5                   local_load_transactions                               Local Load Transactions           0           0           0
-          5                  local_store_transactions                              Local Store Transactions           0           0           0
-          5                          gld_transactions                              Global Load Transactions           0           0           0
-          5                          gst_transactions                             Global Store Transactions        1536       32768       12595
-          5                    dram_read_transactions                       Device Memory Read Transactions           0      131131       28948
-          5                   dram_write_transactions                      Device Memory Write Transactions        1521       63748       16669
-          5                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
-          5                             inst_executed                                 Instructions Executed     1267200    10137600     4868198
-          5                               cf_executed                    Executed Control-Flow Instructions       69120      552960      271257
-          5                             ldst_executed                      Executed Load/Store Instructions        3072       49152       19046
+          5                            gld_throughput                     Global Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                            gst_throughput                    Global Store Throughput  2.8394GB/s  21.464GB/s  8.5084GB/s
+          5                      dram_read_throughput              Device Memory Read Throughput  0.00000B/s  85.860GB/s  19.477GB/s
+          5                     dram_write_throughput             Device Memory Write Throughput  7.8331MB/s  41.258GB/s  10.006GB/s
+          5                     local_load_throughput               Local Memory Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                    local_store_throughput              Local Memory Store Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                    shared_load_throughput              Shared Memory Load Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                   shared_store_throughput             Shared Memory Store Throughput  0.00000B/s  0.00000B/s  0.00000B/s
+          5                            gld_efficiency              Global Memory Load Efficiency       0.00%       0.00%       0.00%
+          5                            gst_efficiency             Global Memory Store Efficiency     100.00%     100.00%     100.00%
+          5                   stall_memory_dependency         Issue Stall Reasons (Data Request)       2.22%      11.68%       5.08%
+          5                                stall_sync      Issue Stall Reasons (Synchronization)       0.00%       0.00%       0.00%
+          5          stall_constant_memory_dependency   Issue Stall Reasons (Immediate constant)       0.16%       2.19%       0.90%
+          5                           stall_pipe_busy            Issue Stall Reasons (Pipe Busy)       0.21%       0.78%       0.45%
+          5                         shared_efficiency                   Shared Memory Efficiency       0.00%       0.00%       0.00%
+          5                     stall_memory_throttle      Issue Stall Reasons (Memory Throttle)       0.03%       0.13%       0.07%
+          5                  eligible_warps_per_cycle            Eligible Warps Per Active Cycle    1.569363    2.340476    2.088084
+          5                        flop_hp_efficiency                 FLOP Efficiency(Peak Half)       0.00%       0.00%       0.00%
+          5                        flop_sp_efficiency               FLOP Efficiency(Peak Single)      16.66%      33.07%      25.43%
+          5                        flop_dp_efficiency               FLOP Efficiency(Peak Double)       0.00%       0.00%       0.00%

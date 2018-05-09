@@ -1,0 +1,147 @@
+==21648== NVPROF is profiling process 21648, command: ./src/cuda/level1/sort/sort -s 1 -n 1 -d 1
+==21648== Some kernel(s) will be replayed on device 1 in order to collect all events/metrics.
+==21648== Profiling application: ./src/cuda/level1/sort/sort -s 1 -n 1 -d 1
+==21648== Profiling result:
+==21648== Metric result:
+Invocations                               Metric Name                                    Metric Description         Min         Max         Avg
+Device "Tesla P100-SXM2-16GB (1)"
+    Kernel: scan(unsigned int*, unsigned int*, unsigned int*, int, bool, bool)
+         16                             flop_count_dp           Floating Point Operations(Double Precision)           0           0           0
+         16                             flop_count_sp           Floating Point Operations(Single Precision)           0           0           0
+         16                                inst_fp_32                               FP Instructions(Single)           0           0           0
+         16                                inst_fp_64                               FP Instructions(Double)           0           0           0
+         16                              inst_integer                                  Integer Instructions        8448     8654848     4331648
+         16                          inst_bit_convert                              Bit-Convert Instructions         512      524288      262400
+         16                              inst_control                             Control-Flow Instructions        1792     1835008      918400
+         16                        inst_compute_ld_st                               Load/Store Instructions        7936     8127488     4067712
+         16                                 inst_misc                                     Misc Instructions       22528    23068672    11545600
+         16           inst_inter_thread_communication                             Inter-Thread Instructions           0           0           0
+         16                             sm_efficiency                               Multiprocessor Activity       0.70%      79.09%      39.33%
+         16                        achieved_occupancy                                    Achieved Occupancy    0.122679    0.853987    0.485139
+         16                                       ipc                                          Executed IPC    0.223069    1.034160    0.634255
+         16                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
+         16                 warp_execution_efficiency                             Warp Execution Efficiency      99.55%     100.00%      99.78%
+         16                 shared_store_transactions                             Shared Store Transactions          80       81920       41000
+         16                  shared_load_transactions                              Shared Load Transactions         136      139264       69700
+         16                   local_load_transactions                               Local Load Transactions           0           0           0
+         16                  local_store_transactions                              Local Store Transactions           0           0           0
+         16                          gld_transactions                              Global Load Transactions         128      131072       65600
+         16                          gst_transactions                             Global Store Transactions         128      132096       66112
+         16                    dram_read_transactions                       Device Memory Read Transactions          20      131195       65599
+         16                   dram_write_transactions                      Device Memory Write Transactions          80      124116       61491
+         16                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
+         16                             inst_executed                                 Instructions Executed        1288     1325056      663172
+         16                               cf_executed                    Executed Control-Flow Instructions          72       74752       37412
+         16                             ldst_executed                      Executed Load/Store Instructions         416      427008      213712
+    Kernel: findRadixOffsets(uint2*, unsigned int*, unsigned int*, unsigned int, unsigned int, unsigned int)
+          8                             flop_count_dp           Floating Point Operations(Double Precision)           0           0           0
+          8                             flop_count_sp           Floating Point Operations(Single Precision)           0           0           0
+          8                                inst_fp_32                               FP Instructions(Single)           0           0           0
+          8                                inst_fp_64                               FP Instructions(Double)           0           0           0
+          8                              inst_integer                                  Integer Instructions   396427264   399376384   397238272
+          8                          inst_bit_convert                              Bit-Convert Instructions           0           0           0
+          8                              inst_control                             Control-Flow Instructions   150994944   150994944   150994944
+          8                        inst_compute_ld_st                               Load/Store Instructions   172949504   175898624   173760512
+          8                                 inst_misc                                     Misc Instructions   271581184   271581184   271581184
+          8           inst_inter_thread_communication                             Inter-Thread Instructions           0           0           0
+          8                             sm_efficiency                               Multiprocessor Activity      98.88%      98.96%      98.94%
+          8                        achieved_occupancy                                    Achieved Occupancy    0.924650    0.924949    0.924815
+          8                                       ipc                                          Executed IPC    1.266288    1.271465    1.268176
+          8                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
+          8                 warp_execution_efficiency                             Warp Execution Efficiency      97.26%      97.26%      97.26%
+          8                 shared_store_transactions                             Shared Store Transactions     1179648     3145728     1720320
+          8                  shared_load_transactions                              Shared Load Transactions     4456448     5439488     4726784
+          8                   local_load_transactions                               Local Load Transactions           0           0           0
+          8                  local_store_transactions                              Local Store Transactions           0           0           0
+          8                          gld_transactions                              Global Load Transactions     4194304     4194304     4194304
+          8                          gst_transactions                             Global Store Transactions     1179648     1179648     1179648
+          8                    dram_read_transactions                       Device Memory Read Transactions     4194317     4194469     4194381
+          8                   dram_write_transactions                      Device Memory Write Transactions      314931      315747      315330
+          8                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
+          8                             inst_executed                                 Instructions Executed    39976960    39976960    39976960
+          8                               cf_executed                    Executed Control-Flow Instructions     5963776     5963776     5963776
+          8                             ldst_executed                      Executed Load/Store Instructions    12517376    12517376    12517376
+    Kernel: radixSortBlocks(unsigned int, unsigned int, uint4*, uint4*, uint4*, uint4*)
+          8                             flop_count_dp           Floating Point Operations(Double Precision)           0           0           0
+          8                             flop_count_sp           Floating Point Operations(Single Precision)           0           0           0
+          8                                inst_fp_32                               FP Instructions(Single)           0           0           0
+          8                                inst_fp_64                               FP Instructions(Double)           0           0           0
+          8                              inst_integer                                  Integer Instructions  2172911616  2172911616  2172911616
+          8                          inst_bit_convert                              Bit-Convert Instructions           0           0           0
+          8                              inst_control                             Control-Flow Instructions    33554432    33554432    33554432
+          8                        inst_compute_ld_st                               Load/Store Instructions  1409548288  1409548288  1409548288
+          8                                 inst_misc                                     Misc Instructions  2751463424  2751463424  2751463424
+          8           inst_inter_thread_communication                             Inter-Thread Instructions           0           0           0
+          8                             sm_efficiency                               Multiprocessor Activity      99.62%      99.73%      99.70%
+          8                        achieved_occupancy                                    Achieved Occupancy    0.925027    0.925201    0.925112
+          8                                       ipc                                          Executed IPC    1.425946    1.431864    1.429300
+          8                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
+          8                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
+          8                 shared_store_transactions                             Shared Store Transactions    18087936    26476544    20709376
+          8                  shared_load_transactions                              Shared Load Transactions    25165824    25165824    25165824
+          8                   local_load_transactions                               Local Load Transactions           0           0           0
+          8                  local_store_transactions                              Local Store Transactions           0           0           0
+          8                          gld_transactions                              Global Load Transactions     8388608     8388608     8388608
+          8                          gst_transactions                             Global Store Transactions     8388608     8388608     8388608
+          8                    dram_read_transactions                       Device Memory Read Transactions     8388621     8388821     8388707
+          8                   dram_write_transactions                      Device Memory Write Transactions     8383191     8385031     8384245
+          8                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
+          8                             inst_executed                                 Instructions Executed   201588736   201588736   201588736
+          8                               cf_executed                    Executed Control-Flow Instructions     1572864     1572864     1572864
+          8                             ldst_executed                      Executed Load/Store Instructions    67633152    67633152    67633152
+    Kernel: vectorAddUniform4(unsigned int*, unsigned int const *, int)
+          8                             flop_count_dp           Floating Point Operations(Double Precision)           0           0           0
+          8                             flop_count_sp           Floating Point Operations(Single Precision)           0           0           0
+          8                                inst_fp_32                               FP Instructions(Single)           0           0           0
+          8                                inst_fp_64                               FP Instructions(Double)           0           0           0
+          8                              inst_integer                                  Integer Instructions     9964544     9964544     9964544
+          8                          inst_bit_convert                              Bit-Convert Instructions           0           0           0
+          8                              inst_control                             Control-Flow Instructions     1572864     1572864     1572864
+          8                        inst_compute_ld_st                               Load/Store Instructions     2361344     2361344     2361344
+          8                                 inst_misc                                     Misc Instructions     3146752     3146752     3146752
+          8           inst_inter_thread_communication                             Inter-Thread Instructions           0           0           0
+          8                             sm_efficiency                               Multiprocessor Activity      75.22%      78.37%      76.76%
+          8                        achieved_occupancy                                    Achieved Occupancy    0.826203    0.844637    0.836378
+          8                                       ipc                                          Executed IPC    0.392012    0.413605    0.402781
+          8                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
+          8                 warp_execution_efficiency                             Warp Execution Efficiency      98.75%      98.75%      98.75%
+          8                 shared_store_transactions                             Shared Store Transactions        1024        1024        1024
+          8                  shared_load_transactions                              Shared Load Transactions        8192        8192        8192
+          8                   local_load_transactions                               Local Load Transactions           0           0           0
+          8                  local_store_transactions                              Local Store Transactions           0           0           0
+          8                          gld_transactions                              Global Load Transactions      263168      263168      263168
+          8                          gst_transactions                             Global Store Transactions      131072      131072      131072
+          8                    dram_read_transactions                       Device Memory Read Transactions      131110      131130      131121
+          8                   dram_write_transactions                      Device Memory Write Transactions      126558      127914      127314
+          8                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
+          8                             inst_executed                                 Instructions Executed      556032      556032      556032
+          8                               cf_executed                    Executed Control-Flow Instructions       66560       66560       66560
+          8                             ldst_executed                      Executed Load/Store Instructions      101376      101376      101376
+    Kernel: reorderData(unsigned int, unsigned int*, unsigned int*, uint2*, uint2*, unsigned int*, unsigned int*, unsigned int*, unsigned int)
+          8                             flop_count_dp           Floating Point Operations(Double Precision)           0           0           0
+          8                             flop_count_sp           Floating Point Operations(Single Precision)           0           0           0
+          8                                inst_fp_32                               FP Instructions(Single)           0           0           0
+          8                                inst_fp_64                               FP Instructions(Double)           0           0           0
+          8                              inst_integer                                  Integer Instructions   581959680   581959680   581959680
+          8                          inst_bit_convert                              Bit-Convert Instructions           0           0           0
+          8                              inst_control                             Control-Flow Instructions    32505856    32505856    32505856
+          8                        inst_compute_ld_st                               Load/Store Instructions   272629760   272629760   272629760
+          8                                 inst_misc                                     Misc Instructions   134217728   134217728   134217728
+          8           inst_inter_thread_communication                             Inter-Thread Instructions           0           0           0
+          8                             sm_efficiency                               Multiprocessor Activity      99.39%      99.55%      99.50%
+          8                        achieved_occupancy                                    Achieved Occupancy    0.930022    0.932425    0.931633
+          8                                       ipc                                          Executed IPC    0.435692    0.439680    0.438480
+          8                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
+          8                 warp_execution_efficiency                             Warp Execution Efficiency     100.00%     100.00%     100.00%
+          8                 shared_store_transactions                             Shared Store Transactions     2228224     2228224     2228224
+          8                  shared_load_transactions                              Shared Load Transactions     4194304     4194304     4194304
+          8                   local_load_transactions                               Local Load Transactions           0           0           0
+          8                  local_store_transactions                              Local Store Transactions           0           0           0
+          8                          gld_transactions                              Global Load Transactions     9699328     9699328     9699328
+          8                          gst_transactions                             Global Store Transactions     8388608     8388608     8388608
+          8                    dram_read_transactions                       Device Memory Read Transactions     8650789     8651080     8650870
+          8                   dram_write_transactions                      Device Memory Write Transactions     8381276     8383092     8382352
+          8                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
+          8                             inst_executed                                 Instructions Executed    38404096    38404096    38404096
+          8                               cf_executed                    Executed Control-Flow Instructions     1048576     1048576     1048576
+          8                             ldst_executed                      Executed Load/Store Instructions    11141120    11141120    11141120

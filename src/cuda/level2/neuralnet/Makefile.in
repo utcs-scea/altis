@@ -104,7 +104,8 @@ PROGRAMS = $(cuda_PROGRAMS)
 am_convolution_OBJECTS = main.$(OBJEXT)
 convolution_OBJECTS = $(am_convolution_OBJECTS)
 am__DEPENDENCIES_1 =
-convolution_DEPENDENCIES = neuralnet.o $(am__DEPENDENCIES_1)
+convolution_DEPENDENCIES = mat_gpu.o cuda_util.o cuda_print.o \
+	$(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -165,7 +166,7 @@ am__DIST_COMMON = $(srcdir)/Makefile.in \
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 
 # How to find source files
-VPATH = $(srcdir):$(srcdir)/../../common:$(srcdir)/../../../common:$(srcdir)/../../../common/mkl
+VPATH = $(srcdir):$(srcdir)/../../common:$(srcdir)/../../../common:$(srcdir)/include
 ACLOCAL = @ACLOCAL@
 ALLOCA = @ALLOCA@
 AMTAR = @AMTAR@
@@ -292,7 +293,9 @@ convolution_SOURCES = \
 main.cpp
 
 convolution_LDADD = \
-neuralnet.o \
+mat_gpu.o \
+cuda_util.o \
+cuda_print.o \
 $(CUDA_LIBS) $(LIBS) -lm
 
 all: all-am

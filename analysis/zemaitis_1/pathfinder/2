@@ -1,0 +1,35 @@
+==5639== NVPROF is profiling process 5639, command: ./src/cuda/level1/pathfinder/pathfinder -s 2 -n 1 -d 1
+==5639== Some kernel(s) will be replayed on device 1 in order to collect all events/metrics.
+==5639== Profiling application: ./src/cuda/level1/pathfinder/pathfinder -s 2 -n 1 -d 1
+==5639== Profiling result:
+==5639== Metric result:
+Invocations                               Metric Name                                    Metric Description         Min         Max         Avg
+Device "Tesla P100-SXM2-16GB (1)"
+    Kernel: dynproc_kernel(int, int*, int*, int*, int, int, int, int)
+      65536                             flop_count_dp           Floating Point Operations(Double Precision)           0           0           0
+      65536                             flop_count_sp           Floating Point Operations(Single Precision)           0           0           0
+      65536                                inst_fp_32                               FP Instructions(Single)           0           0           0
+      65536                                inst_fp_64                               FP Instructions(Double)           0           0           0
+      65536                              inst_integer                                  Integer Instructions     3203264     3580840     3580655
+      65536                          inst_bit_convert                              Bit-Convert Instructions           0           0           0
+      65536                              inst_control                             Control-Flow Instructions      383552      435696      435670
+      65536                        inst_compute_ld_st                               Load/Store Instructions      845888      964264      964206
+      65536                                 inst_misc                                     Misc Instructions     1081984     1202800     1202741
+      65536           inst_inter_thread_communication                             Inter-Thread Instructions           0           0           0
+      65536                             sm_efficiency                               Multiprocessor Activity      18.35%      41.37%      38.64%
+      65536                        achieved_occupancy                                    Achieved Occupancy    0.247674    0.249034    0.248848
+      65536                                       ipc                                          Executed IPC    0.458487    0.859274    0.550339
+      65536                         branch_efficiency                                     Branch Efficiency     100.00%     100.00%     100.00%
+      65536                 warp_execution_efficiency                             Warp Execution Efficiency      99.23%      99.30%      99.23%
+      65536                 shared_store_transactions                             Shared Store Transactions        7378        8464        8463
+      65536                  shared_load_transactions                              Shared Load Transactions       14756       16928       16926
+      65536                   local_load_transactions                               Local Load Transactions           0           0           0
+      65536                  local_store_transactions                              Local Store Transactions           0           0           0
+      65536                          gld_transactions                              Global Load Transactions       37440       37656       37655
+      65536                          gst_transactions                             Global Store Transactions        2048        2440        2048
+      65536                    dram_read_transactions                       Device Memory Read Transactions           7       18463       16578
+      65536                   dram_write_transactions                      Device Memory Write Transactions        5084        9340        6901
+      65536                     flop_count_sp_special   Floating Point Operations(Single Precision Special)           0           0           0
+      65536                             inst_executed                                 Instructions Executed      182580      204894      204883
+      65536                               cf_executed                    Executed Control-Flow Instructions       20536       23257       23255
+      65536                             ldst_executed                      Executed Load/Store Instructions       35802       40699       40696
