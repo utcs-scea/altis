@@ -1,14 +1,12 @@
-test	atts	units	median	mean	stddev	min	max	
-bfs_kernel_time	256V,1235E	sec	0.000483536	0.000456179	9.66256e-05	0.000171776	0.000530944	
-bfs_rate_edges	256V,1235E	Edges/s	2.55412e+06	3.00129e+06	1.39933e+06	2.32605e+06	7.1896e+06	
-bfs_rate_nodes	256V,1235E	Nodes/s	529437	622130	290065	482160	1.49031e+06	
-bfs_rate_parity	256V,1235E	N	0.184214	0.221321	0.11159	0.17715	0.555887	
-bfs_total_time	256V,1235E	sec	0.00057392	0.000546579	9.57761e-05	0.000267264	0.000628192	
-bfs_transfer_time	256V,1235E	sec	9.1088e-05	9.04e-05	4.47675e-06	8.3456e-05	9.7248e-05	
-bfs_unifiedmem_rate_edges	256V,1235E	Edges/s	870061	848968	62138.5	679623	898239	
-bfs_unifiedmem_rate_nodes	256V,1235E	Nodes/s	180353	175980	12880.5	140877	186194	
-bfs_unifiedmem_speedup	256V,1235E	N	0.40328	0.379635	0.078244	0.147076	0.426779	
-bfs_unifiedmem_total_time	256V,1235E	sec	0.00141946	0.00146392	0.000126111	0.00137491	0.00181718	
+test, atts, units, median, mean, stddev, min, max, 
+bfs_kernel_time, 256V,1263E, sec, 0.000561648, 0.000540534, 0.000116422, 0.000213024, 0.000651808, 
+bfs_rate_edges, 256V,1263E, Edges/s, 2.24903e+06, 2.57359e+06, 1.12831e+06, 1.93769e+06, 5.92891e+06, 
+bfs_rate_nodes, 256V,1263E, Nodes/s, 455860, 521646, 228700, 392754, 1.20174e+06, 
+bfs_rate_parity, 256V,1263E, N, 0.16416, 0.192142, 0.0943391, 0.148818, 0.474388, 
+bfs_total_time, 256V,1263E, sec, 0.00065256, 0.000633869, 0.000115015, 0.00031408, 0.000748928, 
+bfs_transfer_time, 256V,1263E, sec, 9.416e-05, 9.33344e-05, 4.12966e-06, 8.7936e-05, 0.000101056, 
+bfs_unifiedmem_rate_edges, 256V,1263E, Edges/s, 1.30317e+06, 1.26508e+06, 113071, 1.06179e+06, 1.3782e+06, 
+bfs_unifiedmem_rate_nodes, 256V,1263E, Nodes/s, 264143, 256421, 22918.7, 215216, 279349, 
+bfs_unifiedmem_speedup, 256V,1263E, N, 0.684721, 0.640299, 0.138778, 0.264043, 0.770046, 
+bfs_unifiedmem_total_time, 256V,1263E, sec, 0.000969184, 0.00100706, 9.75709e-05, 0.000916416, 0.0011895, 
 
-Note: results marked with (*) had missing values such as
-might occur with a mixture of architectural capabilities.

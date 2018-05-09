@@ -2,7 +2,7 @@ include $(top_builddir)/config/config.mk
 include $(top_builddir)/config/targets.mk
 
 # How to find source files
-VPATH = $(srcdir):$(srcdir)/../../common:$(srcdir)/../../../common:$(srcdir)/../../../common/mkl
+VPATH = $(srcdir):$(srcdir)/../../common:$(srcdir)/../../../common:$(srcdir)/include
 
 AM_LDFLAGS = $(CUDA_LDFLAGS)
 AM_CPPFLAGS = $(CUDA_INC)
@@ -19,7 +19,9 @@ convolution_SOURCES = \
 main.cpp
 
 convolution_LDADD = \
-neuralnet.o \
+mat_gpu.o \
+cuda_util.o \
+cuda_print.o \
 $(CUDA_LIBS) $(LIBS) -lm
 
 
