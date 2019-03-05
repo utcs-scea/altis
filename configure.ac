@@ -1,7 +1,7 @@
 # Use this file as input to autoconf to output a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([MIROVIA], [1.0.0], [sarahgw@cs.utexas.edu])
+AC_INIT([MIROVIA], [1.0.0], [bodunhu@utexas.com])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CANONICAL_SYSTEM
 AC_CONFIG_SRCDIR([src/common/Timer.h])
@@ -136,7 +136,7 @@ AS_IF([test "x$with_cuda" != xno],
 
         AS_IF([test "x$with_cuda" = xyes],
             [AS_IF([test "x$CUDA_CPPFLAGS" = x],
-                [dnl generate CUDA code for broad spectrum of devices
+                [dnl generate CUDA code for broad spectrum of devices (Pascal arch specific)
                  CUDA_CPPFLAGS=["-arch=sm_60 -gencode=arch=compute_60,code=sm_60"]
                  AC_MSG_NOTICE([using CUDA_CPPFLAGS=$CUDA_CPPFLAGS])
                  AC_MSG_WARN([*** MIROVIA programs may fail if these -gencode values do not apply to your GPU.  If they don't apply, or if you want to shorten MIROVIA's compile time, determine the -gencode options that apply for your GPU and re-configure MIROVIA explicitly specifying only those options in CUDA_CPPFLAGS during the configure. ***])
@@ -149,7 +149,7 @@ AS_IF([test "x$with_cuda" != xno],
 )
 AM_CONDITIONAL([BUILD_CUDA], [test "x$with_cuda" = "xyes"])
 
-'''
+
 # test whether or not to build new cuda features in benchmarks
 unified_memory=yes
 grid_sync=yes
@@ -199,7 +199,7 @@ AS_IF([test "x$dynamic_parallelism" = "xyes"],
     [
         AC_MSG_RESULT([supports dynamic parallelism: no])
     ])
-'''
+
 
 AC_SUBST([USE_CUDA])
 AC_SUBST([NVCXXFLAGS])
