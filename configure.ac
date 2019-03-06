@@ -151,23 +151,94 @@ AM_CONDITIONAL([BUILD_CUDA], [test "x$with_cuda" = "xyes"])
 
 
 # test whether or not to build new cuda features in benchmarks
+check_cuda_version()
+{
+    nvcc_version_string=$(nvcc --version | grep "Cuda compilation tools, release")    
+    if echo "$nvcc_version_string" | grep -q "10"
+    then
+        return 10
+    elif echo "$nvcc_version_string" | grep -q "9"
+    then
+        return 9
+    elif echo "$nvcc_version_string" | grep -q "8"
+    then
+        return 8
+    elif echo "$nvcc_version_string" | grep -q "7"
+    then
+        return 7
+    elif echo "$nvcc_version_string" | grep -q "6"
+    then
+        return 6
+    elif echo "$nvcc_version_string" | grep -q "5"
+    then
+        return 5
+    elif echo "$nvcc_version_string" | grep -q "4"
+    then
+        return 4
+    elif echo "$nvcc_version_string" | grep -q "3"
+    then
+        return 3
+    elif echo "$nvcc_version_string" | grep -q "2"
+    then
+        return 2
+    elif echo "$nvcc_version_string" | grep -q "1"
+    then
+        return 1
+    fi
+}
+
+# TODO: might need to enable more features since CUDA 10
 unified_memory=yes
 grid_sync=yes
 hyperq=yes
 dynamic_parallelism=yes
-AS_IF([nvcc --version | grep -q "release 8"], [grid_sync=no],[])
-AS_IF([nvcc --version | grep -q "release 7"], [grid_sync=no],[])
-AS_IF([nvcc --version | grep -q "release 6"], [grid_sync=no],[])
-AS_IF([nvcc --version | grep -q "release 5"], [grid_sync=no, unified_memory=no],[])
-AS_IF([nvcc --version | grep -q "release 4"], [grid_sync=no, unified_memory=no, hyperq=no, dynamic_parallelism=no],[])
-AS_IF([nvcc --version | grep -q "release 3"], [grid_sync=no, unified_memory=no, hyperq=no, dynamic_parallelism=no],[])
-AS_IF([nvcc --version | grep -q "release 2"], [grid_sync=no, unified_memory=no, hyperq=no, dynamic_parallelism=no],[])
-AS_IF([nvcc --version | grep -q "release 1"], [grid_sync=no, unified_memory=no, hyperq=no, dynamic_parallelism=no],[])
+
+check_cuda_version
+cuda_version=$?
+
+AS_IF([test "x$cuda_version" = x8], [grid_sync=no])
+AS_IF([test "x$cuda_version" = x7], [grid_sync=no])
+AS_IF([test "x$cuda_version" = x6], [grid_sync=no])
+AS_IF([test "x$cuda_version" = x5], 
+    [
+        grid_sync=no
+        unified_memory=no
+    ])
+AS_IF([test "x$cuda_version" = x4],
+    [
+        grid_sync=no
+        unified_memory=no
+        hyperq=no
+        dynamic_parallelism=no
+    ])
+AS_IF([test "x$cuda_version" = x3],
+    [
+        grid_sync=no
+        unified_memory=no
+        hyperq=no
+        dynamic_parallelism=no
+    ])
+AS_IF([test "x$cuda_version" = x2], 
+    [
+        grid_sync=no
+        unified_memory=no
+        hyperq=no
+        dynamic_parallelism=no
+    ])
+AS_IF([test "x$cuda_version" = x1], 
+    [
+        grid_sync=no
+        unified_memory=no
+        hyperq=no
+        dynamic_parallelism=no
+    ])
+
 
 AS_IF([test "x$unified_memory" = "xyes"], 
         [
             AC_MSG_RESULT([supports unified memory: yes])
             CUDA_CPPFLAGS+=[" -DUNIFIED_MEMORY"]
+            echo $CUDA_CPPFLAGS
         ],
         [
             AC_MSG_RESULT([supports unified memory: no])

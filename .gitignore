@@ -21,6 +21,8 @@ share
 # ignore vim swap files
 *.swp
 *.swo
+*.swm
+*.swn
 
 # Ignore some generated files for in-place build
 .deps
