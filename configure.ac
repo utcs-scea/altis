@@ -184,6 +184,9 @@ check_cuda_version()
     elif echo "$nvcc_version_string" | grep -q "1"
     then
         return 1
+    else
+        echo "ERROR: nvcc not found---------"
+        exit
     fi
 }
 
