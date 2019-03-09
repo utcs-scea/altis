@@ -30,6 +30,46 @@ void init_arrays(DATA_TYPE *_fict_, DATA_TYPE *ex,
     }
 }
 
+__global__ void kernel1(DATA_TYPE* _fict_, DATA_TYPE *ex, DATA_TYPE *ey, DATA_TYPE *hz, int t)
+{
+	int j = blockIdx.x * blockDim.x + threadIdx.x;
+	int i = blockIdx.y * blockDim.y + threadIdx.y;
+
+	if ((i < NX) && (j < NY))
+	{
+		if (i == 0)
+		{
+			ey[i * NY + j] = _fict_[t];
+		}
+		else
+		{
+			ey[i * NY + j] = ey[i * NY + j] - 0.5f*(hz[i * NY + j] - hz[(i-1) * NY + j]);
+		}
+	}
+}
+
+__global__ void kernel2(DATA_TYPE *ex, DATA_TYPE *ey, DATA_TYPE *hz, int t)
+{
+	int j = blockIdx.x * blockDim.x + threadIdx.x;
+	int i = blockIdx.y * blockDim.y + threadIdx.y;
+
+	if ((i < NX) && (j < NY) && (j > 0))
+	{
+		ex[i * (NY+1) + j] = ex[i * (NY+1) + j] - 0.5f*(hz[i * NY + j] - hz[i * NY + (j-1)]);
+	}
+}
+
+__global__ void kernel3(DATA_TYPE *ex, DATA_TYPE *ey, DATA_TYPE *hz, int t)
+{
+	int j = blockIdx.x * blockDim.x + threadIdx.x;
+	int i = blockIdx.y * blockDim.y + threadIdx.y;
+
+	if ((i < NX) && (j < NY))
+	{
+		hz[i * NY + j] = hz[i * NY + j] - 0.7f*(ex[i * (NY+1) + (j+1)] - ex[i * (NY+1) + j] + ey[(i + 1) * NY + j] - ey[i * NY + j]);
+	}
+}
+
 void run_fdtd_cuda(DATA_TYPE *_fict_, DATA_TYPE *ex, DATA_TYPE *ey, DATA_TYPE *hz, DATA_TYPE *hz_from_gpu) {
     assert(_fict_ && ex && ey && hz && hz_from_gpu);
 
@@ -102,11 +142,26 @@ void run_fdtd_cuda(DATA_TYPE *_fict_, DATA_TYPE *ex, DATA_TYPE *ey, DATA_TYPE *h
     dim3 grid( (size_t)ceil(((float)NY) / ((float)block.x)),
             (size_t)ceil(((float)NX) / ((float)block.y)));
 
+    // without hyperq or graph
+    // TODO could use two streams to overlap execution
     int t = 0;
     for (; t < tmax; t++) {
         kernel1<<<grid, block>>>(_fict_gpu, ex_gpu, ey_gpu, hz_gpu, t);
+        //cudaDeviceSynchronize();
+        kernel2<<<grid, block>>>(ex_gpu, ey_gpu, hz_gpu, t);
+        cudaDeviceSynchronize();
+        kernel3<<<grid, block>>>(ex_gpu, ey_gpu, hz_gpu, t);
+        cudaDeviceSynchronize();
     }
-
+    cudaMemcpy(hz_from_gpu, hz_gpu, sizeof(DATA_TYPE) * NX * NY, cudaMemcpyDefault);
+    if (cudaGetLastError() = cudaSuccess) {
+        cout << "can't copy results back to host, error code " << cudaGetLastError() << endl;
+        exit(1);
+    }
+    cudaFree(_fict_gpu);
+    cudaFree(ex_gpu);
+    cudaFree(ey_gpu);
+    cudaFree(hz_gpu);
 #else
 
 #endif
