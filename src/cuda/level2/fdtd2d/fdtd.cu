@@ -153,7 +153,15 @@ void run_fdtd_cuda(DATA_TYPE *_fict_, DATA_TYPE *ex, DATA_TYPE *ey, DATA_TYPE *h
         kernel3<<<grid, block>>>(ex_gpu, ey_gpu, hz_gpu, t);
         cudaDeviceSynchronize();
     }
-
+    cudaMemcpy(hz_from_gpu, hz_gpu, sizeof(DATA_TYPE) * NX * NY, cudaMemcpyDefault);
+    if (cudaGetLastError() = cudaSuccess) {
+        cout << "can't copy results back to host, error code " << cudaGetLastError() << endl;
+        exit(1);
+    }
+    cudaFree(_fict_gpu);
+    cudaFree(ex_gpu);
+    cudaFree(ey_gpu);
+    cudaFree(hz_gpu);
 #else
 
 #endif
