@@ -185,7 +185,7 @@ check_cuda_version()
     then
         return 1
     else
-        echo "ERROR: nvcc not found---------"
+        echo "--------ERROR: nvcc not found---------"
         exit
     fi
 }
@@ -195,17 +195,35 @@ unified_memory=yes
 grid_sync=yes
 hyperq=yes
 dynamic_parallelism=yes
+task_graph=yes
 
 check_cuda_version
 cuda_version=$?
 
-AS_IF([test "x$cuda_version" = x8], [grid_sync=no])
-AS_IF([test "x$cuda_version" = x7], [grid_sync=no])
-AS_IF([test "x$cuda_version" = x6], [grid_sync=no])
+AS_IF([test "x$cuda_version" = x9], 
+    [
+        task_graph=no
+    ])
+AS_IF([test "x$cuda_version" = x8], 
+    [
+        grid_sync=no
+        task_graph=no
+    ])
+AS_IF([test "x$cuda_version" = x7], 
+    [
+        grid_sync=no
+        task_graph=no    
+    ])
+AS_IF([test "x$cuda_version" = x6], 
+    [
+        grid_sync=no
+        task_graph=no
+    ])
 AS_IF([test "x$cuda_version" = x5], 
     [
         grid_sync=no
         unified_memory=no
+        task_graph=no
     ])
 AS_IF([test "x$cuda_version" = x4],
     [
@@ -213,6 +231,7 @@ AS_IF([test "x$cuda_version" = x4],
         unified_memory=no
         hyperq=no
         dynamic_parallelism=no
+        task_graph=no
     ])
 AS_IF([test "x$cuda_version" = x3],
     [
@@ -220,6 +239,7 @@ AS_IF([test "x$cuda_version" = x3],
         unified_memory=no
         hyperq=no
         dynamic_parallelism=no
+        task_graph=no
     ])
 AS_IF([test "x$cuda_version" = x2], 
     [
@@ -227,6 +247,7 @@ AS_IF([test "x$cuda_version" = x2],
         unified_memory=no
         hyperq=no
         dynamic_parallelism=no
+        task_graph=no
     ])
 AS_IF([test "x$cuda_version" = x1], 
     [
@@ -234,18 +255,26 @@ AS_IF([test "x$cuda_version" = x1],
         unified_memory=no
         hyperq=no
         dynamic_parallelism=no
+        task_graph=no
     ])
 
 
+AS_IF([test "x$task_graph" = "xyes"], 
+    [
+       AC_MSG_RESULT([supports cuda graph: yes])
+       CUDA_CPPFLAGS+=[" -DTASK_GRAPH"]
+    ],
+    [
+       AC_MSG_RESULT([supports cuda graph: no])
+    ])
 AS_IF([test "x$unified_memory" = "xyes"], 
-        [
-            AC_MSG_RESULT([supports unified memory: yes])
-            CUDA_CPPFLAGS+=[" -DUNIFIED_MEMORY"]
-            echo $CUDA_CPPFLAGS
-        ],
-        [
-            AC_MSG_RESULT([supports unified memory: no])
-        ])
+    [
+       AC_MSG_RESULT([supports unified memory: yes])
+       CUDA_CPPFLAGS+=[" -DUNIFIED_MEMORY"]
+    ],
+    [
+       AC_MSG_RESULT([supports unified memory: no])
+    ])
 
 AS_IF([test "x$grid_sync" = "xyes"], 
     [
