@@ -3,6 +3,7 @@
 // TODO subject to change
 #define DIM_THREAD_BLOCK_X 32
 #define DIM_THREAD_BLOCK_Y 8
+#define PERCENT_DIFF_ERROR_THRESHOLD 0.5
 
 using namespace std;
 
@@ -28,6 +29,27 @@ void init_arrays(DATA_TYPE *_fict_, DATA_TYPE *ex,
             hz[index_to_update] = ((DATA_TYPE)(i-9)*(j+4)+3) / NX;
         }
     }
+}
+
+void compareResults(DATA_TYPE* hz1, DATA_TYPE* hz2)
+{
+	int i, j, fail;
+	fail = 0;
+
+	for (i=0; i < NX; i++)
+	{
+		for (j=0; j < NY; j++)
+		{
+			if (percentDiff(hz1[i*NY + j], hz2[i*NY + j]) > PERCENT_DIFF_ERROR_THRESHOLD)
+			{
+				fail++;
+			}
+		}
+	}
+
+	// Print results
+	cout << "Non-Matching CPU-GPU Outputs Beyond Error Threshold of " <<
+        PERCENT_DIFF_ERROR_THRESHOLD " Percent: " << fail << endl;
 }
 
 __global__ void kernel1(DATA_TYPE* _fict_, DATA_TYPE *ex, DATA_TYPE *ey, DATA_TYPE *hz, int t)
@@ -209,6 +231,27 @@ void RunBenchmark(ResultDatabase &result DB, OptionParser &op) {
     for (; pass < passes; pass++) {
         run_fdtd_cuda(_fict_cpu, ex_cpu, ey_cpu, hz_cpu, hz_gpu);
     }
+
+    // TODO may not necessary
+    srand(1);
+    init_arrays(_fict_, ex, ey, hz);
+
+    for (pass = 0; pass < passes; pass ++) {
+        run_fdtd(_fict_cpu, ex_cpu, ey_cpu, hz_cpu);
+    }
+
+    compareResults(hz_cpu, hz_from_gpu);
+
+    // clean up
+    free(_fict_cpu);
+    free(ex_cpu);
+    free(ey_cpu);
+    free(hz_cpu);
+    free(hz_from_cpu);
+
+    return 0;
+
+    
 #else
     DATA_TYPE *_fict_ = NULL;
     DATA_TYPE *ex = NULL;
@@ -241,6 +284,7 @@ void RunBenchmark(ResultDatabase &result DB, OptionParser &op) {
     for (; pass < passes; pass++) {
         run_fdtd_cuda(_fict_, ex, ey, hz_cpu, hz_gpu);
     }
+
 #endif
     
 
