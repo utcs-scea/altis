@@ -1,16 +1,6 @@
 #ifndef FDTD_H
 #define FDTD_H
 
-#include <iostream>
-#include <cstdlib>
-#include <string>
-#include <math.h>
-#include <cassert>
-
-#include "OptionParser.h"
-#include "ResultDatabase.h"
-#include "cudacommon.h"
-
 // TODO may need to change threshold
 #define PERCENT_DIFF_ERROR_THRESHOLD 10.05
 

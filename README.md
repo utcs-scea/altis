@@ -13,6 +13,7 @@
 Options:
   -h, --help                    show help message and exit
   -p, --prefix=PREFIX           location of Mirovia root, defaults to current working directory
+  -e, --exec_prefix=EXEC_PREFIX location of executables
   -d, --device=DEVICE           device to run the benchmarks on
   -s, --size=SIZE               problem size
   -b, --benchmark=BENCHMARKS    comma-separated list of benchmarks to run, or 'all' to run entire suite, defaults to 'all'
