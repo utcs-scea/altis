@@ -1,9 +1,19 @@
-#include "fdtd.h"
+#include <iostream>
+#include <cstdlib>
+#include <string>
+#include <math.h>
+#include <cassert>
+#include <cuda.h>
+
+#include "OptionParser.h"
+#include "ResultDatabase.h"
+#include "cudacommon.h"
+#include "fdtd2d.h"
 
 // TODO subject to change
 #define DIM_THREAD_BLOCK_X 32
 #define DIM_THREAD_BLOCK_Y 8
-#define PERCENT_DIFF_ERROR_THRESHOLD 0.5
+//#define PERCENT_DIFF_ERROR_THRESHOLD 0.5
 
 using namespace std;
 

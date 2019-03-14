@@ -14,8 +14,6 @@
 
 @SET_MAKE@
 
-#The original BFS CUDA code was obtained from Pawan Harish and P. J. Narayanan at IIIT, who have given us permission to include it as part of Rodinia under Rodinia's license.
-
 am__is_gnu_make = { \
   if test -z '$(MAKELEVEL)'; then \
     false; \
@@ -90,8 +88,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-cuda_PROGRAMS = bfs$(EXEEXT)
-subdir = src/cuda/level1/bfs
+cuda_PROGRAMS = fdtd2d$(EXEEXT)
+subdir = src/cuda/level2/fdtd2d
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -103,12 +101,10 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(cudadir)"
 PROGRAMS = $(cuda_PROGRAMS)
-am_bfs_OBJECTS = main.$(OBJEXT)
-bfs_OBJECTS = $(am_bfs_OBJECTS)
+am_fdtd2d_OBJECTS = main.$(OBJEXT)
+fdtd2d_OBJECTS = $(am_fdtd2d_OBJECTS)
 am__DEPENDENCIES_1 =
-bfs_DEPENDENCIES = bfs.o $(am__DEPENDENCIES_1)
-bfs_LINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(bfs_LDFLAGS) \
-	$(LDFLAGS) -o $@
+fdtd2d_DEPENDENCIES = fdtd2d.o $(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -138,8 +134,8 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(bfs_SOURCES)
-DIST_SOURCES = $(bfs_SOURCES)
+SOURCES = $(fdtd2d_SOURCES)
+DIST_SOURCES = $(fdtd2d_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -168,6 +164,7 @@ am__DIST_COMMON = $(srcdir)/Makefile.in \
 	$(top_srcdir)/build-aux/depcomp
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 
+# EXTRAFLAGS = 
 # How to find source files
 VPATH = $(srcdir):$(srcdir)/../../common:$(srcdir)/../../../common
 ACLOCAL = @ACLOCAL@
@@ -285,15 +282,19 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AM_LDFLAGS = $(CUDA_LDFLAGS)
-AM_CPPFLAGS = $(CUDA_INC) -Wformat
+AM_CPPFLAGS = $(CUDA_INC)
 
 # What is the destination for programs built from this directory?
 cudadir = $(bindir)/CUDA
-bfs_LDFLAGS = -pthread
 
 # How to build those programs?
-bfs_SOURCES = main.cpp
-bfs_LDADD = bfs.o $(CUDA_LIBS) $(LIBS)
+fdtd2d_SOURCES = \
+main.cpp
+
+fdtd2d_LDADD = \
+fdtd2d.o \
+$(CUDA_LIBS) $(LIBS) -lm
+
 all: all-am
 
 .SUFFIXES:
@@ -307,9 +308,9 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__confi
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/cuda/level1/bfs/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/cuda/level2/fdtd2d/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign src/cuda/level1/bfs/Makefile
+	  $(AUTOMAKE) --foreign src/cuda/level2/fdtd2d/Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
 	  *config.status*) \
@@ -370,9 +371,9 @@ uninstall-cudaPROGRAMS:
 clean-cudaPROGRAMS:
 	-test -z "$(cuda_PROGRAMS)" || rm -f $(cuda_PROGRAMS)
 
-bfs$(EXEEXT): $(bfs_OBJECTS) $(bfs_DEPENDENCIES) $(EXTRA_bfs_DEPENDENCIES) 
-	@rm -f bfs$(EXEEXT)
-	$(AM_V_CXXLD)$(bfs_LINK) $(bfs_OBJECTS) $(bfs_LDADD) $(LIBS)
+fdtd2d$(EXEEXT): $(fdtd2d_OBJECTS) $(fdtd2d_DEPENDENCIES) $(EXTRA_fdtd2d_DEPENDENCIES) 
+	@rm -f fdtd2d$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(fdtd2d_OBJECTS) $(fdtd2d_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -603,7 +604,6 @@ uninstall-am: uninstall-cudaPROGRAMS
 	uninstall-cudaPROGRAMS
 
 .PRECIOUS: Makefile
-
 
 include $(top_builddir)/config/config.mk
 include $(top_builddir)/config/targets.mk
