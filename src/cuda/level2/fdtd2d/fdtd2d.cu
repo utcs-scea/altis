@@ -10,14 +10,40 @@
 #include "cudacommon.h"
 #include "fdtd2d.h"
 
+#define DEFAULT_GPU 0
+
 // TODO subject to change
 #define DIM_THREAD_BLOCK_X 32
 #define DIM_THREAD_BLOCK_Y 8
-//#define PERCENT_DIFF_ERROR_THRESHOLD 0.5
+
+#define SMALL_FLOAT_VAL 0.00000001f
+#define PERCENT_DIFF_ERROR_THRESHOLD 10.05
+
+#define tmax 500
+#define NX 2048
+#define NY 2048
+
+
+float absVal(float a);
+float percentDiff(double val1, double val2);
 
 using namespace std;
 
-void addBenchmarkSpecOptions(OptionParser *op) {
+
+float absVal(float a) {
+    if (a < 0) return (-1*a);
+    else       return a;
+}
+
+float percentDiff(double val1, double val2) {
+    if ((absVal(val1) < 0.01) && (absVal(val2) < 0.01))
+        return 0.0f;
+    else
+        return 100.0f * (absVal(absVal(val1 - val2) / absVal(val1 + SMALL_FLOAT_VAL)));
+} 
+
+
+void addBenchmarkSpecOptions(OptionParser &op) {
    // TODO, maybe add benchmark specs 
 }
 
@@ -25,7 +51,7 @@ void init_arrays(DATA_TYPE *_fict_, DATA_TYPE *ex,
         DATA_TYPE *ey, DATA_TYPE *hz) {
     assert(_fict_ && ex && ey && hz);
 
-    int i = 0
+    int i = 0;
     for (; i < tmax; i++) {
         _fict_[i] = (DATA_TYPE)i;
     }
@@ -40,6 +66,45 @@ void init_arrays(DATA_TYPE *_fict_, DATA_TYPE *ex,
         }
     }
 }
+
+void run_fdtd_cpu(DATA_TYPE* _fict_, DATA_TYPE* ex, DATA_TYPE* ey, DATA_TYPE* hz)
+{
+    assert(_fict_ && ex && ey && hz);
+	int t, i, j;
+
+	for (t=0; t < tmax; t++)
+	{
+		for (j=0; j < NY; j++)
+		{
+			ey[0*NY + j] = _fict_[t];
+		}
+
+		for (i = 1; i < NX; i++)
+		{
+       		for (j = 0; j < NY; j++)
+			{
+       			ey[i*NY + j] = ey[i*NY + j] - 0.5*(hz[i*NY + j] - hz[(i-1)*NY + j]);
+        	}
+		}
+
+		for (i = 0; i < NX; i++)
+		{
+       		for (j = 1; j < NY; j++)
+			{
+				ex[i*(NY+1) + j] = ex[i*(NY+1) + j] - 0.5*(hz[i*NY + j] - hz[i*NY + (j-1)]);
+			}
+		}
+
+		for (i = 0; i < NX; i++)
+		{
+			for (j = 0; j < NY; j++)
+			{
+				hz[i*NY + j] = hz[i*NY + j] - 0.7*(ex[i*(NY+1) + (j+1)] - ex[i*(NY+1) + j] + ey[(i+1)*NY + j] - ey[i*NY + j]);
+			}
+		}
+	}
+}
+
 
 void compareResults(DATA_TYPE* hz1, DATA_TYPE* hz2)
 {
@@ -59,7 +124,7 @@ void compareResults(DATA_TYPE* hz1, DATA_TYPE* hz2)
 
 	// Print results
 	cout << "Non-Matching CPU-GPU Outputs Beyond Error Threshold of " <<
-        PERCENT_DIFF_ERROR_THRESHOLD " Percent: " << fail << endl;
+        PERCENT_DIFF_ERROR_THRESHOLD << " Percent: " << fail << endl;
 }
 
 __global__ void kernel1(DATA_TYPE* _fict_, DATA_TYPE *ex, DATA_TYPE *ey, DATA_TYPE *hz, int t)
@@ -105,7 +170,6 @@ __global__ void kernel3(DATA_TYPE *ex, DATA_TYPE *ey, DATA_TYPE *hz, int t)
 void run_fdtd_cuda(DATA_TYPE *_fict_, DATA_TYPE *ex, DATA_TYPE *ey, DATA_TYPE *hz, DATA_TYPE *hz_from_gpu) {
     assert(_fict_ && ex && ey && hz && hz_from_gpu);
 
-#ifndef UNIFIED_MEMORY
     DATA_TYPE *_fict_gpu = NULL;
     DATA_TYPE *ex_gpu = NULL;
     DATA_TYPE *ey_gpu = NULL;
@@ -125,6 +189,7 @@ void run_fdtd_cuda(DATA_TYPE *_fict_, DATA_TYPE *ex, DATA_TYPE *ey, DATA_TYPE *h
         cout << "cudaMalloc d_A returned error code" << endl;
         exit(1);
     }
+
 
 	cudaMalloc((void **)&ey_gpu, sizeof(DATA_TYPE) * (NX + 1) * NY);
     if (cudaGetLastError() != cudaSuccess)
@@ -185,8 +250,8 @@ void run_fdtd_cuda(DATA_TYPE *_fict_, DATA_TYPE *ex, DATA_TYPE *ey, DATA_TYPE *h
         kernel3<<<grid, block>>>(ex_gpu, ey_gpu, hz_gpu, t);
         cudaDeviceSynchronize();
     }
-    cudaMemcpy(hz_from_gpu, hz_gpu, sizeof(DATA_TYPE) * NX * NY, cudaMemcpyDefault);
-    if (cudaGetLastError() = cudaSuccess) {
+    cudaMemcpy(hz_from_gpu, hz_gpu, sizeof(DATA_TYPE) * NX * NY, cudaMemcpyDeviceToHost);
+    if (cudaGetLastError() != cudaSuccess) {
         cout << "can't copy results back to host, error code " << cudaGetLastError() << endl;
         exit(1);
     }
@@ -194,13 +259,13 @@ void run_fdtd_cuda(DATA_TYPE *_fict_, DATA_TYPE *ex, DATA_TYPE *ey, DATA_TYPE *h
     cudaFree(ex_gpu);
     cudaFree(ey_gpu);
     cudaFree(hz_gpu);
-#else
-
-#endif
-
+    // TODO, we are using cuda graph now, it might be supported at the sametime
+    // with unified memory, but worry about later
+    
+    
 }
 
-void RunBenchmark(ResultDatabase &result DB, OptionParser &op) {
+void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
     cout << "Running FDTD" << endl;
     int device;
     cudaGetDevice(&device);
@@ -220,7 +285,6 @@ void RunBenchmark(ResultDatabase &result DB, OptionParser &op) {
     bool quiet = op.getOptionBool("quiet");
     int passes = op.getOptionInt("passes");
 
-#ifndef UNIFIED_MEMORY
     // allocating resources
     DATA_TYPE *_fict_cpu = NULL;
     DATA_TYPE *ex_cpu = NULL;
@@ -233,70 +297,29 @@ void RunBenchmark(ResultDatabase &result DB, OptionParser &op) {
     ex_cpu = (DATA_TYPE *)malloc(NX * (NY + 1) * sizeof(DATA_TYPE));
     ey_cpu = (DATA_TYPE *)malloc((NX + 1) * NY * sizeof(DATA_TYPE));
     hz_cpu = (DATA_TYPE *)malloc(NX * NY * sizeof(DATA_TYPE));
+    cout << "alloced about " << NX << " bytes" << endl;
     hz_from_gpu = (DATA_TYPE *)malloc(NX * NY * sizeof(DATA_TYPE));
+    
     srand(1);
     init_arrays(_fict_cpu, ex_cpu, ey_cpu, hz_cpu);
 
     int pass = 0;
-    for (; pass < passes; pass++) {
-        run_fdtd_cuda(_fict_cpu, ex_cpu, ey_cpu, hz_cpu, hz_gpu);
+    for (; pass < 1; pass++) {
+        run_fdtd_cuda(_fict_cpu, ex_cpu, ey_cpu, hz_cpu, hz_from_gpu);
     }
 
     // TODO may not necessary
     srand(1);
-    init_arrays(_fict_, ex, ey, hz);
+    init_arrays(_fict_cpu, ex_cpu, ey_cpu, hz_cpu);
 
-    for (pass = 0; pass < passes; pass ++) {
-        run_fdtd(_fict_cpu, ex_cpu, ey_cpu, hz_cpu);
+    for (pass = 0; pass < 1; pass ++) {
+        run_fdtd_cpu(_fict_cpu, ex_cpu, ey_cpu, hz_cpu);
     }
-
     compareResults(hz_cpu, hz_from_gpu);
-
     // clean up
     free(_fict_cpu);
     free(ex_cpu);
     free(ey_cpu);
     free(hz_cpu);
-    free(hz_from_cpu);
-
-    return 0;
-
-    
-#else
-    DATA_TYPE *_fict_ = NULL;
-    DATA_TYPE *ex = NULL;
-    DATA_TYPE *ey = NULL;
-    DATA_TYPE *hz_cpu = NULL;
-    DATA_TYPE *hz_gpu = NULL;
-    cudaMallocManaged(&_fict_, tmax * sizeof(DATA_TYPE));
-    if (cudaGetLastError() != cudaSuccess) {
-        cout << "cudaMallocManged failed" << endl;
-    }
-    cudaMallocManaged(&ex, NX * (NY + 1) * sizeof(DATA_TYPE));
-    if (cudaGetLastError() != cudaSuccess) {
-        cout << "cudaMallocManged failed" << endl;
-    }
-    cudaMallocManaged(&ey, (NX + 1) * NY * sizeof(DATA_TYPE));
-    if (cudaGetLastError() != cudaSuccess) {
-        cout << "cudaMallocManged failed" << endl;
-    }
-    cudaMallocManaged(&hz_cpu, NX * NY * sizeof(DATA_TYPE));
-    if (cudaGetLastError() != cudaSuccess) {
-        cout << "cudaMallocManged failed" << endl;
-    cudaMallocManaged(&hz_gpu, NX * NY * sizeof(DATA_TYPE));
-    if (cudaGetLastError() != cudaSuccess) {
-        cout << "cudaMallocManged failed" << endl;
-    }
-    srand(1);
-    init_arrays(_fict_, ex, ey, hz_cpu);
-
-    int pass = 0;
-    for (; pass < passes; pass++) {
-        run_fdtd_cuda(_fict_, ex, ey, hz_cpu, hz_gpu);
-    }
-
-#endif
-    
-
-    
+    free(hz_from_gpu);
 }
