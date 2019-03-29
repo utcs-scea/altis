@@ -17,6 +17,7 @@ ipch
 bin
 libexec
 share
+tags
 
 # ignore vim swap files
 *.swp
