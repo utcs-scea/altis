@@ -212,8 +212,8 @@ void run_fdtd_cuda(DATA_TYPE *_fict_, DATA_TYPE *ex, DATA_TYPE *ey, DATA_TYPE *h
         cout << "cudaMemcpy d_A returned error code" << endl;
         exit(1);
     }
-
-	cudaMemcpy(ex_gpu, ex, sizeof(DATA_TYPE) * NX * (NY + 1), cudaMemcpyHostToDevice);
+	
+    cudaMemcpy(ex_gpu, ex, sizeof(DATA_TYPE) * NX * (NY + 1), cudaMemcpyHostToDevice);
     if (cudaGetLastError() != cudaSuccess)
     {
         cout << "cudaMalloc d_A returned error code" << endl;
@@ -241,6 +241,47 @@ void run_fdtd_cuda(DATA_TYPE *_fict_, DATA_TYPE *ex, DATA_TYPE *ey, DATA_TYPE *h
 
     // without hyperq or graph
     // TODO could use two streams to overlap execution
+    // TODO
+/*
+#ifdef TASK_GRAPH
+    cudaGraph_t graph;
+    cudaGraphCreate(&graph, 0);
+    if (cudaGetLastError() != cudaSuccess) {
+        cout << "can't create graph, error code " << cudaGetLastError() << endl;
+    }
+    cudaGraphNode_t graph_node_1;
+    cudaKernelNodeParams node_1_params;
+    node_1_params.blockDim = block;
+    node_1_params.gridDim = grid;
+    node_1_params.func = kernel1;
+    void *params_1[5] = {&_fict_, &ex_gpu, &ey_gpu, &hz_gpu, &t};
+    node_1_params.kernelParams = &params_1[0]; 
+    cudaGraphAddKernelNode(&graph_node_1, graph, NULL, 0, &node_1_params);
+
+    cudaGraphNode_t graph_node_2;
+    cudaKernelNodeParams node_2_params;
+    node_2_params.blockDim = block;
+    node_2_params.gridDim = grid;
+    node_2_params.func = kernel2;
+    void *params_2[4] = {&ex_gpu, &ey_gpu, &hz_gpu, &t};
+    node_2_params.kernelParams = &params_2[0]; 
+    cudaGraphAddKernelNode(&graph_node_2, graph, NULL, 0, &node_2_params);
+
+    cudaGraphNode_t graph_node_3;
+    cudaKernelNodeParams node_3_params;
+    node_3_params.blockDim = block;
+    node_3_params.gridDim = grid;
+    node_3_params.func = kernel3;
+    void *params_3[4] = {&ex_gpu, &ey_gpu, &hz_gpu, &t};
+    node_3_params.kernelParams = &params_3[0];
+    cudaGraphNode_t dependencies[2] = {graph_node_1, graph_node_2},
+    cudaGraphAddKernelNode(&graph_node_3, graph, dependencies, 2, &node_3_params);
+
+    // construct dependencies
+    cudaGraphExec_t pGraphExec;
+    cudaGraphInstantiate (&pGraphExec, graph, NULL, NULL, 0);  
+#endif
+*/
     int t = 0;
     for (; t < tmax; t++) {
         kernel1<<<grid, block>>>(_fict_gpu, ex_gpu, ey_gpu, hz_gpu, t);
@@ -250,6 +291,16 @@ void run_fdtd_cuda(DATA_TYPE *_fict_, DATA_TYPE *ex, DATA_TYPE *ey, DATA_TYPE *h
         kernel3<<<grid, block>>>(ex_gpu, ey_gpu, hz_gpu, t);
         cudaDeviceSynchronize();
     }
+
+    // TODO graph execution
+    cudaGraph_t pGraph;
+    cudaGraphCreate(&pGraph, 0);
+    if (cudaGetLastError() != cudaSuccess) {
+        cout << "can't copy results back to host, error code " << cudaGetLastError() << endl;
+        exit(1);
+    }
+
+
     cudaMemcpy(hz_from_gpu, hz_gpu, sizeof(DATA_TYPE) * NX * NY, cudaMemcpyDeviceToHost);
     if (cudaGetLastError() != cudaSuccess) {
         cout << "can't copy results back to host, error code " << cudaGetLastError() << endl;
@@ -259,10 +310,6 @@ void run_fdtd_cuda(DATA_TYPE *_fict_, DATA_TYPE *ex, DATA_TYPE *ey, DATA_TYPE *h
     cudaFree(ex_gpu);
     cudaFree(ey_gpu);
     cudaFree(hz_gpu);
-    // TODO, we are using cuda graph now, it might be supported at the sametime
-    // with unified memory, but worry about later
-    
-    
 }
 
 void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
@@ -308,7 +355,7 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
         run_fdtd_cuda(_fict_cpu, ex_cpu, ey_cpu, hz_cpu, hz_from_gpu);
     }
 
-    // TODO may not necessary
+    // TODO may not be necessary
     srand(1);
     init_arrays(_fict_cpu, ex_cpu, ey_cpu, hz_cpu);
 
