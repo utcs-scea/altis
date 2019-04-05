@@ -329,6 +329,7 @@ AC_CONFIG_FILES([Makefile
                  src/cuda/level2/cfd/Makefile
                  src/cuda/level2/dwt2d/Makefile
                  src/cuda/level2/fdtd2d/Makefile
+                 src/cuda/level2/gups/Makefile
                  src/cuda/level2/kmeans/Makefile
                  src/cuda/level2/lavamd/Makefile
                  src/cuda/level2/mandelbrot/Makefile

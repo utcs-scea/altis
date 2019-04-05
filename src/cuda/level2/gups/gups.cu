@@ -88,13 +88,23 @@
  * performance -- see http://icl.cs.utk.edu/hpcc/
  *
  */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 
-#define DEFAULT_LOGN 20
+
+#include <cstdlib>
+#include <cuda.h>
+#include <iostream>
+
+#include "OptionParser.h"
+#include "ResultDatabase.h"
+#include "cudacommon.h"
+
+#define DEFAULT_LOGN 1 << 20 //20
 #define POLY 0x0000000000000007ULL
+
+#define DEFAULT_GPU 0
 
 union benchtype {
   uint64_t u64;
@@ -199,35 +209,46 @@ starts()
   cudaMemcpyToSymbol(c_m2, m2, sizeof(m2));
 }
 
-int
-main(int argc, char *argv[])
-{
+
+void addBenchmarkSpecOptions(OptionParser &op) {
+   // TODO, maybe add benchmark specs 
+  op.addOption("shifts", OPT_INT, "20", "specify bit shift for the number of elements in update table", '\0');
+}
+
+//int main(int argc, char *argv[])
+//{
+void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
+  std::cout << "Running GUPS" << std::endl;
   size_t n = 0;
-  if (argc > 1) {
-    int logn = atoi(argv[1]);
-    if (logn >= 0) {
-      n = (size_t) 1 << logn;
-    }
-  }
-  if (n <= 0) {
+
+  // Specify table size
+  int logn = op.getOptionInt("shifts");
+  // TODO: watch out size
+  if (logn > 0) {
+    n = (size_t) 1 << logn;
+  } else {
     n = (size_t) 1 << DEFAULT_LOGN;
   }
-  printf("Total table size = %llu (%llu bytes.)\n",
-         n, n * sizeof(uint64_t));
+
+  std::cout << "Total table size = " << n << " (" << n*sizeof(uint64_t) << " bytes.)" << std::endl;
 
   starts();
 
   int ndev;
   cudaGetDeviceCount(&ndev);
   int dev = 0;
+
+  /*
   if (argc > 2) {
     dev = atoi(argv[2]);
   }
   if (dev < 0 || dev >= ndev) {
     dev = 0;
   }
+  */
+
   cudaDeviceProp prop;
-  cudaGetDeviceProperties(&prop, dev);
+  cudaGetDeviceProperties(&prop, DEFAULT_GPU);
   cudaSetDevice(dev);
   printf("Using GPU %d of %d GPUs.\n", dev, ndev);
   printf("Warp size = %d.\n", prop.warpSize);
@@ -241,8 +262,10 @@ main(int argc, char *argv[])
     exit(-1);
   }
 
+  // max warp size
   dim3 grid(prop.multiProcessorCount *
             (prop.maxThreadsPerMultiProcessor / prop.warpSize));
+  // # as if scheduling warps instead of blocks
   dim3 thread(prop.warpSize);
   cudaEvent_t begin, end;
   cudaEventCreate(&begin);
@@ -272,5 +295,4 @@ main(int argc, char *argv[])
   printf("Verification: Found %u errors.\n", h_error);
 
   cudaFree(d_t);
-  return 0;
 }
