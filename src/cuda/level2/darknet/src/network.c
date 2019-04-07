@@ -775,7 +775,12 @@ void forward_network_gpu(network *netp)
         if(l.delta_gpu){
             fill_gpu(l.outputs * l.batch, 0, l.delta_gpu, 1);
         }
+
+        cudaProfilerStart();
         l.forward_gpu(l, net);
+        cudaProfilerStop();
+
+
         net.input_gpu = l.output_gpu;
         net.input = l.output;
         if(l.truth) {

@@ -7,6 +7,7 @@
 #include "layer.h"
 #include "data.h"
 #include "tree.h"
+#include <cuda_profiler_api.h>
 
 
 #ifdef GPU
