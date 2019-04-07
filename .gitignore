@@ -1,6 +1,11 @@
 *.o
 *.a
 *.d
+*.dSYM
+*.csv
+*.out
+*.png
+*.jpg
 *_cl.cpp
 *.buildflags
 *Makefile
@@ -24,6 +29,7 @@ tags
 *.swo
 *.swm
 *.swn
+*cscope*
 
 # Ignore some generated files for in-place build
 .deps
@@ -36,3 +42,5 @@ tools/shocdriver
 
 # Ignore input files
 */input/*
+
+*tiny.weights
