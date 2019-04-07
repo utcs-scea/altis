@@ -1,6 +1,11 @@
 *.o
 *.a
 *.d
+*.dSYM
+*.csv
+*.out
+*.png
+*.jpg
 *_cl.cpp
 *.buildflags
 *Makefile
