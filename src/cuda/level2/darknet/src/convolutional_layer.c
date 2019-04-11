@@ -173,7 +173,9 @@ void cudnn_convolutional_setup(layer *l)
 #endif
 #endif
 
-convolutional_layer make_convolutional_layer(int batch, int h, int w, int c, int n, int groups, int size, int stride, int padding, ACTIVATION activation, int batch_normalize, int binary, int xnor, int adam)
+convolutional_layer make_convolutional_layer(int batch, int h, int w, int c, int n,
+        int groups, int size, int stride, int padding, ACTIVATION activation,
+        int batch_normalize, int binary, int xnor, int adam)
 {
     int i;
     convolutional_layer l = {0};
@@ -198,6 +200,7 @@ convolutional_layer make_convolutional_layer(int batch, int h, int w, int c, int
     l.biases = calloc(n, sizeof(float));
     l.bias_updates = calloc(n, sizeof(float));
 
+    // TODO: this is size 0, need to change forward size
     l.nweights = c/groups*n*size*size;
     l.nbiases = n;
 
@@ -342,11 +345,12 @@ void denormalize_convolutional_layer(convolutional_layer l)
     }
 }
 
-/*
 void test_convolutional_layer()
 {
-    convolutional_layer l = make_convolutional_layer(1, 5, 5, 3, 2, 5, 2, 1, LEAKY, 1, 0, 0, 0);
+    convolutional_layer l = make_convolutional_layer(1, 5, 5, 3, 2, 2, 2, 1, 1, LEAKY,
+                                                    1, 0, 0, 0);
     l.batch_normalize = 1;
+    /*
     float data[] = {1,1,1,1,1,
         1,1,1,1,1,
         1,1,1,1,1,
@@ -362,10 +366,18 @@ void test_convolutional_layer()
         3,3,3,3,3,
         3,3,3,3,3,
         3,3,3,3,3};
-    //net.input = data;
-    //forward_convolutional_layer(l);
+        */
+    float data[416*416] = {0.5};
+    //network *net = load_network(cfgfile, NULL, 0);
+    //network *net = malloc(sizeof(network));
+    network net;
+    net.input_gpu = data;
+    net.workspace = NULL;
+    // TODO: memory leek, both cpu and gpu for some reason
+    forward_convolutional_layer_gpu(l, net);
+    //free_layer(l);
 }
-*/
+
 
 void resize_convolutional_layer(convolutional_layer *l, int w, int h)
 {

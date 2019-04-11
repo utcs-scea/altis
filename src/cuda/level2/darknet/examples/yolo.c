@@ -62,7 +62,7 @@ void train_yolo(char *cfgfile, char *weightfile)
         avg_loss = avg_loss*.9 + loss*.1;
 
         printf("%d: %f, %f avg, %f rate, %lf seconds, %d images\n", i, loss, avg_loss, get_current_rate(net), sec(clock()-time), i*imgs);
-        if(i%1000==0 || (i < 1000 && i%100 == 0)){
+        if (i%1000==0 || (i < 1000 && i%100 == 0)){
             char buff[256];
             sprintf(buff, "%s/%s_%d.weights", backup_directory, base, i);
             save_weights(net, buff);
@@ -71,7 +71,7 @@ void train_yolo(char *cfgfile, char *weightfile)
     }
     char buff[256];
     sprintf(buff, "%s/%s_final.weights", backup_directory, base);
-    save_weights(net, buff);
+    //save_weights(net, buff);
 }
 
 void print_yolo_detections(FILE **fps, char *id, int total, int classes, int w, int h, detection *dets)
@@ -104,7 +104,7 @@ void validate_yolo(char *cfg, char *weights)
 
     char *base = "results/comp4_det_test_";
     //list *plist = get_paths("data/voc.2007.test");
-    list *plist = get_paths("/home/pjreddie/data/voc/2007_test.txt");
+    list *plist = get_paths("VOCdevkit/2007_test.txt");
     //list *plist = get_paths("data/voc.2012.test");
     char **paths = (char **)list_to_array(plist);
 
@@ -273,7 +273,7 @@ void test_yolo(char *cfgfile, char *weightfile, char *filename, float thresh)
     char buff[256];
     char *input = buff;
     float nms=.4;
-    while(1){
+    while (1){
         if(filename){
             strncpy(input, filename, 256);
         } else {
@@ -295,8 +295,8 @@ void test_yolo(char *cfgfile, char *weightfile, char *filename, float thresh)
         if (nms) do_nms_sort(dets, l.side*l.side*l.n, l.classes, nms);
 
         draw_detections(im, dets, l.side*l.side*l.n, thresh, voc_names, alphabet, 20);
-        save_image(im, "predictions");
-        show_image(im, "predictions", 0);
+        //save_image(im, "predictions");
+        //show_image(im, "predictions", 0);
         free_detections(dets, nboxes);
         free_image(im);
         free_image(sized);

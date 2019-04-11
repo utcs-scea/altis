@@ -9,6 +9,32 @@
 #include <stdlib.h>
 #include <string.h>
 
+void test_activation_layer_forward() {
+#ifndef GPU
+    printf("Can't test activation layer for GPU, exiting...\n");
+    exit(1);
+#endif
+    int test_batch = 128;
+    int input_num = 6*160000;
+    layer l = make_activation_layer(test_batch, input_num, LEAKY);
+    network *net = make_network(1);
+    net->input_gpu = cuda_make_array(l.output, test_batch* input_num);
+    forward_activation_layer_gpu(l, *net);
+}
+
+void test_activation_layer_backward() {
+#ifndef GPU
+    printf("Can't test activation layer for GPU, exiting...\n");
+    exit(1);
+#endif
+    int test_batch = 128;
+    int input_num = 6 * 160000;
+    layer l = make_activation_layer(test_batch, input_num, LEAKY);
+    network *net = make_network(1);
+    net->delta_gpu = cuda_make_array(l.output, test_batch * input_num);
+    backward_activation_layer_gpu(l, *net);
+}
+
 layer make_activation_layer(int batch, int inputs, ACTIVATION activation)
 {
     layer l = {0};
