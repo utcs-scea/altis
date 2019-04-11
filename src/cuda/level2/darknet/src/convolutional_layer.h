@@ -46,7 +46,7 @@ image get_convolutional_weight(convolutional_layer layer, int i);
 int convolutional_out_height(convolutional_layer layer);
 int convolutional_out_width(convolutional_layer layer);
 
-void test_convolutional_layer(void);
+void test_convolutional_layer_forward(void);
 void test_forward_convolutional_layer_gpu(convolutional_layer layer, network net);
 
 #endif

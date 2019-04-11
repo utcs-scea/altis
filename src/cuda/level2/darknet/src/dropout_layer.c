@@ -4,6 +4,16 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+void test_dropout_layer_forward() {
+    dropout_layer l = make_dropout_layer(64, 640000, 0.5);
+    network *net = make_network(1);
+    net->input_gpu = cuda_make_array(NULL, 640000*64);
+    net->train = 1;
+    forward_dropout_layer_gpu(l, *net);
+    free_layer(l);
+    free_network(net);
+}
+
 dropout_layer make_dropout_layer(int batch, int inputs, float probability)
 {
     dropout_layer l = {0};

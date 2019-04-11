@@ -20,6 +20,8 @@ void test_activation_layer_forward() {
     network *net = make_network(1);
     net->input_gpu = cuda_make_array(l.output, test_batch* input_num);
     forward_activation_layer_gpu(l, *net);
+    free_layer(l);
+    free_network(net);
 }
 
 void test_activation_layer_backward() {
@@ -33,6 +35,8 @@ void test_activation_layer_backward() {
     network *net = make_network(1);
     net->delta_gpu = cuda_make_array(l.output, test_batch * input_num);
     backward_activation_layer_gpu(l, *net);
+    free_layer(l);
+    free_network(net);
 }
 
 layer make_activation_layer(int batch, int inputs, ACTIVATION activation)

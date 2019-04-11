@@ -2,6 +2,26 @@
 #include "cuda.h"
 #include <stdio.h>
 
+void test_maxpool_layer_forward() {
+    int batch = 64;
+    maxpool_layer l = make_maxpool_layer(batch, 540, 540, 64, 2, 2, 1);
+    network *net = make_network(1);
+    net->input_gpu = cuda_make_array(NULL, batch*540*540*64);
+    forward_maxpool_layer_gpu(l, *net);
+    free_layer(l);
+    free_network(net);
+}
+
+void test_maxpool_layer_backward() {
+    int batch = 64;
+    maxpool_layer l = make_maxpool_layer(batch, 540, 540, 64, 2, 2, 1);
+    network *net = make_network(1);
+    net->delta_gpu = cuda_make_array(NULL, batch*540*540*64);
+    backward_maxpool_layer_gpu(l, *net);
+    free_layer(l);
+    free_network(net);
+}
+
 image get_maxpool_image(maxpool_layer l)
 {
     int h = l.out_h;
