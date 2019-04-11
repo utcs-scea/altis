@@ -5,6 +5,9 @@
 #include "layer.h"
 #include "network.h"
 
+void test_batchnorm_layer_training_forward(void);
+void test_batchnorm_layer_training_backward(void);
+
 layer make_batchnorm_layer(int batch, int w, int h, int c);
 void forward_batchnorm_layer(layer l, network net);
 void backward_batchnorm_layer(layer l, network net);
