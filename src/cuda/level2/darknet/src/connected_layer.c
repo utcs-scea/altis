@@ -11,6 +11,17 @@
 #include <stdlib.h>
 #include <string.h>
 
+/*
+void test_connected_layer_forward() {
+    layer l = make_connected_layer(1, 40, 20, LEAKY, 1, 1);
+    float *data = malloc(sizeof(float) * 80);
+    network net;
+    net.input = data;
+    forward_connected_layer_gpu(l, net);
+    //free_layer(l);
+}
+*/
+
 layer make_connected_layer(int batch, int inputs, int outputs, ACTIVATION activation, int batch_normalize, int adam)
 {
     int i;

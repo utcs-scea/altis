@@ -2,6 +2,8 @@
 #include "curand.h"
 #include "cublas_v2.h"
 
+    #include <cuda_profiler_api.h>
+
 extern "C" {
 #include "convolutional_layer.h"
 #include "batchnorm_layer.h"
@@ -68,6 +70,47 @@ void binarize_weights_gpu(float *weights, int n, int size, float *binary)
 {
     binarize_weights_kernel<<<cuda_gridsize(n), BLOCK>>>(weights, n, size, binary);
     check_error(cudaPeekAtLastError());
+}
+
+
+void test_forward_convolutional_layer_gpu(convolutional_layer l, network net) {
+#ifdef CUDNN
+    float one = 1;
+    cudnnConvolutionForward(cudnn_handle(),
+                &one,
+                l.srcTensorDesc,
+                net.input_gpu,
+                l.weightDesc,
+                l.weights_gpu,
+                l.convDesc,
+                l.fw_algo,
+                net.workspace,
+                l.workspace_size,
+                &one,
+                l.dstTensorDesc,
+                l.output_gpu);
+
+#else
+    int i, j;
+    int m = l.n/l.groups;
+    int k = l.size*l.size*l.c/l.groups;
+    int n = l.out_w*l.out_h;
+    for(i = 0; i < l.batch; ++i){
+        for(j = 0; j < l.groups; ++j){
+            float *a = l.weights_gpu + j*l.nweights/l.groups;
+            float *b = net.workspace;
+            float *c = l.output_gpu + (i*l.groups + j)*n*m;
+            float *im = net.input_gpu + (i*l.groups + j)*l.c/l.groups*l.h*l.w;
+
+            if (l.size == 1){
+                b = im;
+            } else {
+                im2col_gpu(im, l.c/l.groups, l.h, l.w, l.size, l.stride, l.pad, b);
+            }
+            gemm_gpu(0,0,m,n,k,1,a,k,b,n,1,c,n);
+        }
+    }
+#endif
 }
 
 void forward_convolutional_layer_gpu(convolutional_layer l, network net)

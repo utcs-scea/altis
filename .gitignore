@@ -44,3 +44,9 @@ tools/shocdriver
 */input/*
 
 *tiny.weights
+
+**/VOCdevkit/
+**/darknet/backup/
+**/darknet/results/
+**/darknet/yolo_train_result.txt
+
