@@ -1,6 +1,8 @@
 #ifndef GEMM_H
 #define GEMM_H
 
+#include "cublas_v2.h"
+
 void gemm_bin(int M, int N, int K, float ALPHA, 
         char  *A, int lda, 
         float *B, int ldb,
