@@ -131,7 +131,13 @@ void visualize(char *cfgfile, char *weightfile)
 int main(int argc, char **argv)
 {
     //test_box();
-    test_activation_layer_backward();
+    //test_activation_layer_backward();
+    //test_avgpool_layer_backward();
+    //test_batchnorm_layer_training_forward();
+    //test_dropout_layer_forward();
+    //test_softmax_layer_forward();
+    //test_maxpool_layer_backward();
+    test_convolutional_layer_forward();
     return 0;
     if (argc < 2){
         fprintf(stderr, "usage: %s <function>\n", argv[0]);

@@ -12,6 +12,20 @@
 #include "xnor_layer.h"
 #endif
 
+void test_convolutional_layer_forward()
+{
+    convolutional_layer l = make_convolutional_layer(64, 224, 224, 64, 100,
+                    24, 3, 1, 1, LEAKY,
+                    1, 0, 0, 1);
+    network *net = make_network(1);
+    l.batch_normalize = 1;
+    net->input_gpu = cuda_make_array(NULL, 64*224*224*64);
+    net->workspace = NULL;
+    forward_convolutional_layer_gpu(l, *net);
+    free_layer(l);
+    free_network(net);
+}
+
 void swap_binary(convolutional_layer *l)
 {
     float *swap = l->weights;
@@ -344,40 +358,6 @@ void denormalize_convolutional_layer(convolutional_layer l)
         l.rolling_variance[i] = 1;
     }
 }
-
-void test_convolutional_layer()
-{
-    convolutional_layer l = make_convolutional_layer(1, 5, 5, 3, 2, 2, 2, 1, 1, LEAKY,
-                                                    1, 0, 0, 0);
-    l.batch_normalize = 1;
-    /*
-    float data[] = {1,1,1,1,1,
-        1,1,1,1,1,
-        1,1,1,1,1,
-        1,1,1,1,1,
-        1,1,1,1,1,
-        2,2,2,2,2,
-        2,2,2,2,2,
-        2,2,2,2,2,
-        2,2,2,2,2,
-        2,2,2,2,2,
-        3,3,3,3,3,
-        3,3,3,3,3,
-        3,3,3,3,3,
-        3,3,3,3,3,
-        3,3,3,3,3};
-        */
-    float data[416*416] = {0.5};
-    //network *net = load_network(cfgfile, NULL, 0);
-    //network *net = malloc(sizeof(network));
-    network net;
-    net.input_gpu = data;
-    net.workspace = NULL;
-    // TODO: memory leek, both cpu and gpu for some reason
-    forward_convolutional_layer_gpu(l, net);
-    //free_layer(l);
-}
-
 
 void resize_convolutional_layer(convolutional_layer *l, int w, int h)
 {

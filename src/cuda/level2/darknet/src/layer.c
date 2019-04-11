@@ -94,6 +94,5 @@ void free_layer(layer l)
     if(l.squared_gpu)             cuda_free(l.squared_gpu);
     if(l.norms_gpu)               cuda_free(l.norms_gpu);
     
-    printf("asdf\n\n");
 #endif
 }
