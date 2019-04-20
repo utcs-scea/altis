@@ -5,6 +5,8 @@
 #include "layer.h"
 #include "network.h"
 
+void test_connected_layer_forward(void);
+
 layer make_connected_layer(int batch, int inputs, int outputs, ACTIVATION activation, int batch_normalize, int adam);
 
 void forward_connected_layer(layer l, network net);

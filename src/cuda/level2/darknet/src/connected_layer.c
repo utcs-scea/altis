@@ -11,16 +11,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-/*
-void test_connected_layer_forward() {
-    layer l = make_connected_layer(1, 40, 20, LEAKY, 1, 1);
-    float *data = malloc(sizeof(float) * 80);
-    network net;
-    net.input = data;
-    forward_connected_layer_gpu(l, net);
-    //free_layer(l);
+void test_connected_layer_forward(void) {
+    layer l = make_connected_layer(128, 4096, 4096, LEAKY, 1, 1);
+    network *net = make_network(1);
+    net->input_gpu = cuda_make_array(NULL, l.inputs*l.outputs);
+    forward_connected_layer_gpu(l, *net);
+    free_layer(l);
+    free_network(net);
 }
-*/
 
 layer make_connected_layer(int batch, int inputs, int outputs, ACTIVATION activation, int batch_normalize, int adam)
 {

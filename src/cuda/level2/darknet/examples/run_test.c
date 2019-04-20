@@ -137,7 +137,8 @@ int main(int argc, char **argv)
     //test_dropout_layer_forward();
     //test_softmax_layer_forward();
     //test_maxpool_layer_backward();
-    test_convolutional_layer_forward();
+    //test_convolutional_layer_forward();
+    test_connected_layer_forward();
     return 0;
     if (argc < 2){
         fprintf(stderr, "usage: %s <function>\n", argv[0]);

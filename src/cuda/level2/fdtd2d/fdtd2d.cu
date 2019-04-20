@@ -293,13 +293,14 @@ void run_fdtd_cuda(DATA_TYPE *_fict_, DATA_TYPE *ex, DATA_TYPE *ey, DATA_TYPE *h
     }
 
     // TODO graph execution
+    /*
     cudaGraph_t pGraph;
     cudaGraphCreate(&pGraph, 0);
     if (cudaGetLastError() != cudaSuccess) {
         cout << "can't copy results back to host, error code " << cudaGetLastError() << endl;
         exit(1);
     }
-
+*/
 
     cudaMemcpy(hz_from_gpu, hz_gpu, sizeof(DATA_TYPE) * NX * NY, cudaMemcpyDeviceToHost);
     if (cudaGetLastError() != cudaSuccess) {
