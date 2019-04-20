@@ -16,6 +16,7 @@ AC_LANG([C++])
 AC_PREFIX_DEFAULT(`pwd`)
 
 # Check for fundamental programs.
+# TODO
 AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_RANLIB
@@ -34,14 +35,14 @@ then
 elif test $ac_cv_prog_cxx_g = yes
 then
     if test "$GXX" = yes; then
-        NVCXXFLAGS="-g -O2"
+        NVCXXFLAGS="-g -O2"  #-O2
     else
         NVCXXFLAGS="-g"
     fi
 else
     if test "$GXX" = yes
     then
-        NVCXXFLAGS="-O2"
+        NVCXXFLAGS="-O2" #-O2
     else
         NVCXXFLAGS=
     fi
