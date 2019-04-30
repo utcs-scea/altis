@@ -16,6 +16,7 @@ AC_LANG([C++])
 AC_PREFIX_DEFAULT(`pwd`)
 
 # Check for fundamental programs.
+# TODO
 AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_RANLIB
