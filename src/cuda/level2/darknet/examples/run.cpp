@@ -1,8 +1,18 @@
+#ifdef _cplusplus
+extern "C" {
+#endif
 #include "darknet.h"
 
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
+
+#ifdef _cplusplus
+}
+#endif
+
+#include "OptionParser.h"
+#include "ResultDatabase.h"
 
 extern void predict_classifier(char *datacfg, char *cfgfile, char *weightfile, char *filename, int top);
 extern void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filename, float thresh, float hier_thresh, char *outfile, int fullscreen);
@@ -11,6 +21,7 @@ extern void run_detector(int argc, char **argv);
 extern void run_nightmare(int argc, char **argv);
 extern void run_classifier(int argc, char **argv);
 extern void run_char_rnn(int argc, char **argv);
+
 
 long numops(network *net)
 {
@@ -128,7 +139,14 @@ void visualize(char *cfgfile, char *weightfile)
     visualize_network(net);
 }
 
-int main(int argc, char **argv)
+
+void addBenchmarkSpecOptions(OptionParser &op) {
+   // TODO, maybe add benchmark specs 
+  op.addOption("shifts", OPT_INT, "20", "specify bit shift for the number of elements in update table", '\0');
+}
+
+//int main(int argc, char **argv)
+void RunBenchmark(ResultDatabase &DB, OptionParser &op)
 {
     //test_box();
     //test_activation_layer_backward();
@@ -138,10 +156,13 @@ int main(int argc, char **argv)
     //test_softmax_layer_forward();
     //test_maxpool_layer_backward();
     //test_convolutional_layer_forward();
-    /*
     test_connected_layer_forward();
-    return 0;
-    */
+    //return 0;
+    //
+
+
+
+    /*
     if (argc < 2){
         fprintf(stderr, "usage: %s <function>\n", argv[0]);
         return 0;
@@ -184,6 +205,6 @@ int main(int argc, char **argv)
     } else {
         fprintf(stderr, "Not an option: %s\n", argv[1]);
     }
-    return 0;
+    */
 }
 
