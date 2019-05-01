@@ -7,9 +7,6 @@
 
 layer make_activation_layer(int batch, int inputs, ACTIVATION activation);
 
-void test_activation_layer_forward(void);
-void test_activation_layer_backward(void);
-
 void forward_activation_layer(layer l, network net);
 void backward_activation_layer(layer l, network net);
 
