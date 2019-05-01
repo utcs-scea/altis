@@ -802,7 +802,8 @@ float rand_uniform(float min, float max);
 
 
 // added header for testing purpose
-void test_connected_layer_forward(void);
+void test_connected_layer_forward(int batch, int input, int output, ACTIVATION actv,
+            int batchnorm, int adam);
 #ifdef __cplusplus
 }
 #endif

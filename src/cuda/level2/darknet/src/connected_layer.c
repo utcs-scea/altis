@@ -11,8 +11,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-void test_connected_layer_forward(void) {
-    layer l = make_connected_layer(128, 4096, 4096, LEAKY, 1, 1);
+void test_connected_layer_forward(int batch, int input_size, int output_size,
+            ACTIVATION actv, int batchnorm, int adam) 
+{
+    layer l = make_connected_layer(batch, input_size, output_size, actv, 
+            batchnorm, adam);
     network *net = make_network(1);
     net->input_gpu = cuda_make_array(NULL, l.inputs*l.outputs);
     forward_connected_layer_gpu(l, *net);
