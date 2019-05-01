@@ -799,6 +799,10 @@ size_t rand_size_t();
 float rand_normal();
 float rand_uniform(float min, float max);
 
+
+
+// added header for testing purpose
+void test_connected_layer_forward(void);
 #ifdef __cplusplus
 }
 #endif
