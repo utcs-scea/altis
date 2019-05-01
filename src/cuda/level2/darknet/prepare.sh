@@ -1,0 +1,3 @@
+cd ~/mirovia
+automake
+./configure

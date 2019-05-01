@@ -9,34 +9,38 @@
 #include <stdlib.h>
 #include <string.h>
 
-void test_activation_layer_forward() {
+void test_activation_layer_forward(int batch, int input_size,
+                ACTIVATION actv) {
 #ifndef GPU
     printf("Can't test activation layer for GPU, exiting...\n");
     exit(1);
 #endif
-    int test_batch = 128;
-    int input_num = 6*160000;
-    layer l = make_activation_layer(test_batch, input_num, LEAKY);
+    printf("----- activation layer forward -----\n");
+
+    layer l = make_activation_layer(batch, input_size, actv);
     network *net = make_network(1);
-    net->input_gpu = cuda_make_array(l.output, test_batch* input_num);
+    net->input_gpu = cuda_make_array(l.output, l.batch* l.inputs);
     forward_activation_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
+    printf("\n");
 }
 
-void test_activation_layer_backward() {
+void test_activation_layer_backward(int batch, int input_size,
+                ACTIVATION actv) {
 #ifndef GPU
     printf("Can't test activation layer for GPU, exiting...\n");
     exit(1);
 #endif
-    int test_batch = 128;
-    int input_num = 6 * 160000;
-    layer l = make_activation_layer(test_batch, input_num, LEAKY);
+    printf("----- activation layer backward -----\n");
+
+    layer l = make_activation_layer(batch, input_size, actv);
     network *net = make_network(1);
-    net->delta_gpu = cuda_make_array(l.output, test_batch * input_num);
+    net->delta_gpu = cuda_make_array(l.output, l.batch * l.inputs);
     backward_activation_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
+    printf("\n");
 }
 
 layer make_activation_layer(int batch, int inputs, ACTIVATION activation)

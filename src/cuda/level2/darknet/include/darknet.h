@@ -6,11 +6,13 @@
 #include <pthread.h>
 
 #ifdef GPU
-    #define BLOCK 512
+    // Change based GPU version?
+    #define BLOCK 512 //1024
 
     #include "cuda_runtime.h"
     #include "curand.h"
     #include "cublas_v2.h"
+    #include <cuda_profiler_api.h>
 
     #ifdef CUDNN
     #include "cudnn.h"
@@ -802,7 +804,58 @@ float rand_uniform(float min, float max);
 
 
 // added header for testing purpose
-void test_connected_layer_forward(void);
+void test_connected_layer_forward(int batch, int input, int output, ACTIVATION actv,
+            int batchnorm, int adam);
+void test_connected_layer_backward(int batch, int input, int output, ACTIVATION actv,
+            int batchnorm, int adam);
+
+void test_activation_layer_forward(int batch, int input, ACTIVATION actv);
+void test_activation_layer_backward(int batch, int input, ACTIVATION actv);
+
+void test_avgpool_layer_forward(int batch, int width, int height, int chan);
+void test_avgpool_layer_backward(int batch, int width, int height, int chan);
+
+void test_batchnorm_layer_forward(int batch, int width, int height, int chan);
+void test_batchnorm_layer_backward(int batch, int width, int height, int chan);
+
+
+void test_convolutional_layer_forward(int batch, int height, int width, int chan,
+        int hidden_filters, int groups, int size, int stride, int padding, ACTIVATION activation,
+        int batchnorm, int binary, int xnor, int adam);
+void test_convolutional_layer_backward(int batch, int height, int width, int chan,
+        int hidden_filters, int groups, int size, int stride, int padding, ACTIVATION activation,
+        int batchnorm, int binary, int xnor, int adam);
+
+void test_crnn_layer_forward(int batch,int height, int width, int chan, int hidden_layers,
+            int output_filters, int steps, ACTIVATION activation, int batchnorm);
+
+void test_deconvolutional_layer_forward(int batch, int height, int width, int chan,
+        int hidden_filters, int size, int stride, int padding, ACTIVATION actv,
+        int batchnorm, int adam);
+void test_deconvolutional_layer_backward(int batch, int height, int width, int chan,
+        int hidden_filters, int size, int stride, int padding, ACTIVATION actv,
+        int batchnorm, int adam);
+
+void test_dropout_layer_forward(int batch, int input_size, float prob);
+void test_dropout_layer_backward(int batch, int input_size, float prob);
+
+void test_l2norm_layer_forward(int batch, int inputs_size);
+void test_l2norm_layer_backward(int batch, int inputs_size);
+
+void test_logistic_layer_forward(int batch, int inputs_size);
+void test_logistic_layer_backward(int batch, int inputs_size);
+
+void test_maxpool_layer_forward(int batch, int height, int width, int chan,
+                int size, int stride, int padding);
+void test_maxpool_layer_backward(int batch, int height, int width, int chan,
+                int size, int stride, int padding);
+
+void test_normalization_layer_forward(int batch, int width, int height, int channel,
+                int size, float alpha, float beta, float kappa);
+ 
+
+void test_shortcut_layer_forward(int batch, int index, int width, int height, int chan,
+                int width2, int height2, int chan2);
 #ifdef __cplusplus
 }
 #endif

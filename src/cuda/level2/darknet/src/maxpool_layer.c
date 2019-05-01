@@ -2,24 +2,28 @@
 #include "cuda.h"
 #include <stdio.h>
 
-void test_maxpool_layer_forward() {
-    int batch = 64;
-    maxpool_layer l = make_maxpool_layer(batch, 540, 540, 64, 2, 2, 1);
+void test_maxpool_layer_forward(int batch, int height, int width, int chan,
+                int size, int stride, int padding) {
+    printf("----- maxpool forward -----\n");
+    maxpool_layer l = make_maxpool_layer(batch, height, width, chan, size, stride, padding);
     network *net = make_network(1);
-    net->input_gpu = cuda_make_array(NULL, batch*540*540*64);
+    net->input_gpu = cuda_make_array(NULL, l.batch*l.w*l.h*l.c);
     forward_maxpool_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
+    printf("--------------------\n");
 }
 
-void test_maxpool_layer_backward() {
-    int batch = 64;
-    maxpool_layer l = make_maxpool_layer(batch, 540, 540, 64, 2, 2, 1);
+void test_maxpool_layer_backward(int batch, int height, int width, int chan,
+                int size, int stride, int padding) {
+    printf("----- maxpool backward -----\n");
+    maxpool_layer l = make_maxpool_layer(batch, height, width, chan, size, stride, padding);
     network *net = make_network(1);
-    net->delta_gpu = cuda_make_array(NULL, batch*540*540*64);
+    net->delta_gpu = cuda_make_array(NULL, l.batch*l.h*l.w*l.c);
     backward_maxpool_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
+    printf("--------------------\n");
 }
 
 image get_maxpool_image(maxpool_layer l)

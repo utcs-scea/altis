@@ -2,28 +2,26 @@
 #include "cuda.h"
 #include <stdio.h>
 
-void test_avgpool_layer_forward() {
-    // TODO: need tuning
-    //avgpool_layer l = make_avgpool_layer(64, 32, 32, 3);
-    int batch = 64;
-    avgpool_layer l = make_avgpool_layer(batch, 224, 224, 64);
+void test_avgpool_layer_forward(int batch, int width, int height, int chan) {
+    printf("----- avgpool forward -----\n");
+    avgpool_layer l = make_avgpool_layer(batch, width, height, chan);
     network *net = make_network(1);
-    net->input_gpu = cuda_make_array(NULL, l.w*l.h*l.c * 64);
+    net->input_gpu = cuda_make_array(NULL, l.w*l.h*l.c*l.batch);
     forward_avgpool_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
+    printf("\n\n");
 }
 
-void test_avgpool_layer_backward() {
-    // TODO: need tuning
-    //avgpool_layer l = make_avgpool_layer(64, 32, 32, 3);
-    int batch = 64;
-    avgpool_layer l = make_avgpool_layer(batch, 224, 224, 64);
+void test_avgpool_layer_backward(int batch, int width, int height, int chan) {
+    printf("----- avgpool backward -----\n");
+    avgpool_layer l = make_avgpool_layer(batch, width, height, chan);
     network *net = make_network(1);
-    net->delta_gpu = cuda_make_array(NULL, l.w*l.h*l.c * 64);
+    net->delta_gpu = cuda_make_array(NULL, l.w*l.h*l.c*l.batch);
     backward_avgpool_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
+    printf("\n\n");
 }
 
 avgpool_layer make_avgpool_layer(int batch, int w, int h, int c)

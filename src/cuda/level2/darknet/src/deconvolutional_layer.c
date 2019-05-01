@@ -10,6 +10,37 @@
 #include <stdio.h>
 #include <time.h>
 
+void test_deconvolutional_layer_forward(int batch, int height, int width,
+            int chan, int hidden_filters, int size, int stride, int padding,
+            ACTIVATION activation, int batchnorm, int adam) {
+
+    printf("----- deconvolution forward -----\n");
+    layer l = make_deconvolutional_layer(batch, height, width, chan, hidden_filters,
+            size, stride, padding, activation, batchnorm, adam);
+    network *net = make_network(1);
+    net->input_gpu = cuda_make_array(0, l.batch*l.h*l.w*l.c); 
+    net->workspace = cuda_make_array(0, (l.workspace_size-1)/sizeof(float)+1);
+    forward_deconvolutional_layer_gpu(l, *net);
+    free_layer(l);
+    free_network(net);
+    printf("--------------------\n\n"); 
+}
+
+void test_deconvolutional_layer_backward(int batch, int height, int width,
+            int chan, int hidden_filters, int size, int stride, int padding,
+            ACTIVATION activation, int batchnorm, int adam) {
+
+    printf("----- deconvolution backward -----\n");
+    layer l = make_deconvolutional_layer(batch, height, width, chan, hidden_filters,
+            size, stride, padding, activation, batchnorm, adam);
+    network *net = make_network(1);
+    net->input_gpu = cuda_make_array(0, l.batch*l.h*l.w*l.c); 
+    net->workspace = cuda_make_array(0, (l.workspace_size-1)/sizeof(float)+1);
+    backward_deconvolutional_layer_gpu(l, *net);
+    free_layer(l);
+    free_network(net);
+    printf("--------------------\n\n"); 
+}
 
 static size_t get_workspace_size(layer l){
     return (size_t)l.h*l.w*l.size*l.size*l.n*sizeof(float);

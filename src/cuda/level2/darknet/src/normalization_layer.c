@@ -3,6 +3,19 @@
 
 #include <stdio.h>
 
+void test_normalization_layer_forward(int batch, int width, int height, int channel,
+                int size, float alpha, float beta, float kappa) {
+    printf("----- normalization forward -----\n");
+    layer l = make_normalization_layer(batch, width, height, channel, size, alpha,
+            beta, kappa);
+    network *net = make_network(1);
+    net->input_gpu = cuda_make_array(NULL, l.batch*l.h*l.w*l.c);
+    forward_normalization_layer_gpu(l, *net);
+    free_layer(l);
+    free_network(net);
+    printf("-------------------------\n\n");
+}
+
 layer make_normalization_layer(int batch, int w, int h, int c, int size, float alpha, float beta, float kappa)
 {
     fprintf(stderr, "Local Response Normalization Layer: %d x %d x %d image, %d size\n", w,h,c,size);

@@ -3,28 +3,30 @@
 #include "blas.h"
 #include <stdio.h>
 
-void test_batchnorm_layer_training_forward() {
-    int batch = 64;
-    layer l = make_batchnorm_layer(batch, 224, 224, 128);
+void test_batchnorm_layer_forward(int batch, int width, int height, int chan) {
+    printf("----- batchnorm forward -----\n");
+    layer l = make_batchnorm_layer(batch, width, height, chan);
     network *net = make_network(1);
-    net->input_gpu = cuda_make_array(l.output, l.w*l.h*l.c*batch);
+    net->input_gpu = cuda_make_array(l.output, l.w*l.h*l.c*l.batch);
     // Can chose to test simple inference
     net->train = 1;
     forward_batchnorm_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
+    printf("\n\n");
 }
 
-void test_batchnorm_layer_training_backward() {
-    int batch = 64;
-    layer l = make_batchnorm_layer(batch, 224, 224, 128);
+void test_batchnorm_layer_backward(int batch, int width, int height, int chan) {
+    printf("----- batchnorm backward -----\n");
+    layer l = make_batchnorm_layer(batch, width, height, chan);
     network *net = make_network(1);
-    net->delta_gpu = cuda_make_array(l.delta, l.w*l.h*l.c*batch);
+    net->delta_gpu = cuda_make_array(l.delta, l.w*l.h*l.c*l.batch);
     // Can chose to test simple inference
     net->train = 1;
     backward_batchnorm_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
+    printf("\n\n");
 }
 
 layer make_batchnorm_layer(int batch, int w, int h, int c)

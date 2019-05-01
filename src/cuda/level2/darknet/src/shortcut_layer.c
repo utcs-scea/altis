@@ -6,6 +6,28 @@
 #include <stdio.h>
 #include <assert.h>
 
+void test_shortcut_layer_forward(int batch, int index, int width, int height, int chan,
+                    int width2, int height2, int chan2) {
+
+    printf("----- test shortcut forward -----\n");
+    layer l = make_shortcut_layer(batch, index, width, height, chan, width2,
+                            height2, chan2);
+    network *net = make_network(1);
+    // prepare parameters
+    net->input_gpu = cuda_make_array(NULL, l.outputs * l.batch);
+    net->layers[l.index] = make_shortcut_layer(batch, index, width2, height2, chan2,
+            width2, height2, chan2);
+    l.alpha = 0.5;
+    l.beta = 0.5;
+    l.activation = RELU; 
+
+    forward_shortcut_layer_gpu(l, *net);
+    
+    free_layer(l);
+    free_network(net);
+    printf("--------------------\n\n");
+}
+
 layer make_shortcut_layer(int batch, int index, int w, int h, int c, int w2, int h2, int c2)
 {
     fprintf(stderr, "res  %3d                %4d x%4d x%4d   ->  %4d x%4d x%4d\n",index, w2,h2,c2, w,h,c);

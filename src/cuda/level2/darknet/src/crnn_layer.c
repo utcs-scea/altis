@@ -10,6 +10,28 @@
 #include <stdlib.h>
 #include <string.h>
 
+void test_crnn_layer_forward(int batch,int height, int width, int chan, int hidden_layers,
+            int output_filters, int steps, ACTIVATION activation, int batchnorm) {
+
+    printf("----- crnn layer forward -----\n");
+    network *net = make_network(1);
+    layer l = make_crnn_layer(batch, height, width, chan, hidden_layers,
+            output_filters, steps, activation, batchnorm);
+
+    net->train = 0;
+    net->input_gpu = cuda_make_array(NULL, l.h*l.w*l.c*l.batch);
+    // TODO workspace size problem
+    net->workspace = cuda_make_array(0, ((l.input_layer)->workspace_size-1)/sizeof(float)+1);
+    l.shortcut = 1;
+
+    forward_crnn_layer_gpu(l, *net);
+
+    free_layer(l);
+    free_network(net);
+
+    printf("--------------------\n\n");
+}
+
 static void increment_layer(layer *l, int steps)
 {
     int num = l->outputs*l->batch*steps;
@@ -26,7 +48,8 @@ static void increment_layer(layer *l, int steps)
 #endif
 }
 
-layer make_crnn_layer(int batch, int h, int w, int c, int hidden_filters, int output_filters, int steps, ACTIVATION activation, int batch_normalize)
+layer make_crnn_layer(int batch, int h, int w, int c, int hidden_filters,
+        int output_filters, int steps, ACTIVATION activation, int batch_normalize)
 {
     fprintf(stderr, "CRNN Layer: %d x %d x %d image, %d filters\n", h,w,c,output_filters);
     batch = batch / steps;
