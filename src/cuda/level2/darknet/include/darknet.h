@@ -11,6 +11,7 @@
     #include "cuda_runtime.h"
     #include "curand.h"
     #include "cublas_v2.h"
+    #include <cuda_profiler_api.h>
 
     #ifdef CUDNN
     #include "cudnn.h"
@@ -804,6 +805,25 @@ float rand_uniform(float min, float max);
 // added header for testing purpose
 void test_connected_layer_forward(int batch, int input, int output, ACTIVATION actv,
             int batchnorm, int adam);
+void test_connected_layer_backward(int batch, int input, int output, ACTIVATION actv,
+            int batchnorm, int adam);
+
+void test_activation_layer_forward(int batch, int input, ACTIVATION actv);
+void test_activation_layer_backward(int batch, int input, ACTIVATION actv);
+
+void test_avgpool_layer_forward(int batch, int width, int height, int chan);
+void test_avgpool_layer_backward(int batch, int width, int height, int chan);
+
+void test_batchnorm_layer_forward(int batch, int width, int height, int chan);
+void test_batchnorm_layer_backward(int batch, int width, int height, int chan);
+
+
+void test_convolutional_layer_forward(int batch, int height, int width, int chan,
+        int hidden_filters, int groups, int size, int stride, int padding, ACTIVATION activation,
+        int batchnorm, int binary, int xnor, int adam);
+void test_convolutional_layer_backward(int batch, int height, int width, int chan,
+        int hidden_filters, int groups, int size, int stride, int padding, ACTIVATION activation,
+        int batchnorm, int binary, int xnor, int adam);
 #ifdef __cplusplus
 }
 #endif

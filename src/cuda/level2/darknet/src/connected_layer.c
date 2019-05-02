@@ -14,16 +14,32 @@
 void test_connected_layer_forward(int batch, int input_size, int output_size,
             ACTIVATION actv, int batchnorm, int adam) 
 {
+    printf("Begin connected layer forward test...\n");
     layer l = make_connected_layer(batch, input_size, output_size, actv, 
             batchnorm, adam);
     network *net = make_network(1);
-    net->input_gpu = cuda_make_array(NULL, l.inputs*l.outputs);
+    net->input_gpu = cuda_make_array(l.weights, l.inputs*l.outputs);
     forward_connected_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
+    printf("\n");
 }
 
-layer make_connected_layer(int batch, int inputs, int outputs, ACTIVATION activation, int batch_normalize, int adam)
+void test_connected_layer_backward(int batch, int input_size, int output_size,
+            ACTIVATION actv, int batchnorm, int adam) {
+    printf("Begin connected layer backward test...\n");
+    layer l = make_connected_layer(batch, input_size, output_size, actv,
+            batchnorm, adam);
+    network *net = make_network(1);
+    net->input_gpu = cuda_make_array(l.weights, l.inputs*l.outputs);
+    backward_connected_layer_gpu(l, *net);
+    free_layer(l);
+    free_network(net);
+    printf("\n");
+}
+
+layer make_connected_layer(int batch, int inputs, int outputs,
+        ACTIVATION activation, int batch_normalize, int adam)
 {
     int i;
     layer l = {0};

@@ -12,18 +12,43 @@
 #include "xnor_layer.h"
 #endif
 
-void test_convolutional_layer_forward()
+void test_convolutional_layer_forward(int batch, int height, int width, int chan,
+        int hidden_filters, int groups, int size, int stride, int padding, ACTIVATION activation,
+        int batchnorm, int binary, int xnor, int adam)
 {
-    convolutional_layer l = make_convolutional_layer(64, 224, 224, 64, 100,
-                    24, 3, 1, 1, LEAKY,
-                    1, 0, 0, 1);
+    //convolutional_layer l = make_convolutional_layer(64, 224, 224, 64, change hidden filter! 100,
+    //              should be 1!  24, 3, 1, 1, LEAKY,
+    //                1, 0, 0, 1);
+    printf("----- convolution forward -----\n");
+    convolutional_layer l = make_convolutional_layer(batch, height, width, chan,
+            hidden_filters, groups, size, stride, padding, activation, batchnorm,
+            binary, xnor, adam);
     network *net = make_network(1);
     l.batch_normalize = 1;
-    net->input_gpu = cuda_make_array(NULL, 64*224*224*64);
+    net->input_gpu = cuda_make_array(NULL, l.batch*l.h*l.w*l.c);
     net->workspace = NULL;
     forward_convolutional_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
+    printf("--------------------\n\n");
+}
+
+void test_convolutional_layer_backward(int batch, int height, int width, int chan,
+        int hidden_filters, int groups, int size, int stride, int padding, ACTIVATION activation,
+        int batchnorm, int binary, int xnor, int adam)
+{
+    printf("----- convolution backward -----\n");
+    convolutional_layer l = make_convolutional_layer(batch, height, width, chan,
+            hidden_filters, groups, size, stride, padding, activation, batchnorm,
+            binary, xnor, adam);
+    network *net = make_network(1);
+    l.batch_normalize = 1;
+    net->input_gpu = cuda_make_array(NULL, l.batch*l.h*l.w*l.c);
+    net->workspace = NULL;
+    backward_convolutional_layer_gpu(l, *net);
+    free_layer(l);
+    free_network(net);
+    printf("-------------------\n\n");
 }
 
 void swap_binary(convolutional_layer *l)

@@ -17,6 +17,10 @@ extern "C" {
 #include <string>
 
 extern void test_connected_layer(ResultDatabase &DB, OptionParser &op);
+extern void test_activation_layer(ResultDatabase &DB, OptionParser &op);
+extern void test_avgpool_layer(ResultDatabase &DB, OptionParser &op);
+extern void test_batchnorm_layer(ResultDatabase &DB, OptionParser &op);
+extern void test_convolutional_layer(ResultDatabase &DB, OptionParser &op); 
 
 using namespace std;
 
@@ -40,8 +44,20 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op)
     std::string test_type = op.getOptionString("test_type");
     if (test_type.compare("all") == 0) {
         test_connected_layer(DB, op);
-    } else if (test_type.compare("connected_layer") == 0) {
-        test_connected_layer(DB,op);
+        test_activation_layer(DB, op);
+        test_avgpool_layer(DB, op);
+        test_batchnorm_layer(DB, op);
+        test_convolutional_layer(DB, op);
+    } else if (test_type.compare("connected") == 0) {
+        test_connected_layer(DB, op);
+    } else if (test_type.compare("activation") == 0) {
+        test_activation_layer(DB, op);
+    } else if (test_type.compare("avgpool") == 0) {
+        test_avgpool_layer(DB, op);
+    } else if (test_type.compare("batchnorm") == 0) {
+        test_batchnorm_layer(DB, op);
+    } else if (test_type.compare("convolution") == 0) {
+        test_convolutional_layer(DB, op);
     }
     
 

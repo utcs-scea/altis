@@ -30,10 +30,14 @@ void test_connected_layer(ResultDatabase &resultDB, OptionParser &op) {
     if (is_bidirectional == 1) {
         test_connected_layer_forward(BATCH, INPUT_SIZE,
                 OUTPUT_SIZE, ACTIVATION_METHOD, BATCHNORM, ADAM);
+        test_connected_layer_backward(BATCH, INPUT_SIZE,
+                OUTPUT_SIZE, ACTIVATION_METHOD, BATCHNORM, ADAM);
     } else if (is_bidirectional == 0) {
-        //test_connected_layer_forward();
+        test_connected_layer_forward(BATCH, INPUT_SIZE,
+                OUTPUT_SIZE, ACTIVATION_METHOD, BATCHNORM, ADAM);
     } else if (is_bidirectional == -1) {
-        // TODO
+        test_connected_layer_backward(BATCH, INPUT_SIZE,
+                OUTPUT_SIZE, ACTIVATION_METHOD, BATCHNORM, ADAM);
     } else {
         cerr << is_bidirectional << " is not a valid bidirection flag" << endl;
         exit(1);
