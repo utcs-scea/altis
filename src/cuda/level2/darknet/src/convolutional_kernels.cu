@@ -89,8 +89,6 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network net)
 
 #ifdef CUDNN
     float one = 1;
-    cudaProfilerStart();
-    printf("1\n\n");
     cudnnConvolutionForward(cudnn_handle(),
                 &one,
                 l.srcTensorDesc,
@@ -104,11 +102,9 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network net)
                 &one,
                 l.dstTensorDesc,
                 l.output_gpu);
-    printf("3\n\n");
     if (net.workspace == NULL) {
         printf("wat\n");
     }
-cudaProfilerStop();
 #else
     int i, j;
     int m = l.n/l.groups;

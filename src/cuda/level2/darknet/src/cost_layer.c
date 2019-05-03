@@ -7,6 +7,18 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+/*
+void test_cost_layer_forward(int batch, int input_size, COST_TYPE cost_type, float scale) {
+    network *net = make_network(1);
+    layer l = make_cost_layer(batch, input_size, cost_type, scale);
+    net.truth =  
+}
+
+void test_cost_layer_backward() {
+
+}
+*/
+
 COST_TYPE get_cost_type(char *s)
 {
     if (strcmp(s, "seg")==0) return SEG;
@@ -150,7 +162,7 @@ void forward_cost_layer_gpu(cost_layer l, network net)
         mask_gpu(l.batch*l.inputs, net.delta_gpu, SECRET_NUM, net.truth_gpu, 0);
     }
 
-    if(l.ratio){
+    if (l.ratio){
         cuda_pull_array(l.delta_gpu, l.delta, l.batch*l.inputs);
         qsort(l.delta, l.batch*l.inputs, sizeof(float), float_abs_compare);
         int n = (1-l.ratio) * l.batch*l.inputs;

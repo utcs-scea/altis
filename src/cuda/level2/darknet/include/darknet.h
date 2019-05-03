@@ -6,7 +6,8 @@
 #include <pthread.h>
 
 #ifdef GPU
-    #define BLOCK 512
+    // Change based GPU version?
+    #define BLOCK 512 //1024
 
     #include "cuda_runtime.h"
     #include "curand.h"
@@ -824,6 +825,19 @@ void test_convolutional_layer_forward(int batch, int height, int width, int chan
 void test_convolutional_layer_backward(int batch, int height, int width, int chan,
         int hidden_filters, int groups, int size, int stride, int padding, ACTIVATION activation,
         int batchnorm, int binary, int xnor, int adam);
+
+void test_crnn_layer_forward(int batch,int height, int width, int chan, int hidden_layers,
+            int output_filters, int steps, ACTIVATION activation, int batchnorm);
+
+void test_deconvolutional_layer_forward(int batch, int height, int width, int chan,
+        int hidden_filters, int size, int stride, int padding, ACTIVATION actv,
+        int batchnorm, int adam);
+void test_deconvolutional_layer_backward(int batch, int height, int width, int chan,
+        int hidden_filters, int size, int stride, int padding, ACTIVATION actv,
+        int batchnorm, int adam);
+
+void test_dropout_layer_forward(int batch, int input_size, float prob);
+void test_dropout_layer_backward(int batch, int input_size, float prob);
 #ifdef __cplusplus
 }
 #endif

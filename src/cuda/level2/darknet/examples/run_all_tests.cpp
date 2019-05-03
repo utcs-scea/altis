@@ -21,6 +21,9 @@ extern void test_activation_layer(ResultDatabase &DB, OptionParser &op);
 extern void test_avgpool_layer(ResultDatabase &DB, OptionParser &op);
 extern void test_batchnorm_layer(ResultDatabase &DB, OptionParser &op);
 extern void test_convolutional_layer(ResultDatabase &DB, OptionParser &op); 
+extern void test_crnn_layer(ResultDatabase &DB, OptionParser &op);
+extern void test_deconvolutional_layer(ResultDatabase &DB, OptionParser &op);
+extern void test_dropout_layer(ResultDatabase &DB, OptionParser &op);
 
 using namespace std;
 
@@ -48,6 +51,9 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op)
         test_avgpool_layer(DB, op);
         test_batchnorm_layer(DB, op);
         test_convolutional_layer(DB, op);
+        //test_crnn_layer(DB, op);
+        test_deconvolutional_layer(DB, op);
+        test_dropout_layer(DB, op);
     } else if (test_type.compare("connected") == 0) {
         test_connected_layer(DB, op);
     } else if (test_type.compare("activation") == 0) {
@@ -58,9 +64,13 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op)
         test_batchnorm_layer(DB, op);
     } else if (test_type.compare("convolution") == 0) {
         test_convolutional_layer(DB, op);
+    } else if (test_type.compare("crnn") == 0) {
+        test_crnn_layer(DB, op);
+    } else if (test_type.compare("deconvolution") == 0) {
+        test_deconvolutional_layer(DB, op);
+    } else if (test_type.compare("dropout") == 0) {
+        test_dropout_layer(DB, op);
     }
-    
-
 
     /*
     if (argc < 2){

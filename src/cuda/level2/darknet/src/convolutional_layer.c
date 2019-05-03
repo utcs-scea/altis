@@ -26,7 +26,7 @@ void test_convolutional_layer_forward(int batch, int height, int width, int chan
     network *net = make_network(1);
     l.batch_normalize = 1;
     net->input_gpu = cuda_make_array(NULL, l.batch*l.h*l.w*l.c);
-    net->workspace = NULL;
+    net->workspace = cuda_make_array(0, (l.workspace_size-1)/sizeof(float)+1);
     forward_convolutional_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
@@ -44,7 +44,7 @@ void test_convolutional_layer_backward(int batch, int height, int width, int cha
     network *net = make_network(1);
     l.batch_normalize = 1;
     net->input_gpu = cuda_make_array(NULL, l.batch*l.h*l.w*l.c);
-    net->workspace = NULL;
+    net->workspace = cuda_make_array(0, (l.workspace_size-1)/sizeof(float)+1);
     backward_convolutional_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
