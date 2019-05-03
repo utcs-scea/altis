@@ -9,6 +9,37 @@
 #include <stdio.h>
 #include <assert.h>
 
+void test_logistic_layer_forward(int batch, int input_size) {
+    printf("----- logistic forward -----\n"); 
+    layer l = make_logistic_layer(batch, input_size);
+    network *net = make_network(1);
+    net->input_gpu = cuda_make_array(NULL, l.inputs * l.batch);
+    net->truth = malloc(sizeof(float) * l.inputs * l.batch);
+    net->truth_gpu = cuda_make_array(net->truth, l.batch*l.inputs);
+    // Warmpup has no use
+    for (int i = 0; i < 10 ; i++)
+    forward_logistic_layer_gpu(l, *net);
+
+    cudaProfilerStart();
+    forward_logistic_layer_gpu(l, *net);
+    cudaProfilerStop();
+
+    free_layer(l);
+    free_network(net);
+    printf("--------------------\n\n");
+}
+
+void test_logistic_layer_backward(int batch, int input_size) {
+    printf("----- logistic backward -----\n"); 
+    layer l = make_logistic_layer(batch, input_size);
+    network *net = make_network(1);
+    net->delta_gpu = cuda_make_array(NULL, l.batch*l.inputs);
+    backward_logistic_layer_gpu(l, *net);
+    free_layer(l);
+    free_network(net);
+    printf("--------------------\n\n");
+}
+
 layer make_logistic_layer(int batch, int inputs)
 {
     fprintf(stderr, "logistic x entropy                             %4d\n",  inputs);
@@ -56,7 +87,7 @@ void forward_logistic_layer_gpu(const layer l, network net)
 {
     copy_gpu(l.outputs*l.batch, net.input_gpu, 1, l.output_gpu, 1);
     activate_array_gpu(l.output_gpu, l.outputs*l.batch, LOGISTIC);
-    if(net.truth){
+    if (net.truth){
         logistic_x_ent_gpu(l.batch*l.inputs, l.output_gpu, net.truth_gpu, l.delta_gpu, l.loss_gpu);
         cuda_pull_array(l.loss_gpu, l.loss, l.batch*l.inputs);
         l.cost[0] = sum_array(l.loss, l.batch*l.inputs);

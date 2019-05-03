@@ -838,6 +838,19 @@ void test_deconvolutional_layer_backward(int batch, int height, int width, int c
 
 void test_dropout_layer_forward(int batch, int input_size, float prob);
 void test_dropout_layer_backward(int batch, int input_size, float prob);
+
+void test_l2norm_layer_forward(int batch, int inputs_size);
+void test_l2norm_layer_backward(int batch, int inputs_size);
+
+void test_logistic_layer_forward(int batch, int inputs_size);
+void test_logistic_layer_backward(int batch, int inputs_size);
+
+void test_maxpool_layer_forward(int batch, int height, int width, int chan,
+                int size, int stride, int padding);
+void test_maxpool_layer_backward(int batch, int height, int width, int chan,
+                int size, int stride, int padding);
+
+ 
 #ifdef __cplusplus
 }
 #endif

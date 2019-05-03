@@ -9,6 +9,33 @@
 #include <stdio.h>
 #include <assert.h>
 
+void test_l2norm_layer_forward(int batch, int input_size) {
+    printf("----- l2 norm forward -----\n");
+    layer l = make_l2norm_layer(batch, input_size);
+    network *net = make_network(1);
+    // May consider changing the values here
+    l.out_c = 64;
+    l.out_w = 224;
+    l.out_h = 224;
+    net->input_gpu = cuda_make_array(NULL, l.batch * l.inputs);
+    forward_l2norm_layer_gpu(l, *net);
+    free_layer(l);
+    free_network(net);
+    printf("--------------------\n");
+}
+
+void test_l2norm_layer_backward(int batch, int input_size) {
+    printf("----- l2 norm backward -----\n");
+    layer l = make_l2norm_layer(batch, input_size);
+    network *net = make_network(1);
+    net->delta_gpu =  cuda_make_array(NULL, l.batch * l.inputs);
+    l.delta_gpu =  cuda_make_array(NULL, l.batch * l.inputs);
+    backward_l2norm_layer_gpu(l, *net);
+    free_layer(l);
+    free_network(net);
+    printf("--------------------\n");
+}
+
 layer make_l2norm_layer(int batch, int inputs)
 {
     fprintf(stderr, "l2norm                                         %4d\n",  inputs);
@@ -56,7 +83,9 @@ void forward_l2norm_layer_gpu(const layer l, network net)
 
 void backward_l2norm_layer_gpu(const layer l, network net)
 {
+    printf("1\n");
     axpy_gpu(l.batch*l.inputs, 1, l.scales_gpu, 1, l.delta_gpu, 1);
+    printf("2\n");
     axpy_gpu(l.batch*l.inputs, 1, l.delta_gpu, 1, net.delta_gpu, 1);
 }
 
