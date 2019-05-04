@@ -850,7 +850,12 @@ void test_maxpool_layer_forward(int batch, int height, int width, int chan,
 void test_maxpool_layer_backward(int batch, int height, int width, int chan,
                 int size, int stride, int padding);
 
+void test_normalization_layer_forward(int batch, int width, int height, int channel,
+                int size, float alpha, float beta, float kappa);
  
+
+void test_shortcut_layer_forward(int batch, int index, int width, int height, int chan,
+                int width2, int height2, int chan2);
 #ifdef __cplusplus
 }
 #endif

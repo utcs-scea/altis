@@ -27,6 +27,8 @@ extern void test_dropout_layer(ResultDatabase &DB, OptionParser &op);
 extern void test_l2norm_layer(ResultDatabase &DB, OptionParser &op);
 extern void test_logistic_layer(ResultDatabase &DB, OptionParser &op);
 extern void test_maxpool_layer(ResultDatabase &DB, OptionParser &op);
+extern void test_normalization_layer(ResultDatabase &DB, OptionParser &op);
+extern void test_shortcut_layer(ResultDatabase &DB, OptionParser &op);
 
 using namespace std;
 
@@ -60,6 +62,8 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op)
         test_l2norm_layer(DB, op);
         test_logistic_layer(DB, op);
         test_maxpool_layer(DB, op);
+        test_normalization_layer(DB, op);
+        test_shortcut_layer(DB, op);
     } else if (test_type.compare("connected") == 0) {
         test_connected_layer(DB, op);
     } else if (test_type.compare("activation") == 0) {
@@ -82,6 +86,10 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op)
         test_logistic_layer(DB, op);
     } else if (test_type.compare("maxpool") == 0) {
         test_maxpool_layer(DB, op);
+    } else if (test_type.compare("normalization") == 0) {
+        test_normalization_layer(DB, op);
+    } else if (test_type.compare("shortcut") == 0) {
+        test_shortcut_layer(DB, op);
     }
 
     /*
