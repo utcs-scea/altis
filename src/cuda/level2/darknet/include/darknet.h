@@ -856,6 +856,12 @@ void test_normalization_layer_forward(int batch, int width, int height, int chan
 
 void test_shortcut_layer_forward(int batch, int index, int width, int height, int chan,
                 int width2, int height2, int chan2);
+void test_shortcut_layer_backward(int batch, int index, int width, int height, int chan,
+                int width2, int height2, int chan2);
+
+
+void test_softmax_layer_forward(int batch, int input_size, int groups);
+void test_softmax_layer_backward(int batch, int input_size, int groups);
 #ifdef __cplusplus
 }
 #endif

@@ -32,14 +32,14 @@ void test_shortcut_layer(ResultDatabase &resultDB, OptionParser &op) {
     if (is_bidirectional == 1) {
         test_shortcut_layer_forward(BATCH, INDEX, WIDTH, HEIGHT, CHANNEL,
                         WIDTH2, HEIGHT2, CHAN2);
-        //test_normalization_layer_backward(BATCH, WIDTH, HEIGHT, CHANNEL, SIZE, ALPHA,
-          //              BETA, KAPPA);
+        test_shortcut_layer_backward(BATCH, INDEX, WIDTH, HEIGHT, CHANNEL,
+                        WIDTH2, HEIGHT2, CHAN2);
     } else if (is_bidirectional == 0) {
         test_shortcut_layer_forward(BATCH, INDEX, WIDTH, HEIGHT, CHANNEL,
                         WIDTH2, HEIGHT2, CHAN2);
     } else if (is_bidirectional == -1) {
-        //test_normalization_layer_backward(BATCH, WIDTH, HEIGHT, CHANNEL, SIZE, ALPHA,
-            //            BETA, KAPPA);
+        test_shortcut_layer_backward(BATCH, INDEX, WIDTH, HEIGHT, CHANNEL,
+                        WIDTH2, HEIGHT2, CHAN2);
     } else {
         cerr << is_bidirectional << " is not a valid bidirection flag" << endl;
         exit(1);
