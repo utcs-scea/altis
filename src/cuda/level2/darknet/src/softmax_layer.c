@@ -8,18 +8,32 @@
 #include <stdio.h>
 #include <assert.h>
 
-void test_softmax_layer_forward() {
-    int batch = 64;
-    softmax_layer l = make_softmax_layer(batch, 810000, 2500);
+void test_softmax_layer_forward(int batch, int input_size, int groups) {
+    //softmax_layer l = make_softmax_layer(batch, 810000, 2500);
+    printf("----- testingf softmax forward -----\n");
+    softmax_layer l = make_softmax_layer(batch, input_size, groups);
     network *net = make_network(1);
     l.spatial = 0;  // For every catagory
     net->input_gpu = cuda_make_array(l.output, l.inputs*batch);
-    net->truth = calloc(l.inputs*64, sizeof(float));
+    net->truth = calloc(l.inputs*l.batch, sizeof(float));
     l.noloss = 0;
     net->truth_gpu = cuda_make_array(l.delta, l.inputs*batch);
     forward_softmax_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
+    printf("--------------------\n\n");
+}
+
+void test_softmax_layer_backward(int batch, int input_size, int groups) {
+    //softmax_layer l = make_softmax_layer(batch, 810000, 2500);
+    printf("----- testingf softmax backward -----\n");
+    softmax_layer l = make_softmax_layer(batch, input_size, groups);
+    network *net = make_network(1);
+    net->delta_gpu = cuda_make_array(l.delta, l.inputs*batch);
+    backward_softmax_layer_gpu(l, *net);
+    free_layer(l);
+    free_network(net);
+    printf("--------------------\n\n");
 }
 
 softmax_layer make_softmax_layer(int batch, int inputs, int groups)
