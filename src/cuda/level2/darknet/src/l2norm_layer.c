@@ -21,7 +21,7 @@ void test_l2norm_layer_forward(int batch, int input_size) {
     forward_l2norm_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
-    printf("--------------------\n");
+    printf("---------------------------\n");
 }
 
 void test_l2norm_layer_backward(int batch, int input_size) {
@@ -33,7 +33,7 @@ void test_l2norm_layer_backward(int batch, int input_size) {
     backward_l2norm_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
-    printf("--------------------\n");
+    printf("----------------------------\n");
 }
 
 layer make_l2norm_layer(int batch, int inputs)

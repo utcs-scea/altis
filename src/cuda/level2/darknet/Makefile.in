@@ -266,7 +266,8 @@ OBJ = gemm.o utils.o cuda.o deconvolutional_layer.o \
 	maxpool_layer_kernels.o avgpool_layer_kernels.o
 EXECOBJA = rnn.o classifier.o yolo.o detector.o nightmare.o run_all_tests.o main.o test_activation_layer.o test_connected_layer.o test_avgpool_layer.o test_batchnorm_layer.o \
 		 test_convolutional_layer.o test_crnn_layer.o test_deconvolutional_layer.o  test_normalization_layer.o\
-		 test_dropout_layer.o test_l2norm_layer.o test_logistic_layer.o test_maxpool_layer.o test_shortcut_layer.o test_softmax_layer.o#run_test.o #darknet.o
+		 test_dropout_layer.o test_l2norm_layer.o test_logistic_layer.o test_maxpool_layer.o test_shortcut_layer.o test_softmax_layer.o\
+		 test_gru_layer.o test_lstm_layer.o#run_test.o #darknet.o
 
 
 #AM_LDFLAGS=$(CUDA_LDFLAGS) $(LDFLAGS) $(COMMON)

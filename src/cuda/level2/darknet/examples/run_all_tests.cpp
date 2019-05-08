@@ -30,6 +30,8 @@ extern void test_maxpool_layer(ResultDatabase &DB, OptionParser &op);
 extern void test_normalization_layer(ResultDatabase &DB, OptionParser &op);
 extern void test_shortcut_layer(ResultDatabase &DB, OptionParser &op);
 extern void test_softmax_layer(ResultDatabase &DB, OptionParser &op);
+extern void test_gru_layer(ResultDatabase &DB, OptionParser &op);
+extern void test_lstm_layer(ResultDatabase &DB, OptionParser &op);
 
 using namespace std;
 
@@ -66,6 +68,8 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op)
         test_normalization_layer(DB, op);
         test_shortcut_layer(DB, op);
         test_softmax_layer(DB, op);
+        test_gru_layer(DB, op);
+        test_lstm_layer(DB, op);
     } else if (test_type.compare("connected") == 0) {
         test_connected_layer(DB, op);
     } else if (test_type.compare("activation") == 0) {
@@ -94,6 +98,10 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op)
         test_shortcut_layer(DB, op);
     } else if (test_type.compare("softmax") == 0) {
         test_softmax_layer(DB, op);
+    } else if (test_type.compare("gru") == 0) {
+        test_gru_layer(DB, op);
+    } else if (test_type.compare("lstm") == 0) {
+        test_lstm_layer(DB, op);
     }
 
     /*

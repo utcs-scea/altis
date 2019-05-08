@@ -21,7 +21,7 @@ void test_softmax_layer_forward(int batch, int input_size, int groups) {
     forward_softmax_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
-    printf("--------------------\n\n");
+    printf("------------------------------------\n\n");
 }
 
 void test_softmax_layer_backward(int batch, int input_size, int groups) {
@@ -33,7 +33,7 @@ void test_softmax_layer_backward(int batch, int input_size, int groups) {
     backward_softmax_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
-    printf("--------------------\n\n");
+    printf("-------------------------------------\n\n");
 }
 
 softmax_layer make_softmax_layer(int batch, int inputs, int groups)

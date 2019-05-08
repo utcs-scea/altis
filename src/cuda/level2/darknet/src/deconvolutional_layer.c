@@ -23,7 +23,7 @@ void test_deconvolutional_layer_forward(int batch, int height, int width,
     forward_deconvolutional_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
-    printf("--------------------\n\n"); 
+    printf("---------------------------------\n\n"); 
 }
 
 void test_deconvolutional_layer_backward(int batch, int height, int width,
@@ -39,7 +39,7 @@ void test_deconvolutional_layer_backward(int batch, int height, int width,
     backward_deconvolutional_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
-    printf("--------------------\n\n"); 
+    printf("-----------------------------------\n\n"); 
 }
 
 static size_t get_workspace_size(layer l){

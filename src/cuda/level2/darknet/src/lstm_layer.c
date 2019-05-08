@@ -10,6 +10,38 @@
 #include <stdlib.h>
 #include <string.h>
 
+void test_lstm_layer_forward(int batch, int input_size, int output_size, int steps,
+                int batchnorm, int adam) {
+    printf("----- run lstm forward -----\n");
+    
+    network *net = make_network(1);
+    layer l = make_lstm_layer(batch, input_size, output_size, steps, batchnorm,
+            adam);
+    net->train = NULL;
+    net->input_gpu = cuda_make_array(NULL, l.batch * l.outputs *l.steps);
+    forward_lstm_layer_gpu(l, *net);
+    free_layer(l);
+    free_network(net);
+
+    printf("----------------------------\n\n");
+}
+
+void test_lstm_layer_backward(int batch, int input_size, int output_size, int steps,
+                int batchnorm, int adam) {
+    printf("----- run lstm backward -----\n");
+    
+    network *net = make_network(1);
+    layer l = make_lstm_layer(batch, input_size, output_size, steps, batchnorm,
+            adam);
+    net->train = NULL;
+    net->input_gpu = cuda_make_array(NULL, l.batch * l.outputs *l.steps);
+    backward_lstm_layer_gpu(l, *net);
+    free_layer(l);
+    free_network(net);
+
+    printf("-----------------------------\n\n");
+}
+
 static void increment_layer(layer *l, int steps)
 {
     int num = l->outputs*l->batch*steps;
