@@ -25,7 +25,7 @@ void test_shortcut_layer_forward(int batch, int index, int width, int height, in
     
     free_layer(l);
     free_network(net);
-    printf("--------------------\n\n");
+    printf("---------------------------------\n\n");
 }
 
 void test_shortcut_layer_backward(int batch, int index, int width, int height, int chan,
@@ -47,7 +47,7 @@ void test_shortcut_layer_backward(int batch, int index, int width, int height, i
     
     free_layer(l);
     free_network(net);
-    printf("--------------------\n\n");
+    printf("----------------------------------\n\n");
 }
 
 layer make_shortcut_layer(int batch, int index, int w, int h, int c, int w2, int h2, int c2)

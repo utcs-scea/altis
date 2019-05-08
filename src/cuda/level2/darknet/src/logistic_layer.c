@@ -26,7 +26,7 @@ void test_logistic_layer_forward(int batch, int input_size) {
 
     free_layer(l);
     free_network(net);
-    printf("--------------------\n\n");
+    printf("-----------------------------\n\n");
 }
 
 void test_logistic_layer_backward(int batch, int input_size) {
@@ -37,7 +37,7 @@ void test_logistic_layer_backward(int batch, int input_size) {
     backward_logistic_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
-    printf("--------------------\n\n");
+    printf("-----------------------------\n\n");
 }
 
 layer make_logistic_layer(int batch, int inputs)

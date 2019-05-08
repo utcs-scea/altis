@@ -11,7 +11,7 @@ void test_maxpool_layer_forward(int batch, int height, int width, int chan,
     forward_maxpool_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
-    printf("--------------------\n");
+    printf("---------------------------\n\n");
 }
 
 void test_maxpool_layer_backward(int batch, int height, int width, int chan,
@@ -23,7 +23,7 @@ void test_maxpool_layer_backward(int batch, int height, int width, int chan,
     backward_maxpool_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
-    printf("--------------------\n");
+    printf("----------------------------\n\n");
 }
 
 image get_maxpool_image(maxpool_layer l)

@@ -862,6 +862,17 @@ void test_shortcut_layer_backward(int batch, int index, int width, int height, i
 
 void test_softmax_layer_forward(int batch, int input_size, int groups);
 void test_softmax_layer_backward(int batch, int input_size, int groups);
+
+void test_gru_layer_forward(int batch, int input_size, int output_size,
+        int steps, int batchnorm, int adam);
+void test_gru_layer_backward(int batch, int input_size, int output_size,
+        int steps, int batchnorm, int adam);
+
+
+void test_lstm_layer_forward(int batch, int input_size, int output_size,
+        int steps, int batchnorm, int adam);
+void test_lstm_layer_backward(int batch, int input_size, int output_size,
+        int steps, int batchnorm, int adam);
 #ifdef __cplusplus
 }
 #endif

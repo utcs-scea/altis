@@ -10,6 +10,43 @@
 #include <stdlib.h>
 #include <string.h>
 
+void test_gru_layer_forward(int batch, int input_size, int output_size,
+        int steps, int batchnorm, int adam) {
+    printf("----- run gru forward -----\n");
+    
+    network *net = make_network(1);
+    layer l = make_gru_layer(batch, input_size, output_size, steps,
+            batchnorm, adam);
+    l.tanh = 1;
+    net->train = 0;
+    net->input_gpu = cuda_make_array(NULL, l.batch * l.inputs * l.steps);
+    forward_gru_layer_gpu(l, *net);
+
+    free_layer(l);
+    free_network(net);
+
+    printf("---------------------------\n\n");
+}
+
+void test_gru_layer_backward(int batch, int input_size, int output_size,
+        int steps, int batchnorm, int adam) {
+    printf("----- run gru backward -----\n");
+    
+    network *net = make_network(1);
+    layer l = make_gru_layer(batch, input_size, output_size, steps,
+            batchnorm, adam);
+    l.tanh = 1;
+    net->train = 0;
+    net->input_gpu = cuda_make_array(NULL, l.batch * l.inputs * l.steps);
+    net->delta_gpu = NULL;
+    backward_gru_layer_gpu(l, *net);
+
+    free_layer(l);
+    free_network(net);
+
+    printf("----------------------------\n\n");
+}
+
 static void increment_layer(layer *l, int steps)
 {
     int num = l->outputs*l->batch*steps;
@@ -129,7 +166,6 @@ void forward_gru_layer(layer l, network net)
 {
     network s = net;
     s.train = net.train;
-    int i;
     layer uz = *(l.uz);
     layer ur = *(l.ur);
     layer uh = *(l.uh);
@@ -145,11 +181,12 @@ void forward_gru_layer(layer l, network net)
     fill_cpu(l.outputs * l.batch * l.steps, 0, wz.delta, 1);
     fill_cpu(l.outputs * l.batch * l.steps, 0, wr.delta, 1);
     fill_cpu(l.outputs * l.batch * l.steps, 0, wh.delta, 1);
-    if(net.train) {
+    if (net.train) {
         fill_cpu(l.outputs * l.batch * l.steps, 0, l.delta, 1);
         copy_cpu(l.outputs*l.batch, l.state, 1, l.prev_state, 1);
     }
 
+    int i;
     for (i = 0; i < l.steps; ++i) {
         s.input = l.state;
         forward_connected_layer(wz, s);
@@ -238,14 +275,17 @@ void forward_gru_layer_gpu(layer l, network net)
     layer wr = *(l.wr);
     layer wh = *(l.wh);
 
+    // 1. Update gate: z_t = sigmoid(W_z * x_t + U_z * h_(t-1))
     fill_gpu(l.outputs * l.batch * l.steps, 0, uz.delta_gpu, 1);
+    // 2. Reset gate
     fill_gpu(l.outputs * l.batch * l.steps, 0, ur.delta_gpu, 1);
+    // 3. Current memory content
     fill_gpu(l.outputs * l.batch * l.steps, 0, uh.delta_gpu, 1);
 
     fill_gpu(l.outputs * l.batch * l.steps, 0, wz.delta_gpu, 1);
     fill_gpu(l.outputs * l.batch * l.steps, 0, wr.delta_gpu, 1);
     fill_gpu(l.outputs * l.batch * l.steps, 0, wh.delta_gpu, 1);
-    if(net.train) {
+    if (net.train) {
         fill_gpu(l.outputs * l.batch * l.steps, 0, l.delta_gpu, 1);
         copy_gpu(l.outputs*l.batch, l.state_gpu, 1, l.prev_state_gpu, 1);
     }
