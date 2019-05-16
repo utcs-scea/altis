@@ -17,7 +17,7 @@ extern "C" {
 #define BATCH       128
 #define INPUT_SIZE  4096
 #define OUTPUT_SIZE 4096
-#define ACTIVATION_METHOD  LEAKY 
+#define ACTIVATION_METHOD  RELU
 #define BATCHNORM   1
 #define ADAM        1
 

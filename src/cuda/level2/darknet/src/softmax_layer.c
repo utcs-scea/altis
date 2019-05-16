@@ -16,7 +16,7 @@ void test_softmax_layer_forward(int batch, int input_size, int groups) {
     l.spatial = 0;  // For every catagory
     net->input_gpu = cuda_make_array(l.output, l.inputs*batch);
     net->truth = calloc(l.inputs*l.batch, sizeof(float));
-    l.noloss = 0;
+    l.noloss = 1;
     net->truth_gpu = cuda_make_array(l.delta, l.inputs*batch);
     forward_softmax_layer_gpu(l, *net);
     free_layer(l);
@@ -59,7 +59,20 @@ softmax_layer make_softmax_layer(int batch, int inputs, int groups)
 
     l.output_gpu = cuda_make_array(l.output, inputs*batch); 
     l.loss_gpu = cuda_make_array(l.loss, inputs*batch); 
-    l.delta_gpu = cuda_make_array(l.delta, inputs*batch); 
+    l.delta_gpu = cuda_make_array(l.delta, inputs*batch);
+#ifdef CUDNN
+    l.softmaxAlgo = CUDNN_SOFTMAX_FAST; // can change it
+    l.softmaxMode = CUDNN_SOFTMAX_MODE_INSTANCE;
+    cudnnCreateTensorDescriptor(&l.softmaxInputTensorDesc);
+    const int dimA[4] = {l.batch, l.inputs, 1, 1};
+    const int strideA[4] = {1, 1, 1, 1};
+    cudnnSetTensorNdDescriptor(l.softmaxInputTensorDesc, CUDNN_DATA_FLOAT, 4,
+            dimA, strideA); 
+    cudnnCreateTensorDescriptor(&l.softmaxOutputTensorDesc);
+    cudnnSetTensorNdDescriptor(l.softmaxOutputTensorDesc, CUDNN_DATA_FLOAT, 4,
+            dimA, strideA);
+
+#endif
     #endif
     return l;
 }
@@ -98,17 +111,9 @@ void pull_softmax_layer_output(const softmax_layer layer)
 
 void forward_softmax_layer_gpu(const softmax_layer l, network net)
 {
+    /*
     if(l.softmax_tree){
         softmax_tree(net.input_gpu, 1, l.batch, l.inputs, l.temperature, l.output_gpu, *l.softmax_tree);
-        /*
-        int i;
-        int count = 0;
-        for (i = 0; i < l.softmax_tree->groups; ++i) {
-            int group_size = l.softmax_tree->group_size[i];
-            softmax_gpu(net.input_gpu + count, group_size, l.batch, l.inputs, 1, 0, 1, l.temperature, l.output_gpu + count);
-            count += group_size;
-        }
-        */
     } else {
         if(l.spatial){
             softmax_gpu(net.input_gpu, l.c, l.batch*l.c, l.inputs/l.c, l.w*l.h, 1, l.w*l.h, 1, l.output_gpu);
@@ -125,6 +130,12 @@ void forward_softmax_layer_gpu(const softmax_layer l, network net)
         cuda_pull_array(l.loss_gpu, l.loss, l.batch*l.inputs);
         l.cost[0] = sum_array(l.loss, l.batch*l.inputs);
     }
+    */
+    int alpha = 1, beta = 0;
+    cudnnSoftmaxForward(cudnn_handle(), l.softmaxAlgo, l.softmaxMode, &alpha,
+            l.softmaxInputTensorDesc, net.input_gpu, &beta, l.softmaxOutputTensorDesc,
+            l.output_gpu);
+
 }
 
 void backward_softmax_layer_gpu(const softmax_layer layer, network net)

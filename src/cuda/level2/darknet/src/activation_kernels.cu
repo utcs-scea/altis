@@ -199,8 +199,30 @@ extern "C" void activate_array_gpu(float *x, int n, ACTIVATION a)
     check_error(cudaPeekAtLastError());
 }
 
+extern "C" void cudnn_activate_array_gpu(layer l, network net) 
+{
+    float one = 1;
+    float zero = 0;
+    cudnnStatus_t stat = cudnnActivationForward(cudnn_handle(), l.activationDesc, &one, l.activationTensorDesc,
+            l.output_gpu, &zero, l.activationTensorDesc, l.output_gpu);
+    assert(stat == CUDNN_STATUS_SUCCESS);
+}
+
 extern "C" void gradient_array_gpu(float *x, int n, ACTIVATION a, float *delta) 
 {
     gradient_array_kernel<<<cuda_gridsize(n), BLOCK>>>(x, n, a, delta);
     check_error(cudaPeekAtLastError());
+}
+
+extern "C" void cudnn_gradient_array_gpu(layer l, network net)
+{
+    float one = 1;
+    float zero = 0;
+#ifdef CUDNN
+    cudnnStatus_t stat = cudnnActivationBackward(cudnn_handle(), l.activationDesc,
+            &one, l.activationTensorDesc, l.output_gpu, l.activationTensorDesc,
+            l.output_gpu, l.activationTensorDesc, l.output_gpu, &zero, l.activationTensorDesc,
+            l.delta_gpu);
+    assert(stat == CUDNN_STATUS_SUCCESS);
+#endif
 }

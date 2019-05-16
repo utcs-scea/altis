@@ -19,6 +19,8 @@ void test_connected_layer_forward(int batch, int input_size, int output_size,
             batchnorm, adam);
     network *net = make_network(1);
     net->input_gpu = cuda_make_array(l.weights, l.inputs*l.outputs);
+    l.batch_normalize = 1;
+    net->train = 1;
     forward_connected_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
@@ -32,6 +34,8 @@ void test_connected_layer_backward(int batch, int input_size, int output_size,
             batchnorm, adam);
     network *net = make_network(1);
     net->input_gpu = cuda_make_array(l.weights, l.inputs*l.outputs);
+    l.batch_normalize = 1;
+    net->train = 1;
     backward_connected_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
@@ -149,6 +153,37 @@ layer make_connected_layer(int batch, int inputs, int outputs,
         cudnnCreateTensorDescriptor(&l.dstTensorDesc);
         cudnnSetTensor4dDescriptor(l.dstTensorDesc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, l.batch, l.out_c, l.out_h, l.out_w); 
         cudnnSetTensor4dDescriptor(l.normTensorDesc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, 1, l.out_c, 1, 1); 
+        cudnnStatus_t stat = cudnnCreateActivationDescriptor(&l.activationDesc);
+        assert(stat == CUDNN_STATUS_SUCCESS);
+
+        switch (activation) {
+            case SIGMOID:
+                l.activationMode = CUDNN_ACTIVATION_SIGMOID;
+                break;
+            case RELU:
+                l.activationMode = CUDNN_ACTIVATION_RELU;
+                break;
+            case TANH:
+                l.activationMode = CUDNN_ACTIVATION_TANH;
+                break;
+            default:
+                printf("This activation function not yet supported\n");
+                exit(1);
+        }
+
+        double coef = 0;
+        stat = cudnnSetActivationDescriptor(l.activationDesc, l.activationMode,
+                CUDNN_NOT_PROPAGATE_NAN, coef);
+        assert(stat == CUDNN_STATUS_SUCCESS);
+
+        const int dimA[4] = {l.batch, l.outputs, 1, 1};
+        const int strideA[4] = {1, 1, 1, 1};
+        stat = cudnnCreateTensorDescriptor(&l.activationTensorDesc);
+        assert(stat == CUDNN_STATUS_SUCCESS);
+
+        stat = cudnnSetTensorNdDescriptor(l.activationTensorDesc, CUDNN_DATA_FLOAT, 4,
+                dimA, strideA);
+        assert(stat == CUDNN_STATUS_SUCCESS);
 #endif
     }
 #endif
@@ -178,7 +213,7 @@ void update_connected_layer(layer l, update_args a)
 
 void forward_connected_layer(layer l, network net)
 {
-    fill_cpu(l.outputs*l.batch, 0, l.output, 1);
+    //fill_cpu(l.outputs*l.batch, 0, l.output, 1);
     int m = l.batch;
     int k = l.inputs;
     int n = l.outputs;
@@ -315,7 +350,7 @@ void update_connected_layer_gpu(layer l, update_args a)
 
 void forward_connected_layer_gpu(layer l, network net)
 {
-    fill_gpu(l.outputs*l.batch, 0, l.output_gpu, 1);
+    //fill_gpu(l.outputs*l.batch, 0, l.output_gpu, 1);
 
     int m = l.batch;
     int k = l.inputs;
@@ -330,13 +365,15 @@ void forward_connected_layer_gpu(layer l, network net)
     } else {
         add_bias_gpu(l.output_gpu, l.biases_gpu, l.batch, l.outputs, 1);
     }
-    activate_array_gpu(l.output_gpu, l.outputs*l.batch, l.activation);
+    //activate_array_gpu(l.output_gpu, l.outputs*l.batch, l.activation);
+    cudnn_activate_array_gpu(l, net);
 }
 
 void backward_connected_layer_gpu(layer l, network net)
 {
-    constrain_gpu(l.outputs*l.batch, 1, l.delta_gpu, 1);
-    gradient_array_gpu(l.output_gpu, l.outputs*l.batch, l.activation, l.delta_gpu);
+    //constrain_gpu(l.outputs*l.batch, 1, l.delta_gpu, 1);
+    //gradient_array_gpu(l.output_gpu, l.outputs*l.batch, l.activation, l.delta_gpu);
+    cudnn_gradient_array_gpu(l, net);
     if(l.batch_normalize){
         backward_batchnorm_layer_gpu(l, net);
     } else {

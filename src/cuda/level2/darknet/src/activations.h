@@ -14,6 +14,9 @@ void activate_array(float *x, const int n, const ACTIVATION a);
 #ifdef GPU
 void activate_array_gpu(float *x, int n, ACTIVATION a);
 void gradient_array_gpu(float *x, int n, ACTIVATION a, float *delta);
+
+void cudnn_activate_array_gpu(layer l, network net);
+void cudnn_gradient_array_gpu(layer l, network net);
 #endif
 
 static inline float stair_activate(float x)

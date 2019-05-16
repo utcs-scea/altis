@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <pthread.h>
+#include <assert.h>
 
 #ifdef GPU
     // Change based GPU version?
@@ -48,7 +49,7 @@ typedef struct{
 tree *read_tree(char *filename);
 
 typedef enum{
-    LOGISTIC, RELU, RELIE, LINEAR, RAMP, TANH, PLSE, LEAKY, ELU, LOGGY, STAIR, HARDTAN, LHTAN, SELU
+    LOGISTIC, RELU, RELIE, LINEAR, RAMP, TANH, PLSE, LEAKY, ELU, LOGGY, STAIR, HARDTAN, LHTAN, SELU, SIGMOID // sigmoid added
 } ACTIVATION;
 
 typedef enum{
@@ -413,6 +414,32 @@ struct layer{
     cudnnTensorDescriptor_t srcTensorDesc, dstTensorDesc;
     cudnnTensorDescriptor_t dsrcTensorDesc, ddstTensorDesc;
     cudnnTensorDescriptor_t normTensorDesc;
+    
+    // For Activation Layer
+    cudnnActivationDescriptor_t activationDesc;
+    cudnnActivationMode_t activationMode;
+    cudnnTensorDescriptor_t activationTensorDesc;
+
+    // Pooling layer
+    cudnnPoolingDescriptor_t poolingDesc;
+    cudnnTensorDescriptor_t poolingInputTensorDesc;
+    cudnnTensorDescriptor_t poolingOutputTensorDesc;
+    cudnnTensorDescriptor_t poolingGradientTensorDesc;
+
+    // For dropout
+    cudnnDropoutDescriptor_t dropoutDesc;
+    size_t dropoutRandStatesSizeInBytes;
+    float * dropoutRandStates;
+    cudnnTensorDescriptor_t dropoutTensorDesc;
+    size_t dropoutReservedSize;
+    float * dropoutReservedSpace;
+
+    // For softmax
+    cudnnSoftmaxAlgorithm_t softmaxAlgo;
+    cudnnSoftmaxMode_t softmaxMode;
+    cudnnTensorDescriptor_t softmaxInputTensorDesc;
+    cudnnTensorDescriptor_t softmaxOutputTensorDesc;
+
     cudnnFilterDescriptor_t weightDesc;
     cudnnFilterDescriptor_t dweightDesc;
     cudnnConvolutionDescriptor_t convDesc;

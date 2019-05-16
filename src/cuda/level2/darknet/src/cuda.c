@@ -103,6 +103,11 @@ float *cuda_make_array(float *x, size_t n)
     return x_gpu;
 }
 
+void cuda_alloc_array(float *array, size_t bytes) {
+    cudaError_t status = cudaMalloc((void **)&array, sizeof(float)*bytes);
+    check_error(status);
+}
+
 void cuda_random(float *x_gpu, size_t n)
 {
     static curandGenerator_t gen[16];
