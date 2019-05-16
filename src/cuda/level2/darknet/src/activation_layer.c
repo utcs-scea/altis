@@ -63,6 +63,44 @@ layer make_activation_layer(int batch, int inputs, ACTIVATION activation)
 
     l.output_gpu = cuda_make_array(l.output, inputs*batch);
     l.delta_gpu = cuda_make_array(l.delta, inputs*batch);
+
+#ifdef CUDNN
+    cudnnStatus_t stat = cudnnCreateActivationDescriptor(&l.activationDesc);
+    assert(stat == CUDNN_STATUS_SUCCESS);
+    switch (activation){
+        case SIGMOID:
+            l.activationMode = CUDNN_ACTIVATION_SIGMOID;
+            break;
+        case RELU: 
+            l.activationMode = CUDNN_ACTIVATION_RELU;
+            break;
+        case TANH:
+            l.activationMode = CUDNN_ACTIVATION_TANH;
+            break;
+        default:
+            printf("This activation function is not supported or implemented yet, use normal activation instead.\n");
+            exit(1);
+    }
+    // Not necessary here
+    double coef = 0;
+    stat = cudnnSetActivationDescriptor(l.activationDesc, l.activationMode,
+                                CUDNN_NOT_PROPAGATE_NAN, coef);
+    assert(stat == CUDNN_STATUS_SUCCESS);
+
+    // set up activation tensor descriptor, wathc how chaning dimension will hit performance
+    const int dimA[4] = {l.batch, l.inputs, 1, 1};
+    const int strideA[4] = {1, 1, 1, 1};
+    stat = cudnnCreateTensorDescriptor(&l.activationTensorDesc);
+    assert(stat == CUDNN_STATUS_SUCCESS);
+    /*
+    stat = cudnnSetTensor4dDescriptor(l.activationTensorDesc, CUDNN_TENSOR_NCHW,
+            CUDNN_DATA_FLOAT, l.batch, 1, 1, inputs);
+            */
+    stat = cudnnSetTensorNdDescriptor(l.activationTensorDesc, CUDNN_DATA_FLOAT, 4,
+            dimA, strideA);
+    assert(stat == CUDNN_STATUS_SUCCESS);
+    
+#endif
 #endif
     l.activation = activation;
     fprintf(stderr, "Activation Layer: %d inputs\n", inputs);
@@ -86,12 +124,40 @@ void backward_activation_layer(layer l, network net)
 void forward_activation_layer_gpu(layer l, network net)
 {
     copy_gpu(l.outputs*l.batch, net.input_gpu, 1, l.output_gpu, 1);
+    /*
     activate_array_gpu(l.output_gpu, l.outputs*l.batch, l.activation);
+    */
+#ifdef CUDNN
+    float one = 1;
+    // in-place operation is allowed for this routine; i.e., xData and yData
+    // pointers may be equal. However, this requires xDesc and yDesc descriptors
+    // to be identical (particularly, the strides of the input and output must
+    // match for in-place operation to be allowed).
+    cudnnStatus_t stat = cudnnActivationForward(cudnn_handle(), l.activationDesc, &one, l.activationTensorDesc,
+            l.output_gpu, &one, l.activationTensorDesc, l.output_gpu);
+    assert(stat == CUDNN_STATUS_SUCCESS);
+#endif
 }
 
 void backward_activation_layer_gpu(layer l, network net)
 {
-    gradient_array_gpu(l.output_gpu, l.outputs*l.batch, l.activation, l.delta_gpu);
+    //gradient_array_gpu(l.output_gpu, l.outputs*l.batch, l.activation, l.delta_gpu);
+    // requires gradient array gpu if applied in DNN
+    float one = 1;
+    cudnnStatus_t stat = cudnnActivationBackward(cudnn_handle(),
+                            l.activationDesc,
+                            &one,
+                            l.activationTensorDesc,        //const cudnnTensorDescriptor_t    srcDesc,
+                            l.output_gpu,    //const void *srcData,
+                            l.activationTensorDesc,    // const cudnnTensorDescriptor_t    srcDiffDesc,
+                            l.delta_gpu,    //const void *srcDiffData,
+                            l.activationTensorDesc,    //const cudnnTensorDescriptor_t    destDesc,
+                            l.output_gpu,    //const void  *destData,
+                            &one,
+                            l.activationTensorDesc,    //const cudnnTensorDescriptor_t    destDiffDesc,
+                            l.delta_gpu);    //void *destDiffData)
+    assert(stat == CUDNN_STATUS_SUCCESS);
+
     copy_gpu(l.outputs*l.batch, l.delta_gpu, 1, net.delta_gpu, 1);
 }
 #endif

@@ -102,9 +102,6 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network net)
                 &one,
                 l.dstTensorDesc,
                 l.output_gpu);
-    if (net.workspace == NULL) {
-        printf("wat\n");
-    }
 #else
     int i, j;
     int m = l.n/l.groups;
