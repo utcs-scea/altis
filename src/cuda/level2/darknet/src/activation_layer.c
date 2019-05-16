@@ -144,19 +144,21 @@ void backward_activation_layer_gpu(layer l, network net)
     //gradient_array_gpu(l.output_gpu, l.outputs*l.batch, l.activation, l.delta_gpu);
     // requires gradient array gpu if applied in DNN
     float one = 1;
+#ifdef CUDNN
     cudnnStatus_t stat = cudnnActivationBackward(cudnn_handle(),
                             l.activationDesc,
                             &one,
                             l.activationTensorDesc,        //const cudnnTensorDescriptor_t    srcDesc,
                             l.output_gpu,    //const void *srcData,
                             l.activationTensorDesc,    // const cudnnTensorDescriptor_t    srcDiffDesc,
-                            l.delta_gpu,    //const void *srcDiffData,
+                            l.output_gpu,    //const void *srcDiffData,
                             l.activationTensorDesc,    //const cudnnTensorDescriptor_t    destDesc,
                             l.output_gpu,    //const void  *destData,
                             &one,
                             l.activationTensorDesc,    //const cudnnTensorDescriptor_t    destDiffDesc,
                             l.delta_gpu);    //void *destDiffData)
     assert(stat == CUDNN_STATUS_SUCCESS);
+#endif
 
     copy_gpu(l.outputs*l.batch, l.delta_gpu, 1, net.delta_gpu, 1);
 }

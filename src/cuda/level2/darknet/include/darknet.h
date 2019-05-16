@@ -420,6 +420,12 @@ struct layer{
     cudnnActivationMode_t activationMode;
     cudnnTensorDescriptor_t activationTensorDesc;
 
+    // Pooling layer
+    cudnnPoolingDescriptor_t poolingDesc;
+    cudnnTensorDescriptor_t poolingInputTensorDesc;
+    cudnnTensorDescriptor_t poolingOutputTensorDesc;
+    cudnnTensorDescriptor_t poolingGradientTensorDesc;
+
     cudnnFilterDescriptor_t weightDesc;
     cudnnFilterDescriptor_t dweightDesc;
     cudnnConvolutionDescriptor_t convDesc;

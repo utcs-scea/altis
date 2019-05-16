@@ -45,17 +45,33 @@ __global__ void backward_avgpool_layer_kernel(int n, int w, int h, int c, float 
 
 extern "C" void forward_avgpool_layer_gpu(avgpool_layer layer, network net)
 {
-    size_t n = layer.c*layer.batch;
+    //size_t n = layer.c*layer.batch;
 
-    forward_avgpool_layer_kernel<<<cuda_gridsize(n), BLOCK>>>(n, layer.w, layer.h, layer.c, net.input_gpu, layer.output_gpu);
+    //forward_avgpool_layer_kernel<<<cuda_gridsize(n), BLOCK>>>(n, layer.w, layer.h, layer.c, net.input_gpu, layer.output_gpu);
+
+    cudaProfilerStart();
+    float one = 1;
+    cudnnStatus_t stat = cudnnPoolingForward(
+            cudnn_handle(), layer.poolingDesc, &one, layer.poolingInputTensorDesc,
+            net.input_gpu, &one, layer.poolingOutputTensorDesc, layer.output_gpu);
+    assert(stat == CUDNN_STATUS_SUCCESS);
+
     check_error(cudaPeekAtLastError());
+    cudaProfilerStop();
 }
 
 extern "C" void backward_avgpool_layer_gpu(avgpool_layer layer, network net)
 {
-    size_t n = layer.c*layer.batch;
+    //size_t n = layer.c*layer.batch;
 
-    backward_avgpool_layer_kernel<<<cuda_gridsize(n), BLOCK>>>(n, layer.w, layer.h, layer.c, net.delta_gpu, layer.delta_gpu);
+    //backward_avgpool_layer_kernel<<<cuda_gridsize(n), BLOCK>>>(n, layer.w, layer.h, layer.c, net.delta_gpu, layer.delta_gpu);
+    float one = 1;
+    cudnnStatus_t stat = cudnnPoolingBackward(cudnn_handle(), layer.poolingDesc, &one,
+            layer.poolingOutputTensorDesc,
+            layer.output_gpu, layer.poolingOutputTensorDesc, layer.output_gpu,
+            layer.poolingInputTensorDesc, net.input_gpu, &one, layer.poolingInputTensorDesc,
+            net.delta_gpu);
+    assert(stat == CUDNN_STATUS_SUCCESS);
     check_error(cudaPeekAtLastError());
 }
 
