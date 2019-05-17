@@ -434,6 +434,12 @@ struct layer{
     size_t dropoutReservedSize;
     float * dropoutReservedSpace;
 
+    // For softmax
+    cudnnSoftmaxAlgorithm_t softmaxAlgo;
+    cudnnSoftmaxMode_t softmaxMode;
+    cudnnTensorDescriptor_t softmaxInputTensorDesc;
+    cudnnTensorDescriptor_t softmaxOutputTensorDesc;
+
     cudnnFilterDescriptor_t weightDesc;
     cudnnFilterDescriptor_t dweightDesc;
     cudnnConvolutionDescriptor_t convDesc;
