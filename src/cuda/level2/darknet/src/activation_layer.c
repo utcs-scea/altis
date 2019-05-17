@@ -123,18 +123,19 @@ void backward_activation_layer(layer l, network net)
 
 void forward_activation_layer_gpu(layer l, network net)
 {
-    copy_gpu(l.outputs*l.batch, net.input_gpu, 1, l.output_gpu, 1);
+    //copy_gpu(l.outputs*l.batch, net.input_gpu, 1, l.output_gpu, 1);
     /*
     activate_array_gpu(l.output_gpu, l.outputs*l.batch, l.activation);
     */
 #ifdef CUDNN
     float one = 1;
+    float zero = 0;
     // in-place operation is allowed for this routine; i.e., xData and yData
     // pointers may be equal. However, this requires xDesc and yDesc descriptors
     // to be identical (particularly, the strides of the input and output must
     // match for in-place operation to be allowed).
     cudnnStatus_t stat = cudnnActivationForward(cudnn_handle(), l.activationDesc, &one, l.activationTensorDesc,
-            l.output_gpu, &one, l.activationTensorDesc, l.output_gpu);
+            net.input_gpu, &zero, l.activationTensorDesc, l.output_gpu);
     assert(stat == CUDNN_STATUS_SUCCESS);
 #endif
 }
@@ -144,6 +145,7 @@ void backward_activation_layer_gpu(layer l, network net)
     //gradient_array_gpu(l.output_gpu, l.outputs*l.batch, l.activation, l.delta_gpu);
     // requires gradient array gpu if applied in DNN
     float one = 1;
+    float zero = 0;
 #ifdef CUDNN
     cudnnStatus_t stat = cudnnActivationBackward(cudnn_handle(),
                             l.activationDesc,
@@ -154,12 +156,12 @@ void backward_activation_layer_gpu(layer l, network net)
                             l.output_gpu,    //const void *srcDiffData,
                             l.activationTensorDesc,    //const cudnnTensorDescriptor_t    destDesc,
                             l.output_gpu,    //const void  *destData,
-                            &one,
+                            &zero,
                             l.activationTensorDesc,    //const cudnnTensorDescriptor_t    destDiffDesc,
-                            l.delta_gpu);    //void *destDiffData)
+                            net.delta_gpu);    //void *destDiffData)
     assert(stat == CUDNN_STATUS_SUCCESS);
 #endif
 
-    copy_gpu(l.outputs*l.batch, l.delta_gpu, 1, net.delta_gpu, 1);
+    //copy_gpu(l.outputs*l.batch, l.delta_gpu, 1, net.delta_gpu, 1);
 }
 #endif

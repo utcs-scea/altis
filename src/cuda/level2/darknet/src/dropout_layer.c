@@ -11,9 +11,10 @@ void test_dropout_layer_forward(int batch, int input_size, float prob) {
     net->input_gpu = cuda_make_array(0, l.inputs*l.batch);
     net->train = 1;
     forward_dropout_layer_gpu(l, *net);
+    //backward_dropout_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
-    printf("--------------------\n\n");
+    printf("------------------------------------\n\n");
 }
 
 void test_dropout_layer_backward(int batch, int input_size, float prob) {
@@ -22,10 +23,10 @@ void test_dropout_layer_backward(int batch, int input_size, float prob) {
     network *net = make_network(1);
     net->input_gpu = cuda_make_array(0, l.inputs*l.batch);
     net->delta_gpu = cuda_make_array(0, l.inputs*l.batch);
-    forward_dropout_layer_gpu(l, *net);
+    backward_dropout_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
-    printf("--------------------\n\n");
+    printf("-------------------------------------\n\n");
 }
 
 dropout_layer make_dropout_layer(int batch, int inputs, float probability)
@@ -44,6 +45,37 @@ dropout_layer make_dropout_layer(int batch, int inputs, float probability)
     l.forward_gpu = forward_dropout_layer_gpu;
     l.backward_gpu = backward_dropout_layer_gpu;
     l.rand_gpu = cuda_make_array(l.rand, inputs*batch);
+#ifdef CUDNN
+
+    // TODO free
+    cudnnStatus_t stat = cudnnCreateDropoutDescriptor(&l.dropoutDesc);
+    assert(stat == CUDNN_STATUS_SUCCESS);
+    
+    stat = cudnnDropoutGetStatesSize(cudnn_handle(), &l.dropoutRandStatesSizeInBytes);
+    assert(stat == CUDNN_STATUS_SUCCESS);
+    
+    l.dropoutRandStates = cuda_make_array(0, l.dropoutRandStatesSizeInBytes);
+    // seed can be changed, but just for testing
+    stat = cudnnSetDropoutDescriptor(l.dropoutDesc, cudnn_handle(), l.probability,
+            l.dropoutRandStates, l.dropoutRandStatesSizeInBytes, 9);
+    assert(stat == CUDNN_STATUS_SUCCESS);
+
+    stat = cudnnCreateTensorDescriptor(&l.dropoutTensorDesc);
+    assert(stat == CUDNN_STATUS_SUCCESS);
+    const int dimA[4] = {l.batch, l.inputs, 1, 1};
+    const int strideA[4] = {1, 1, 1, 1};
+    stat = cudnnSetTensorNdDescriptor(l.dropoutTensorDesc, CUDNN_DATA_FLOAT, 4,
+                    dimA, strideA);
+    assert(stat == CUDNN_STATUS_SUCCESS);
+
+    stat = cudnnDropoutGetReserveSpaceSize(l.dropoutTensorDesc, &l.dropoutReservedSize);
+    assert(stat == CUDNN_STATUS_SUCCESS);
+    //cuda_alloc_array(l.dropoutReservedSpace, l.dropoutReservedSize);
+    l.dropoutReservedSpace = cuda_make_array(0, l.dropoutReservedSize);
+
+
+
+#endif
     #endif
     fprintf(stderr, "dropout       p = %.2f               %4d  ->  %4d\n", probability, inputs, inputs);
     return l;

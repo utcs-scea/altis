@@ -426,6 +426,14 @@ struct layer{
     cudnnTensorDescriptor_t poolingOutputTensorDesc;
     cudnnTensorDescriptor_t poolingGradientTensorDesc;
 
+    // For dropout
+    cudnnDropoutDescriptor_t dropoutDesc;
+    size_t dropoutRandStatesSizeInBytes;
+    float * dropoutRandStates;
+    cudnnTensorDescriptor_t dropoutTensorDesc;
+    size_t dropoutReservedSize;
+    float * dropoutReservedSpace;
+
     cudnnFilterDescriptor_t weightDesc;
     cudnnFilterDescriptor_t dweightDesc;
     cudnnConvolutionDescriptor_t convDesc;

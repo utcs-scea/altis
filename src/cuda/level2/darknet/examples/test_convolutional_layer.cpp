@@ -26,7 +26,7 @@ extern "C" {
 #define BATCHNORM   1
 #define BINARY      0
 #define XNOR        0
-#define ADAM        1
+#define ADAM        0
 
 using namespace std;
 

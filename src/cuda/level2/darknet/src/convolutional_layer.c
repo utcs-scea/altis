@@ -24,13 +24,14 @@ void test_convolutional_layer_forward(int batch, int height, int width, int chan
             hidden_filters, groups, size, stride, padding, activation, batchnorm,
             binary, xnor, adam);
     network *net = make_network(1);
+    net->train = 1;
     l.batch_normalize = 1;
     net->input_gpu = cuda_make_array(NULL, l.batch*l.h*l.w*l.c);
     net->workspace = cuda_make_array(0, (l.workspace_size-1)/sizeof(float)+1);
     forward_convolutional_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
-    printf("--------------------\n\n");
+    printf("-------------------------------\n\n");
 }
 
 void test_convolutional_layer_backward(int batch, int height, int width, int chan,
@@ -42,13 +43,14 @@ void test_convolutional_layer_backward(int batch, int height, int width, int cha
             hidden_filters, groups, size, stride, padding, activation, batchnorm,
             binary, xnor, adam);
     network *net = make_network(1);
+    net->train = 1;
     l.batch_normalize = 1;
     net->input_gpu = cuda_make_array(NULL, l.batch*l.h*l.w*l.c);
     net->workspace = cuda_make_array(0, (l.workspace_size-1)/sizeof(float)+1);
     backward_convolutional_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
-    printf("-------------------\n\n");
+    printf("--------------------------------\n\n");
 }
 
 void swap_binary(convolutional_layer *l)
@@ -161,6 +163,28 @@ static size_t get_workspace_size(layer l){
 #ifdef CUDNN
 void cudnn_convolutional_setup(layer *l)
 {
+    switch (l->activation) {
+        case SIGMOID:
+            l->activationMode = CUDNN_ACTIVATION_SIGMOID;
+            break;
+        case RELU: 
+            l->activationMode = CUDNN_ACTIVATION_RELU;
+            break;
+        case TANH:
+            l->activationMode = CUDNN_ACTIVATION_TANH;
+            break;
+        default:
+            printf("This activation function is not supported or implemented yet, use normal activation instead.\n");
+            exit(1);
+    }
+    double coef = 0;
+    cudnnSetActivationDescriptor(l->activationDesc, l->activationMode,
+                                CUDNN_NOT_PROPAGATE_NAN, coef);
+
+    cudnnSetTensor4dDescriptor(l->activationTensorDesc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT,
+            l->batch, l->out_c, l->out_h, l->out_w);
+
+
     cudnnSetTensor4dDescriptor(l->dsrcTensorDesc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, l->batch, l->c, l->h, l->w); 
     cudnnSetTensor4dDescriptor(l->ddstTensorDesc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, l->batch, l->out_c, l->out_h, l->out_w); 
 
@@ -263,6 +287,9 @@ convolutional_layer make_convolutional_layer(int batch, int h, int w, int c, int
     l.forward = forward_convolutional_layer;
     l.backward = backward_convolutional_layer;
     l.update = update_convolutional_layer;
+    
+    l.activation = activation;
+    
     if(binary){
         l.binary_weights = calloc(l.nweights, sizeof(float));
         l.cweights = calloc(l.nweights, sizeof(char));
@@ -357,12 +384,13 @@ convolutional_layer make_convolutional_layer(int batch, int h, int w, int c, int
         cudnnCreateTensorDescriptor(&l.ddstTensorDesc);
         cudnnCreateFilterDescriptor(&l.dweightDesc);
         cudnnCreateConvolutionDescriptor(&l.convDesc);
+        cudnnCreateActivationDescriptor(&l.activationDesc);
+        cudnnCreateTensorDescriptor(&l.activationTensorDesc);
         cudnn_convolutional_setup(&l);
 #endif
     }
 #endif
     l.workspace_size = get_workspace_size(l);
-    l.activation = activation;
 
     fprintf(stderr, "conv  %5d %2d x%2d /%2d  %4d x%4d x%4d   ->  %4d x%4d x%4d  %5.3f BFLOPs\n", n, size, size, stride, w, h, c, l.out_w, l.out_h, l.out_c, (2.0 * l.n * l.size*l.size*l.c/l.groups * l.out_h*l.out_w)/1000000000.);
 

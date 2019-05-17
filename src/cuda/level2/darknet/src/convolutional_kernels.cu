@@ -74,7 +74,7 @@ void binarize_weights_gpu(float *weights, int n, int size, float *binary)
 
 void forward_convolutional_layer_gpu(convolutional_layer l, network net)
 {
-    fill_gpu(l.outputs*l.batch, 0, l.output_gpu, 1);
+    //fill_gpu(l.outputs*l.batch, 0, l.output_gpu, 1);
     if(l.binary){
         binarize_weights_gpu(l.weights_gpu, l.n, l.c/l.groups*l.size*l.size, l.binary_weights_gpu);
         swap_binary(&l);
@@ -130,7 +130,8 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network net)
         add_bias_gpu(l.output_gpu, l.biases_gpu, l.batch, l.n, l.out_w*l.out_h);
     }
 
-    activate_array_gpu(l.output_gpu, l.outputs*l.batch, l.activation);
+    //activate_array_gpu(l.output_gpu, l.outputs*l.batch, l.activation);
+    cudnn_activate_array_gpu(l, net);
     //if(l.dot > 0) dot_error_gpu(l);
     if(l.binary || l.xnor) swap_binary(&l);
 }
@@ -183,7 +184,8 @@ void backward_convolutional_layer_gpu(convolutional_layer l, network net)
         smooth_layer(l, 5, l.smooth);
     }
     //constrain_gpu(l.outputs*l.batch, 1, l.delta_gpu, 1);
-    gradient_array_gpu(l.output_gpu, l.outputs*l.batch, l.activation, l.delta_gpu);
+    //gradient_array_gpu(l.output_gpu, l.outputs*l.batch, l.activation, l.delta_gpu);
+    cudnn_gradient_array_gpu(l, net);
 
 
     if(l.batch_normalize){
