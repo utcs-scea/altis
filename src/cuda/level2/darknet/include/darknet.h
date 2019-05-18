@@ -78,7 +78,6 @@ typedef enum {
     ACTIVE,
     RNN,
     GRU,
-    LSTM,
     CRNN,
     BATCHNORM,
     NETWORK,
@@ -410,6 +409,8 @@ struct layer{
     float * rand_gpu;
     float * squared_gpu;
     float * norms_gpu;
+
+    float * dy;
 #ifdef CUDNN
     cudnnTensorDescriptor_t srcTensorDesc, dstTensorDesc;
     cudnnTensorDescriptor_t dsrcTensorDesc, ddstTensorDesc;
@@ -440,6 +441,47 @@ struct layer{
     cudnnTensorDescriptor_t softmaxInputTensorDesc;
     cudnnTensorDescriptor_t softmaxOutputTensorDesc;
 
+    // for LRN
+    cudnnLRNDescriptor_t LRNDesc;
+    cudnnLRNMode_t lrnMode;
+    cudnnTensorDescriptor_t LRNInputTensorDesc;
+
+    // For RNN
+    int seqLength;
+    int hiddenSize;
+    int numLayers;
+    int mode;
+    int algo_int;
+    void *hx;
+    void *cx;
+    void *dx;
+    void *dhx;
+    void *dcx;
+    void *hy;
+    void *cy;
+    void *dhy;
+    void *dcy;
+    cudnnTensorDescriptor_t *xDesc, *yDesc, *dxDesc, *dyDesc;
+    cudnnTensorDescriptor_t hxDesc, cxDesc;
+    cudnnTensorDescriptor_t hyDesc, cyDesc;
+    cudnnTensorDescriptor_t dhxDesc, dcxDesc;
+    cudnnTensorDescriptor_t dhyDesc, dcyDesc;
+    cudnnRNNDescriptor_t rnnDesc;
+    cudnnRNNMode_t RNNMode;
+    cudnnRNNAlgo_t algo;
+    void *dw;
+    cudnnFilterDescriptor_t wDesc, dwDesc;
+    size_t weightsSize;
+    // Can be generic
+    void *workspace;
+    void *reserveSpace;
+    size_t workSize;
+    size_t reserveSize;
+
+
+
+
+    // Convolution
     cudnnFilterDescriptor_t weightDesc;
     cudnnFilterDescriptor_t dweightDesc;
     cudnnConvolutionDescriptor_t convDesc;
@@ -879,6 +921,9 @@ void test_maxpool_layer_backward(int batch, int height, int width, int chan,
 
 void test_normalization_layer_forward(int batch, int width, int height, int channel,
                 int size, float alpha, float beta, float kappa);
+void test_normalization_layer_backward(int batch, int width, int height, int channel,
+                int size, float alpha, float beta, float kappa);
+
  
 
 void test_shortcut_layer_forward(int batch, int index, int width, int height, int chan,
@@ -890,10 +935,10 @@ void test_shortcut_layer_backward(int batch, int index, int width, int height, i
 void test_softmax_layer_forward(int batch, int input_size, int groups);
 void test_softmax_layer_backward(int batch, int input_size, int groups);
 
-void test_gru_layer_forward(int batch, int input_size, int output_size,
-        int steps, int batchnorm, int adam);
-void test_gru_layer_backward(int batch, int input_size, int output_size,
-        int steps, int batchnorm, int adam);
+void test_rnn_layer_forward(int batch, int input_size, int output_size,
+        int seqlen, int layers);
+void test_rnn_layer_backward(int batch, int input_size, int output_size,
+        int seqlen, int layers);
 
 
 void test_lstm_layer_forward(int batch, int input_size, int output_size,
