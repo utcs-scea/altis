@@ -99,7 +99,7 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op)
     } else if (test_type.compare("softmax") == 0) {
         test_softmax_layer(DB, op);
     } else if (test_type.compare("gru") == 0) {
-        test_gru_layer(DB, op);
+        //test_gru_layer(DB, op);
     } else if (test_type.compare("lstm") == 0) {
         test_lstm_layer(DB, op);
     }

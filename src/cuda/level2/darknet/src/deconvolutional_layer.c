@@ -106,8 +106,6 @@ layer make_deconvolutional_layer(int batch, int h, int w, int c, int n, int size
     l.output = calloc(l.batch*l.outputs, sizeof(float));
     l.delta  = calloc(l.batch*l.outputs, sizeof(float));
 
-    l.forward = forward_deconvolutional_layer;
-    l.backward = backward_deconvolutional_layer;
     l.update = update_deconvolutional_layer;
 
     l.batch_normalize = batch_normalize;
@@ -248,74 +246,6 @@ void resize_deconvolutional_layer(layer *l, int h, int w)
     #endif
 #endif
     l->workspace_size = get_workspace_size(*l);
-}
-
-void forward_deconvolutional_layer(const layer l, network net)
-{
-    int i;
-
-    int m = l.size*l.size*l.n;
-    int n = l.h*l.w;
-    int k = l.c;
-
-    fill_cpu(l.outputs*l.batch, 0, l.output, 1);
-
-    for(i = 0; i < l.batch; ++i){
-        float *a = l.weights;
-        float *b = net.input + i*l.c*l.h*l.w;
-        float *c = net.workspace;
-
-        gemm_cpu(1,0,m,n,k,1,a,m,b,n,0,c,n);
-
-        col2im_cpu(net.workspace, l.out_c, l.out_h, l.out_w, l.size, l.stride, l.pad, l.output+i*l.outputs);
-    }
-    if (l.batch_normalize) {
-        forward_batchnorm_layer(l, net);
-    } else {
-        add_bias(l.output, l.biases, l.batch, l.n, l.out_w*l.out_h);
-    }
-    activate_array(l.output, l.batch*l.n*l.out_w*l.out_h, l.activation);
-}
-
-void backward_deconvolutional_layer(layer l, network net)
-{
-    int i;
-
-    gradient_array(l.output, l.outputs*l.batch, l.activation, l.delta);
-
-    if(l.batch_normalize){
-        backward_batchnorm_layer(l, net);
-    } else {
-        backward_bias(l.bias_updates, l.delta, l.batch, l.n, l.out_w*l.out_h);
-    }
-
-    //if(net.delta) memset(net.delta, 0, l.batch*l.h*l.w*l.c*sizeof(float));
-
-    for(i = 0; i < l.batch; ++i){
-        int m = l.c;
-        int n = l.size*l.size*l.n;
-        int k = l.h*l.w;
-
-        float *a = net.input + i*m*k;
-        float *b = net.workspace;
-        float *c = l.weight_updates;
-
-        im2col_cpu(l.delta + i*l.outputs, l.out_c, l.out_h, l.out_w, 
-                l.size, l.stride, l.pad, b);
-        gemm_cpu(0,1,m,n,k,1,a,k,b,k,1,c,n);
-
-        if(net.delta){
-            int m = l.c;
-            int n = l.h*l.w;
-            int k = l.size*l.size*l.n;
-
-            float *a = l.weights;
-            float *b = net.workspace;
-            float *c = net.delta + i*n*m;
-
-            gemm_cpu(0,0,m,n,k,1,a,k,b,n,1,c,n);
-        }
-    }
 }
 
 void update_deconvolutional_layer(layer l, update_args a)

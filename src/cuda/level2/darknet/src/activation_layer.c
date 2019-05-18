@@ -51,18 +51,13 @@ layer make_activation_layer(int batch, int inputs, ACTIVATION activation)
     l.inputs = inputs;
     l.outputs = inputs;
     l.batch=batch;
-
-    l.output = calloc(batch*inputs, sizeof(float*));
-    l.delta = calloc(batch*inputs, sizeof(float*));
-
-    l.forward = forward_activation_layer;
-    l.backward = backward_activation_layer;
 #ifdef GPU
     l.forward_gpu = forward_activation_layer_gpu;
     l.backward_gpu = backward_activation_layer_gpu;
 
-    l.output_gpu = cuda_make_array(l.output, inputs*batch);
-    l.delta_gpu = cuda_make_array(l.delta, inputs*batch);
+    l.output_gpu = cuda_make_array(0, inputs*batch);
+    l.delta_gpu = cuda_make_array(0, inputs*batch);
+    l.x_gpu = cuda_make_array(0, inputs*batch);
 
 #ifdef CUDNN
     cudnnStatus_t stat = cudnnCreateActivationDescriptor(&l.activationDesc);
@@ -99,7 +94,6 @@ layer make_activation_layer(int batch, int inputs, ACTIVATION activation)
     stat = cudnnSetTensorNdDescriptor(l.activationTensorDesc, CUDNN_DATA_FLOAT, 4,
             dimA, strideA);
     assert(stat == CUDNN_STATUS_SUCCESS);
-    
 #endif
 #endif
     l.activation = activation;
@@ -107,26 +101,9 @@ layer make_activation_layer(int batch, int inputs, ACTIVATION activation)
     return l;
 }
 
-void forward_activation_layer(layer l, network net)
-{
-    copy_cpu(l.outputs*l.batch, net.input, 1, l.output, 1);
-    activate_array(l.output, l.outputs*l.batch, l.activation);
-}
-
-void backward_activation_layer(layer l, network net)
-{
-    gradient_array(l.output, l.outputs*l.batch, l.activation, l.delta);
-    copy_cpu(l.outputs*l.batch, l.delta, 1, net.delta, 1);
-}
-
 #ifdef GPU
-
 void forward_activation_layer_gpu(layer l, network net)
 {
-    //copy_gpu(l.outputs*l.batch, net.input_gpu, 1, l.output_gpu, 1);
-    /*
-    activate_array_gpu(l.output_gpu, l.outputs*l.batch, l.activation);
-    */
 #ifdef CUDNN
     float one = 1;
     float zero = 0;
@@ -134,8 +111,9 @@ void forward_activation_layer_gpu(layer l, network net)
     // pointers may be equal. However, this requires xDesc and yDesc descriptors
     // to be identical (particularly, the strides of the input and output must
     // match for in-place operation to be allowed).
-    cudnnStatus_t stat = cudnnActivationForward(cudnn_handle(), l.activationDesc, &one, l.activationTensorDesc,
-            net.input_gpu, &zero, l.activationTensorDesc, l.output_gpu);
+    cudnnStatus_t stat = cudnnActivationForward(cudnn_handle(), l.activationDesc, &one,
+            l.activationTensorDesc, net.input_gpu, &zero, l.activationTensorDesc,
+            l.output_gpu);
     assert(stat == CUDNN_STATUS_SUCCESS);
 #endif
 }
@@ -150,18 +128,16 @@ void backward_activation_layer_gpu(layer l, network net)
     cudnnStatus_t stat = cudnnActivationBackward(cudnn_handle(),
                             l.activationDesc,
                             &one,
-                            l.activationTensorDesc,        //const cudnnTensorDescriptor_t    srcDesc,
-                            l.output_gpu,    //const void *srcData,
-                            l.activationTensorDesc,    // const cudnnTensorDescriptor_t    srcDiffDesc,
-                            l.output_gpu,    //const void *srcDiffData,
-                            l.activationTensorDesc,    //const cudnnTensorDescriptor_t    destDesc,
-                            l.output_gpu,    //const void  *destData,
+                            l.activationTensorDesc,
+                            l.output_gpu,
+                            l.activationTensorDesc,
+                            l.delta_gpu,
+                            l.activationTensorDesc,
+                            l.x_gpu,
                             &zero,
-                            l.activationTensorDesc,    //const cudnnTensorDescriptor_t    destDiffDesc,
-                            net.delta_gpu);    //void *destDiffData)
+                            l.activationTensorDesc,
+                            l.delta_gpu);
     assert(stat == CUDNN_STATUS_SUCCESS);
 #endif
-
-    //copy_gpu(l.outputs*l.batch, l.delta_gpu, 1, net.delta_gpu, 1);
 }
 #endif

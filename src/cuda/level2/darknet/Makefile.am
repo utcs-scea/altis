@@ -44,7 +44,8 @@ EXECOBJA=rnn.o classifier.o yolo.o detector.o nightmare.o run_all_tests.o test_a
 		 test_gru_layer.o test_lstm_layer.o main.o# run_test.o#darknet.o
 
 LDFLAGS+= -lstdc++ 
-OBJ+=convolutional_kernels.o deconvolutional_kernels.o activation_kernels.o im2col_kernels.o col2im_kernels.o blas_kernels.o crop_layer_kernels.o dropout_layer_kernels.o maxpool_layer_kernels.o avgpool_layer_kernels.o
+OBJ+=convolutional_kernels.o deconvolutional_kernels.o activation_kernels.o im2col_kernels.o col2im_kernels.o blas_kernels.o crop_layer_kernels.o dropout_layer_kernels.o maxpool_layer_kernels.o\
+	 avgpool_layer_kernels.o
 
 #AM_LDFLAGS=$(CUDA_LDFLAGS) $(LDFLAGS) $(COMMON)
 #AM_CPPFLAGS = $(CUDA_INC) $(COMMON)

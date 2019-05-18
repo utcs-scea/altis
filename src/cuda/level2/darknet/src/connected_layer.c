@@ -70,8 +70,6 @@ layer make_connected_layer(int batch, int inputs, int outputs,
     l.weights = calloc(outputs*inputs, sizeof(float));
     l.biases = calloc(outputs, sizeof(float));
 
-    l.forward = forward_connected_layer;
-    l.backward = backward_connected_layer;
     l.update = update_connected_layer;
 
     //float scale = 1./sqrt(inputs);
@@ -210,54 +208,6 @@ void update_connected_layer(layer l, update_args a)
     axpy_cpu(l.inputs*l.outputs, learning_rate/batch, l.weight_updates, 1, l.weights, 1);
     scal_cpu(l.inputs*l.outputs, momentum, l.weight_updates, 1);
 }
-
-void forward_connected_layer(layer l, network net)
-{
-    //fill_cpu(l.outputs*l.batch, 0, l.output, 1);
-    int m = l.batch;
-    int k = l.inputs;
-    int n = l.outputs;
-    float *a = net.input;
-    float *b = l.weights;
-    float *c = l.output;
-    gemm(0,1,m,n,k,1,a,k,b,k,1,c,n);
-    if(l.batch_normalize){
-        forward_batchnorm_layer(l, net);
-    } else {
-        add_bias(l.output, l.biases, l.batch, l.outputs, 1);
-    }
-    activate_array(l.output, l.outputs*l.batch, l.activation);
-}
-
-void backward_connected_layer(layer l, network net)
-{
-    gradient_array(l.output, l.outputs*l.batch, l.activation, l.delta);
-
-    if(l.batch_normalize){
-        backward_batchnorm_layer(l, net);
-    } else {
-        backward_bias(l.bias_updates, l.delta, l.batch, l.outputs, 1);
-    }
-
-    int m = l.outputs;
-    int k = l.batch;
-    int n = l.inputs;
-    float *a = l.delta;
-    float *b = net.input;
-    float *c = l.weight_updates;
-    gemm(1,0,m,n,k,1,a,m,b,n,1,c,n);
-
-    m = l.batch;
-    k = l.outputs;
-    n = l.inputs;
-
-    a = l.delta;
-    b = l.weights;
-    c = net.delta;
-
-    if(c) gemm(0,0,m,n,k,1,a,k,b,n,1,c,n);
-}
-
 
 void denormalize_connected_layer(layer l)
 {

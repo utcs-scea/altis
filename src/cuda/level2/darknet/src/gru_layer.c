@@ -120,10 +120,6 @@ layer make_gru_layer(int batch, int inputs, int outputs, int steps, int batch_no
     l.z_cpu = calloc(outputs*batch, sizeof(float));
     l.h_cpu = calloc(outputs*batch, sizeof(float));
 
-    l.forward = forward_gru_layer;
-    l.backward = backward_gru_layer;
-    l.update = update_gru_layer;
-
 #ifdef GPU
     l.forward_gpu = forward_gru_layer_gpu;
     l.backward_gpu = backward_gru_layer_gpu;
@@ -152,105 +148,7 @@ layer make_gru_layer(int batch, int inputs, int outputs, int steps, int batch_no
     return l;
 }
 
-void update_gru_layer(layer l, update_args a)
-{
-    update_connected_layer(*(l.ur), a);
-    update_connected_layer(*(l.uz), a);
-    update_connected_layer(*(l.uh), a);
-    update_connected_layer(*(l.wr), a);
-    update_connected_layer(*(l.wz), a);
-    update_connected_layer(*(l.wh), a);
-}
-
-void forward_gru_layer(layer l, network net)
-{
-    network s = net;
-    s.train = net.train;
-    layer uz = *(l.uz);
-    layer ur = *(l.ur);
-    layer uh = *(l.uh);
-
-    layer wz = *(l.wz);
-    layer wr = *(l.wr);
-    layer wh = *(l.wh);
-
-    fill_cpu(l.outputs * l.batch * l.steps, 0, uz.delta, 1);
-    fill_cpu(l.outputs * l.batch * l.steps, 0, ur.delta, 1);
-    fill_cpu(l.outputs * l.batch * l.steps, 0, uh.delta, 1);
-
-    fill_cpu(l.outputs * l.batch * l.steps, 0, wz.delta, 1);
-    fill_cpu(l.outputs * l.batch * l.steps, 0, wr.delta, 1);
-    fill_cpu(l.outputs * l.batch * l.steps, 0, wh.delta, 1);
-    if (net.train) {
-        fill_cpu(l.outputs * l.batch * l.steps, 0, l.delta, 1);
-        copy_cpu(l.outputs*l.batch, l.state, 1, l.prev_state, 1);
-    }
-
-    int i;
-    for (i = 0; i < l.steps; ++i) {
-        s.input = l.state;
-        forward_connected_layer(wz, s);
-        forward_connected_layer(wr, s);
-
-        s.input = net.input;
-        forward_connected_layer(uz, s);
-        forward_connected_layer(ur, s);
-        forward_connected_layer(uh, s);
-
-
-        copy_cpu(l.outputs*l.batch, uz.output, 1, l.z_cpu, 1);
-        axpy_cpu(l.outputs*l.batch, 1, wz.output, 1, l.z_cpu, 1);
-
-        copy_cpu(l.outputs*l.batch, ur.output, 1, l.r_cpu, 1);
-        axpy_cpu(l.outputs*l.batch, 1, wr.output, 1, l.r_cpu, 1);
-
-        activate_array(l.z_cpu, l.outputs*l.batch, LOGISTIC);
-        activate_array(l.r_cpu, l.outputs*l.batch, LOGISTIC);
-
-        copy_cpu(l.outputs*l.batch, l.state, 1, l.forgot_state, 1);
-        mul_cpu(l.outputs*l.batch, l.r_cpu, 1, l.forgot_state, 1);
-
-        s.input = l.forgot_state;
-        forward_connected_layer(wh, s);
-
-        copy_cpu(l.outputs*l.batch, uh.output, 1, l.h_cpu, 1);
-        axpy_cpu(l.outputs*l.batch, 1, wh.output, 1, l.h_cpu, 1);
-
-        if(l.tanh){
-            activate_array(l.h_cpu, l.outputs*l.batch, TANH);
-        } else {
-            activate_array(l.h_cpu, l.outputs*l.batch, LOGISTIC);
-        }
-
-        weighted_sum_cpu(l.state, l.h_cpu, l.z_cpu, l.outputs*l.batch, l.output);
-
-        copy_cpu(l.outputs*l.batch, l.output, 1, l.state, 1);
-
-        net.input += l.inputs*l.batch;
-        l.output += l.outputs*l.batch;
-        increment_layer(&uz, 1);
-        increment_layer(&ur, 1);
-        increment_layer(&uh, 1);
-
-        increment_layer(&wz, 1);
-        increment_layer(&wr, 1);
-        increment_layer(&wh, 1);
-    }
-}
-
-void backward_gru_layer(layer l, network net)
-{
-}
-
 #ifdef GPU
-
-void pull_gru_layer(layer l)
-{
-}
-
-void push_gru_layer(layer l)
-{
-}
 
 void update_gru_layer_gpu(layer l, update_args a)
 {
