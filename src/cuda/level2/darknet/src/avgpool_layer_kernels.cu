@@ -29,7 +29,7 @@ extern "C" void backward_avgpool_layer_gpu(avgpool_layer layer, network net)
     cudnnStatus_t stat = cudnnPoolingBackward(cudnn_handle(), layer.poolingDesc, &one,
             layer.poolingOutputTensorDesc,
             layer.output_gpu, layer.poolingOutputTensorDesc, layer.dy,
-            layer.poolingInputTensorDesc, layer.x_gpu, &zero, layer.poolingInputTensorDesc,
+            layer.poolingInputTensorDesc, net.input_gpu, &zero, layer.poolingInputTensorDesc,
             layer.delta_gpu);
     assert(stat == CUDNN_STATUS_SUCCESS);
 }

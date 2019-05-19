@@ -34,7 +34,6 @@
 #include "upsample_layer.h"
 #include "shortcut_layer.h"
 #include "softmax_layer.h"
-#include "lstm_layer.h"
 #include "utils.h"
 
 typedef struct{
@@ -66,7 +65,6 @@ LAYER_TYPE string_to_layer_type(char * type)
             || strcmp(type, "[network]")==0) return NETWORK;
     if (strcmp(type, "[crnn]")==0) return CRNN;
     if (strcmp(type, "[gru]")==0) return GRU;
-    if (strcmp(type, "[lstm]") == 0) return LSTM;
     if (strcmp(type, "[rnn]")==0) return RNN;
     if (strcmp(type, "[conn]")==0
             || strcmp(type, "[connected]")==0) return CONNECTED;
@@ -242,16 +240,6 @@ layer parse_gru(list *options, size_params params)
 
     layer l = make_gru_layer(params.batch, params.inputs, output, params.time_steps, batch_normalize, params.net->adam);
     l.tanh = option_find_int_quiet(options, "tanh", 0);
-
-    return l;
-}
-
-layer parse_lstm(list *options, size_params params)
-{
-    int output = option_find_int(options, "output", 1);
-    int batch_normalize = option_find_int_quiet(options, "batch_normalize", 0);
-
-    layer l = make_lstm_layer(params.batch, params.inputs, output, params.time_steps, batch_normalize, params.net->adam);
 
     return l;
 }
@@ -789,8 +777,6 @@ network *parse_network_cfg(char *filename)
             l = parse_rnn(options, params);
         }else if(lt == GRU){
             l = parse_gru(options, params);
-        }else if (lt == LSTM) {
-            l = parse_lstm(options, params);
         }else if(lt == CRNN){
             l = parse_crnn(options, params);
         }else if(lt == CONNECTED){
@@ -923,38 +909,6 @@ list *read_cfg(char *filename)
     return options;
 }
 
-void save_convolutional_weights_binary(layer l, FILE *fp)
-{
-#ifdef GPU
-    if(gpu_index >= 0){
-        pull_convolutional_layer(l);
-    }
-#endif
-    binarize_weights(l.weights, l.n, l.c*l.size*l.size, l.binary_weights);
-    int size = l.c*l.size*l.size;
-    int i, j, k;
-    fwrite(l.biases, sizeof(float), l.n, fp);
-    if (l.batch_normalize){
-        fwrite(l.scales, sizeof(float), l.n, fp);
-        fwrite(l.rolling_mean, sizeof(float), l.n, fp);
-        fwrite(l.rolling_variance, sizeof(float), l.n, fp);
-    }
-    for(i = 0; i < l.n; ++i){
-        float mean = l.binary_weights[i*size];
-        if(mean < 0) mean = -mean;
-        fwrite(&mean, sizeof(float), 1, fp);
-        for(j = 0; j < size/8; ++j){
-            int index = i*size + j*8;
-            unsigned char c = 0;
-            for(k = 0; k < 8; ++k){
-                if (j*8 + k >= size) break;
-                if (l.binary_weights[index + k] > 0) c = (c | 1<<k);
-            }
-            fwrite(&c, sizeof(char), 1, fp);
-        }
-    }
-}
-
 void save_convolutional_weights(layer l, FILE *fp)
 {
     if(l.binary){
@@ -1037,15 +991,6 @@ void save_weights_upto(network *net, char *filename, int cutoff)
             save_connected_weights(*(l.input_layer), fp);
             save_connected_weights(*(l.self_layer), fp);
             save_connected_weights(*(l.output_layer), fp);
-        } if (l.type == LSTM) {
-            save_connected_weights(*(l.wi), fp);
-            save_connected_weights(*(l.wf), fp);
-            save_connected_weights(*(l.wo), fp);
-            save_connected_weights(*(l.wg), fp);
-            save_connected_weights(*(l.ui), fp);
-            save_connected_weights(*(l.uf), fp);
-            save_connected_weights(*(l.uo), fp);
-            save_connected_weights(*(l.ug), fp);
         } if (l.type == GRU) {
             if(1){
                 save_connected_weights(*(l.wz), fp);
@@ -1264,16 +1209,6 @@ void load_weights_upto(network *net, char *filename, int start, int cutoff)
             load_connected_weights(*(l.input_layer), fp, transpose);
             load_connected_weights(*(l.self_layer), fp, transpose);
             load_connected_weights(*(l.output_layer), fp, transpose);
-        }
-        if (l.type == LSTM) {
-            load_connected_weights(*(l.wi), fp, transpose);
-            load_connected_weights(*(l.wf), fp, transpose);
-            load_connected_weights(*(l.wo), fp, transpose);
-            load_connected_weights(*(l.wg), fp, transpose);
-            load_connected_weights(*(l.ui), fp, transpose);
-            load_connected_weights(*(l.uf), fp, transpose);
-            load_connected_weights(*(l.uo), fp, transpose);
-            load_connected_weights(*(l.ug), fp, transpose);
         }
         if (l.type == GRU) {
             if(1){

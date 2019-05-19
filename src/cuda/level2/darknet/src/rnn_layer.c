@@ -57,7 +57,6 @@ layer make_rnn_layer(int batch, int inputs, int outputs, int steps, ACTIVATION a
 
     l.forward = forward_rnn_layer;
     l.backward = backward_rnn_layer;
-    l.update = update_rnn_layer;
 #ifdef GPU
     l.forward_gpu = forward_rnn_layer_gpu;
     l.backward_gpu = backward_rnn_layer_gpu;
@@ -74,13 +73,6 @@ layer make_rnn_layer(int batch, int inputs, int outputs, int steps, ACTIVATION a
 #endif
 
     return l;
-}
-
-void update_rnn_layer(layer l, update_args a)
-{
-    update_connected_layer(*(l.input_layer),  a);
-    update_connected_layer(*(l.self_layer),   a);
-    update_connected_layer(*(l.output_layer), a);
 }
 
 #ifdef GPU

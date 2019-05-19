@@ -117,11 +117,29 @@ void forward_batchnorm_layer_gpu(layer l, network net)
                 l.variance_gpu);
 #endif
     } else {
+        /*
         normalize_gpu(l.output_gpu, l.rolling_mean_gpu, l.rolling_variance_gpu, l.batch, l.out_c, l.out_h*l.out_w);
         scale_bias_gpu(l.output_gpu, l.scales_gpu, l.batch, l.out_c, l.out_h*l.out_w);
         add_bias_gpu(l.output_gpu, l.biases_gpu, l.batch, l.out_c, l.out_w*l.out_h);
-    }
+        */
 
+        float one = 1;
+        float zero = 0;
+        cudnnBatchNormalizationForwardInference(cudnn_handle(),
+                CUDNN_BATCHNORM_SPATIAL,
+                &one,
+                &zero,
+                l.dstTensorDesc,
+                net.input_gpu,
+                l.dstTensorDesc,
+                l.output_gpu,
+                l.normTensorDesc,
+                l.scales_gpu,
+                l.biases_gpu,
+                l.mean_gpu,
+                l.variance_gpu,
+                CUDNN_BN_MIN_EPSILON);
+    }
 }
 
 void backward_batchnorm_layer_gpu(layer l, network net)
@@ -144,7 +162,7 @@ void backward_batchnorm_layer_gpu(layer l, network net)
             l.dstTensorDesc,
             l.delta_gpu,
             l.dstTensorDesc,
-            l.x_norm_gpu,
+            l.delta_gpu,//l.x_norm_gpu,
             l.normTensorDesc,
             l.scales_gpu,
             l.scale_updates_gpu,
@@ -152,17 +170,8 @@ void backward_batchnorm_layer_gpu(layer l, network net)
             .00001,
             l.mean_gpu,
             l.variance_gpu);
-    copy_gpu(l.outputs*l.batch, l.x_norm_gpu, 1, l.delta_gpu, 1);
-#else
-    backward_bias_gpu(l.bias_updates_gpu, l.delta_gpu, l.batch, l.out_c, l.out_w*l.out_h);
-    backward_scale_gpu(l.x_norm_gpu, l.delta_gpu, l.batch, l.out_c, l.out_w*l.out_h, l.scale_updates_gpu);
-
-    scale_bias_gpu(l.delta_gpu, l.scales_gpu, l.batch, l.out_c, l.out_h*l.out_w);
-
-    fast_mean_delta_gpu(l.delta_gpu, l.variance_gpu, l.batch, l.out_c, l.out_w*l.out_h, l.mean_delta_gpu);
-    fast_variance_delta_gpu(l.x_gpu, l.delta_gpu, l.mean_gpu, l.variance_gpu, l.batch, l.out_c, l.out_w*l.out_h, l.variance_delta_gpu);
-    normalize_delta_gpu(l.x_gpu, l.mean_gpu, l.variance_gpu, l.mean_delta_gpu, l.variance_delta_gpu, l.batch, l.out_c, l.out_w*l.out_h, l.delta_gpu);
+    //copy_gpu(l.outputs*l.batch, l.x_norm_gpu, 1, l.delta_gpu, 1);
 #endif
-    if(l.type == BATCHNORM) copy_gpu(l.outputs*l.batch, l.delta_gpu, 1, net.delta_gpu, 1);
+    //if(l.type == BATCHNORM) copy_gpu(l.outputs*l.batch, l.delta_gpu, 1, net.delta_gpu, 1);
 }
 #endif
