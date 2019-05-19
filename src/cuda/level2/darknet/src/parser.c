@@ -225,8 +225,11 @@ layer parse_rnn(list *options, size_params params)
     char *activation_s = option_find_str(options, "activation", "logistic");
     ACTIVATION activation = get_activation(activation_s);
     int batch_normalize = option_find_int_quiet(options, "batch_normalize", 0);
+    int seqLength = option_find_int_quiet(options, "seq_length", 0);
+    int numLayers = option_find_int_quiet(options, "num_layers", 0);
 
-    layer l = make_rnn_layer(params.batch, params.inputs, output, params.time_steps, activation, batch_normalize, params.net->adam);
+    layer l = make_rnn_layer(params.batch, params.inputs, output, seqLength,
+            numLayers);
 
     l.shortcut = option_find_int_quiet(options, "shortcut", 0);
 

@@ -448,6 +448,8 @@ struct layer{
 
     // For RNN
     int seqLength;
+    int hiddenSize;
+    int numLayers;
     int mode;
     int algo_int;
     void *hx;
@@ -464,6 +466,17 @@ struct layer{
     cudnnTensorDescriptor_t hyDesc, cyDesc;
     cudnnTensorDescriptor_t dhxDesc, dcxDesc;
     cudnnTensorDescriptor_t dhyDesc, dcyDesc;
+    cudnnRNNDescriptor_t rnnDesc;
+    cudnnRNNMode_t RNNMode;
+    cudnnRNNAlgo_t algo;
+    void *dw;
+    cudnnFilterDescriptor_t wDesc, dwDesc;
+    size_t weightsSize;
+    // Can be generic
+    void *workspace;
+    void *reserveSpace;
+    size_t workSize;
+    size_t reserveSize;
 
 
 
@@ -922,10 +935,10 @@ void test_shortcut_layer_backward(int batch, int index, int width, int height, i
 void test_softmax_layer_forward(int batch, int input_size, int groups);
 void test_softmax_layer_backward(int batch, int input_size, int groups);
 
-void test_gru_layer_forward(int batch, int input_size, int output_size,
-        int steps, int batchnorm, int adam);
-void test_gru_layer_backward(int batch, int input_size, int output_size,
-        int steps, int batchnorm, int adam);
+void test_rnn_layer_forward(int batch, int input_size, int output_size,
+        int seqlen, int layers);
+void test_rnn_layer_backward(int batch, int input_size, int output_size,
+        int seqlen, int layers);
 
 
 void test_lstm_layer_forward(int batch, int input_size, int output_size,
