@@ -8,7 +8,9 @@ void test_maxpool_layer_forward(int batch, int height, int width, int chan,
     maxpool_layer l = make_maxpool_layer(batch, height, width, chan, size, stride, padding);
     network *net = make_network(1);
     net->input_gpu = cuda_make_array(NULL, l.batch*l.w*l.h*l.c);
+    cudaProfilerStart();
     forward_maxpool_layer_gpu(l, *net);
+    cudaProfilerStop();
     free_layer(l);
     free_network(net);
     printf("---------------------------\n\n");
@@ -22,7 +24,9 @@ void test_maxpool_layer_backward(int batch, int height, int width, int chan,
     l.delta_gpu = cuda_make_array(NULL, l.w*l.h*l.c*l.batch);
     net->input_gpu = cuda_make_array(NULL, l.batch*l.w*l.h*l.c);
     l.dy = cuda_make_array(NULL, l.w*l.h*l.c*l.batch);
+    cudaProfilerStart();
     backward_maxpool_layer_gpu(l, *net);
+    cudaProfilerStop();
     free_layer(l);
     free_network(net);
     printf("----------------------------\n\n");

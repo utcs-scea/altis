@@ -7,7 +7,9 @@ void test_avgpool_layer_forward(int batch, int width, int height, int chan) {
     avgpool_layer l = make_avgpool_layer(batch, width, height, chan);
     network *net = make_network(1);
     net->input_gpu = cuda_make_array(NULL, l.w*l.h*l.c*l.batch);
+    cudaProfilerStart();
     forward_avgpool_layer_gpu(l, *net);
+    cudaProfilerStop();
     free_layer(l);
     free_network(net);
     printf("-----------------------------");
@@ -18,10 +20,10 @@ void test_avgpool_layer_backward(int batch, int width, int height, int chan) {
     printf("----- avgpool backward -----\n");
     avgpool_layer l = make_avgpool_layer(batch, width, height, chan);
     network *net = make_network(1);
-    l.delta_gpu = cuda_make_array(NULL, l.w*l.h*l.c*l.batch);
     net->input_gpu = cuda_make_array(NULL, l.w*l.h*l.c*l.batch);
-    l.dy = cuda_make_array(NULL, l.w*l.h*l.c*l.batch);
+    cudaProfilerStart();
     backward_avgpool_layer_gpu(l, *net);
+    cudaProfilerStop();
     free_layer(l);
     free_network(net);
     printf("-----------------------------");
@@ -47,14 +49,15 @@ avgpool_layer make_avgpool_layer(int batch, int w, int h, int c)
     l.forward_gpu = forward_avgpool_layer_gpu;
     l.backward_gpu = backward_avgpool_layer_gpu;
     l.output_gpu  = cuda_make_array(0, output_size);
-    l.delta_gpu   = cuda_make_array(0, output_size);
+    l.delta_gpu   = cuda_make_array(0, l.inputs*l.batch);
+    l.dy = cuda_make_array(NULL, output_size);
 #ifdef CUDNN
 
     cudnnStatus_t stat = cudnnCreatePoolingDescriptor(&l.poolingDesc);
     assert(stat == CUDNN_STATUS_SUCCESS);
     // no padding for now, may need to change parameter
     stat = cudnnSetPooling2dDescriptor(l.poolingDesc, CUDNN_POOLING_AVERAGE_COUNT_INCLUDE_PADDING,
-            CUDNN_NOT_PROPAGATE_NAN, l.h, l.w, 0, 0, 1, 1);
+            CUDNN_PROPAGATE_NAN, l.h, l.w, 0, 0, 1, 1);
     assert(stat == CUDNN_STATUS_SUCCESS);
 
     stat = cudnnCreateTensorDescriptor(&l.poolingInputTensorDesc);
