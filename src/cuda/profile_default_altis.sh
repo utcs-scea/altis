@@ -9,7 +9,7 @@ LEVEL2_BENCH_PATH=/home/edwardhu/mirovia/src/cuda/level2/
 LEVEL2_NUM_BENCH=1
 #ALL_LEVEL1_BENCHMARKS=(bfs fft gemm md md5hash neuralnet reduction scan sort spmv stencil2d triad)
 #ALL_LEVEL1_BENCHMARKS=(gemm pathfinder sort)
-ALL_LEVEL1_BENCHMARKS=(bfs gemm)
+ALL_LEVEL1_BENCHMARKS=(gemm)
 #ALL_LEVEL2_BENCHMARKS=(cfd dwt2d fdtd2d gups kmeans lavamd mandelbrot nw particlefilter srad where)
 ALL_LEVEL2_BENCHMARKS=(nw )
 
