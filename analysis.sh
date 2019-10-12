@@ -7,20 +7,26 @@
 #nvprof --metrics sm_efficiency,achieved_occupancy,ipc,branch_efficiency,warp_execution_efficiency,shared_store_transactions,shared_load_transactions,local_load_transactions,local_store_transactions,gld_transactions,gst_transactions,dram_read_transactions,dram_write_transactions,flop_count_sp_special,inst_executed,cf_executed,ldst_executed --log-file analysis/zerberus/$f/1 ./src/cuda/level0/$f/$f -n 1
 #done
 
-for f in pathfinder sort bfs
+for f in pathfinder sort bfs gemm
 do
-nvprof --metrics flop_count_dp,flop_count_sp,inst_fp_32,inst_fp_64,inst_integer,inst_bit_convert,inst_control,inst_compute_ld_st,inst_misc,inst_inter_thread_communication,sm_efficiency,achieved_occupancy,ipc,branch_efficiency,warp_execution_efficiency,shared_store_transactions,shared_load_transactions,local_load_transactions,local_store_transactions,gld_transactions,gst_transactions,dram_read_transactions,dram_write_transactions,flop_count_sp_special,inst_executed,cf_executed,ldst_executed --log-file analysis/zemaitis/$f/4 ./src/cuda/level1/$f/$f -s 4 -n 1 -d 1
+    echo $f
+sudo /usr/local/cuda-10.0/bin/nvprof --metrics dram_utilization,l2_utilization,shared_utilization,tex_utilization,cf_fu_utilization,double_fu_utilization,single_fu_utilization,ldst_fu_utilization,special_fu_utilization,tex_fu_utilization --log-file analysis/zemaitis/$f/4 ./src/cuda/level1/$f/$f -s 4 -n 1 -d 1
+#sudo /usr/local/cuda-10.0/bin/nvprof --metrics dram_utiliztion, l2_utilization, shared_utilization, tex_utilization, cf_fu_utilization, double_fu_utilization, single_fu_utilization, ldst_fu_utilization, special_fu_utilization, tex_fu_utilization ./src/cuda/level1/$f/$f -s 4 -n 1 -d 1
+
 #nvprof --metrics sm_efficiency,achieved_occupancy,ipc,branch_efficiency,warp_execution_efficiency,shared_store_transactions,shared_load_transactions,local_load_transactions,local_store_transactions,gld_transactions,gst_transactions,dram_read_transactions,dram_write_transactions,flop_count_sp_special,inst_executed,cf_executed,ldst_executed --log-file analysis/zerberus/$f/$i ./src/cuda/level1/$f/$f -s $i -n 1
 done
 
 for f in cfd dwt2d kmeans lavamd mandelbrot nw srad where
 do
-nvprof --metrics flop_count_dp,flop_count_sp,inst_fp_32,inst_fp_64,inst_integer,inst_bit_convert,inst_control,inst_compute_ld_st,inst_misc,inst_inter_thread_communication,sm_efficiency,achieved_occupancy,ipc,branch_efficiency,warp_execution_efficiency,shared_store_transactions,shared_load_transactions,local_load_transactions,local_store_transactions,gld_transactions,gst_transactions,dram_read_transactions,dram_write_transactions,flop_count_sp_special,inst_executed,cf_executed,ldst_executed --log-file analysis/zemaitis/$f/4 ./src/cuda/level2/$f/$f -s 4 -n 1 -d 1
+#nvprof --metrics flop_count_dp,flop_count_sp,inst_fp_32,inst_fp_64,inst_integer,inst_bit_convert,inst_control,inst_compute_ld_st,inst_misc,inst_inter_thread_communication,sm_efficiency,achieved_occupancy,ipc,branch_efficiency,warp_execution_efficiency,shared_store_transactions,shared_load_transactions,local_load_transactions,local_store_transactions,gld_transactions,gst_transactions,dram_read_transactions,dram_write_transactions,flop_count_sp_special,inst_executed,cf_executed,ldst_executed --log-file analysis/zemaitis/$f/4 ./src/cuda/level2/$f/$f -s 4 -n 1 -d 1
+sudo /usr/local/cuda-10.0/bin/nvprof --metrics  dram_utiliztion,l2_utilization,shared_utilization,tex_utilization,cf_fu_utilization,double_fu_utilization,single_fu_utilization,ldst_fu_utilization,special_fu_utilization,tex_fu_utilization --log-file analysis/zemaitis/$f/4 ./src/cuda/level2/$f/$f -s 4 -n 1 -d 1
 #nvprof --metrics sm_efficiency,achieved_occupancy,ipc,branch_efficiency,warp_execution_efficiency,shared_store_transactions,shared_load_transactions,local_load_transactions,local_store_transactions,gld_transactions,gst_transactions,dram_read_transactions,dram_write_transactions,flop_count_sp_special,inst_executed,cf_executed,ldst_executed --log-file analysis/zerberus/$f/$i ./src/cuda/level2/$f/$f -s $i -n 1
 done
+
 for f in naive float
 do
-nvprof --metrics flop_count_dp,flop_count_sp,inst_fp_32,inst_fp_64,inst_integer,inst_bit_convert,inst_control,inst_compute_ld_st,inst_misc,inst_inter_thread_communication,sm_efficiency,achieved_occupancy,ipc,branch_efficiency,warp_execution_efficiency,shared_store_transactions,shared_load_transactions,local_load_transactions,local_store_transactions,gld_transactions,gst_transactions,dram_read_transactions,dram_write_transactions,flop_count_sp_special,inst_executed,cf_executed,ldst_executed --log-file analysis/zemaitis/particlefilter/$f/4 ./src/cuda/level2/particlefilter/particlefilter_$f -s 4 -n 1 -d 1
+#nvprof --metrics flop_count_dp,flop_count_sp,inst_fp_32,inst_fp_64,inst_integer,inst_bit_convert,inst_control,inst_compute_ld_st,inst_misc,inst_inter_thread_communication,sm_efficiency,achieved_occupancy,ipc,branch_efficiency,warp_execution_efficiency,shared_store_transactions,shared_load_transactions,local_load_transactions,local_store_transactions,gld_transactions,gst_transactions,dram_read_transactions,dram_write_transactions,flop_count_sp_special,inst_executed,cf_executed,ldst_executed --log-file analysis/zemaitis/particlefilter/$f/4 ./src/cuda/level2/particlefilter/particlefilter_$f -s 4 -n 1 -d 1
+sudo /usr/local/cuda-10.0/bin/nvprof --metrics dram_utiliztion,l2_utilization,shared_utilization,tex_utilization,cf_fu_utilization,double_fu_utilization,single_fu_utilization,ldst_fu_utilization,special_fu_utilization,tex_fu_utilization --log-file analysis/zemaitis/particlefilter/$f/4 ./src/cuda/level2/particlefilter/particlefilter_$f -s 4 -n 1 -d 1
 #nvprof --metrics sm_efficiency,achieved_occupancy,ipc,branch_efficiency,warp_execution_efficiency,shared_store_transactions,shared_load_transactions,local_load_transactions,local_store_transactions,gld_transactions,gst_transactions,dram_read_transactions,dram_write_transactions,flop_count_sp_special,inst_executed,cf_executed,ldst_executed --log-file analysis/zerberus/particlefilter/$f/$i ./src/cuda/level2/particlefilter/particlefilter_$f -s $i -n 1
 done
 

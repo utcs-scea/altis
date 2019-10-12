@@ -20,6 +20,7 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network net)
     //fill_gpu(l.outputs*l.batch, 0, l.output_gpu, 1);
 #ifdef CUDNN
     float one = 1;
+    cudaProfilerStart();
     cudnnConvolutionForward(cudnn_handle(),
                 &one,
                 l.srcTensorDesc,
@@ -33,6 +34,7 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network net)
                 &one,
                 l.dstTensorDesc,
                 l.output_gpu);
+    cudaProfilerStop();
 #endif
 
     if (l.batch_normalize) {
@@ -61,6 +63,7 @@ void backward_convolutional_layer_gpu(convolutional_layer l, network net)
 
 #ifdef CUDNN
     float one = 1;
+    cudaProfilerStart();
     cudnnConvolutionBackwardFilter(cudnn_handle(),
             &one,
             l.srcTensorDesc,
@@ -74,6 +77,7 @@ void backward_convolutional_layer_gpu(convolutional_layer l, network net)
             &one,
             l.dweightDesc,
             l.weight_updates_gpu);
+    cudaProfilerStop();
 
     if(net.delta_gpu){
         cudnnConvolutionBackwardData(cudnn_handle(),

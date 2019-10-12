@@ -30,8 +30,23 @@ void test_rnn_layer_forward(int batch, int hiddenSize, int outputs, int seqLengt
     
     network *net = make_network(1);
     layer l = make_rnn_layer(batch, hiddenSize, outputs, seqLength, numLayers);
-
+    cudaProfilerStart();
     forward_rnn_layer_gpu(l, *net);
+    cudaProfilerStop();
+    free_layer(l);
+    free_network(net);
+}
+
+void test_rnn_layer_backward(int batch, int hiddenSize, int outputs, int seqLength,
+        int numLayers) {
+    
+    network *net = make_network(1);
+    layer l = make_rnn_layer(batch, hiddenSize, outputs, seqLength, numLayers);
+    cudaProfilerStart();
+    backward_rnn_layer_gpu(l, *net);
+    cudaProfilerStop();
+    free_layer(l);
+    free_network(net);
 }
 
 
@@ -269,50 +284,49 @@ void backward_rnn_layer_gpu(layer l, network net)
 {
     network s = {0};
     s.train = net.train;
-    int i;
-    layer input_layer = *(l.input_layer);
-    layer self_layer = *(l.self_layer);
-    layer output_layer = *(l.output_layer);
-    increment_layer(&input_layer,  l.steps - 1);
-    increment_layer(&self_layer,   l.steps - 1);
-    increment_layer(&output_layer, l.steps - 1);
-    float *last_input = input_layer.output_gpu;
-    float *last_self = self_layer.output_gpu;
-    for (i = l.steps-1; i >= 0; --i) {
-        fill_gpu(l.outputs * l.batch, 0, l.state_gpu, 1);
-        axpy_gpu(l.outputs * l.batch, 1, input_layer.output_gpu, 1, l.state_gpu, 1);
-        axpy_gpu(l.outputs * l.batch, 1, self_layer.output_gpu, 1, l.state_gpu, 1);
 
-        s.input_gpu = l.state_gpu;
-        s.delta_gpu = self_layer.delta_gpu;
-        backward_connected_layer_gpu(output_layer, s);
+       cudnnErrCheck(cudnnRNNBackwardData(cudnn_handle(),
+                               l.rnnDesc,
+                               l.seqLength,
+                               l.yDesc,
+                               l.output_gpu,
+                               l.dyDesc,
+                               l.dy,
+                               l.dhyDesc,
+                               l.dhy,
+                               l.dcyDesc,
+                               l.dcy,
+                               l.wDesc,
+                               l.weights_gpu,
+                               l.hxDesc,
+                               l.hx,
+                               l.cxDesc,
+                               l.cx,
+                               l.dxDesc,
+                               l.dx,
+                               l.dhxDesc,
+                               l.dhx,
+                               l.dcxDesc,
+                               l.dcx,
+                               l.workspace,
+                               l.workSize,
+                               l.reserveSpace,
+                               l.reserveSize));
 
-        if(i != 0) {
-            fill_gpu(l.outputs * l.batch, 0, l.state_gpu, 1);
-            axpy_gpu(l.outputs * l.batch, 1, input_layer.output_gpu - l.outputs*l.batch, 1, l.state_gpu, 1);
-            axpy_gpu(l.outputs * l.batch, 1, self_layer.output_gpu - l.outputs*l.batch, 1, l.state_gpu, 1);
-        }else {
-            copy_gpu(l.outputs*l.batch, l.prev_state_gpu, 1, l.state_gpu, 1);
-        }
-
-        copy_gpu(l.outputs*l.batch, self_layer.delta_gpu, 1, input_layer.delta_gpu, 1);
-
-        s.input_gpu = l.state_gpu;
-        s.delta_gpu = (i > 0) ? self_layer.delta_gpu - l.outputs*l.batch : 0;
-        if (i == 0) s.delta_gpu = 0;
-        backward_connected_layer_gpu(self_layer, s);
-
-        s.input_gpu = net.input_gpu + i*l.inputs*l.batch;
-        if(net.delta_gpu) s.delta_gpu = net.delta_gpu + i*l.inputs*l.batch;
-        else s.delta_gpu = 0;
-        backward_connected_layer_gpu(input_layer, s);
-
-        increment_layer(&input_layer,  -1);
-        increment_layer(&self_layer,   -1);
-        increment_layer(&output_layer, -1);
-    }
-    fill_gpu(l.outputs * l.batch, 0, l.state_gpu, 1);
-    axpy_gpu(l.outputs * l.batch, 1, last_input, 1, l.state_gpu, 1);
-    axpy_gpu(l.outputs * l.batch, 1, last_self, 1, l.state_gpu, 1);
+       cudnnErrCheck(cudnnRNNBackwardWeights(cudnn_handle(),
+                                    l.rnnDesc,
+                                    l.seqLength,
+                                    l.xDesc,
+                                    l.x_gpu,
+                                    l.hxDesc,
+                                    l.hx,
+                                    l.yDesc,
+                                    l.output_gpu,
+                                    l.workspace,
+                                    l.workSize,
+                                    l.dwDesc,
+                                    l.dw,
+                                    l.reserveSpace,
+                                    l.reserveSize));
 }
 #endif

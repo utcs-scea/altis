@@ -50,3 +50,4 @@ tools/shocdriver
 **/darknet/results/
 **/darknet/yolo_train_result.txt
 
+analysis/

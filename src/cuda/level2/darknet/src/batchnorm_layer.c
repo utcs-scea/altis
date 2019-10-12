@@ -10,7 +10,9 @@ void test_batchnorm_layer_forward(int batch, int width, int height, int chan) {
     net->input_gpu = cuda_make_array(l.output, l.w*l.h*l.c*l.batch);
     // Can chose to test simple inference
     net->train = 1;
+    cudaProfilerStart();
     forward_batchnorm_layer_gpu(l, *net);
+    cudaProfilerStop();
     free_layer(l);
     free_network(net);
     printf("\n\n");
@@ -20,10 +22,11 @@ void test_batchnorm_layer_backward(int batch, int width, int height, int chan) {
     printf("----- batchnorm backward -----\n");
     layer l = make_batchnorm_layer(batch, width, height, chan);
     network *net = make_network(1);
-    net->delta_gpu = cuda_make_array(l.delta, l.w*l.h*l.c*l.batch);
     // Can chose to test simple inference
     net->train = 1;
+    cudaProfilerStart();
     backward_batchnorm_layer_gpu(l, *net);
+    cudaProfilerStop();
     free_layer(l);
     free_network(net);
     printf("\n\n");
@@ -162,7 +165,7 @@ void backward_batchnorm_layer_gpu(layer l, network net)
             l.dstTensorDesc,
             l.delta_gpu,
             l.dstTensorDesc,
-            l.delta_gpu,//l.x_norm_gpu,
+            l.x_norm_gpu,//l.x_norm_gpu,
             l.normTensorDesc,
             l.scales_gpu,
             l.scale_updates_gpu,

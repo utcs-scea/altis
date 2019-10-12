@@ -101,7 +101,7 @@
 #include "ResultDatabase.h"
 #include "cudacommon.h"
 
-#define DEFAULT_LOGN 1 << 20 //20
+#define DEFAULT_LOGN 1 << 26 //20
 #define POLY 0x0000000000000007ULL
 
 #define DEFAULT_GPU 0

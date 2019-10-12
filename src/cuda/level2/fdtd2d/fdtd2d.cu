@@ -1,3 +1,13 @@
+
+/**
+ * fdtd2d.cu: This file is part of the PolyBench/GPU 1.0 test suite.
+ *
+ *
+ * Contact: Scott Grauer-Gray <sgrauerg@gmail.com>
+ * Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
+ * Web address: http://www.cse.ohio-state.edu/~pouchet/software/polybench/GPU
+ */
+
 #include <iostream>
 #include <cstdlib>
 #include <string>
@@ -9,8 +19,9 @@
 #include "ResultDatabase.h"
 #include "cudacommon.h"
 #include "fdtd2d.h"
+#include<cuda_profiler_api.h>
 
-#define DEFAULT_GPU 0
+#define DEFAULT_GPU 2
 
 // TODO subject to change
 #define DIM_THREAD_BLOCK_X 32
@@ -19,7 +30,7 @@
 #define SMALL_FLOAT_VAL 0.00000001f
 #define PERCENT_DIFF_ERROR_THRESHOLD 10.05
 
-#define tmax 500
+#define tmax 2//500
 #define NX 2048
 #define NY 2048
 
@@ -282,31 +293,119 @@ void run_fdtd_cuda(DATA_TYPE *_fict_, DATA_TYPE *ex, DATA_TYPE *ey, DATA_TYPE *h
     cudaGraphInstantiate (&pGraphExec, graph, NULL, NULL, 0);  
 #endif
 */
+    /*
+cudaStream_t streamForGraph;
+    CUDA_SAFE_CALL(cudaStreamCreate(&streamForGraph));
+    cudaEvent_t start, stop;
+cudaEventCreate(&start);
+cudaEventCreate(&stop);
+cudaEventRecord(start);
+*/
     int t = 0;
     for (; t < tmax; t++) {
         kernel1<<<grid, block>>>(_fict_gpu, ex_gpu, ey_gpu, hz_gpu, t);
-        //cudaDeviceSynchronize();
+        cudaDeviceSynchronize();
         kernel2<<<grid, block>>>(ex_gpu, ey_gpu, hz_gpu, t);
         cudaDeviceSynchronize();
         kernel3<<<grid, block>>>(ex_gpu, ey_gpu, hz_gpu, t);
         cudaDeviceSynchronize();
     }
-
-    // TODO graph execution
     /*
-    cudaGraph_t pGraph;
-    cudaGraphCreate(&pGraph, 0);
-    if (cudaGetLastError() != cudaSuccess) {
-        cout << "can't copy results back to host, error code " << cudaGetLastError() << endl;
-        exit(1);
-    }
-*/
+cudaEventRecord(stop);
+cudaEventSynchronize(stop);
+float milliseconds = 0;
+cudaEventElapsedTime(&milliseconds, start, stop);
+std::cout << "time: " << milliseconds << std::endl;*/
 
+
+   /* 
+    //<------------------------------------------
+    // TODO graph execution
+    cudaGraph_t pGraph;
+    CUDA_SAFE_CALL(cudaGraphCreate(&pGraph, 0));
+
+    cudaGraphNode_t k1;
+    cudaKernelNodeParams node1Params = { 0 };
+    void *kernel1Args[5] = {(void *)&_fict_gpu, (void *)&ex_gpu, (void *)&ey_gpu, (void *)&hz_gpu, (void*)&t};
+    node1Params.func = (void*)kernel1; // Here I put kernel loaded from ptx
+	node1Params.gridDim = grid;
+	node1Params.blockDim = block;
+	node1Params.sharedMemBytes = 0;
+	node1Params.kernelParams = (void **)kernel1Args;
+	node1Params.extra = NULL;
+
+    cudaGraphNode_t k2;
+    cudaKernelNodeParams node2Params = { 0 };
+    void *kernel2Args[4] = {(void *)&ex_gpu, (void *)&ey_gpu, (void *)&hz_gpu, (void *)&t};
+    node2Params.func = (void*)kernel2; // Here I put kernel loaded from ptx
+	node2Params.gridDim = grid;
+	node2Params.blockDim = block;
+	node2Params.sharedMemBytes = 0;
+	node2Params.kernelParams = (void **)kernel2Args;
+	node2Params.extra = NULL;
+
+
+
+    cudaGraphNode_t k3;
+    cudaKernelNodeParams node3Params = { 0 };
+    void *kernel3Args[4] = {(void *)&ex_gpu, (void *)&ey_gpu, (void *)&hz_gpu, (void *)&t};
+    node3Params.func = (void*)kernel3; // Here I put kernel loaded from ptx
+	node3Params.gridDim = grid;
+	node3Params.blockDim = block;
+	node3Params.sharedMemBytes = 0;
+	node3Params.kernelParams = (void **)kernel3Args;
+	node3Params.extra = NULL;
+
+
+
+    CUDA_SAFE_CALL(cudaGraphAddKernelNode(&k1, pGraph, NULL, 0, &node1Params));
+    CUDA_SAFE_CALL(cudaGraphAddKernelNode(&k2, pGraph, NULL, 0, &node2Params));
+    CUDA_SAFE_CALL(cudaGraphAddKernelNode(&k3, pGraph, NULL, 0, &node3Params));
+    
+    CUDA_SAFE_CALL(cudaGraphAddDependencies(pGraph, &k1, &k3, 1));
+    CUDA_SAFE_CALL(cudaGraphAddDependencies(pGraph, &k2, &k3, 1));
+    
+    cudaGraphExec_t graphExec;
+    CUDA_SAFE_CALL(cudaGraphInstantiate(&graphExec, pGraph, NULL, NULL, 0));
+
+
+    cudaGraphNode_t *nodes = NULL;
+    size_t numNodes = 0;
+    cudaGraphGetNodes(pGraph, nodes, &numNodes);
+    std::cout << "num nodes " << numNodes << std::endl;
+    //int version = 0;
+    //cudaRuntimeGetVersion(&version);
+    //std::cout << "version" << version << std::endl;
+
+    cudaStream_t streamForGraph;
+    CUDA_SAFE_CALL(cudaStreamCreate(&streamForGraph));
+    cudaEvent_t start, stop;
+cudaEventCreate(&start);
+cudaEventCreate(&stop);
+cudaEventRecord(start);
+    for (int a = 0; a < 500; a++) {
+        CUDA_SAFE_CALL(cudaGraphLaunch(graphExec, streamForGraph));
+    }
+
+
+    // TODO ::
+    CUDA_SAFE_CALL(cudaStreamSynchronize(streamForGraph));
+cudaEventRecord(stop);
+cudaEventSynchronize(stop);
+float milliseconds = 0;
+cudaEventElapsedTime(&milliseconds, start, stop);
+std::cout << "time: " << milliseconds << std::endl;
+
+    //free nodes
+    //<---------------------------------------------
+*/
     cudaMemcpy(hz_from_gpu, hz_gpu, sizeof(DATA_TYPE) * NX * NY, cudaMemcpyDeviceToHost);
     if (cudaGetLastError() != cudaSuccess) {
         cout << "can't copy results back to host, error code " << cudaGetLastError() << endl;
         exit(1);
     }
+    //CUDA_SAFE_CALL(cudaGraphExecDestroy(graphExec));
+    //CUDA_SAFE_CALL(cudaStreamDestroy(streamForGraph));
     cudaFree(_fict_gpu);
     cudaFree(ex_gpu);
     cudaFree(ey_gpu);

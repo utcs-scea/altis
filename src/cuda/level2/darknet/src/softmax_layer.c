@@ -18,7 +18,9 @@ void test_softmax_layer_forward(int batch, int input_size, int groups) {
     net->truth = calloc(l.inputs*l.batch, sizeof(float));
     l.noloss = 1;
     net->truth_gpu = cuda_make_array(l.delta, l.inputs*batch);
+    cudaProfilerStart();
     forward_softmax_layer_gpu(l, *net);
+    cudaProfilerStop();
     free_layer(l);
     free_network(net);
     printf("------------------------------------\n\n");
@@ -30,7 +32,9 @@ void test_softmax_layer_backward(int batch, int input_size, int groups) {
     softmax_layer l = make_softmax_layer(batch, input_size, groups);
     network *net = make_network(1);
     net->input_gpu = cuda_make_array(l.delta, l.inputs*batch);
+    cudaProfilerStart();
     backward_softmax_layer_gpu(l, *net);
+    cudaProfilerStop();
     free_layer(l);
     free_network(net);
     printf("-------------------------------------\n\n");
@@ -60,7 +64,7 @@ softmax_layer make_softmax_layer(int batch, int inputs, int groups)
     l.softmaxMode = CUDNN_SOFTMAX_MODE_INSTANCE;
     cudnnCreateTensorDescriptor(&l.softmaxInputTensorDesc);
     const int dimA[4] = {l.batch, l.inputs, 1, 1};
-    const int strideA[4] = {1, 1, 1, 1};
+    const int strideA[4] = {dimA[1], 1, 1, 1};
     cudnnSetTensorNdDescriptor(l.softmaxInputTensorDesc, CUDNN_DATA_FLOAT, 4,
             dimA, strideA); 
     cudnnCreateTensorDescriptor(&l.softmaxOutputTensorDesc);

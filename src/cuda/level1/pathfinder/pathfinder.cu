@@ -310,12 +310,14 @@ void run(int borderCols, int smallBlockCol, int blockCols,
   transferTime += elapsedTime * 1.e-3;  // convert to seconds
 
   int instances = op.getOptionInt("instances");
+  /*
   int final_ret =
       calc_path(gpuWall, gpuResult, rows, cols, pyramid_height, blockCols,
                 borderCols, kernelTime, false, instances);
+                */
 #ifdef HYPERQ
   double hyperqKernelTime = 0;
-  calc_path(gpuWall, gpuResult, rows, cols, pyramid_height, blockCols,
+  int final_ret = calc_path(gpuWall, gpuResult, rows, cols, pyramid_height, blockCols,
             borderCols, hyperqKernelTime, true, instances);
 #endif
 

@@ -21,7 +21,9 @@ void test_connected_layer_forward(int batch, int input_size, int output_size,
     net->input_gpu = cuda_make_array(l.weights, l.inputs*l.outputs);
     l.batch_normalize = 1;
     net->train = 1;
+    cudaProfilerStart();
     forward_connected_layer_gpu(l, *net);
+    cudaProfilerStop();
     free_layer(l);
     free_network(net);
     printf("\n");
@@ -36,7 +38,9 @@ void test_connected_layer_backward(int batch, int input_size, int output_size,
     net->input_gpu = cuda_make_array(l.weights, l.inputs*l.outputs);
     l.batch_normalize = 1;
     net->train = 1;
+    cudaProfilerStart();
     backward_connected_layer_gpu(l, *net);
+    cudaProfilerStop();
     free_layer(l);
     free_network(net);
     printf("\n");

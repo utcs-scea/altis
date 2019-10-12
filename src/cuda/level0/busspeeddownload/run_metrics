@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -ue
+
+sudo /usr/local/cuda-10.1/bin/nvprof -m all --csv --log-file metrics_zemaitis.csv ./busspeeddownload
