@@ -33,15 +33,6 @@ long numops(network *net)
             ops += 2l * l.wz->inputs * l.wz->outputs;
             ops += 2l * l.wh->inputs * l.wh->outputs;
             ops += 2l * l.wr->inputs * l.wr->outputs;
-        } else if (l.type == LSTM){
-            ops += 2l * l.uf->inputs * l.uf->outputs;
-            ops += 2l * l.ui->inputs * l.ui->outputs;
-            ops += 2l * l.ug->inputs * l.ug->outputs;
-            ops += 2l * l.uo->inputs * l.uo->outputs;
-            ops += 2l * l.wf->inputs * l.wf->outputs;
-            ops += 2l * l.wi->inputs * l.wi->outputs;
-            ops += 2l * l.wg->inputs * l.wg->outputs;
-            ops += 2l * l.wo->inputs * l.wo->outputs;
         }
     }
     return ops;

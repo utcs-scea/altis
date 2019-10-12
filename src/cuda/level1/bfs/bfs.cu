@@ -149,6 +149,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
         if(!quiet) {
             printf("Pass %d:\n", i);
         }
+        /*
         float time = BFSGraph(resultDB, op, no_of_nodes, edge_list_size, source, h_graph_nodes, h_graph_edges);
         if(!quiet) {
             if(time == FLT_MAX) {
@@ -157,6 +158,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
                 printf("Executing BFS...Done.\n");
             }
         }
+        */
 #ifdef UNIFIED_MEMORY
         float timeUM = BFSGraphUnifiedMemory(resultDB, op, no_of_nodes, edge_list_size, source, h_graph_nodes, h_graph_edges);
         if(!quiet) {
@@ -166,8 +168,9 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
                 printf("Executing BFS using unified memory...Done.\n");
             }
         }
-        if(time != FLT_MAX && timeUM != FLT_MAX) {
-            resultDB.AddResult("bfs_unifiedmem_speedup", atts, "N", time/timeUM);
+        //if(time != FLT_MAX && timeUM != FLT_MAX) {
+        if(timeUM != FLT_MAX) {
+            //resultDB.AddResult("bfs_unifiedmem_speedup", atts, "N", time/timeUM);
         }
 #endif
     }

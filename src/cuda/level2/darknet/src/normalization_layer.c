@@ -10,7 +10,9 @@ void test_normalization_layer_forward(int batch, int width, int height, int chan
             beta, kappa);
     network *net = make_network(1);
     net->input_gpu = cuda_make_array(NULL, l.batch*l.h*l.w*l.c);
+    cudaProfilerStart();
     forward_normalization_layer_gpu(l, *net);
+    cudaProfilerStop();
     free_layer(l);
     free_network(net);
     printf("---------------------------------\n\n");
@@ -23,7 +25,9 @@ void test_normalization_layer_backward(int batch, int width, int height, int cha
             beta, kappa);
     network *net = make_network(1);
     net->input_gpu = cuda_make_array(NULL, l.batch*l.h*l.w*l.c);
+    cudaProfilerStart();
     backward_normalization_layer_gpu(l, *net);
+    cudaProfilerStop();
     free_layer(l);
     free_network(net);
     printf("----------------------------------\n\n");

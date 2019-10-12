@@ -6,7 +6,7 @@ include $(top_builddir)/config/targets.mk
 # How to find source files
 VPATH = $(srcdir):$(srcdir)/../../common:$(srcdir)/../../../common
 
-AM_LDFLAGS = $(CUDA_LDFLAGS)
+AM_LDFLAGS = $(CUDA_LDFLAGS) -cudart shared
 AM_CPPFLAGS = $(CUDA_INC) -Wformat
 
 # What is the destination for programs built from this directory?

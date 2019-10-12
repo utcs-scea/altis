@@ -3,6 +3,7 @@
 #include "Timer.h"
 #include "Utility.h"
 #include "cublas.h"
+//#include "cublas_v2.h"
 #include "cuda.h"
 #include "cuda_runtime.h"
 #include "cudacommon.h"
@@ -18,12 +19,14 @@ static const int FIELD_LENGTH = 128;
 using namespace std;
 
 template <class T>
-void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op);
+void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op, bool is_half);
 
+// origianlly don't need handle in v1 cublas
 template <class T>
 inline void devGEMM(char transa, char transb, int m, int n, int k, T alpha,
                     const T *A, int lda, const T *B, int ldb, T beta, T *C,
                     int ldc);
+
 
 
 // ********************************************************
@@ -121,7 +124,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   if(!quiet) {
     cout << "Running single precision test" << endl;
   }
-  RunTest<float>("SGEMM", resultDB, op);
+  RunTest<float>("SGEMM", resultDB, op, false);
 
   // Test to see if this device supports double precision
   if ((deviceProp.major == 1 && deviceProp.minor >= 3) ||
@@ -129,12 +132,21 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     if(!quiet) {
         cout << "Running double precision test" << endl;
     }
-    RunTest<double>("DGEMM", resultDB, op);
+    RunTest<double>("DGEMM", resultDB, op, false);
   }
+
+  /*
+  if ((deviceProp.major >= 6)) {
+    if (!quiet) {
+        cout << "Running half preicsion test" << endl;
+    }
+    RunTest<half>("HGEMM", resultDB, op, true);
+  }
+  */
 }
 
 template <class T>
-void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
+void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op, bool is_half) {
   int passes = op.getOptionInt("passes");
   int kib;
 
@@ -191,6 +203,11 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
   cudaEventRecord(start, 0);
   CUDA_SAFE_CALL(cudaMemcpy(dA, A, N * N * sizeof(T), cudaMemcpyHostToDevice));
   CUDA_SAFE_CALL(cudaMemcpy(dB, B, N * N * sizeof(T), cudaMemcpyHostToDevice));
+
+
+  cublasHandle_t handle; // CUBLAS context
+  //CUDA_SAFE_CALL(cublasCreate(&handle));
+
   cudaEventRecord(stop, 0);
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&elapsedTime, start, stop);
@@ -217,7 +234,7 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
 
       // Warm Up
       devGEMM<T>(transa, transb, m, n, k, alpha, dA, lda, dB, ldb, beta, dC,
-                 ldc);
+                    ldc);
       cudaThreadSynchronize();
       CHECK_CUDA_ERROR();
 
@@ -273,6 +290,7 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
   CUDA_SAFE_CALL(cudaFreeHost(C));
   CUDA_SAFE_CALL(cudaEventDestroy(start));
   CUDA_SAFE_CALL(cudaEventDestroy(stop));
+  //cublasDestroy(handle);
   cublasShutdown();
 }
 
@@ -291,4 +309,14 @@ inline void devGEMM<float>(char transa, char transb, int m, int n, int k,
                            int ldb, float beta, float *C, int ldc) {
   cublasSgemm(transa, transb, m, n, k, alpha, A, lda, B, ldb, beta, C, ldc);
 }
+
+/*
+template <>
+inline void devGEMM<half>(cublasHandle_t handle, char transa, char transb, int m, int n, int k,
+                            half alpha, const half *A, int lda,
+                            const half *B, int ldb, half beta, half *C,
+                            int ldc) {
+  cublasHgemm(handle, transa, transb, m, n, k, alpha, A, lda, B, ldb, beta, C, ldc);
+}
+*/
 

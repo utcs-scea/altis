@@ -47,7 +47,9 @@ void test_convolutional_layer_backward(int batch, int height, int width, int cha
     l.batch_normalize = 1;
     net->input_gpu = cuda_make_array(NULL, l.batch*l.h*l.w*l.c);
     net->workspace = cuda_make_array(0, (l.workspace_size-1)/sizeof(float)+1);
+    cudaProfilerStart();
     backward_convolutional_layer_gpu(l, *net);
+    cudaProfilerStop();
     free_layer(l);
     free_network(net);
     printf("--------------------------------\n\n");

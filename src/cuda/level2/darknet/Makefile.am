@@ -41,7 +41,7 @@ OBJ=gemm.o utils.o cuda.o deconvolutional_layer.o convolutional_layer.o list.o i
 EXECOBJA=rnn.o classifier.o yolo.o detector.o nightmare.o run_all_tests.o test_activation_layer.o test_connected_layer.o test_avgpool_layer.o test_batchnorm_layer.o \
 		 test_convolutional_layer.o test_crnn_layer.o test_deconvolutional_layer.o  test_normalization_layer.o\
 		 test_dropout_layer.o test_l2norm_layer.o test_logistic_layer.o test_maxpool_layer.o test_shortcut_layer.o test_softmax_layer.o\
-		 test_rnn_layer.o  main.o# run_test.o#darknet.o
+		 test_rnn_layer.o  main.o #run_test.o#darknet.o
 
 LDFLAGS+= -lstdc++ 
 OBJ+=convolutional_kernels.o deconvolutional_kernels.o activation_kernels.o im2col_kernels.o col2im_kernels.o blas_kernels.o crop_layer_kernels.o dropout_layer_kernels.o maxpool_layer_kernels.o\

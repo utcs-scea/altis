@@ -72,6 +72,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
         printf("Pass %d:\n", i);
     }
     float time = srad(resultDB, op, matrix, imageSize, speckleSize, iters);
+    //float time = 10294413588;
     if(!quiet) {
         printf("Running SRAD...Done.\n");
     }
@@ -344,6 +345,7 @@ float srad_gridsync(ResultDatabase &resultDB, OptionParser &op, float* matrix, i
 
     // Run kernels
     cudaEventRecord(start, 0);
+    printf("asdf\n\n\n");
     cudaLaunchCooperativeKernel((void*)srad_cuda_3, dimGrid, dimBlock, &p_params);
     //srad_cuda_3<<<dimGrid, dimBlock>>>(E_C, W_C, N_C, S_C, J_cuda, C_cuda, cols,
                                        //rows, lambda, q0sqr);

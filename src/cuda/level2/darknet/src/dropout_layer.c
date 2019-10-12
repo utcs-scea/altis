@@ -10,7 +10,9 @@ void test_dropout_layer_forward(int batch, int input_size, float prob) {
     network *net = make_network(1);
     net->input_gpu = cuda_make_array(0, l.inputs*l.batch);
     net->train = 1;
+    cudaProfilerStart();
     forward_dropout_layer_gpu(l, *net);
+    cudaProfilerStop();
     //backward_dropout_layer_gpu(l, *net);
     free_layer(l);
     free_network(net);
@@ -23,7 +25,9 @@ void test_dropout_layer_backward(int batch, int input_size, float prob) {
     network *net = make_network(1);
     net->input_gpu = cuda_make_array(0, l.inputs*l.batch);
     net->delta_gpu = cuda_make_array(0, l.inputs*l.batch);
+    cudaProfilerStart();
     backward_dropout_layer_gpu(l, *net);
+    cudaProfilerStop();
     free_layer(l);
     free_network(net);
     printf("-------------------------------------\n\n");
@@ -62,7 +66,7 @@ dropout_layer make_dropout_layer(int batch, int inputs, float probability)
     stat = cudnnCreateTensorDescriptor(&l.dropoutTensorDesc);
     assert(stat == CUDNN_STATUS_SUCCESS);
     const int dimA[4] = {l.batch, l.inputs, 1, 1};
-    const int strideA[4] = {1, 1, 1, 1};
+    const int strideA[4] = {dimA[1], 1, 1, 1};
     stat = cudnnSetTensorNdDescriptor(l.dropoutTensorDesc, CUDNN_DATA_FLOAT, 4,
                     dimA, strideA);
     assert(stat == CUDNN_STATUS_SUCCESS);
