@@ -4,15 +4,16 @@ from os import path
 
 avg_col = 7
 metric_index = 3
-#all_level1_bench = ['backprop', 'bfs', 'b+tree', 'cfd', 'dwt2d', 'gaussian', 'heartwall', 'hotspot', 'hotspot3D', 'huffman', 'hybridsort', 'kmeans', 'lavaMD', 'leukocyte', 'lud', 'myocyte', 'nn', 'nw', 'particlefilter', 'pathfinder', 'srad_v1', 'srad_v2', 'streamcluster']
-all_level1_bench = ['bfs','fft','gemm','md','md5hash','neuralnet','reduction','scan','sort','spmv','stencil2d','triad']
-all_level2_bench = ['s3d', 'qtclustering']
+all_level1_bench = ['bfs','gemm','pathfinder','sort']
+all_level2_bench = ['cfd','dwt2d','gups','kmeans','lavamd','mandelbrot','nw','particlefilter','srad','where']
+all_dnn_bench = ['activation','avgpool','batchnorm','connected','convolution','dropout','normalization','rnn','softmax']
 
-metrics_path = '/home/edwardhu/shoc/src/cuda/'
-level1_metrics_path = '/home/edwardhu/shoc/src/cuda/' + 'level1/'
-level2_metrics_path = '/home/edwardhu/shoc/src/cuda/' + 'level2/'
-small_metrics_filename = '/metrics_small_zemaitis.csv'
+metrics_path = '/home/edwardhu/mirovia/src/cuda/'
+level1_metrics_path = metrics_path + 'level1/'
+level2_metrics_path = metrics_path + 'level2/'
+dnn_metrics_path = metrics_path + 'level2/' + 'darknet/'
 big_metrics_filename = '/metrics_big_zemaitis.csv'
+
 
 def open_file(filename, benchmark):
     dict_to_return = {"benchmark name": benchmark}
@@ -65,33 +66,6 @@ def open_file(filename, benchmark):
     return dict_to_return
 
 def main():
-    # small metrics
-    with open('all_small_metrics.csv', mode='w') as csv_file:
-        # level1 first
-        for i, bench in enumerate(all_level1_bench):
-            full_path = level1_metrics_path + bench + small_metrics_filename
-            result = open_file(full_path, bench)
-            if i == 0:
-                fieldnames = result.keys()
-                writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-                writer.writeheader()
-                writer.writerow(result)
-            else:
-                writer.writerow(result)
-        # level2
-        for i, bench in enumerate(all_level2_bench):
-            full_path = level2_metrics_path + bench + small_metrics_filename
-            result = open_file(full_path, bench)
-            if i == 0:
-                fieldnames = result.keys()
-                writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-                #writer.writeheader()
-                writer.writerow(result)
-            else:
-                writer.writerow(result)
-
-        # remove header row introduced in level2
-
     # big events
     with open('all_big_metrics.csv', mode='w') as csv_file:
         # level1 first
@@ -116,6 +90,30 @@ def main():
                 writer.writerow(result)
             else:
                 writer.writerow(result)
+        # dnn (both forward and backward)
+        for i, bench in enumerate(all_dnn_bench):
+            full_path = dnn_metrics_path + bench + '_forward/'  + big_metrics_filename
+            result = open_file(full_path, bench+'_forward')
+            if i == 0:
+                fieldnames = result.keys()
+                writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+                #writer.writeheader()
+                writer.writerow(result)
+            else:
+                writer.writerow(result)
+        for i, bench in enumerate(all_dnn_bench):
+            full_path = dnn_metrics_path + bench + '_backward/'  + big_metrics_filename
+            result = open_file(full_path, bench+'_backward')
+            if i == 0:
+                fieldnames = result.keys()
+                writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+                #writer.writeheader()
+                writer.writerow(result)
+            else:
+                writer.writerow(result)
+
+
+
 
 
 

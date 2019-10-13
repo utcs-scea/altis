@@ -12,7 +12,7 @@ LEVEL2_NUM_BENCH=1
 ALL_LEVEL1_BENCHMARKS=(gemm)
 #ALL_LEVEL2_BENCHMARKS=(cfd dwt2d fdtd2d gups kmeans lavamd mandelbrot nw particlefilter srad where)
 ALL_LEVEL2_BENCHMARKS=(nw )
-ALL_DNN_BENCHMARKS=(activation avgpool batchnorm connected convolution dropout normalization rnn softmax)
+ALL_DNN_BENCHMARKS=(batchnorm connected convolution dropout normalization rnn softmax)
 DNN_BENCH_NUM=8
 DNN_PATH=/home/edwardhu/mirovia/src/cuda/level2/darknet/
 
