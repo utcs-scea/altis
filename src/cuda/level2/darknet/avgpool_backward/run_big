@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 set -ue
 
-sudo /usr/local/cuda-10.1/bin/nvprof -m all --csv --log-file metrics_big_zemaitis.csv ../darknet --test_type avgpool --bidirection -1
+sudo /usr/local/cuda-10.0/bin/nvprof -m all --csv --log-file metrics_big_zemaitis.csv ../darknet --test_type avgpool --bidirection -1

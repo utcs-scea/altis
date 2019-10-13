@@ -14,7 +14,6 @@ cudadir = $(bindir)/CUDA
 cuda_PROGRAMS = gemm
 
 # How to build those programs?
-gemm_SOURCES = Gemm.cpp \
-                main.cpp
-gemm_LDADD = $(CUDA_LIBS) -lcublas $(LIBS)
+gemm_SOURCES = main.cpp
+gemm_LDADD = Gemm.o $(CUDA_LIBS) -lcublas $(LIBS)
 
