@@ -1,0 +1,249 @@
+==12434== NVPROF is profiling process 12434, command: ./srad
+==12434== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==12434== Profiling application: ./srad
+==12434== Profiling result:
+==12434== Event result:
+"Device","Kernel","Invocations","Event Name","Min","Max","Avg","Total"
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"tex0_cache_sector_queries",11680,11680,11680,584000
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"tex1_cache_sector_queries",16352,16352,16352,817600
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"tex0_cache_sector_misses",7760,7760,7760,388000
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"tex1_cache_sector_misses",10864,10864,10864,543200
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"fb_subp0_read_sectors",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"fb_subp1_read_sectors",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"fb_subp0_write_sectors",16,28,20,1028
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"fb_subp1_write_sectors",4,12,8,400
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"fb1_subp0_read_sectors",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"fb1_subp1_read_sectors",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"fb1_subp0_write_sectors",8,30,19,986
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"fb1_subp1_write_sectors",8,16,12,620
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"l2_subp0_write_sector_misses",32,48,40,2014
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"l2_subp1_write_sector_misses",20,40,31,1584
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"l2_subp0_read_sector_misses",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"l2_subp1_read_sector_misses",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"l2_subp0_read_tex_sector_queries",1634,1634,1634,81700
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"l2_subp1_read_tex_sector_queries",1630,1630,1630,81500
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"l2_subp0_write_tex_sector_queries",3840,3840,3840,192000
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"l2_subp1_write_tex_sector_queries",3840,3840,3840,192000
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"l2_subp0_read_tex_hit_sectors",1634,1634,1634,81700
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"l2_subp1_read_tex_hit_sectors",1630,1630,1630,81500
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"l2_subp0_write_tex_hit_sectors",3840,3840,3840,192000
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"l2_subp1_write_tex_hit_sectors",3840,3840,3840,192000
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"l2_subp0_total_read_sector_queries",2162,2162,2162,108100
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"l2_subp1_total_read_sector_queries",2198,2206,2203,110188
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"l2_subp0_total_write_sector_queries",3848,3852,3850,192500
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"l2_subp1_total_write_sector_queries",3841,3845,3843,192150
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"l2_subp0_read_sysmem_sector_queries",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"l2_subp1_read_sysmem_sector_queries",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"l2_subp0_write_sysmem_sector_queries",0,4,2,132
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"l2_subp1_write_sysmem_sector_queries",1,5,2,118
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"gld_inst_8bit",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"gld_inst_16bit",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"gld_inst_32bit",64512,64512,64512,3225600
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"gld_inst_64bit",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"gld_inst_128bit",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"gst_inst_8bit",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"gst_inst_16bit",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"gst_inst_32bit",61440,61440,61440,3072000
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"gst_inst_64bit",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"gst_inst_128bit",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"prof_trigger_00",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"prof_trigger_01",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"prof_trigger_02",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"prof_trigger_03",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"prof_trigger_04",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"prof_trigger_05",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"prof_trigger_06",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"prof_trigger_07",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"warps_launched",512,512,512,25600
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"inst_issued0",470646,594118,510565,25528252
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"inst_issued1",93808,93953,93814,4690739
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"inst_issued2",13024,13096,13025,651272
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"inst_executed",117936,117936,117936,5896800
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"thread_inst_executed",3676704,3676800,3676750,183837504
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"not_predicated_off_thread_inst_executed",3468296,3475184,3471426,173571344
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"global_load",2016,2016,2016,100800
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"global_store",1920,1920,1920,96000
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"generic_load",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"generic_store",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"inst_executed_in_trap",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"active_cycles_in_trap",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"local_store",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"local_load",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"shared_load",2304,2304,2304,115200
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"shared_store",2784,2784,2784,139200
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"inst_executed_shared_atom_cas",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"shared_atom",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"global_atom_cas",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"atom_count",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"gred_count",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"divergent_branch",672,672,672,33600
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"branch",17744,17744,17744,887200
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"shared_ld_bank_conflict",864,864,864,43200
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"shared_st_bank_conflict",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"shared_ld_transactions",3168,3168,3168,158400
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"shared_st_transactions",2766,2784,2781,139052
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"active_cycles",289081,350836,309046,15452323
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"elapsed_cycles_sm",626948,733464,658021,32901078
+"Tesla P100-SXM2-16GB (0)","srad_cuda_1(float*, float*, float*, float*, float*, float*, int, int, float)",50,"active_warps",1682558,1689110,1686149,84307481
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"tex0_cache_sector_queries",20224,20224,20224,1011200
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"tex1_cache_sector_queries",15360,15360,15360,768000
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"tex0_cache_sector_misses",9848,9848,9848,492400
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"tex1_cache_sector_misses",7672,7672,7672,383600
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"fb_subp0_read_sectors",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"fb_subp1_read_sectors",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"fb_subp0_write_sectors",16,28,20,1020
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"fb_subp1_write_sectors",4,12,8,424
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"fb1_subp0_read_sectors",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"fb1_subp1_read_sectors",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"fb1_subp0_write_sectors",8,32,20,1008
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"fb1_subp1_write_sectors",8,28,13,688
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"l2_subp0_write_sector_misses",32,48,40,2028
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"l2_subp1_write_sector_misses",20,36,30,1540
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"l2_subp0_read_sector_misses",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"l2_subp1_read_sector_misses",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"l2_subp0_read_tex_sector_queries",6712,6712,6712,335600
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"l2_subp1_read_tex_sector_queries",6712,6712,6712,335600
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"l2_subp0_write_tex_sector_queries",1024,1024,1024,51200
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"l2_subp1_write_tex_sector_queries",1024,1024,1024,51200
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"l2_subp0_read_tex_hit_sectors",6712,6712,6712,335600
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"l2_subp1_read_tex_hit_sectors",6712,6712,6712,335600
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"l2_subp0_write_tex_hit_sectors",1024,1024,1024,51200
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"l2_subp1_write_tex_hit_sectors",1024,1024,1024,51200
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"l2_subp0_total_read_sector_queries",7000,7016,7000,350016
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"l2_subp1_total_read_sector_queries",7048,7072,7048,352424
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"l2_subp0_total_write_sector_queries",1032,1036,1034,51704
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"l2_subp1_total_write_sector_queries",1025,1029,1026,51346
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"l2_subp0_read_sysmem_sector_queries",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"l2_subp1_read_sysmem_sector_queries",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"l2_subp0_write_sysmem_sector_queries",0,4,1,96
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"l2_subp1_write_sysmem_sector_queries",1,5,3,154
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"gld_inst_8bit",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"gld_inst_16bit",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"gld_inst_32bit",135168,135168,135168,6758400
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"gld_inst_64bit",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"gld_inst_128bit",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"gst_inst_8bit",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"gst_inst_16bit",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"gst_inst_32bit",16384,16384,16384,819200
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"gst_inst_64bit",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"gst_inst_128bit",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"prof_trigger_00",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"prof_trigger_01",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"prof_trigger_02",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"prof_trigger_03",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"prof_trigger_04",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"prof_trigger_05",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"prof_trigger_06",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"prof_trigger_07",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"warps_launched",512,512,512,25600
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"inst_issued0",329923,397864,340727,17036378
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"inst_issued1",56960,56960,56960,2848000
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"inst_issued2",9216,9216,9216,460800
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"inst_executed",73856,73856,73856,3692800
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"thread_inst_executed",2292480,2292480,2292480,114624000
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"not_predicated_off_thread_inst_executed",2226944,2226944,2226944,111347200
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"global_load",4224,4224,4224,211200
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"global_store",512,512,512,25600
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"generic_load",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"generic_store",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"inst_executed_in_trap",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"active_cycles_in_trap",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"local_store",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"local_load",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"shared_load",2560,2560,2560,128000
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"shared_store",2560,2560,2560,128000
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"inst_executed_shared_atom_cas",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"shared_atom",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"global_atom_cas",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"atom_count",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"gred_count",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"divergent_branch",576,576,576,28800
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"branch",9280,9280,9280,464000
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"shared_ld_bank_conflict",576,576,576,28800
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"shared_st_bank_conflict",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"shared_ld_transactions",3136,3136,3136,156800
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"shared_st_transactions",2560,2560,2560,128000
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"active_cycles",198145,232122,203553,10177675
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"elapsed_cycles_sm",529420,560070,537191,26859576
+"Tesla P100-SXM2-16GB (0)","srad_cuda_2(float*, float*, float*, float*, float*, float*, int, int, float, float)",50,"active_warps",1696674,1704108,1700371,85018593
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"tex0_cache_sector_queries",41412,41427,41419,2070957
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"tex1_cache_sector_queries",38967,38977,38971,1948597
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"tex0_cache_sector_misses",24838,24861,24847,1242396
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"tex1_cache_sector_misses",24023,24041,24033,1201673
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"fb_subp0_read_sectors",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"fb_subp1_read_sectors",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"fb_subp0_write_sectors",20,28,24,1217
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"fb_subp1_write_sectors",4,12,8,404
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"fb1_subp0_read_sectors",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"fb1_subp1_read_sectors",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"fb1_subp0_write_sectors",12,28,19,996
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"fb1_subp1_write_sectors",8,24,12,640
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"l2_subp0_write_sector_misses",32,52,44,2213
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"l2_subp1_write_sector_misses",20,36,29,1468
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"l2_subp0_read_sector_misses",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"l2_subp1_read_sector_misses",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"l2_subp0_read_tex_sector_queries",10684,10719,10699,534965
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"l2_subp1_read_tex_sector_queries",10454,10470,10468,523404
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"l2_subp0_write_tex_sector_queries",6864,6864,6864,343200
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"l2_subp1_write_tex_sector_queries",6960,6960,6960,348000
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"l2_subp0_read_tex_hit_sectors",10684,10772,10702,535112
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"l2_subp1_read_tex_hit_sectors",10454,10470,10467,523372
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"l2_subp0_write_tex_hit_sectors",6864,6864,6864,343200
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"l2_subp1_write_tex_hit_sectors",6960,6960,6960,348000
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"l2_subp0_total_read_sector_queries",12116,12150,12127,606363
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"l2_subp1_total_read_sector_queries",11592,11592,11592,579600
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"l2_subp0_total_write_sector_queries",6936,6940,6938,346912
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"l2_subp1_total_write_sector_queries",6963,6967,6964,348238
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"l2_subp0_read_sysmem_sector_queries",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"l2_subp1_read_sysmem_sector_queries",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"l2_subp0_write_sysmem_sector_queries",0,4,1,92
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"l2_subp1_write_sysmem_sector_queries",1,5,3,158
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"gld_inst_8bit",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"gld_inst_16bit",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"gld_inst_32bit",199680,199680,199680,9984000
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"gld_inst_64bit",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"gld_inst_128bit",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"gst_inst_8bit",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"gst_inst_16bit",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"gst_inst_32bit",77824,77824,77824,3891200
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"gst_inst_64bit",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"gst_inst_128bit",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"prof_trigger_00",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"prof_trigger_01",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"prof_trigger_02",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"prof_trigger_03",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"prof_trigger_04",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"prof_trigger_05",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"prof_trigger_06",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"prof_trigger_07",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"warps_launched",512,512,512,25600
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"inst_issued0",922073,1601248,1054519,52725987
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"inst_issued1",175452,175658,175541,8777062
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"inst_issued2",28461,28498,28477,1423851
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"inst_executed",229644,229996,229716,11485848
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"thread_inst_executed",7074400,7074760,7074465,353723268
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"not_predicated_off_thread_inst_executed",6750896,6757774,6754068,337703416
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"global_load",6581,6618,6594,329727
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"global_store",2434,2434,2434,121700
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"generic_load",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"generic_store",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"inst_executed_in_trap",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"active_cycles_in_trap",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"local_store",1024,1024,1024,51200
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"local_load",1024,1024,1024,51200
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"shared_load",4864,4864,4864,243200
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"shared_store",5344,5344,5344,267200
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"inst_executed_shared_atom_cas",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"shared_atom",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"global_atom_cas",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"atom_count",64,64,64,3200
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"gred_count",2,2,2,100
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"divergent_branch",1248,1248,1248,62400
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"branch",39077,39133,39092,1954640
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"shared_ld_bank_conflict",1440,1440,1440,72000
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"shared_st_bank_conflict",0,0,0,0
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"shared_ld_transactions",6304,6304,6304,315200
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"shared_st_transactions",5326,5344,5341,267052
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"active_cycles",563142,902747,629369,31468471
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"elapsed_cycles_sm",1021186,1459118,1107234,55361702
+"Tesla P100-SXM2-16GB (0)","srad_cuda_3(srad_params)",50,"active_warps",5137509,5291384,5179895,258994764

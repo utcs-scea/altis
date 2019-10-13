@@ -2,7 +2,6 @@
 *.a
 *.d
 *.dSYM
-*.csv
 *.out
 *.png
 *.jpg
@@ -51,3 +50,15 @@ tools/shocdriver
 **/darknet/yolo_train_result.txt
 
 analysis/
+
+# large data file
+data/bfs/bfs_1048576
+data/bfs/bfs_2097152
+data/bfs/bfs_4194304
+data/bfs/bfs_8388608
+
+src/cuda/level2/dwt2d/input.bmp
+src/cuda/level2/dwt2d/input.bmp.dwt.b
+src/cuda/level2/dwt2d/input.bmp.dwt.g
+src/cuda/level2/dwt2d/input.bmp.dwt.r
+

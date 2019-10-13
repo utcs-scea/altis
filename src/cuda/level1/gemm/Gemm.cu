@@ -126,6 +126,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   }
   RunTest<float>("SGEMM", resultDB, op, false);
 
+
   // Test to see if this device supports double precision
   if ((deviceProp.major == 1 && deviceProp.minor >= 3) ||
       (deviceProp.major >= 2)) {
@@ -148,6 +149,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 template <class T>
 void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op, bool is_half) {
   int passes = op.getOptionInt("passes");
+  int device = op.getOptionInt("device");
   int kib;
 
   // Use preset problem size or read data from input file
@@ -169,6 +171,20 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op, bool i
   cublasInit();
 
   // Allocate GPU memory
+#ifdef UNIFIED_MEMORY
+  T *dA, *dB, *dC;
+  CUDA_SAFE_CALL(cudaMallocManaged(&dA, N * N* sizeof(T)));
+  CUDA_SAFE_CALL(cudaMallocManaged(&dB, N * N* sizeof(T)));
+  CUDA_SAFE_CALL(cudaMallocManaged(&dC, N * N* sizeof(T)));
+
+  if (filename == "") {
+    fill<T>(dA, N * N, 31);
+    fill<T>(dB, N * N, 31);
+    fill<T>(dC, N * N, 31);
+  } else {
+      readMatrix(dA, dB, dC, N * N, filename);
+  }
+#else
   T *dA, *dB, *dC;
   CUDA_SAFE_CALL(cudaMalloc(&dA, N * N * sizeof(T)));
   CUDA_SAFE_CALL(cudaMalloc(&dB, N * N * sizeof(T)));
@@ -191,6 +207,7 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op, bool i
   } else {
     readMatrix(A, B, C, N * N, filename);
   }
+#endif
 
   // Copy input to GPU
   cudaEvent_t start, stop;
@@ -199,11 +216,17 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op, bool i
   float elapsedTime;
 
   // Copy inputs to GPU
+
   double transferTime = 0;
   cudaEventRecord(start, 0);
+#ifdef UNIFIED_MEMORY
+  // could ignore this to test demand paging performance affect
+  CUDA_SAFE_CALL(cudaMemPrefetchAsync(dA, N * N * sizeof(T), device));
+  CUDA_SAFE_CALL(cudaMemPrefetchAsync(dB, N * N * sizeof(T), device));
+#else
   CUDA_SAFE_CALL(cudaMemcpy(dA, A, N * N * sizeof(T), cudaMemcpyHostToDevice));
   CUDA_SAFE_CALL(cudaMemcpy(dB, B, N * N * sizeof(T), cudaMemcpyHostToDevice));
-
+#endif
 
   cublasHandle_t handle; // CUBLAS context
   //CUDA_SAFE_CALL(cublasCreate(&handle));
@@ -253,9 +276,13 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op, bool i
       }
       cublasTime = (kernelTime / 4.0) * 1.e-3;
 
-      cudaEventRecord(start, 0);
+      cudaEventRecord(start, 0);    // timing may be affected by async
+#ifdef UNIFIED_MEMORY
+      CUDA_SAFE_CALL(cudaMemPrefetchAsync(dC, N * N * sizeof(float), cudaCpuDeviceId));
+#else
       CUDA_SAFE_CALL(
           cudaMemcpy(C, dC, N * N * sizeof(float), cudaMemcpyDeviceToHost));
+#endif
       cudaEventRecord(stop, 0);
       cudaEventSynchronize(stop);
       float oTransferTime = 0.0f;
@@ -285,9 +312,11 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op, bool i
   CUDA_SAFE_CALL(cudaFree(dA));
   CUDA_SAFE_CALL(cudaFree(dB));
   CUDA_SAFE_CALL(cudaFree(dC));
+#ifndef UNIFIED_MEMORY
   CUDA_SAFE_CALL(cudaFreeHost(A));
   CUDA_SAFE_CALL(cudaFreeHost(B));
   CUDA_SAFE_CALL(cudaFreeHost(C));
+#endif
   CUDA_SAFE_CALL(cudaEventDestroy(start));
   CUDA_SAFE_CALL(cudaEventDestroy(stop));
   //cublasDestroy(handle);
