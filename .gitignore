@@ -57,6 +57,7 @@ data/bfs/bfs_1048576
 data/bfs/bfs_2097152
 data/bfs/bfs_4194304
 data/bfs/bfs_8388608
+
 src/cuda/level2/dwt2d/input.bmp
 src/cuda/level2/dwt2d/input.bmp.dwt.b
 src/cuda/level2/dwt2d/input.bmp.dwt.g
