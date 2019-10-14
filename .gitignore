@@ -2,7 +2,6 @@
 *.a
 *.d
 *.dSYM
-*.csv
 *.out
 *.png
 *.jpg

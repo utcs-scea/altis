@@ -1,0 +1,359 @@
+==34983== NVPROF is profiling process 34983, command: ./mandelbrot -s 4 -n 1
+==34983== Warning: Profiling results might be incorrect with current version of nvcc compiler used to compile cuda app. Compile with nvcc compiler 9.0 or later version to get correct profiling results. Ignore this warning if code is already compiled with the recommended nvcc version 
+==34983== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==34983== Profiling application: ./mandelbrot -s 4 -n 1
+==34983== Profiling result:
+==34983== Metric result:
+"Device","Kernel","Invocations","Metric Name","Metric Description","Min","Max","Avg"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"inst_per_warp","Instructions per warp",5693.684838,5693.684838,5693.684838
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"branch_efficiency","Branch Efficiency",99.999880%,99.999880%,99.999880%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"warp_execution_efficiency","Warp Execution Efficiency",97.937261%,97.937261%,97.937261%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"warp_nonpred_execution_efficiency","Warp Non-Predicated Execution Efficiency",90.968345%,90.968345%,90.968345%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"inst_replay_overhead","Instruction Replay Overhead",0.000046,0.000046,0.000046
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"shared_load_transactions_per_request","Shared Memory Load Transactions Per Request",0.000000,0.000000,0.000000
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"shared_store_transactions_per_request","Shared Memory Store Transactions Per Request",0.000000,0.000000,0.000000
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"local_load_transactions_per_request","Local Memory Load Transactions Per Request",0.000000,0.000000,0.000000
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"local_store_transactions_per_request","Local Memory Store Transactions Per Request",0.000000,0.000000,0.000000
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"gld_transactions_per_request","Global Load Transactions Per Request",0.000000,0.000000,0.000000
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"gst_transactions_per_request","Global Store Transactions Per Request",4.000000,4.000000,4.000000
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"shared_store_transactions","Shared Store Transactions",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"shared_load_transactions","Shared Load Transactions",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"local_load_transactions","Local Load Transactions",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"local_store_transactions","Local Store Transactions",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"gld_transactions","Global Load Transactions",2,2,2
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"gst_transactions","Global Store Transactions",134217728,134217728,134217728
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"sysmem_read_transactions","System Memory Read Transactions",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"sysmem_write_transactions","System Memory Write Transactions",4,4,4
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"l2_read_transactions","L2 Read Transactions",25225,25225,25225
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"l2_write_transactions","L2 Write Transactions",134217949,134217949,134217949
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"dram_read_transactions","Device Memory Read Transactions",27764,27764,27764
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"dram_write_transactions","Device Memory Write Transactions",134209495,134209495,134209495
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"global_hit_rate","Global Hit Rate in unified l1/tex",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"local_hit_rate","Local Hit Rate",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"gld_requested_throughput","Requested Global Load Throughput",0.000000B/s,0.000000B/s,0.000000B/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"gst_requested_throughput","Requested Global Store Throughput",3.194629GB/s,3.194629GB/s,3.194629GB/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"gld_throughput","Global Load Throughput",0.000000B/s,0.000000B/s,0.000000B/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"gst_throughput","Global Store Throughput",3.194629GB/s,3.194629GB/s,3.194629GB/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"local_memory_overhead","Local Memory Overhead",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"tex_cache_hit_rate","Unified Cache Hit Rate",50.000000%,50.000000%,50.000000%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"l2_tex_read_hit_rate","L2 Hit Rate (Texture Reads)",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"l2_tex_write_hit_rate","L2 Hit Rate (Texture Writes)",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"dram_read_throughput","Device Memory Read Throughput",692.934570KB/s,692.934570KB/s,692.933594KB/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"dram_write_throughput","Device Memory Write Throughput",3.194434GB/s,3.194434GB/s,3.194434GB/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"tex_cache_throughput","Unified Cache Throughput",0.000000B/s,0.000000B/s,0.000000B/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"l2_tex_read_throughput","L2 Throughput (Texture Reads)",0.000000B/s,0.000000B/s,0.000000B/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"l2_tex_write_throughput","L2 Throughput (Texture Writes)",3.194629GB/s,3.194629GB/s,3.194629GB/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"l2_read_throughput","L2 Throughput (Reads)",629.566406KB/s,629.566406KB/s,629.565430KB/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"l2_write_throughput","L2 Throughput (Writes)",3.194635GB/s,3.194635GB/s,3.194635GB/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"sysmem_read_throughput","System Memory Read Throughput",0.000000B/s,0.000000B/s,0.000000B/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"sysmem_write_throughput","System Memory Write Throughput",102.000000B/s,102.000000B/s,101.000000B/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"local_load_throughput","Local Memory Load Throughput",0.000000B/s,0.000000B/s,0.000000B/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"local_store_throughput","Local Memory Store Throughput",0.000000B/s,0.000000B/s,0.000000B/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"shared_load_throughput","Shared Memory Load Throughput",0.000000B/s,0.000000B/s,0.000000B/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"shared_store_throughput","Shared Memory Store Throughput",0.000000B/s,0.000000B/s,0.000000B/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"gld_efficiency","Global Memory Load Efficiency",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"gst_efficiency","Global Memory Store Efficiency",100.000000%,100.000000%,100.000000%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"tex_cache_transactions","Unified Cache Transactions",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"flop_count_dp","Floating Point Operations(Double Precision)",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"flop_count_dp_add","Floating Point Operations(Double Precision Add)",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"flop_count_dp_fma","Floating Point Operations(Double Precision FMA)",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"flop_count_dp_mul","Floating Point Operations(Double Precision Mul)",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"flop_count_sp","Floating Point Operations(Single Precision)",3842451387321,3842451387321,3842451387321
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"flop_count_sp_add","Floating Point Operations(Single Precision Add)",1694648793688,1694648793688,1694648793688
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"flop_count_sp_fma","Floating Point Operations(Single Precision FMA)",439600747461,439600747461,439600747461
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"flop_count_sp_mul","Floating Point Operation(Single Precision Mul)",1268601098711,1268601098711,1268601098711
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"flop_count_sp_special","Floating Point Operations(Single Precision Special)",2147418112,2147418112,2147418112
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"inst_executed","Instructions Executed",191048360722,191048360722,191048360722
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"inst_issued","Instructions Issued",191057213159,191057213159,191057213159
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"dram_utilization","Device Memory Utilization","Low (1)","Low (1)","Low (1)"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"sysmem_utilization","System Memory Utilization","Low (1)","Low (1)","Low (1)"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"stall_inst_fetch","Issue Stall Reasons (Instructions Fetch)",5.413796%,5.413796%,5.413796%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"stall_exec_dependency","Issue Stall Reasons (Execution Dependency)",8.487894%,8.487894%,8.487894%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"stall_memory_dependency","Issue Stall Reasons (Data Request)",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"stall_texture","Issue Stall Reasons (Texture)",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"stall_sync","Issue Stall Reasons (Synchronization)",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"stall_other","Issue Stall Reasons (Other)",82.073557%,82.073557%,82.073557%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"stall_constant_memory_dependency","Issue Stall Reasons (Immediate constant)",0.003884%,0.003884%,0.003884%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"stall_pipe_busy","Issue Stall Reasons (Pipe Busy)",0.585937%,0.585937%,0.585937%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"shared_efficiency","Shared Memory Efficiency",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"inst_fp_32","FP Instructions(Single)",3830235750141,3830235750141,3830235750141
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"inst_fp_64","FP Instructions(Double)",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"inst_integer","Integer Instructions",858801973130,858801973130,858801973130
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"inst_bit_convert","Bit-Convert Instructions",4294967296,4294967296,4294967296
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"inst_control","Control-Flow Instructions",431680208649,431680208649,431680208649
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"inst_compute_ld_st","Load/Store Instructions",1073741824,1073741824,1073741824
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"inst_misc","Misc Instructions",435306369989,435306369989,435306369989
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"inst_inter_thread_communication","Inter-Thread Instructions",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"issue_slots","Issue Slots",177172197453,177172197453,177172197453
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"cf_issued","Issued Control-Flow Instructions",27367293654,27367293654,27367293654
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"cf_executed","Executed Control-Flow Instructions",27367293654,27367293654,27367293654
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"ldst_issued","Issued Load/Store Instructions",268435456,268435456,268435456
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"ldst_executed","Executed Load/Store Instructions",167772160,167772160,167772160
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"atomic_transactions","Atomic Transactions",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"atomic_transactions_per_request","Atomic Transactions Per Request",0.000000,0.000000,0.000000
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"l2_atomic_throughput","L2 Throughput (Atomic requests)",0.000000B/s,0.000000B/s,0.000000B/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"l2_atomic_transactions","L2 Transactions (Atomic requests)",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"l2_tex_read_transactions","L2 Transactions (Texture Reads)",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"stall_memory_throttle","Issue Stall Reasons (Memory Throttle)",0.006690%,0.006690%,0.006690%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"stall_not_selected","Issue Stall Reasons (Not Selected)",3.428241%,3.428241%,3.428241%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"l2_tex_write_transactions","L2 Transactions (Texture Writes)",134217728,134217728,134217728
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"nvlink_total_data_transmitted","NVLink Total Data Transmitted",768,768,768
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"nvlink_total_data_received","NVLink Total Data Received",512,512,512
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"nvlink_user_data_transmitted","NVLink User Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"nvlink_user_data_received","NVLink User Data Received",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"nvlink_overhead_data_transmitted","NVLink Overhead Data Transmitted",100.000000%,100.000000%,100.000000%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"nvlink_overhead_data_received","NVLink Overhead Data Received",100.000000%,100.000000%,100.000000%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"nvlink_total_nratom_data_transmitted","NVLink Total Nratom Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"nvlink_user_nratom_data_transmitted","NVLink User Nratom Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"nvlink_total_ratom_data_transmitted","NVLink Total Ratom Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"nvlink_user_ratom_data_transmitted","NVLink User Ratom Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"nvlink_total_write_data_transmitted","NVLink Total Write Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"nvlink_user_write_data_transmitted","NVLink User Write Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"nvlink_transmit_throughput","NVLink Transmit Throughput",613.000000B/s,613.000000B/s,612.000000B/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"nvlink_receive_throughput","NVLink Receive Throughput",408.000000B/s,408.000000B/s,407.000000B/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"nvlink_total_response_data_received","NVLink Total Response Data Received",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"nvlink_user_response_data_received","NVLink User Response Data Received",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"flop_count_hp","Floating Point Operations(Half Precision)",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"flop_count_hp_add","Floating Point Operations(Half Precision Add)",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"flop_count_hp_mul","Floating Point Operation(Half Precision Mul)",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"flop_count_hp_fma","Floating Point Operations(Half Precision FMA)",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"inst_fp_16","HP Instructions(Half)",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"ipc","Executed IPC",1.830314,1.830314,1.830314
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"issued_ipc","Issued IPC",1.830378,1.830378,1.830378
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"issue_slot_utilization","Issue Slot Utilization",84.867787%,84.867787%,84.867787%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"sm_efficiency","Multiprocessor Activity",99.995671%,99.995671%,99.995671%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"achieved_occupancy","Achieved Occupancy",0.859319,0.859319,0.859319
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"eligible_warps_per_cycle","Eligible Warps Per Active Cycle",3.522792,3.522792,3.522792
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"shared_utilization","Shared Memory Utilization","Idle (0)","Idle (0)","Idle (0)"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"l2_utilization","L2 Cache Utilization","Low (1)","Low (1)","Low (1)"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"tex_utilization","Unified Cache Utilization","Idle (0)","Idle (0)","Idle (0)"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"ldst_fu_utilization","Load/Store Function Unit Utilization","Low (1)","Low (1)","Low (1)"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"cf_fu_utilization","Control-Flow Function Unit Utilization","Low (2)","Low (2)","Low (2)"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"tex_fu_utilization","Texture Function Unit Utilization","Low (1)","Low (1)","Low (1)"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"special_fu_utilization","Special Function Unit Utilization","Low (1)","Low (1)","Low (1)"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"half_precision_fu_utilization","Half-Precision Function Unit Utilization","Idle (0)","Idle (0)","Idle (0)"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"double_precision_fu_utilization","Double-Precision Function Unit Utilization","Idle (0)","Idle (0)","Idle (0)"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"flop_hp_efficiency","FLOP Efficiency(Peak Half)",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"flop_sp_efficiency","FLOP Efficiency(Peak Single)",28.758210%,28.758210%,28.758210%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"flop_dp_efficiency","FLOP Efficiency(Peak Double)",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"sysmem_read_utilization","System Memory Read Utilization","Idle (0)","Idle (0)","Idle (0)"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"sysmem_write_utilization","System Memory Write Utilization","Low (1)","Low (1)","Low (1)"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"pcie_total_data_transmitted","PCIe Total Data Transmitted",200704,200704,200704
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"pcie_total_data_received","PCIe Total Data Received",5632,5632,5632
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"inst_executed_global_loads","Warp level instructions for global loads",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"inst_executed_local_loads","Warp level instructions for local loads",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"inst_executed_shared_loads","Warp level instructions for shared loads",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"inst_executed_surface_loads","Warp level instructions for surface loads",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"inst_executed_global_stores","Warp level instructions for global stores",33554432,33554432,33554432
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"inst_executed_local_stores","Warp level instructions for local stores",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"inst_executed_shared_stores","Warp level instructions for shared stores",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"inst_executed_surface_stores","Warp level instructions for surface stores",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"inst_executed_global_atomics","Warp level instructions for global atom and atom cas",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"inst_executed_global_reductions","Warp level instructions for global reductions",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"inst_executed_surface_atomics","Warp level instructions for surface atom and atom cas",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"inst_executed_surface_reductions","Warp level instructions for surface reductions",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"inst_executed_shared_atomics","Warp level shared instructions for atom and atom CAS",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"inst_executed_tex_ops","Warp level instructions for texture",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"l2_global_load_bytes","Bytes read from L2 for misses in Unified Cache for global loads",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"l2_local_load_bytes","Bytes read from L2 for misses in Unified Cache for local loads",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"l2_surface_load_bytes","Bytes read from L2 for misses in Unified Cache for surface loads",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"dram_read_bytes","Total bytes read from DRAM to L2 cache",888448,888448,888448
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"dram_write_bytes","Total bytes written from L2 cache to DRAM",4294703840,4294703840,4294703840
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"l2_local_global_store_bytes","Bytes written to L2 from Unified Cache for local and global stores.",4294967296,4294967296,4294967296
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"l2_global_reduction_bytes","Bytes written to L2 from Unified cache for global reductions",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"l2_global_atomic_store_bytes","Bytes written to L2 from Unified cache for global atomics",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"l2_surface_store_bytes","Bytes written to L2 from Unified Cache for surface stores.",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"l2_surface_reduction_bytes","Bytes written to L2 from Unified Cache for surface reductions",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"l2_surface_atomic_store_bytes","Bytes transferred between Unified Cache and L2 for surface atomics",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"global_load_requests","Total number of global load requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"local_load_requests","Total number of local load requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"surface_load_requests","Total number of surface load requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"global_store_requests","Total number of global store requests from Multiprocessor",134217728,134217728,134217728
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"local_store_requests","Total number of local store requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"surface_store_requests","Total number of surface store requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"global_atomic_requests","Total number of global atomic requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"global_reduction_requests","Total number of global reduction requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"surface_atomic_requests","Total number of surface atomic requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"surface_reduction_requests","Total number of surface reduction requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"sysmem_read_bytes","System Memory Read Bytes",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"sysmem_write_bytes","System Memory Write Bytes",128,128,128
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"l2_tex_hit_rate","L2 Cache Hit Rate",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"texture_load_requests","Total number of texture Load requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_k(int*, int, int, complex, complex, int)",1,"unique_warps_launched","Number of warps launched",33554432,33554432,33554432
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"inst_per_warp","Instructions per warp",467.993506,467.993506,467.993506
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"branch_efficiency","Branch Efficiency",99.993833%,99.993833%,99.993833%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"warp_execution_efficiency","Warp Execution Efficiency",72.517587%,72.517587%,72.517587%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"warp_nonpred_execution_efficiency","Warp Non-Predicated Execution Efficiency",67.584027%,67.584027%,67.584027%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"inst_replay_overhead","Instruction Replay Overhead",0.011847,0.011847,0.011847
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"shared_load_transactions_per_request","Shared Memory Load Transactions Per Request",1.000000,1.000000,1.000000
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"shared_store_transactions_per_request","Shared Memory Store Transactions Per Request",0.633447,0.633447,0.633447
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"local_load_transactions_per_request","Local Memory Load Transactions Per Request",2.956137,2.956137,2.956137
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"local_store_transactions_per_request","Local Memory Store Transactions Per Request",2.375423,2.375423,2.375423
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"gld_transactions_per_request","Global Load Transactions Per Request",14.158972,14.158972,14.158972
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"gst_transactions_per_request","Global Store Transactions Per Request",4.381165,4.381165,4.381165
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"shared_store_transactions","Shared Store Transactions",865664,865664,865664
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"shared_load_transactions","Shared Load Transactions",1332544,1332544,1332544
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"local_load_transactions","Local Load Transactions",21064820,21064820,21064820
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"local_store_transactions","Local Store Transactions",21587977,21587977,21587977
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"gld_transactions","Global Load Transactions",20520839,20520839,20520839
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"gst_transactions","Global Store Transactions",149560701,149560701,149560701
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"sysmem_read_transactions","System Memory Read Transactions",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"sysmem_write_transactions","System Memory Write Transactions",48983,48983,48983
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"l2_read_transactions","L2 Read Transactions",31387735,31387735,31387735
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"l2_write_transactions","L2 Write Transactions",178167246,178167246,178167246
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"dram_read_transactions","Device Memory Read Transactions",7515673,7515673,7515673
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"dram_write_transactions","Device Memory Write Transactions",159019137,159019137,159019137
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"global_hit_rate","Global Hit Rate in unified l1/tex",20.229306%,20.229306%,20.229306%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"local_hit_rate","Local Hit Rate",42.848171%,42.848171%,42.848171%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"gld_requested_throughput","Requested Global Load Throughput",0.000000B/s,0.000000B/s,0.000000B/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"gst_requested_throughput","Requested Global Store Throughput",26.462364GB/s,26.462364GB/s,26.462364GB/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"gld_throughput","Global Load Throughput",0.000000B/s,0.000000B/s,0.000000B/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"gst_throughput","Global Store Throughput",29.462077GB/s,29.462077GB/s,29.462077GB/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"local_memory_overhead","Local Memory Overhead",18.026138%,18.026138%,18.026138%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"tex_cache_hit_rate","Unified Cache Hit Rate",46.765690%,46.765690%,46.765690%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"l2_tex_read_hit_rate","L2 Hit Rate (Texture Reads)",81.921414%,81.921414%,81.921414%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"l2_tex_write_hit_rate","L2 Hit Rate (Texture Writes)",11.255422%,11.255422%,11.255422%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"dram_read_throughput","Device Memory Read Throughput",1.480518GB/s,1.480518GB/s,1.480518GB/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"dram_write_throughput","Device Memory Write Throughput",31.325302GB/s,31.325302GB/s,31.325302GB/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"tex_cache_throughput","Unified Cache Throughput",3.960905GB/s,3.960905GB/s,3.960905GB/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"l2_tex_read_throughput","L2 Throughput (Texture Reads)",3.068229GB/s,3.068229GB/s,3.068229GB/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"l2_tex_write_throughput","L2 Throughput (Texture Writes)",33.705093GB/s,33.705093GB/s,33.705093GB/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"l2_read_throughput","L2 Throughput (Reads)",6.183094GB/s,6.183094GB/s,6.183094GB/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"l2_write_throughput","L2 Throughput (Writes)",35.097302GB/s,35.097302GB/s,35.097302GB/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"sysmem_read_throughput","System Memory Read Throughput",0.000000B/s,0.000000B/s,0.000000B/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"sysmem_write_throughput","System Memory Write Throughput",9.880779MB/s,9.880779MB/s,9.880778MB/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"local_load_throughput","Local Memory Load Throughput",4.149575GB/s,4.149575GB/s,4.149575GB/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"local_store_throughput","Local Memory Store Throughput",4.252632GB/s,4.252632GB/s,4.252632GB/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"shared_load_throughput","Shared Memory Load Throughput",1.049995GB/s,1.049995GB/s,1.049995GB/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"shared_store_throughput","Shared Memory Store Throughput",698.481931MB/s,698.481931MB/s,698.481930MB/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"gld_efficiency","Global Memory Load Efficiency",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"gst_efficiency","Global Memory Store Efficiency",89.818394%,89.818394%,89.818394%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"tex_cache_transactions","Unified Cache Transactions",20107061,20107061,20107061
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"flop_count_dp","Floating Point Operations(Double Precision)",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"flop_count_dp_add","Floating Point Operations(Double Precision Add)",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"flop_count_dp_fma","Floating Point Operations(Double Precision FMA)",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"flop_count_dp_mul","Floating Point Operations(Double Precision Mul)",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"flop_count_sp","Floating Point Operations(Single Precision)",219743181173,219743181173,219743181173
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"flop_count_sp_add","Floating Point Operations(Single Precision Add)",94981963967,94981963967,94981963967
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"flop_count_sp_fma","Floating Point Operations(Single Precision FMA)",26943278696,26943278696,26943278696
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"flop_count_sp_mul","Floating Point Operation(Single Precision Mul)",70874659814,70874659814,70874659814
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"flop_count_sp_special","Floating Point Operations(Single Precision Special)",432243824,432243824,432243824
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"inst_executed","Instructions Executed",16072195988,16072195988,16072195988
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"inst_issued","Instructions Issued",16262927816,16262927816,16262927816
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"dram_utilization","Device Memory Utilization","Low (1)","Low (1)","Low (1)"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"sysmem_utilization","System Memory Utilization","Low (1)","Low (1)","Low (1)"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"stall_inst_fetch","Issue Stall Reasons (Instructions Fetch)",7.430462%,7.430462%,7.430462%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"stall_exec_dependency","Issue Stall Reasons (Execution Dependency)",8.980284%,8.980284%,8.980284%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"stall_memory_dependency","Issue Stall Reasons (Data Request)",0.358570%,0.358570%,0.358570%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"stall_texture","Issue Stall Reasons (Texture)",0.023341%,0.023341%,0.023341%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"stall_sync","Issue Stall Reasons (Synchronization)",12.722898%,12.722898%,12.722898%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"stall_other","Issue Stall Reasons (Other)",64.765535%,64.765535%,64.765535%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"stall_constant_memory_dependency","Issue Stall Reasons (Immediate constant)",2.528537%,2.528537%,2.528537%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"stall_pipe_busy","Issue Stall Reasons (Pipe Busy)",0.468952%,0.468952%,0.468952%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"shared_efficiency","Shared Memory Efficiency",44.512803%,44.512803%,44.512803%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"inst_fp_32","FP Instructions(Single)",217359501204,217359501204,217359501204
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"inst_fp_64","FP Instructions(Double)",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"inst_integer","Integer Instructions",65537322173,65537322173,65537322173
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"inst_bit_convert","Bit-Convert Instructions",831553536,831553536,831553536
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"inst_control","Control-Flow Instructions",27066805369,27066805369,27066805369
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"inst_compute_ld_st","Load/Store Instructions",1153533022,1153533022,1153533022
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"inst_misc","Misc Instructions",33681025020,33681025020,33681025020
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"inst_inter_thread_communication","Inter-Thread Instructions",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"issue_slots","Issue Slots",15131651123,15131651123,15131651123
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"cf_issued","Issued Control-Flow Instructions",2283028437,2283028437,2283028437
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"cf_executed","Executed Control-Flow Instructions",2283028437,2283028437,2283028437
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"ldst_issued","Issued Load/Store Instructions",352879898,352879898,352879898
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"ldst_executed","Executed Load/Store Instructions",239619670,239619670,239619670
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"atomic_transactions","Atomic Transactions",3015931,3015931,3015931
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"atomic_transactions_per_request","Atomic Transactions Per Request",1.196194,1.196194,1.196194
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"l2_atomic_throughput","L2 Throughput (Atomic requests)",549.563820MB/s,549.563820MB/s,549.563819MB/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"l2_atomic_transactions","L2 Transactions (Atomic requests)",5448818,5448818,5448818
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"l2_tex_read_transactions","L2 Transactions (Texture Reads)",15575494,15575494,15575494
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"stall_memory_throttle","Issue Stall Reasons (Memory Throttle)",0.059589%,0.059589%,0.059589%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"stall_not_selected","Issue Stall Reasons (Not Selected)",2.661831%,2.661831%,2.661831%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"l2_tex_write_transactions","L2 Transactions (Texture Writes)",171099861,171099861,171099861
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"nvlink_total_data_transmitted","NVLink Total Data Transmitted",7922688,7922688,7922688
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"nvlink_total_data_received","NVLink Total Data Received",5281792,5281792,5281792
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"nvlink_user_data_transmitted","NVLink User Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"nvlink_user_data_received","NVLink User Data Received",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"nvlink_overhead_data_transmitted","NVLink Overhead Data Transmitted",100.000000%,100.000000%,100.000000%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"nvlink_overhead_data_received","NVLink Overhead Data Received",100.000000%,100.000000%,100.000000%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"nvlink_total_nratom_data_transmitted","NVLink Total Nratom Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"nvlink_user_nratom_data_transmitted","NVLink User Nratom Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"nvlink_total_ratom_data_transmitted","NVLink Total Ratom Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"nvlink_user_ratom_data_transmitted","NVLink User Ratom Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"nvlink_total_write_data_transmitted","NVLink Total Write Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"nvlink_user_write_data_transmitted","NVLink User Write Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"nvlink_transmit_throughput","NVLink Transmit Throughput",49.942284MB/s,49.942284MB/s,49.942283MB/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"nvlink_receive_throughput","NVLink Receive Throughput",33.294856MB/s,33.294856MB/s,33.294855MB/s
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"nvlink_total_response_data_received","NVLink Total Response Data Received",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"nvlink_user_response_data_received","NVLink User Response Data Received",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"flop_count_hp","Floating Point Operations(Half Precision)",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"flop_count_hp_add","Floating Point Operations(Half Precision Add)",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"flop_count_hp_mul","Floating Point Operation(Half Precision Mul)",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"flop_count_hp_fma","Floating Point Operations(Half Precision FMA)",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"inst_fp_16","HP Instructions(Half)",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"ipc","Executed IPC",1.443509,1.443509,1.443509
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"issued_ipc","Issued IPC",1.460610,1.460610,1.460610
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"issue_slot_utilization","Issue Slot Utilization",67.950356%,67.950356%,67.950356%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"sm_efficiency","Multiprocessor Activity",93.061369%,93.061369%,93.061369%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"achieved_occupancy","Achieved Occupancy",0.689082,0.689082,0.689082
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"eligible_warps_per_cycle","Eligible Warps Per Active Cycle",2.599073,2.599073,2.599073
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"shared_utilization","Shared Memory Utilization","Low (1)","Low (1)","Low (1)"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"l2_utilization","L2 Cache Utilization","Low (1)","Low (1)","Low (1)"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"tex_utilization","Unified Cache Utilization","Low (1)","Low (1)","Low (1)"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"ldst_fu_utilization","Load/Store Function Unit Utilization","Low (1)","Low (1)","Low (1)"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"cf_fu_utilization","Control-Flow Function Unit Utilization","Low (2)","Low (2)","Low (2)"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"tex_fu_utilization","Texture Function Unit Utilization","Low (1)","Low (1)","Low (1)"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"special_fu_utilization","Special Function Unit Utilization","Low (1)","Low (1)","Low (1)"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"half_precision_fu_utilization","Half-Precision Function Unit Utilization","Idle (0)","Idle (0)","Idle (0)"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"single_precision_fu_utilization","Single-Precision Function Unit Utilization","High (9)","High (9)","High (9)"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"double_precision_fu_utilization","Double-Precision Function Unit Utilization","Idle (0)","Idle (0)","Idle (0)"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"flop_hp_efficiency","FLOP Efficiency(Peak Half)",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"flop_sp_efficiency","FLOP Efficiency(Peak Single)",14.348625%,14.348625%,14.348625%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"flop_dp_efficiency","FLOP Efficiency(Peak Double)",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"sysmem_read_utilization","System Memory Read Utilization","Idle (0)","Idle (0)","Idle (0)"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"sysmem_write_utilization","System Memory Write Utilization","Low (1)","Low (1)","Low (1)"
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"pcie_total_data_transmitted","PCIe Total Data Transmitted",9108480,9108480,9108480
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"pcie_total_data_received","PCIe Total Data Received",18326528,18326528,18326528
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"inst_executed_global_loads","Warp level instructions for global loads",1449317,1449317,1449317
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"inst_executed_local_loads","Warp level instructions for local loads",7125793,7125793,7125793
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"inst_executed_shared_loads","Warp level instructions for shared loads",1332544,1332544,1332544
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"inst_executed_surface_loads","Warp level instructions for surface loads",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"inst_executed_global_stores","Warp level instructions for global stores",34137199,34137199,34137199
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"inst_executed_local_stores","Warp level instructions for local stores",9076730,9076730,9076730
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"inst_executed_shared_stores","Warp level instructions for shared stores",1366592,1366592,1366592
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"inst_executed_surface_stores","Warp level instructions for surface stores",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"inst_executed_global_atomics","Warp level instructions for global atom and atom cas",1527068,1527068,1527068
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"inst_executed_global_reductions","Warp level instructions for global reductions",994204,994204,994204
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"inst_executed_surface_atomics","Warp level instructions for surface atom and atom cas",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"inst_executed_surface_reductions","Warp level instructions for surface reductions",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"inst_executed_shared_atomics","Warp level shared instructions for atom and atom CAS",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"inst_executed_tex_ops","Warp level instructions for texture",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"l2_global_load_bytes","Bytes read from L2 for misses in Unified Cache for global loads",112344064,112344064,112344064
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"l2_local_load_bytes","Bytes read from L2 for misses in Unified Cache for local loads",387228480,387228480,387228480
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"l2_surface_load_bytes","Bytes read from L2 for misses in Unified Cache for surface loads",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"dram_read_bytes","Total bytes read from DRAM to L2 cache",240501536,240501536,240501536
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"dram_write_bytes","Total bytes written from L2 cache to DRAM",5088612384,5088612384,5088612384
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"l2_local_global_store_bytes","Bytes written to L2 from Unified Cache for local and global stores.",5476757696,5476757696,5476757696
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"l2_global_reduction_bytes","Bytes written to L2 from Unified cache for global reductions",36557632,36557632,36557632
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"l2_global_atomic_store_bytes","Bytes written to L2 from Unified cache for global atomics",62651904,62651904,62651904
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"l2_surface_store_bytes","Bytes written to L2 from Unified Cache for surface stores.",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"l2_surface_reduction_bytes","Bytes written to L2 from Unified Cache for surface reductions",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"l2_surface_atomic_store_bytes","Bytes transferred between Unified Cache and L2 for surface atomics",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"global_load_requests","Total number of global load requests from Multiprocessor",3685783,3685783,3685783
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"local_load_requests","Total number of local load requests from Multiprocessor",13163009,13163009,13163009
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"surface_load_requests","Total number of surface load requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"global_store_requests","Total number of global store requests from Multiprocessor",149620420,149620420,149620420
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"local_store_requests","Total number of local store requests from Multiprocessor",21579348,21579348,21579348
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"surface_store_requests","Total number of surface store requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"global_atomic_requests","Total number of global atomic requests from Multiprocessor",1749165,1749165,1749165
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"global_reduction_requests","Total number of global reduction requests from Multiprocessor",1063875,1063875,1063875
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"surface_atomic_requests","Total number of surface atomic requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"surface_reduction_requests","Total number of surface reduction requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"sysmem_read_bytes","System Memory Read Bytes",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"sysmem_write_bytes","System Memory Write Bytes",1567456,1567456,1567456
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"l2_tex_hit_rate","L2 Cache Hit Rate",17.148181%,17.148181%,17.148181%
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"texture_load_requests","Total number of texture Load requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","mandelbrot_block_k(int*, int, int, complex, complex, int, int, int, int, int)",1,"unique_warps_launched","Number of warps launched",34341960,34341960,34341960
+==34983== Warning: One or more events or metrics can't be profiled. Rerun with "--print-gpu-trace" for detail.
