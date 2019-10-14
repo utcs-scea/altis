@@ -93,7 +93,7 @@ def main():
         # dnn (both forward and backward)
         for i, bench in enumerate(all_dnn_bench):
             full_path = dnn_metrics_path + bench + '_forward/'  + big_metrics_filename
-            result = open_file(full_path, bench+'_forward')
+            result = open_file(full_path, bench+'_fw')
             if i == 0:
                 fieldnames = result.keys()
                 writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
@@ -103,7 +103,7 @@ def main():
                 writer.writerow(result)
         for i, bench in enumerate(all_dnn_bench):
             full_path = dnn_metrics_path + bench + '_backward/'  + big_metrics_filename
-            result = open_file(full_path, bench+'_backward')
+            result = open_file(full_path, bench+'_bw')
             if i == 0:
                 fieldnames = result.keys()
                 writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
