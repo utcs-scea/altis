@@ -5,7 +5,7 @@ from os import path
 avg_col = 7
 metric_index = 3
 all_level1_bench = ['bfs','gemm','pathfinder','sort']
-all_level2_bench = ['cfd','dwt2d','gups','kmeans','lavamd','mandelbrot','nw','particlefilter','srad','where']
+all_level2_bench = ['cfd','dwt2d','gups','kmeans','lavamd','mandelbrot','nw','particlefilter','srad','where', "raytracing"]
 all_dnn_bench = ['activation','avgpool','batchnorm','connected','convolution','dropout','normalization','rnn','softmax']
 
 metrics_path = '/home/edwardhu/mirovia/src/cuda/'
@@ -20,6 +20,7 @@ def open_file(filename, benchmark):
     # check whether the file exists
     if not path.exists(filename):
         print('no such file')
+        print(filename)
         exit(1)
 
     with open(filename) as csv_file:

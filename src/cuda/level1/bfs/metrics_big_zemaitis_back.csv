@@ -1,0 +1,358 @@
+==30700== NVPROF is profiling process 30700, command: ./bfs -s 4 -n 1
+==30700== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==30700== Profiling application: ./bfs -s 4 -n 1
+==30700== Profiling result:
+==30700== Metric result:
+"Device","Kernel","Invocations","Metric Name","Metric Description","Min","Max","Avg"
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"inst_per_warp","Instructions per warp",17.000006,17.000119,17.000045
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"branch_efficiency","Branch Efficiency",100.000000%,100.000000%,100.000000%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"warp_execution_efficiency","Warp Execution Efficiency",99.999321%,99.999966%,99.999743%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"warp_nonpred_execution_efficiency","Warp Non-Predicated Execution Efficiency",94.117009%,94.117615%,94.117405%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"inst_replay_overhead","Instruction Replay Overhead",0.000044,0.000050,0.000046
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"shared_load_transactions_per_request","Shared Memory Load Transactions Per Request",0.000000,0.000000,0.000000
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"shared_store_transactions_per_request","Shared Memory Store Transactions Per Request",0.000000,0.000000,0.000000
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"local_load_transactions_per_request","Local Memory Load Transactions Per Request",0.000000,0.000000,0.000000
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"local_store_transactions_per_request","Local Memory Store Transactions Per Request",0.000000,0.000000,0.000000
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"gld_transactions_per_request","Global Load Transactions Per Request",3.999990,4.000000,3.999996
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"gst_transactions_per_request","Global Store Transactions Per Request",1.000000,1.000000,1.000000
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"shared_store_transactions","Shared Store Transactions",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"shared_load_transactions","Shared Load Transactions",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"local_load_transactions","Local Load Transactions",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"local_store_transactions","Local Store Transactions",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"gld_transactions","Global Load Transactions",52428844,52429653,52429124
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"gst_transactions","Global Store Transactions",5,101,38
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"sysmem_read_transactions","System Memory Read Transactions",1,195,53
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"sysmem_write_transactions","System Memory Write Transactions",6,17,10
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"l2_read_transactions","L2 Read Transactions",13107674,13306462,13157719
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"l2_write_transactions","L2 Write Transactions",2120,23183,10542
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"dram_read_transactions","Device Memory Read Transactions",13107521,13304962,13157233
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"dram_write_transactions","Device Memory Write Transactions",44348,83493,65415
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"global_hit_rate","Global Hit Rate in unified l1/tex",0.000053%,0.001167%,0.000444%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"local_hit_rate","Local Hit Rate",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"gld_requested_throughput","Requested Global Load Throughput",136.616785GB/s,140.065352GB/s,138.565946GB/s
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"gst_requested_throughput","Requested Global Store Throughput",3.851562KB/s,79.585938KB/s,30.136719KB/s
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"gld_throughput","Global Load Throughput",136.617054GB/s,140.065466GB/s,138.566820GB/s
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"gst_throughput","Global Store Throughput",56.025391KB/s,1.092156MB/s,424.010742KB/s
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"local_memory_overhead","Local Memory Overhead",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"tex_cache_hit_rate","Unified Cache Hit Rate",74.999797%,74.999989%,74.999924%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"l2_tex_read_hit_rate","L2 Hit Rate (Texture Reads)",0.000008%,0.000069%,0.000032%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"l2_tex_write_hit_rate","L2 Hit Rate (Texture Writes)",14.285714%,25.000000%,18.534300%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"dram_read_throughput","Device Memory Read Throughput",138.424471GB/s,140.068768GB/s,139.094780GB/s
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"dram_write_throughput","Device Memory Write Throughput",473.334352MB/s,902.845784MB/s,708.147218MB/s
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"tex_cache_throughput","Unified Cache Throughput",546.467310GB/s,560.261481GB/s,554.264339GB/s
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"l2_tex_read_throughput","L2 Throughput (Texture Reads)",136.616867GB/s,140.065392GB/s,138.566204GB/s
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"l2_tex_write_throughput","L2 Throughput (Texture Writes)",56.025391KB/s,1.092156MB/s,424.010742KB/s
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"l2_read_throughput","L2 Throughput (Reads)",138.427470GB/s,140.070403GB/s,139.099916GB/s
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"l2_write_throughput","L2 Throughput (Writes)",23.198321MB/s,250.687768MB/s,114.121959MB/s
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"sysmem_read_throughput","System Memory Read Throughput",11.205078KB/s,2.081270MB/s,595.832031KB/s
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"sysmem_write_throughput","System Memory Write Throughput",67.230469KB/s,188.239258KB/s,119.165039KB/s
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"local_load_throughput","Local Memory Load Throughput",0.000000B/s,0.000000B/s,0.000000B/s
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"local_store_throughput","Local Memory Store Throughput",0.000000B/s,0.000000B/s,0.000000B/s
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"shared_load_throughput","Shared Memory Load Throughput",0.000000B/s,0.000000B/s,0.000000B/s
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"shared_store_throughput","Shared Memory Store Throughput",0.000000B/s,0.000000B/s,0.000000B/s
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"gld_efficiency","Global Memory Load Efficiency",99.998334%,99.999918%,99.999369%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"gst_efficiency","Global Memory Store Efficiency",6.875000%,7.142857%,7.041361%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"tex_cache_transactions","Unified Cache Transactions",52428812,52429045,52428892
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"flop_count_dp","Floating Point Operations(Double Precision)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"flop_count_dp_add","Floating Point Operations(Double Precision Add)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"flop_count_dp_fma","Floating Point Operations(Double Precision FMA)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"flop_count_dp_mul","Floating Point Operations(Double Precision Mul)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"flop_count_sp","Floating Point Operations(Single Precision)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"flop_count_sp_add","Floating Point Operations(Single Precision Add)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"flop_count_sp_fma","Floating Point Operations(Single Precision FMA)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"flop_count_sp_mul","Floating Point Operation(Single Precision Mul)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"flop_count_sp_special","Floating Point Operations(Single Precision Special)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"inst_executed","Instructions Executed",222822479,222823962,222822992
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"inst_issued","Instructions Issued",222832292,222834129,222833200
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"dram_utilization","Device Memory Utilization","Low (3)","Low (3)","Low (3)"
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"sysmem_utilization","System Memory Utilization","Low (1)","Low (1)","Low (1)"
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"stall_inst_fetch","Issue Stall Reasons (Instructions Fetch)",3.137500%,3.211286%,3.170509%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"stall_exec_dependency","Issue Stall Reasons (Execution Dependency)",14.865194%,15.411266%,15.162549%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"stall_memory_dependency","Issue Stall Reasons (Data Request)",71.153607%,71.778162%,71.465398%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"stall_texture","Issue Stall Reasons (Texture)",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"stall_sync","Issue Stall Reasons (Synchronization)",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"stall_other","Issue Stall Reasons (Other)",9.089540%,9.164812%,9.129152%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"stall_constant_memory_dependency","Issue Stall Reasons (Immediate constant)",0.020773%,0.023670%,0.022352%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"stall_pipe_busy","Issue Stall Reasons (Pipe Busy)",0.161147%,0.165912%,0.163755%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"shared_efficiency","Shared Memory Efficiency",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"inst_fp_32","FP Instructions(Single)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"inst_fp_64","FP Instructions(Double)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"inst_integer","Integer Instructions",2936012842,2936013638,2936013117
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"inst_bit_convert","Bit-Convert Instructions",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"inst_control","Control-Flow Instructions",419430401,419430428,419430410
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"inst_compute_ld_st","Load/Store Instructions",419430417,419430746,419430531
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"inst_misc","Misc Instructions",2936012816,2936013105,2936012915
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"inst_inter_thread_communication","Inter-Thread Instructions",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"issue_slots","Issue Slots",222832288,222834119,222833188
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"cf_issued","Issued Control-Flow Instructions",26214404,26214473,26214427
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"cf_executed","Executed Control-Flow Instructions",26214404,26214473,26214427
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"ldst_issued","Issued Load/Store Instructions",78643217,78643546,78643331
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"ldst_executed","Executed Load/Store Instructions",39321617,39321946,39321731
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"atomic_transactions","Atomic Transactions",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"atomic_transactions_per_request","Atomic Transactions Per Request",0.000000,0.000000,0.000000
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"l2_atomic_throughput","L2 Throughput (Atomic requests)",0.000000B/s,0.000000B/s,0.000000B/s
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"l2_atomic_transactions","L2 Transactions (Atomic requests)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"l2_tex_read_transactions","L2 Transactions (Texture Reads)",13107205,13107292,13107234
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"stall_memory_throttle","Issue Stall Reasons (Memory Throttle)",0.081486%,0.084547%,0.083196%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"stall_not_selected","Issue Stall Reasons (Not Selected)",0.790926%,0.813539%,0.803089%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"l2_tex_write_transactions","L2 Transactions (Texture Writes)",5,101,38
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"nvlink_total_data_transmitted","NVLink Total Data Transmitted",1728,12480,6712
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"nvlink_total_data_received","NVLink Total Data Received",1152,8320,4588
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"nvlink_user_data_transmitted","NVLink User Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"nvlink_user_data_received","NVLink User Data Received",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"nvlink_overhead_data_transmitted","NVLink Overhead Data Transmitted",100.000000%,100.000000%,100.000000%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"nvlink_overhead_data_received","NVLink Overhead Data Received",100.000000%,100.000000%,100.000000%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"nvlink_total_nratom_data_transmitted","NVLink Total Nratom Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"nvlink_user_nratom_data_transmitted","NVLink User Nratom Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"nvlink_total_ratom_data_transmitted","NVLink Total Ratom Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"nvlink_user_ratom_data_transmitted","NVLink User Ratom Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"nvlink_total_write_data_transmitted","NVLink Total Write Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"nvlink_user_write_data_transmitted","NVLink User Write Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"nvlink_transmit_throughput","NVLink Transmit Throughput",605.082031KB/s,4.217237MB/s,2.270638MB/s
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"nvlink_receive_throughput","NVLink Receive Throughput",403.387695KB/s,2.811492MB/s,1.552098MB/s
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"nvlink_total_response_data_received","NVLink Total Response Data Received",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"nvlink_user_response_data_received","NVLink User Response Data Received",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"flop_count_hp","Floating Point Operations(Half Precision)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"flop_count_hp_add","Floating Point Operations(Half Precision Add)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"flop_count_hp_mul","Floating Point Operation(Half Precision Mul)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"flop_count_hp_fma","Floating Point Operations(Half Precision FMA)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"inst_fp_16","HP Instructions(Half)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"ipc","Executed IPC",0.938264,0.956620,0.948997
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"issued_ipc","Issued IPC",0.937840,0.957666,0.949175
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"issue_slot_utilization","Issue Slot Utilization",46.891978%,47.883306%,47.458728%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"sm_efficiency","Multiprocessor Activity",99.830606%,99.848480%,99.841333%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"achieved_occupancy","Achieved Occupancy",0.698642,0.708540,0.702979
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"eligible_warps_per_cycle","Eligible Warps Per Active Cycle",1.286676,1.311258,1.301013
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"shared_utilization","Shared Memory Utilization","Idle (0)","Idle (0)","Idle (0)"
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"l2_utilization","L2 Cache Utilization","Low (1)","Low (1)","Low (1)"
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"tex_utilization","Unified Cache Utilization","Low (1)","Low (3)","Low (2)"
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"ldst_fu_utilization","Load/Store Function Unit Utilization","Low (2)","Low (2)","Low (2)"
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"cf_fu_utilization","Control-Flow Function Unit Utilization","Low (1)","Low (1)","Low (1)"
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"tex_fu_utilization","Texture Function Unit Utilization","Low (3)","Low (3)","Low (3)"
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"special_fu_utilization","Special Function Unit Utilization","Idle (0)","Idle (0)","Idle (0)"
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"half_precision_fu_utilization","Half-Precision Function Unit Utilization","Idle (0)","Idle (0)","Idle (0)"
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"single_precision_fu_utilization","Single-Precision Function Unit Utilization","Low (3)","Low (3)","Low (3)"
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"double_precision_fu_utilization","Double-Precision Function Unit Utilization","Idle (0)","Idle (0)","Idle (0)"
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"flop_hp_efficiency","FLOP Efficiency(Peak Half)",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"flop_sp_efficiency","FLOP Efficiency(Peak Single)",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"flop_dp_efficiency","FLOP Efficiency(Peak Double)",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"sysmem_read_utilization","System Memory Read Utilization","Low (1)","Low (1)","Low (1)"
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"sysmem_write_utilization","System Memory Write Utilization","Low (1)","Low (1)","Low (1)"
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"pcie_total_data_transmitted","PCIe Total Data Transmitted",15360,7121408,1824000
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"pcie_total_data_received","PCIe Total Data Received",86016,865792,421120
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"inst_executed_global_loads","Warp level instructions for global loads",13107212,13107445,13107292
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"inst_executed_local_loads","Warp level instructions for local loads",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"inst_executed_shared_loads","Warp level instructions for shared loads",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"inst_executed_surface_loads","Warp level instructions for surface loads",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"inst_executed_global_stores","Warp level instructions for global stores",5,101,38
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"inst_executed_local_stores","Warp level instructions for local stores",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"inst_executed_shared_stores","Warp level instructions for shared stores",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"inst_executed_surface_stores","Warp level instructions for surface stores",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"inst_executed_global_atomics","Warp level instructions for global atom and atom cas",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"inst_executed_global_reductions","Warp level instructions for global reductions",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"inst_executed_surface_atomics","Warp level instructions for surface atom and atom cas",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"inst_executed_surface_reductions","Warp level instructions for surface reductions",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"inst_executed_shared_atomics","Warp level shared instructions for atom and atom CAS",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"inst_executed_tex_ops","Warp level instructions for texture",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"l2_global_load_bytes","Bytes read from L2 for misses in Unified Cache for global loads",419430560,419433344,419431504
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"l2_local_load_bytes","Bytes read from L2 for misses in Unified Cache for local loads",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"l2_surface_load_bytes","Bytes read from L2 for misses in Unified Cache for surface loads",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"dram_read_bytes","Total bytes read from DRAM to L2 cache",419440672,425758784,421031472
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"dram_write_bytes","Total bytes written from L2 cache to DRAM",1419136,2671776,2093280
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"l2_local_global_store_bytes","Bytes written to L2 from Unified Cache for local and global stores.",160,3232,1224
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"l2_global_reduction_bytes","Bytes written to L2 from Unified cache for global reductions",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"l2_global_atomic_store_bytes","Bytes written to L2 from Unified cache for global atomics",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"l2_surface_store_bytes","Bytes written to L2 from Unified Cache for surface stores.",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"l2_surface_reduction_bytes","Bytes written to L2 from Unified Cache for surface reductions",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"l2_surface_atomic_store_bytes","Bytes transferred between Unified Cache and L2 for surface atomics",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"global_load_requests","Total number of global load requests from Multiprocessor",52428812,52429045,52428892
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"local_load_requests","Total number of local load requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"surface_load_requests","Total number of surface load requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"global_store_requests","Total number of global store requests from Multiprocessor",5,101,38
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"local_store_requests","Total number of local store requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"surface_store_requests","Total number of surface store requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"global_atomic_requests","Total number of global atomic requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"global_reduction_requests","Total number of global reduction requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"surface_atomic_requests","Total number of surface atomic requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"surface_reduction_requests","Total number of surface reduction requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"sysmem_read_bytes","System Memory Read Bytes",32,6240,1720
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"sysmem_write_bytes","System Memory Write Bytes",192,544,344
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"l2_tex_hit_rate","L2 Cache Hit Rate",0.000015%,0.000183%,0.000078%
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"texture_load_requests","Total number of texture Load requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel(Node*, int*, bool*, bool*, bool*, int*, int)",4,"unique_warps_launched","Number of warps launched",13107200,13107200,13107200
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"inst_per_warp","Instructions per warp",17.000003,17.000019,17.000010
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"branch_efficiency","Branch Efficiency",100.000000%,100.000000%,100.000000%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"warp_execution_efficiency","Warp Execution Efficiency",99.999889%,99.999985%,99.999946%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"warp_nonpred_execution_efficiency","Warp Non-Predicated Execution Efficiency",94.117543%,94.117633%,94.117596%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"inst_replay_overhead","Instruction Replay Overhead",0.000045,0.000052,0.000048
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"shared_load_transactions_per_request","Shared Memory Load Transactions Per Request",0.000000,0.000000,0.000000
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"shared_store_transactions_per_request","Shared Memory Store Transactions Per Request",0.000000,0.000000,0.000000
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"local_load_transactions_per_request","Local Memory Load Transactions Per Request",0.000000,0.000000,0.000000
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"local_store_transactions_per_request","Local Memory Store Transactions Per Request",0.000000,0.000000,0.000000
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"gld_transactions_per_request","Global Load Transactions Per Request",4.000000,4.000000,4.000000
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"gst_transactions_per_request","Global Store Transactions Per Request",1.000000,1.000000,1.000000
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"shared_store_transactions","Shared Store Transactions",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"shared_load_transactions","Shared Load Transactions",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"local_load_transactions","Local Load Transactions",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"local_store_transactions","Local Store Transactions",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"gld_transactions","Global Load Transactions",52428802,52428802,52428802
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"gst_transactions","Global Store Transactions",8,60,29
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"sysmem_read_transactions","System Memory Read Transactions",0,100,33
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"sysmem_write_transactions","System Memory Write Transactions",5,7,5
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"l2_read_transactions","L2 Read Transactions",13107552,13174223,13129817
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"l2_write_transactions","L2 Write Transactions",60,65626,21937
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"dram_read_transactions","Device Memory Read Transactions",13107486,13173342,13129441
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"dram_write_transactions","Device Memory Write Transactions",58386,102846,73873
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"global_hit_rate","Global Hit Rate in unified l1/tex",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"local_hit_rate","Local Hit Rate",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"gld_requested_throughput","Requested Global Load Throughput",138.191275GB/s,140.243806GB/s,139.551658GB/s
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"gst_requested_throughput","Requested Global Store Throughput",2.763672KB/s,21.035156KB/s,10.232422KB/s
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"gld_throughput","Global Load Throughput",138.191275GB/s,140.243806GB/s,139.551658GB/s
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"gst_throughput","Global Store Throughput",88.442383KB/s,673.152344KB/s,327.480469KB/s
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"local_memory_overhead","Local Memory Overhead",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"tex_cache_hit_rate","Unified Cache Hit Rate",74.999914%,74.999989%,74.999958%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"l2_tex_read_hit_rate","L2 Hit Rate (Texture Reads)",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"l2_tex_write_hit_rate","L2 Hit Rate (Texture Writes)",25.000000%,50.000000%,35.555556%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"dram_read_throughput","Device Memory Read Throughput",138.888620GB/s,140.246866GB/s,139.788457GB/s
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"dram_write_throughput","Device Memory Write Throughput",639.708973MB/s,1.084322GB/s,805.405676MB/s
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"tex_cache_throughput","Unified Cache Throughput",552.765099GB/s,560.975224GB/s,558.206632GB/s
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"l2_tex_read_throughput","L2 Throughput (Texture Reads)",138.191275GB/s,140.243806GB/s,139.551658GB/s
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"l2_tex_write_throughput","L2 Throughput (Texture Writes)",88.442383KB/s,673.152344KB/s,327.480469KB/s
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"l2_read_throughput","L2 Throughput (Reads)",138.897909GB/s,140.248899GB/s,139.792460GB/s
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"l2_write_throughput","L2 Throughput (Writes)",673.169922KB/s,708.510983MB/s,239.167555MB/s
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"sysmem_read_throughput","System Memory Read Throughput",0.000000B/s,1.079618MB/s,372.136719KB/s
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"sysmem_write_throughput","System Memory Write Throughput",56.095703KB/s,77.386719KB/s,63.262695KB/s
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"local_load_throughput","Local Memory Load Throughput",0.000000B/s,0.000000B/s,0.000000B/s
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"local_store_throughput","Local Memory Store Throughput",0.000000B/s,0.000000B/s,0.000000B/s
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"shared_load_throughput","Shared Memory Load Throughput",0.000000B/s,0.000000B/s,0.000000B/s
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"shared_store_throughput","Shared Memory Store Throughput",0.000000B/s,0.000000B/s,0.000000B/s
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"gld_efficiency","Global Memory Load Efficiency",100.000000%,100.000000%,100.000000%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"gst_efficiency","Global Memory Store Efficiency",3.125000%,3.125000%,3.125000%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"tex_cache_transactions","Unified Cache Transactions",52428800,52428800,52428800
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"flop_count_dp","Floating Point Operations(Double Precision)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"flop_count_dp_add","Floating Point Operations(Double Precision Add)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"flop_count_dp_fma","Floating Point Operations(Double Precision FMA)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"flop_count_dp_mul","Floating Point Operations(Double Precision Mul)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"flop_count_sp","Floating Point Operations(Single Precision)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"flop_count_sp_add","Floating Point Operations(Single Precision Add)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"flop_count_sp_fma","Floating Point Operations(Single Precision FMA)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"flop_count_sp_mul","Floating Point Operation(Single Precision Mul)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"flop_count_sp_special","Floating Point Operations(Single Precision Special)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"inst_executed","Instructions Executed",222822434,222822655,222822524
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"inst_issued","Instructions Issued",222832683,222834005,222833157
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"dram_utilization","Device Memory Utilization","Low (3)","Low (3)","Low (3)"
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"sysmem_utilization","System Memory Utilization","Low (1)","Low (1)","Low (1)"
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"stall_inst_fetch","Issue Stall Reasons (Instructions Fetch)",3.139260%,3.225387%,3.191371%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"stall_exec_dependency","Issue Stall Reasons (Execution Dependency)",15.040800%,15.446495%,15.309673%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"stall_memory_dependency","Issue Stall Reasons (Data Request)",71.101022%,71.695046%,71.303575%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"stall_texture","Issue Stall Reasons (Texture)",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"stall_sync","Issue Stall Reasons (Synchronization)",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"stall_other","Issue Stall Reasons (Other)",9.058925%,9.140066%,9.111782%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"stall_constant_memory_dependency","Issue Stall Reasons (Immediate constant)",0.021850%,0.026594%,0.023762%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"stall_pipe_busy","Issue Stall Reasons (Pipe Busy)",0.163254%,0.167161%,0.165834%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"shared_efficiency","Shared Memory Efficiency",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"inst_fp_32","FP Instructions(Single)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"inst_fp_64","FP Instructions(Double)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"inst_integer","Integer Instructions",2936012814,2936012905,2936012851
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"inst_bit_convert","Bit-Convert Instructions",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"inst_control","Control-Flow Instructions",419430400,419430400,419430400
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"inst_compute_ld_st","Load/Store Instructions",419430408,419430460,419430429
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"inst_misc","Misc Instructions",2936012810,2936012875,2936012836
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"inst_inter_thread_communication","Inter-Thread Instructions",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"issue_slots","Issue Slots",222832653,222833995,222833142
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"cf_issued","Issued Control-Flow Instructions",26214402,26214415,26214407
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"cf_executed","Executed Control-Flow Instructions",26214402,26214415,26214407
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"ldst_issued","Issued Load/Store Instructions",78643208,78643260,78643229
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"ldst_executed","Executed Load/Store Instructions",39321608,39321660,39321629
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"atomic_transactions","Atomic Transactions",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"atomic_transactions_per_request","Atomic Transactions Per Request",0.000000,0.000000,0.000000
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"l2_atomic_throughput","L2 Throughput (Atomic requests)",0.000000B/s,0.000000B/s,0.000000B/s
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"l2_atomic_transactions","L2 Transactions (Atomic requests)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"l2_tex_read_transactions","L2 Transactions (Texture Reads)",13107200,13107200,13107200
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"stall_memory_throttle","Issue Stall Reasons (Memory Throttle)",0.082613%,0.084723%,0.084012%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"stall_not_selected","Issue Stall Reasons (Not Selected)",0.798251%,0.816039%,0.809990%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"l2_tex_write_transactions","L2 Transactions (Texture Writes)",8,60,29
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"nvlink_total_data_transmitted","NVLink Total Data Transmitted",576,22656,8640
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"nvlink_total_data_received","NVLink Total Data Received",384,15104,5760
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"nvlink_user_data_transmitted","NVLink User Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"nvlink_user_data_received","NVLink User Data Received",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"nvlink_overhead_data_transmitted","NVLink Overhead Data Transmitted",100.000000%,100.000000%,100.000000%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"nvlink_overhead_data_received","NVLink Overhead Data Received",100.000000%,100.000000%,100.000000%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"nvlink_total_nratom_data_transmitted","NVLink Total Nratom Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"nvlink_user_nratom_data_transmitted","NVLink User Nratom Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"nvlink_total_ratom_data_transmitted","NVLink Total Ratom Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"nvlink_user_ratom_data_transmitted","NVLink User Ratom Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"nvlink_total_write_data_transmitted","NVLink Total Write Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"nvlink_user_write_data_transmitted","NVLink User Write Data Transmitted",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"nvlink_transmit_throughput","NVLink Transmit Throughput",201.945312KB/s,7.757235MB/s,2.943666MB/s
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"nvlink_receive_throughput","NVLink Receive Throughput",134.629883KB/s,5.171490MB/s,1.962444MB/s
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"nvlink_total_response_data_received","NVLink Total Response Data Received",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"nvlink_user_response_data_received","NVLink User Response Data Received",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"flop_count_hp","Floating Point Operations(Half Precision)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"flop_count_hp_add","Floating Point Operations(Half Precision Add)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"flop_count_hp_mul","Floating Point Operation(Half Precision Mul)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"flop_count_hp_fma","Floating Point Operations(Half Precision FMA)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"inst_fp_16","HP Instructions(Half)",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"ipc","Executed IPC",0.942036,0.958770,0.952940
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"issued_ipc","Issued IPC",0.941501,0.958820,0.952792
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"issue_slot_utilization","Issue Slot Utilization",47.075038%,47.940989%,47.639616%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"sm_efficiency","Multiprocessor Activity",99.841590%,99.847855%,99.845080%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"achieved_occupancy","Achieved Occupancy",0.697716,0.707222,0.700970
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"eligible_warps_per_cycle","Eligible Warps Per Active Cycle",1.290847,1.312745,1.305273
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"shared_utilization","Shared Memory Utilization","Idle (0)","Idle (0)","Idle (0)"
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"l2_utilization","L2 Cache Utilization","Low (1)","Low (1)","Low (1)"
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"tex_utilization","Unified Cache Utilization","Low (3)","Low (3)","Low (3)"
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"ldst_fu_utilization","Load/Store Function Unit Utilization","Low (2)","Low (2)","Low (2)"
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"cf_fu_utilization","Control-Flow Function Unit Utilization","Low (1)","Low (1)","Low (1)"
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"tex_fu_utilization","Texture Function Unit Utilization","Low (3)","Low (3)","Low (3)"
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"special_fu_utilization","Special Function Unit Utilization","Idle (0)","Idle (0)","Idle (0)"
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"half_precision_fu_utilization","Half-Precision Function Unit Utilization","Idle (0)","Idle (0)","Idle (0)"
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"single_precision_fu_utilization","Single-Precision Function Unit Utilization","Low (3)","Low (3)","Low (3)"
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"double_precision_fu_utilization","Double-Precision Function Unit Utilization","Idle (0)","Idle (0)","Idle (0)"
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"flop_hp_efficiency","FLOP Efficiency(Peak Half)",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"flop_sp_efficiency","FLOP Efficiency(Peak Single)",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"flop_dp_efficiency","FLOP Efficiency(Peak Double)",0.000000%,0.000000%,0.000000%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"sysmem_read_utilization","System Memory Read Utilization","Idle (0)","Low (1)","Idle (0)"
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"sysmem_write_utilization","System Memory Write Utilization","Low (1)","Low (1)","Low (1)"
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"pcie_total_data_transmitted","PCIe Total Data Transmitted",512,2381312,795136
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"pcie_total_data_received","PCIe Total Data Received",0,123904,42837
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"inst_executed_global_loads","Warp level instructions for global loads",13107200,13107200,13107200
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"inst_executed_local_loads","Warp level instructions for local loads",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"inst_executed_shared_loads","Warp level instructions for shared loads",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"inst_executed_surface_loads","Warp level instructions for surface loads",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"inst_executed_global_stores","Warp level instructions for global stores",8,60,29
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"inst_executed_local_stores","Warp level instructions for local stores",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"inst_executed_shared_stores","Warp level instructions for shared stores",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"inst_executed_surface_stores","Warp level instructions for surface stores",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"inst_executed_global_atomics","Warp level instructions for global atom and atom cas",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"inst_executed_global_reductions","Warp level instructions for global reductions",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"inst_executed_surface_atomics","Warp level instructions for surface atom and atom cas",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"inst_executed_surface_reductions","Warp level instructions for surface reductions",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"inst_executed_shared_atomics","Warp level shared instructions for atom and atom CAS",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"inst_executed_tex_ops","Warp level instructions for texture",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"l2_global_load_bytes","Bytes read from L2 for misses in Unified Cache for global loads",419430400,419430400,419430400
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"l2_local_load_bytes","Bytes read from L2 for misses in Unified Cache for local loads",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"l2_surface_load_bytes","Bytes read from L2 for misses in Unified Cache for surface loads",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"dram_read_bytes","Total bytes read from DRAM to L2 cache",419439552,421546944,420142112
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"dram_write_bytes","Total bytes written from L2 cache to DRAM",1868352,3291072,2363957
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"l2_local_global_store_bytes","Bytes written to L2 from Unified Cache for local and global stores.",256,1920,938
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"l2_global_reduction_bytes","Bytes written to L2 from Unified cache for global reductions",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"l2_global_atomic_store_bytes","Bytes written to L2 from Unified cache for global atomics",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"l2_surface_store_bytes","Bytes written to L2 from Unified Cache for surface stores.",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"l2_surface_reduction_bytes","Bytes written to L2 from Unified Cache for surface reductions",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"l2_surface_atomic_store_bytes","Bytes transferred between Unified Cache and L2 for surface atomics",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"global_load_requests","Total number of global load requests from Multiprocessor",52428800,52428800,52428800
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"local_load_requests","Total number of local load requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"surface_load_requests","Total number of surface load requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"global_store_requests","Total number of global store requests from Multiprocessor",8,60,29
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"local_store_requests","Total number of local store requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"surface_store_requests","Total number of surface store requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"global_atomic_requests","Total number of global atomic requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"global_reduction_requests","Total number of global reduction requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"surface_atomic_requests","Total number of surface atomic requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"surface_reduction_requests","Total number of surface reduction requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"sysmem_read_bytes","System Memory Read Bytes",0,3200,1066
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"sysmem_write_bytes","System Memory Write Bytes",160,224,181
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"l2_tex_hit_rate","L2 Cache Hit Rate",0.000031%,0.000145%,0.000071%
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"texture_load_requests","Total number of texture Load requests from Multiprocessor",0,0,0
+"Tesla P100-SXM2-16GB (0)","Kernel2(bool*, bool*, bool*, bool*, int)",3,"unique_warps_launched","Number of warps launched",13107200,13107200,13107200

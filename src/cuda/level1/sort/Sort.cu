@@ -90,8 +90,14 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   // create input data on CPU
   uint *hKeys;
   uint *hVals;
+
+#ifdef UNIFIED_MEMORY
+  CUDA_SAFE_CALL(cudaMallocManaged(&hKeys, bytes));
+  CUDA_SAFE_CALL(cudaMallocManaged(&hVals, bytes));
+#else
   cudaMallocHost((void **)&hKeys, bytes);
   cudaMallocHost((void **)&hVals, bytes);
+#endif
 
   // Allocate space for block sums in the scan kernel.
   uint numLevelsAllocated = 0;
@@ -231,8 +237,10 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   CUDA_SAFE_CALL(cudaEventDestroy(stop));
 
   free(scanBlockSums);
+#ifndef UNIFIED_MEMORY
   CUDA_SAFE_CALL(cudaFreeHost(hKeys));
   CUDA_SAFE_CALL(cudaFreeHost(hVals));
+#endif
   free(sourceInput);
 }
 

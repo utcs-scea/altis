@@ -101,10 +101,10 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(cudadir)"
 PROGRAMS = $(cuda_PROGRAMS)
-am_gemm_OBJECTS = Gemm.$(OBJEXT) main.$(OBJEXT)
+am_gemm_OBJECTS = main.$(OBJEXT)
 gemm_OBJECTS = $(am_gemm_OBJECTS)
 am__DEPENDENCIES_1 =
-gemm_DEPENDENCIES = $(am__DEPENDENCIES_1)
+gemm_DEPENDENCIES = Gemm.o $(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -287,10 +287,8 @@ AM_CPPFLAGS = $(CUDA_INC)
 cudadir = $(bindir)/CUDA
 
 # How to build those programs?
-gemm_SOURCES = Gemm.cpp \
-                main.cpp
-
-gemm_LDADD = $(CUDA_LIBS) -lcublas $(LIBS)
+gemm_SOURCES = main.cpp
+gemm_LDADD = Gemm.o $(CUDA_LIBS) -lcublas $(LIBS)
 all: all-am
 
 .SUFFIXES:
@@ -377,7 +375,6 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Gemm.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 
 .cpp.o:

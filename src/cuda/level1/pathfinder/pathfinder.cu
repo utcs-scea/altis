@@ -23,6 +23,8 @@ int **wall;
 int *result;
 int pyramid_height;
 
+int device_id;
+
 // ****************************************************************************
 // Function: addBenchmarkSpecOptions
 //
@@ -69,6 +71,8 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   cudaGetDevice(&device);
   cudaDeviceProp deviceProp;
   cudaGetDeviceProperties(&deviceProp, device);
+
+  device_id = device;
 
   bool quiet = op.getOptionInt("quiet");
   int rowLen = op.getOptionInt("rows");
@@ -119,10 +123,19 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 }
 
 void init(OptionParser &op) {
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaMallocManaged(&data, sizeof(int) * rows * cols));
+    CUDA_SAFE_CALL(cudaMallocManaged(&wall, sizeof(int *) * rows));
+    for (int n = 0; n < rows; n++) wall[n] = data + (int)cols * n;
+    CUDA_SAFE_CALL(cudaMallocManaged(&result, sizeof(int) * cols));
+
+#else
+
   data = new int[rows * cols];
   wall = new int *[rows];
   for (int n = 0; n < rows; n++) wall[n] = data + (int)cols * n;
   result = new int[cols];
+#endif
 
   srand(SEED);
 
@@ -284,12 +297,11 @@ void run(int borderCols, int smallBlockCol, int blockCols,
 
   int *gpuWall, *gpuResult[2];
   int size = rows * cols;
-
+#ifndef UNIFIED_MEMORY
   CUDA_SAFE_CALL(cudaMalloc((void **)&gpuResult[0], sizeof(int) * cols));
   CUDA_SAFE_CALL(cudaMalloc((void **)&gpuResult[1], sizeof(int) * cols));
-  CUDA_SAFE_CALL(
-      cudaMalloc((void **)&gpuWall, sizeof(int) * (size - cols)));
-
+  CUDA_SAFE_CALL(cudaMalloc((void **)&gpuWall, sizeof(int) * (size - cols)));
+#endif
   // Cuda events and times
   cudaEvent_t start, stop;
   cudaEventCreate(&start);
@@ -299,31 +311,52 @@ void run(int borderCols, int smallBlockCol, int blockCols,
   double kernelTime = 0;
 
   cudaEventRecord(start, 0);
+
+
+
+#ifdef UNIFIED_MEMORY
+  CUDA_SAFE_CALL(cudaMallocManaged((void **)&gpuResult[1], sizeof(int) * cols));
+  CUDA_SAFE_CALL(cudaMallocManaged((void **)&gpuWall, sizeof(int) * (size - cols)));
+  gpuResult[0] = data;
+  CUDA_SAFE_CALL(cudaMemPrefetchAsync(gpuResult[0], sizeof(int) * cols, device_id));
+  CUDA_SAFE_CALL(cudaMemAdvise(gpuWall, sizeof(int) * (size - cols), cudaMemAdviseSetReadMostly, device_id));
+  CUDA_SAFE_CALL(cudaMemcpy(gpuWall, data + cols,
+                            sizeof(int) * (size - cols),
+                            cudaMemcpyDefault));
+#else
+
   CUDA_SAFE_CALL(cudaMemcpy(gpuResult[0], data, sizeof(int) * cols,
                             cudaMemcpyHostToDevice));
+  
   CUDA_SAFE_CALL(cudaMemcpy(gpuWall, data + cols,
                             sizeof(int) * (size - cols),
                             cudaMemcpyHostToDevice));
+#endif
   cudaEventRecord(stop, 0);
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&elapsedTime, start, stop);
   transferTime += elapsedTime * 1.e-3;  // convert to seconds
 
   int instances = op.getOptionInt("instances");
-  /*
-  int final_ret =
-      calc_path(gpuWall, gpuResult, rows, cols, pyramid_height, blockCols,
-                borderCols, kernelTime, false, instances);
-                */
+
 #ifdef HYPERQ
   double hyperqKernelTime = 0;
   int final_ret = calc_path(gpuWall, gpuResult, rows, cols, pyramid_height, blockCols,
             borderCols, hyperqKernelTime, true, instances);
+#else
+  int final_ret = calc_path(gpuWall, gpuResult, rows, cols, pyramid_height, blockCols,
+                borderCols, kernelTime, false, instances);
 #endif
 
   cudaEventRecord(start, 0);
+
+#ifdef UNIFIED_MEMORY
+  result = gpuResult[final_ret];
+  CUDA_SAFE_CALL(cudaMemPrefetchAsync(result, sizeof(int) * cols, cudaCpuDeviceId));
+#else
   CUDA_SAFE_CALL(cudaMemcpy(result, gpuResult[final_ret],
                             sizeof(int) * cols, cudaMemcpyDeviceToHost));
+#endif
   cudaEventRecord(stop, 0);
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&elapsedTime, start, stop);
@@ -349,17 +382,13 @@ void run(int borderCols, int smallBlockCol, int blockCols,
   cudaFree(gpuResult[0]);
   cudaFree(gpuResult[1]);
 
+#ifndef UNIFIED_MEMORY
   delete[] data;
   delete[] wall;
   delete[] result;
+#endif
 
   string atts = toString(rows) + "x" + toString(cols);
-  resultDB.AddResult("pathfinder_transfer_time", atts, "sec", transferTime);
-  resultDB.AddResult("pathfinder_kernel_time", atts, "sec", kernelTime);
-  resultDB.AddResult("pathfinder_total_time", atts, "sec", kernelTime + transferTime);
-  resultDB.AddResult("pathfinder_parity", atts, "N",
-                     transferTime / kernelTime);
-  resultDB.AddOverall("Time", "sec", kernelTime+transferTime);
 #ifdef HYPERQ
   resultDB.AddResult("pathfinder_hyperq_transfer_time", atts, "sec", transferTime);
   resultDB.AddResult("pathfinder_hyperq_kernel_time", atts, "sec", hyperqKernelTime);
@@ -368,5 +397,13 @@ void run(int borderCols, int smallBlockCol, int blockCols,
                      transferTime / hyperqKernelTime);
   resultDB.AddResult("pathfinder_hyperq_speedup", atts, "sec",
                      kernelTime/hyperqKernelTime);
+#else
+  resultDB.AddResult("pathfinder_transfer_time", atts, "sec", transferTime);
+  resultDB.AddResult("pathfinder_kernel_time", atts, "sec", kernelTime);
+  resultDB.AddResult("pathfinder_total_time", atts, "sec", kernelTime + transferTime);
+  resultDB.AddResult("pathfinder_parity", atts, "N",
+                     transferTime / kernelTime);
+
 #endif
+  resultDB.AddOverall("Time", "sec", kernelTime+transferTime);
 }

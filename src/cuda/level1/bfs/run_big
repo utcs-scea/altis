@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 set -ue
 
-sudo /usr/local/cuda-10.1/bin/nvprof --unified-memory-profiling per-process-device  -m all --csv --log-file metrics_big_zemaitis.csv ./bfs -s 4 -n 1
+sudo /usr/local/cuda-10.0/bin/nvprof --unified-memory-profiling per-process-device  -m all --csv --log-file metrics_big_zemaitis.csv ./bfs -s 4 -n 1

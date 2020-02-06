@@ -1,9 +1,9 @@
-==34402== NVPROF is profiling process 34402, command: ./lavamd -s 4 -n 1
-==34402== Warning: Profiling results might be incorrect with current version of nvcc compiler used to compile cuda app. Compile with nvcc compiler 9.0 or later version to get correct profiling results. Ignore this warning if code is already compiled with the recommended nvcc version 
-==34402== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
-==34402== Profiling application: ./lavamd -s 4 -n 1
-==34402== Profiling result:
-==34402== Metric result:
+==33798== NVPROF is profiling process 33798, command: ./lavamd -s 4 -n 1
+==33798== Warning: Profiling results might be incorrect with current version of nvcc compiler used to compile cuda app. Compile with nvcc compiler 9.0 or later version to get correct profiling results. Ignore this warning if code is already compiled with the recommended nvcc version 
+==33798== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==33798== Profiling application: ./lavamd -s 4 -n 1
+==33798== Profiling result:
+==33798== Metric result:
 "Device","Kernel","Invocations","Metric Name","Metric Description","Min","Max","Avg"
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"inst_per_warp","Instructions per warp",121966.774811,121966.774811,121966.774811
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"branch_efficiency","Branch Efficiency",100.000000%,100.000000%,100.000000%
@@ -24,33 +24,33 @@
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"gst_transactions","Global Store Transactions",2743600000,2743600000,2743600000
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"sysmem_read_transactions","System Memory Read Transactions",0,0,0
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"sysmem_write_transactions","System Memory Write Transactions",5,5,5
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_read_transactions","L2 Read Transactions",1561121507,1561121507,1561121507
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_read_transactions","L2 Read Transactions",1561014876,1561014876,1561014876
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_write_transactions","L2 Write Transactions",2743600019,2743600019,2743600019
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"dram_read_transactions","Device Memory Read Transactions",167855008,167855008,167855008
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"dram_write_transactions","Device Memory Write Transactions",32441546,32441546,32441546
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"global_hit_rate","Global Hit Rate in unified l1/tex",73.299975%,73.299975%,73.299975%
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"dram_read_transactions","Device Memory Read Transactions",167838468,167838468,167838468
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"dram_write_transactions","Device Memory Write Transactions",32435625,32435625,32435625
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"global_hit_rate","Global Hit Rate in unified l1/tex",73.296517%,73.296517%,73.296517%
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"local_hit_rate","Local Hit Rate",0.000000%,0.000000%,0.000000%
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"gld_requested_throughput","Requested Global Load Throughput",37.222776GB/s,37.222776GB/s,37.222776GB/s
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"gst_requested_throughput","Requested Global Store Throughput",16.159856GB/s,16.159856GB/s,16.159856GB/s
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"gld_throughput","Global Load Throughput",137.753156GB/s,137.753156GB/s,137.753156GB/s
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"gst_throughput","Global Store Throughput",64.639426GB/s,64.639426GB/s,64.639426GB/s
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"gld_requested_throughput","Requested Global Load Throughput",37.215744GB/s,37.215744GB/s,37.215744GB/s
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"gst_requested_throughput","Requested Global Store Throughput",16.156804GB/s,16.156804GB/s,16.156804GB/s
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"gld_throughput","Global Load Throughput",137.727132GB/s,137.727132GB/s,137.727132GB/s
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"gst_throughput","Global Store Throughput",64.627214GB/s,64.627214GB/s,64.627214GB/s
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"local_memory_overhead","Local Memory Overhead",0.000000%,0.000000%,0.000000%
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"tex_cache_hit_rate","Unified Cache Hit Rate",51.192197%,51.192197%,51.192197%
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_tex_read_hit_rate","L2 Hit Rate (Texture Reads)",89.237419%,89.237419%,89.237419%
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_tex_write_hit_rate","L2 Hit Rate (Texture Writes)",99.933906%,99.933906%,99.933906%
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"dram_read_throughput","Device Memory Read Throughput",3.954677GB/s,3.954677GB/s,3.954677GB/s
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"dram_write_throughput","Device Memory Write Throughput",782.669109MB/s,782.669109MB/s,782.669108MB/s
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"tex_cache_throughput","Unified Cache Throughput",45.827135GB/s,45.827135GB/s,45.827135GB/s
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_tex_read_throughput","L2 Throughput (Texture Reads)",36.784548GB/s,36.784548GB/s,36.784548GB/s
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_tex_write_throughput","L2 Throughput (Texture Writes)",64.639426GB/s,64.639426GB/s,64.639426GB/s
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_read_throughput","L2 Throughput (Reads)",36.780142GB/s,36.780142GB/s,36.780142GB/s
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_write_throughput","L2 Throughput (Writes)",64.639426GB/s,64.639426GB/s,64.639426GB/s
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"tex_cache_hit_rate","Unified Cache Hit Rate",51.191316%,51.191316%,51.191316%
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_tex_read_hit_rate","L2 Hit Rate (Texture Reads)",89.241669%,89.241669%,89.241669%
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_tex_write_hit_rate","L2 Hit Rate (Texture Writes)",99.936014%,99.936014%,99.936014%
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"dram_read_throughput","Device Memory Read Throughput",3.953540GB/s,3.953540GB/s,3.953540GB/s
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"dram_write_throughput","Device Memory Write Throughput",782.378430MB/s,782.378430MB/s,782.378429MB/s
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"tex_cache_throughput","Unified Cache Throughput",45.818478GB/s,45.818478GB/s,45.818478GB/s
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_tex_read_throughput","L2 Throughput (Texture Reads)",36.777938GB/s,36.777938GB/s,36.777938GB/s
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_tex_write_throughput","L2 Throughput (Texture Writes)",64.627214GB/s,64.627214GB/s,64.627214GB/s
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_read_throughput","L2 Throughput (Reads)",36.770682GB/s,36.770682GB/s,36.770682GB/s
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_write_throughput","L2 Throughput (Writes)",64.627215GB/s,64.627215GB/s,64.627215GB/s
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"sysmem_read_throughput","System Memory Read Throughput",0.000000B/s,0.000000B/s,0.000000B/s
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"sysmem_write_throughput","System Memory Write Throughput",126.000000B/s,126.000000B/s,125.000000B/s
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"local_load_throughput","Local Memory Load Throughput",0.000000B/s,0.000000B/s,0.000000B/s
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"local_store_throughput","Local Memory Store Throughput",0.000000B/s,0.000000B/s,0.000000B/s
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"shared_load_throughput","Shared Memory Load Throughput",1328.986592GB/s,1328.986592GB/s,1328.986592GB/s
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"shared_store_throughput","Shared Memory Store Throughput",42.752686GB/s,42.752686GB/s,42.752686GB/s
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"shared_load_throughput","Shared Memory Load Throughput",1328.735524GB/s,1328.735524GB/s,1328.735524GB/s
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"shared_store_throughput","Shared Memory Store Throughput",42.744609GB/s,42.744609GB/s,42.744609GB/s
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"gld_efficiency","Global Memory Load Efficiency",27.021360%,27.021360%,27.021360%
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"gst_efficiency","Global Memory Store Efficiency",25.000000%,25.000000%,25.000000%
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"tex_cache_transactions","Unified Cache Transactions",1945118280,1945118280,1945118280
@@ -64,17 +64,17 @@
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"flop_count_sp_mul","Floating Point Operation(Single Precision Mul)",0,0,0
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"flop_count_sp_special","Floating Point Operations(Single Precision Special)",0,0,0
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"inst_executed","Instructions Executed",127891432864,127891432864,127891432864
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"inst_issued","Instructions Issued",127897667797,127897667797,127897667797
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"inst_issued","Instructions Issued",127897667519,127897667519,127897667519
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"dram_utilization","Device Memory Utilization","Low (1)","Low (1)","Low (1)"
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"sysmem_utilization","System Memory Utilization","Low (1)","Low (1)","Low (1)"
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"stall_inst_fetch","Issue Stall Reasons (Instructions Fetch)",9.144492%,9.144492%,9.144492%
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"stall_exec_dependency","Issue Stall Reasons (Execution Dependency)",6.611023%,6.611023%,6.611023%
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"stall_memory_dependency","Issue Stall Reasons (Data Request)",1.072524%,1.072524%,1.072524%
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"stall_inst_fetch","Issue Stall Reasons (Instructions Fetch)",9.145649%,9.145649%,9.145649%
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"stall_exec_dependency","Issue Stall Reasons (Execution Dependency)",6.611992%,6.611992%,6.611992%
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"stall_memory_dependency","Issue Stall Reasons (Data Request)",1.072686%,1.072686%,1.072686%
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"stall_texture","Issue Stall Reasons (Texture)",0.000000%,0.000000%,0.000000%
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"stall_sync","Issue Stall Reasons (Synchronization)",3.011208%,3.011208%,3.011208%
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"stall_other","Issue Stall Reasons (Other)",67.649369%,67.649369%,67.649369%
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"stall_constant_memory_dependency","Issue Stall Reasons (Immediate constant)",0.011298%,0.011298%,0.011298%
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"stall_pipe_busy","Issue Stall Reasons (Pipe Busy)",7.091158%,7.091158%,7.091158%
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"stall_sync","Issue Stall Reasons (Synchronization)",3.000031%,3.000031%,3.000031%
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"stall_other","Issue Stall Reasons (Other)",67.656671%,67.656671%,67.656671%
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"stall_constant_memory_dependency","Issue Stall Reasons (Immediate constant)",0.011311%,0.011311%,0.011311%
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"stall_pipe_busy","Issue Stall Reasons (Pipe Busy)",7.092049%,7.092049%,7.092049%
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"shared_efficiency","Shared Memory Efficiency",8.585930%,8.585930%,8.585930%
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"inst_fp_32","FP Instructions(Single)",68590000000,68590000000,68590000000
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"inst_fp_64","FP Instructions(Double)",2194947108864,2194947108864,2194947108864
@@ -84,7 +84,7 @@
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"inst_compute_ld_st","Load/Store Instructions",186453844832,186453844832,186453844832
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"inst_misc","Misc Instructions",250589093984,250589093984,250589093984
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"inst_inter_thread_communication","Inter-Thread Instructions",0,0,0
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"issue_slots","Issue Slots",119330291152,119330291152,119330291152
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"issue_slots","Issue Slots",119330290926,119330290926,119330290926
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"cf_issued","Issued Control-Flow Instructions",7366479488,7366479488,7366479488
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"cf_executed","Executed Control-Flow Instructions",7366479488,7366479488,7366479488
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"ldst_issued","Issued Load/Store Instructions",8954535248,8954535248,8954535248
@@ -93,12 +93,12 @@
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"atomic_transactions_per_request","Atomic Transactions Per Request",0.000000,0.000000,0.000000
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_atomic_throughput","L2 Throughput (Atomic requests)",0.000000B/s,0.000000B/s,0.000000B/s
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_atomic_transactions","L2 Transactions (Atomic requests)",0,0,0
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_tex_read_transactions","L2 Transactions (Texture Reads)",1561308504,1561308504,1561308504
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_tex_read_transactions","L2 Transactions (Texture Reads)",1561322933,1561322933,1561322933
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"stall_memory_throttle","Issue Stall Reasons (Memory Throttle)",0.000032%,0.000032%,0.000032%
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"stall_not_selected","Issue Stall Reasons (Not Selected)",5.408896%,5.408896%,5.408896%
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"stall_not_selected","Issue Stall Reasons (Not Selected)",5.409580%,5.409580%,5.409580%
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_tex_write_transactions","L2 Transactions (Texture Writes)",2743600000,2743600000,2743600000
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"nvlink_total_data_transmitted","NVLink Total Data Transmitted",2304,2304,2304
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"nvlink_total_data_received","NVLink Total Data Received",1536,1536,1536
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"nvlink_total_data_transmitted","NVLink Total Data Transmitted",46464,46464,46464
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"nvlink_total_data_received","NVLink Total Data Received",50496,50496,50496
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"nvlink_user_data_transmitted","NVLink User Data Transmitted",0,0,0
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"nvlink_user_data_received","NVLink User Data Received",0,0,0
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"nvlink_overhead_data_transmitted","NVLink Overhead Data Transmitted",100.000000%,100.000000%,100.000000%
@@ -109,8 +109,8 @@
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"nvlink_user_ratom_data_transmitted","NVLink User Ratom Data Transmitted",0,0,0
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"nvlink_total_write_data_transmitted","NVLink Total Write Data Transmitted",0,0,0
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"nvlink_user_write_data_transmitted","NVLink User Write Data Transmitted",0,0,0
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"nvlink_transmit_throughput","NVLink Transmit Throughput",1.778320KB/s,1.778320KB/s,1.777344KB/s
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"nvlink_receive_throughput","NVLink Receive Throughput",1.185547KB/s,1.185547KB/s,1.184570KB/s
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"nvlink_transmit_throughput","NVLink Transmit Throughput",35.863281KB/s,35.863281KB/s,35.862305KB/s
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"nvlink_receive_throughput","NVLink Receive Throughput",38.975586KB/s,38.975586KB/s,38.974609KB/s
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"nvlink_total_response_data_received","NVLink Total Response Data Received",0,0,0
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"nvlink_user_response_data_received","NVLink User Response Data Received",0,0,0
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"flop_count_hp","Floating Point Operations(Half Precision)",0,0,0
@@ -119,11 +119,11 @@
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"flop_count_hp_fma","Floating Point Operations(Half Precision FMA)",0,0,0
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"inst_fp_16","HP Instructions(Half)",0,0,0
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"ipc","Executed IPC",1.212642,1.212642,1.212642
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"issued_ipc","Issued IPC",1.212701,1.212701,1.212701
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"issue_slot_utilization","Issue Slot Utilization",56.573356%,56.573356%,56.573356%
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"sm_efficiency","Multiprocessor Activity",99.975606%,99.975606%,99.975606%
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"achieved_occupancy","Achieved Occupancy",0.499873,0.499873,0.499873
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"eligible_warps_per_cycle","Eligible Warps Per Active Cycle",2.800721,2.800721,2.800721
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"issued_ipc","Issued IPC",1.212699,1.212699,1.212699
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"issue_slot_utilization","Issue Slot Utilization",56.573254%,56.573254%,56.573254%
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"sm_efficiency","Multiprocessor Activity",99.978532%,99.978532%,99.978532%
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"achieved_occupancy","Achieved Occupancy",0.499871,0.499871,0.499871
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"eligible_warps_per_cycle","Eligible Warps Per Active Cycle",2.800705,2.800705,2.800705
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"shared_utilization","Shared Memory Utilization","Low (2)","Low (2)","Low (2)"
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_utilization","L2 Cache Utilization","Low (1)","Low (1)","Low (1)"
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"tex_utilization","Unified Cache Utilization","Low (1)","Low (1)","Low (1)"
@@ -132,15 +132,15 @@
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"tex_fu_utilization","Texture Function Unit Utilization","Low (1)","Low (1)","Low (1)"
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"special_fu_utilization","Special Function Unit Utilization","Idle (0)","Idle (0)","Idle (0)"
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"half_precision_fu_utilization","Half-Precision Function Unit Utilization","Idle (0)","Idle (0)","Idle (0)"
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"single_precision_fu_utilization","Single-Precision Function Unit Utilization","Low (1)","Low (1)","Low (1)"
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"single_precision_fu_utilization","Single-Precision Function Unit Utilization","Low (2)","Low (2)","Low (2)"
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"double_precision_fu_utilization","Double-Precision Function Unit Utilization","High (9)","High (9)","High (9)"
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"flop_hp_efficiency","FLOP Efficiency(Peak Half)",0.000000%,0.000000%,0.000000%
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"flop_sp_efficiency","FLOP Efficiency(Peak Single)",0.000000%,0.000000%,0.000000%
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"flop_dp_efficiency","FLOP Efficiency(Peak Double)",52.829637%,52.829637%,52.829637%
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"flop_dp_efficiency","FLOP Efficiency(Peak Double)",52.831176%,52.831176%,52.831176%
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"sysmem_read_utilization","System Memory Read Utilization","Idle (0)","Idle (0)","Idle (0)"
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"sysmem_write_utilization","System Memory Write Utilization","Low (1)","Low (1)","Low (1)"
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"pcie_total_data_transmitted","PCIe Total Data Transmitted",287744,287744,287744
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"pcie_total_data_received","PCIe Total Data Received",93696,93696,93696
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"pcie_total_data_transmitted","PCIe Total Data Transmitted",2045952,2045952,2045952
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"pcie_total_data_received","PCIe Total Data Received",2574336,2574336,2574336
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"inst_executed_global_loads","Warp level instructions for global loads",334474880,334474880,334474880
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"inst_executed_local_loads","Warp level instructions for local loads",0,0,0
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"inst_executed_shared_loads","Warp level instructions for shared loads",6913872000,6913872000,6913872000
@@ -155,11 +155,11 @@
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"inst_executed_surface_reductions","Warp level instructions for surface reductions",0,0,0
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"inst_executed_shared_atomics","Warp level shared instructions for atom and atom CAS",0,0,0
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"inst_executed_tex_ops","Warp level instructions for texture",0,0,0
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_global_load_bytes","Bytes read from L2 for misses in Unified Cache for global loads",49957124800,49957124800,49957124800
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_global_load_bytes","Bytes read from L2 for misses in Unified Cache for global loads",49955018208,49955018208,49955018208
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_local_load_bytes","Bytes read from L2 for misses in Unified Cache for local loads",0,0,0
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_surface_load_bytes","Bytes read from L2 for misses in Unified Cache for surface loads",0,0,0
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"dram_read_bytes","Total bytes read from DRAM to L2 cache",5371360256,5371360256,5371360256
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"dram_write_bytes","Total bytes written from L2 cache to DRAM",1038129472,1038129472,1038129472
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"dram_read_bytes","Total bytes read from DRAM to L2 cache",5370830976,5370830976,5370830976
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"dram_write_bytes","Total bytes written from L2 cache to DRAM",1037940000,1037940000,1037940000
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_local_global_store_bytes","Bytes written to L2 from Unified Cache for local and global stores.",87795200000,87795200000,87795200000
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_global_reduction_bytes","Bytes written to L2 from Unified cache for global reductions",0,0,0
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_global_atomic_store_bytes","Bytes written to L2 from Unified cache for global atomics",0,0,0
@@ -178,6 +178,6 @@
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"surface_reduction_requests","Total number of surface reduction requests from Multiprocessor",0,0,0
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"sysmem_read_bytes","System Memory Read Bytes",0,0,0
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"sysmem_write_bytes","System Memory Write Bytes",160,160,160
-"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_tex_hit_rate","L2 Cache Hit Rate",96.056036%,96.056036%,96.056036%
+"Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"l2_tex_hit_rate","L2 Cache Hit Rate",96.057486%,96.057486%,96.057486%
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"texture_load_requests","Total number of texture Load requests from Multiprocessor",0,0,0
 "Tesla P100-SXM2-16GB (0)","kernel_gpu_cuda(par_str, dim_str, box_str*, FOUR_VECTOR*, double*, FOUR_VECTOR*)",1,"unique_warps_launched","Number of warps launched",1048576,1048576,1048576
