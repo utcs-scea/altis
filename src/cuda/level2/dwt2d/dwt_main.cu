@@ -78,31 +78,83 @@ void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &res
     float kernelTime = 0;
 
     int componentSize = d->pixWidth*d->pixHeight*sizeof(T); T *c_r_out, *backup ;
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaMallocManaged((void**)&c_r_out, componentSize));
+#else
     CUDA_SAFE_CALL(cudaMalloc((void**)&c_r_out, componentSize));
+#endif
     CUDA_SAFE_CALL(cudaMemset(c_r_out, 0, componentSize));
     
+#ifdef UNIFIED_MEMORY
+#ifdef HYPERQ
+    T *backup2, *backup3;
+    CUDA_SAFE_CALL(cudaMallocManaged((void**)&backup, componentSize));
+    CUDA_SAFE_CALL(cudaMallocManaged((void**)&backup2, componentSize));
+    CUDA_SAFE_CALL(cudaMallocManaged((void**)&backup3, componentSize));
+#else
+    CUDA_SAFE_CALL(cudaMallocManaged((void**)&backup, componentSize));
+#endif
+
+#else
+#ifdef HYPERQ
+    T *backup2, *bakcup3;
     CUDA_SAFE_CALL(cudaMalloc((void**)&backup, componentSize));
+    CUDA_SAFE_CALL(cudaMalloc((void**)&backup2, componentSize));
+    CUDA_SAFE_CALL(cudaMalloc((void**)&backup3, componentSize));
+#else
+    CUDA_SAFE_CALL(cudaMalloc((void**)&backup, componentSize));
+#endif
+#endif
     CUDA_SAFE_CALL(cudaMemset(backup, 0, componentSize));
 	
     if (d->components == 3) {
+
+#ifdef HYPERQ
+        cudaStream_t streams[3];
+        for (int s = 0; s < 3; s++) {
+            CUDA_SAFE_CALL(cudaStreamCreate(&streams[s]));
+        }
+#endif
         /* Alloc two more buffers for G and B */
         T *c_g_out, *c_b_out;
+#ifdef UNIFIED_MEMORY
+        CUDA_SAFE_CALL(cudaMallocManaged((void**)&c_g_out, componentSize));
+#else
         CUDA_SAFE_CALL(cudaMalloc((void**)&c_g_out, componentSize));
+#endif
         CUDA_SAFE_CALL(cudaMemset(c_g_out, 0, componentSize));
         
+#ifdef UNIFIED_MEMORY
+        CUDA_SAFE_CALL(cudaMallocManaged((void**)&c_b_out, componentSize));
+#else
         CUDA_SAFE_CALL(cudaMalloc((void**)&c_b_out, componentSize));
+#endif
         CUDA_SAFE_CALL(cudaMemset(c_b_out, 0, componentSize));
         
         /* Load components */
         T *c_r, *c_g, *c_b;
         // R, aligned component size
+#ifdef UNIFIED_MEMORY
+        CUDA_SAFE_CALL(cudaMallocManaged((void**)&c_r, componentSize)); 
+#else
         CUDA_SAFE_CALL(cudaMalloc((void**)&c_r, componentSize)); 
+#endif
         CUDA_SAFE_CALL(cudaMemset(c_r, 0, componentSize));
         // G, aligned component size
+
+#ifdef UNIFIED_MEMORY
+        CUDA_SAFE_CALL(cudaMallocManaged((void**)&c_g, componentSize)); 
+#else
         CUDA_SAFE_CALL(cudaMalloc((void**)&c_g, componentSize)); 
+#endif
         CUDA_SAFE_CALL(cudaMemset(c_g, 0, componentSize));
         // B, aligned component size
+
+#ifdef UNIFIED_MEMORY
+        CUDA_SAFE_CALL(cudaMallocManaged((void**)&c_b, componentSize));
+#else
         CUDA_SAFE_CALL(cudaMalloc((void**)&c_b, componentSize));
+#endif
         CUDA_SAFE_CALL(cudaMemset(c_b, 0, componentSize));
 
         rgbToComponents(c_r, c_g, c_b, d->srcImg, d->pixWidth, d->pixHeight, transferTime, kernelTime);
@@ -137,6 +189,12 @@ void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &res
             printf("Writing to %s.g (%d x %d)\n", d->outFilename, d->pixWidth, d->pixHeight);
             printf("Writing to %s.b (%d x %d)\n", d->outFilename, d->pixWidth, d->pixHeight);
         }
+#ifdef HYPERQ
+        for (int s = 0; s < 3; s++) {
+            CUDA_SAFE_CALL(cudaStreamDestroy(streams[s]));
+        }
+#endif
+ 
             
 
         cudaFree(c_r);
@@ -210,7 +268,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
     bool dwt97       = !op.getOptionBool("53"); //1=dwt9/7, 0=dwt5/3 transform
     bool writeVisual = op.getOptionBool("writeVisual"); //write output (subbands) in visual (tiled) order instead of linear
     string inputFile = op.getOptionString("inputFile");
-    if(inputFile.empty()) {
+    if (inputFile.empty()) {
         int probSizes[4] = {48, 192, 8192, 2<<13};
         int pix = probSizes[op.getOptionInt("size")-1];
         inputFile = datagen(pix);
@@ -258,7 +316,11 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
     int inputSize = pixWidth*pixHeight*compCount; //<amount of data (in bytes) to proccess
 
     //load img source image
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaMallocManaged((void **)&d->srcImg, inputSize));
+#else
     CUDA_SAFE_CALL(cudaMallocHost((void **)&d->srcImg, inputSize));
+#endif
     if (getImg(d->srcFilename, d->srcImg, inputSize, quiet) == -1) 
         return;
 
@@ -292,5 +354,9 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
     //writeComponent(g_wave_cuda, 512000, ".g");
     //writeComponent(g_cuda, componentSize, ".g");
     //writeComponent(b_wave_cuda, componentSize, ".b");
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaFree(d->srcImg));
+#else
     CUDA_SAFE_CALL(cudaFreeHost(d->srcImg));
+#endif
 }

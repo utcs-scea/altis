@@ -497,7 +497,6 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
 
-    /*
     int passes = op.getOptionInt("passes");
     for(int i = 0; i < passes; i++) {
         kernelTime = 0.0f;
@@ -510,9 +509,6 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
             printf("Done.\n");
         }
     }
-    */
-    cfd(resultDB, op);
-
 }
 
 void cfd(ResultDatabase &resultDB, OptionParser &op)
@@ -697,8 +693,6 @@ void cfd(ResultDatabase &resultDB, OptionParser &op)
 	// CUT_SAFE_CALL( cutCreateTimer( &timer));
 	// CUT_SAFE_CALL( cutStartTimer( timer));
 	// Begin iterations
-    int passes = op.getOptionInt("passes");
-    bool quiet = op.getOptionBool("quiet");
 #ifdef HYPERQ
     // Only 2 here, may change later
     cudaStream_t streams[NUM_STREAMS];
@@ -707,11 +701,8 @@ void cfd(ResultDatabase &resultDB, OptionParser &op)
     }
 #endif
 
-	for(int i = 0; i < passes; i++)
+	for(int i = 0; i < iterations; i++)
 	{
-        if(!quiet) {
-            printf("Pass %d:\n", i);
-        }
         // Time will need to be recomputed, more aggressive optimization TODO
 #ifdef HYPERQ
         copy<float>(old_variables, variables, nelr*NVAR, streams);
@@ -731,9 +722,6 @@ void cfd(ResultDatabase &resultDB, OptionParser &op)
 			time_step(j, nelr, old_variables, variables, step_factors, fluxes);
             CHECK_CUDA_ERROR();
 		}
-        if(!quiet) {
-            printf("Done.\n", i);
-        }
 	}
 
 	cudaDeviceSynchronize();

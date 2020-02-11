@@ -71,7 +71,9 @@ inline float rdwt(int *in, int *out, int width, int height, int levels)
 }
 
 template<typename T>
-int nStage2dDWT(T * in, T * out, T * backup, int pixWidth, int pixHeight, int stages, bool forward, float &transferTime, float &kernelTime, bool verbose, bool quiet)
+int nStage2dDWT(T * in, T * out, T * backup, int pixWidth, int pixHeight,
+        int stages, bool forward, float &transferTime, float &kernelTime,
+        bool verbose, bool quiet)
 {
     if(verbose && !quiet) {
         printf("%d stages of 2D DWT:\n", stages);
