@@ -123,7 +123,7 @@ template <typename T>
 void copy(T* dst, T* src, int N, cudaStream_t *stream)
 {
     cudaEventRecord(start, 0);
-	CUDA_SAFE_CALL(cudaMemcpyAsync((void*)dst, (void*)src, N*sizeof(T), cudaMemcpyDeviceToDevice, stream[0]));
+	CUDA_SAFE_CALL(cudaMemcpyAsync((void*)dst, (void*)src, N*sizeof(T), cudaMemcpyDeviceToDevice, stream[1]));
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&elapsed, start, stop);
@@ -291,7 +291,7 @@ void compute_step_factor(int nelr, float* variables, float* areas, float* step_f
 {
 	dim3 Dg(nelr / BLOCK_SIZE_2), Db(BLOCK_SIZE_2);
     cudaEventRecord(start, 0);
-	cuda_compute_step_factor<<<Dg, Db, 0, stream[1]>>>(nelr, variables, areas, step_factors);		
+	cuda_compute_step_factor<<<Dg, Db, 0, stream[0]>>>(nelr, variables, areas, step_factors);		
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&elapsed, start, stop);
