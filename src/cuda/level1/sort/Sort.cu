@@ -114,8 +114,13 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     numScanElts = numBlocks;
   } while (numScanElts > 1);
 
+#ifdef UNIFIED_MEMORY
+  uint **scanBlockSums = NULL;
+  CUDA_SAFE_CALL(cudaMallocManaged(&scanBlockSums, (level+1) * sizeof(uint *)));
+#else
   uint **scanBlockSums = (uint **)malloc((level + 1) * sizeof(uint *));
   assert(scanBlockSums != NULL);
+#endif
   numLevelsAllocated = level + 1;
   numScanElts = maxNumScanElements;
   level = 0;
@@ -125,33 +130,58 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
         max(1, (int)ceil((float)numScanElts / (4 * SCAN_BLOCK_SIZE)));
     if (numBlocks > 1) {
       // Malloc device mem for block sums
+#ifdef UNIFIED_MEMORY
+      CUDA_SAFE_CALL(cudaMallocManaged((void **)&(scanBlockSums[level]),
+                                numBlocks * sizeof(uint)));
+#else
       CUDA_SAFE_CALL(cudaMalloc((void **)&(scanBlockSums[level]),
                                 numBlocks * sizeof(uint)));
+#endif
       level++;
     }
     numScanElts = numBlocks;
   } while (numScanElts > 1);
 
+#ifdef UNIFIED_MEMORY
+  CUDA_SAFE_CALL(cudaMallocManaged((void **)&(scanBlockSums[level]), sizeof(uint)));
+#else
   CUDA_SAFE_CALL(cudaMalloc((void **)&(scanBlockSums[level]), sizeof(uint)));
+#endif
 
   // Allocate device mem for sorting kernels
   uint *dKeys, *dVals, *dTempKeys, *dTempVals;
 
+#ifdef UNIFIED_MEMORY
+  dKeys = hKeys;
+  dVals = hVals;
+  CUDA_SAFE_CALL(cudaMallocManaged((void **)&dTempKeys, bytes));
+  CUDA_SAFE_CALL(cudaMallocManaged((void **)&dTempVals, bytes));
+#else
   CUDA_SAFE_CALL(cudaMalloc((void **)&dKeys, bytes));
   CUDA_SAFE_CALL(cudaMalloc((void **)&dVals, bytes));
   CUDA_SAFE_CALL(cudaMalloc((void **)&dTempKeys, bytes));
   CUDA_SAFE_CALL(cudaMalloc((void **)&dTempVals, bytes));
+#endif
 
   // Each thread in the sort kernel handles 4 elements
   size_t numSortGroups = size / (4 * SORT_BLOCK_SIZE);
 
   uint *dCounters, *dCounterSums, *dBlockOffsets;
+#ifdef UNIFIED_MEMORY
+  CUDA_SAFE_CALL(cudaMallocManaged((void **)&dCounters,
+                            WARP_SIZE * numSortGroups * sizeof(uint)));
+  CUDA_SAFE_CALL(cudaMallocManaged((void **)&dCounterSums,
+                            WARP_SIZE * numSortGroups * sizeof(uint)));
+  CUDA_SAFE_CALL(cudaMallocManaged((void **)&dBlockOffsets,
+                            WARP_SIZE * numSortGroups * sizeof(uint)));
+#else
   CUDA_SAFE_CALL(cudaMalloc((void **)&dCounters,
                             WARP_SIZE * numSortGroups * sizeof(uint)));
   CUDA_SAFE_CALL(cudaMalloc((void **)&dCounterSums,
                             WARP_SIZE * numSortGroups * sizeof(uint)));
   CUDA_SAFE_CALL(cudaMalloc((void **)&dBlockOffsets,
                             WARP_SIZE * numSortGroups * sizeof(uint)));
+#endif
 
   int iterations = op.getOptionInt("passes");
   cudaEvent_t start, stop;
@@ -175,8 +205,12 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     // Copy inputs to GPU
     double transferTime = 0.;
     cudaEventRecord(start, 0);
+#ifdef UNIFIED_MEMORY
+    // Prefectch or just demand paging
+#else
     CUDA_SAFE_CALL(cudaMemcpy(dKeys, hKeys, bytes, cudaMemcpyHostToDevice));
     CUDA_SAFE_CALL(cudaMemcpy(dVals, hVals, bytes, cudaMemcpyHostToDevice));
+#endif
     cudaEventRecord(stop, 0);
     CUDA_SAFE_CALL(cudaEventSynchronize(stop));
     float elapsedTime;
@@ -197,8 +231,12 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 
     // Readback data from device
     cudaEventRecord(start, 0);
+#ifdef UNIFIED_MEMORY
+    // prefetch or demand paging
+#else
     CUDA_SAFE_CALL(cudaMemcpy(hKeys, dKeys, bytes, cudaMemcpyDeviceToHost));
     CUDA_SAFE_CALL(cudaMemcpy(hVals, dVals, bytes, cudaMemcpyDeviceToHost));
+#endif
     cudaEventRecord(stop, 0);
     CUDA_SAFE_CALL(cudaEventSynchronize(stop));
     cudaEventElapsedTime(&elapsedTime, start, stop);
@@ -236,8 +274,10 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   CUDA_SAFE_CALL(cudaEventDestroy(start));
   CUDA_SAFE_CALL(cudaEventDestroy(stop));
 
+#ifdef UNIFIED_MEMORY
+  CUDA_SAFE_CALL(cudaFree(scanBlockSums));
+#else
   free(scanBlockSums);
-#ifndef UNIFIED_MEMORY
   CUDA_SAFE_CALL(cudaFreeHost(hKeys));
   CUDA_SAFE_CALL(cudaFreeHost(hVals));
 #endif

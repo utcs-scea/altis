@@ -8,6 +8,7 @@
 #include "ResultDatabase.h"
 #include "OptionParser.h"
  
+#define NUM_STREAMS 2
 #define SEED 7
  
 /*
@@ -116,6 +117,19 @@ void dealloc(T* array)
 {
 	CUDA_SAFE_CALL(cudaFree((void*)array));
 }
+
+#ifdef HYPERQ
+template <typename T>
+void copy(T* dst, T* src, int N, cudaStream_t *stream)
+{
+    cudaEventRecord(start, 0);
+	CUDA_SAFE_CALL(cudaMemcpyAsync((void*)dst, (void*)src, N*sizeof(T), cudaMemcpyDeviceToDevice, stream[0]));
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed, start, stop);
+    transferTime += elapsed * 1.e-3;
+}
+#endif
 
 template <typename T>
 void copy(T* dst, T* src, int N)
@@ -271,6 +285,21 @@ __global__ void cuda_compute_step_factor(int nelr, float* variables, float* area
 	// dt = float(0.5f) * sqrtf(areas[i]) /  (||v|| + c).... but when we do time stepping, this later would need to be divided by the area, so we just do it all at once
 	step_factors[i] = float(0.5f) / (sqrtf(areas[i]) * (sqrtf(speed_sqd) + speed_of_sound));
 }
+
+#ifdef HYPERQ
+void compute_step_factor(int nelr, float* variables, float* areas, float* step_factors, cudaStream_t *stream)
+{
+	dim3 Dg(nelr / BLOCK_SIZE_2), Db(BLOCK_SIZE_2);
+    cudaEventRecord(start, 0);
+	cuda_compute_step_factor<<<Dg, Db, 0, stream[1]>>>(nelr, variables, areas, step_factors);		
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed, start, stop);
+    kernelTime += elapsed * 1.e-3;
+    CHECK_CUDA_ERROR();
+}
+#endif
+
 void compute_step_factor(int nelr, float* variables, float* areas, float* step_factors)
 {
 	dim3 Dg(nelr / BLOCK_SIZE_2), Db(BLOCK_SIZE_2);
@@ -468,6 +497,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
 
+    /*
     int passes = op.getOptionInt("passes");
     for(int i = 0; i < passes; i++) {
         kernelTime = 0.0f;
@@ -480,6 +510,8 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
             printf("Done.\n");
         }
     }
+    */
+    cfd(resultDB, op);
 
 }
 
@@ -550,10 +582,20 @@ void cfd(ResultDatabase &resultDB, OptionParser &op)
         }
 		nelr = BLOCK_SIZE_0*((nel / BLOCK_SIZE_0 )+ std::min(1, nel % BLOCK_SIZE_0));
 
+#ifdef UNIFIED_MEMORY
+        // could use prefetch and advise
+        float *h_areas = NULL;
+        CUDA_SAFE_CALL(cudaMallocManaged(&h_areas, nelr * sizeof(float)));
+        int *h_elements_surrounding_elements = NULL;
+        CUDA_SAFE_CALL(cudaMallocManaged(&h_elements_surrounding_elements,
+                                nelr * NNB * sizeof(int)));
+        float *h_normals = NULL;
+        CUDA_SAFE_CALL(cudaMallocManaged(&h_normals, nelr * NDIM * NNB * sizeof(float)));
+#else
 		float* h_areas = new float[nelr];
 		int* h_elements_surrounding_elements = new int[nelr*NNB];
 		float* h_normals = new float[nelr*NDIM*NNB];
-
+#endif
         srand(SEED);
 				
 		// read in data
@@ -600,6 +642,11 @@ void cfd(ResultDatabase &resultDB, OptionParser &op)
 			}
 		}
 		
+#ifdef UNIFIED_MEMORY
+        areas = h_areas;
+        elements_surrounding_elements = h_elements_surrounding_elements;
+        normals = h_normals;
+#else
 		areas = alloc<float>(nelr);
 		upload<float>(areas, h_areas, nelr);
 
@@ -612,22 +659,36 @@ void cfd(ResultDatabase &resultDB, OptionParser &op)
 		delete[] h_areas;
 		delete[] h_elements_surrounding_elements;
 		delete[] h_normals;
+#endif
 	}
 
 	// Create arrays and set initial conditions
+#ifdef UNIFIED_MEMORY
+    float *variables = NULL;
+    CUDA_SAFE_CALL(cudaMallocManaged(&variables, nelr*NVAR*sizeof(float)));
+#else
 	float* variables = alloc<float>(nelr*NVAR);
+#endif
 	initialize_variables(nelr, variables);
 
+#ifdef UNIFIED_MEMORY
+    float *old_variables = NULL;
+    CUDA_SAFE_CALL(cudaMallocManaged(&old_variables, nelr*NVAR*sizeof(float)));
+    float *fluxes = NULL;
+    CUDA_SAFE_CALL(cudaMallocManaged(&fluxes, nelr*NVAR*sizeof(float)));
+    float *step_factors = NULL;
+    CUDA_SAFE_CALL(cudaMallocManaged(&step_factors, nelr*sizeof(float)));
+#else
 	float* old_variables = alloc<float>(nelr*NVAR);   	
 	float* fluxes = alloc<float>(nelr*NVAR);
 	float* step_factors = alloc<float>(nelr); 
-
+#endif
 	// make sure all memory is floatly allocated before we start timing
 	initialize_variables(nelr, old_variables);
 	initialize_variables(nelr, fluxes);
 	cudaMemset( (void*) step_factors, 0, sizeof(float)*nelr );
 	// make sure CUDA isn't still doing something before we start timing
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	// these need to be computed the first time in order to compute time step
 
@@ -636,12 +697,31 @@ void cfd(ResultDatabase &resultDB, OptionParser &op)
 	// CUT_SAFE_CALL( cutCreateTimer( &timer));
 	// CUT_SAFE_CALL( cutStartTimer( timer));
 	// Begin iterations
-	for(int i = 0; i < iterations; i++)
+    int passes = op.getOptionInt("passes");
+    bool quiet = op.getOptionBool("quiet");
+#ifdef HYPERQ
+    // Only 2 here, may change later
+    cudaStream_t streams[NUM_STREAMS];
+    for (int s = 0; s < NUM_STREAMS; s++) {
+        CUDA_SAFE_CALL(cudaStreamCreate(&streams[s]));
+    }
+#endif
+
+	for(int i = 0; i < passes; i++)
 	{
+        if(!quiet) {
+            printf("Pass %d:\n", i);
+        }
+        // Time will need to be recomputed, more aggressive optimization TODO
+#ifdef HYPERQ
+        copy<float>(old_variables, variables, nelr*NVAR, streams);
+		compute_step_factor(nelr, variables, areas, step_factors, streams);
+#else
 		copy<float>(old_variables, variables, nelr*NVAR);
-		
+	
 		// for the first iteration we compute the time step
 		compute_step_factor(nelr, variables, areas, step_factors);
+#endif
         CHECK_CUDA_ERROR();
 		
 		for(int j = 0; j < RK; j++)
@@ -651,16 +731,35 @@ void cfd(ResultDatabase &resultDB, OptionParser &op)
 			time_step(j, nelr, old_variables, variables, step_factors, fluxes);
             CHECK_CUDA_ERROR();
 		}
+        if(!quiet) {
+            printf("Done.\n", i);
+        }
 	}
 
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 	//	CUT_SAFE_CALL( cutStopTimer(timer) );  
 
     if(op.getOptionBool("verbose")) {
 	    dump(variables, nel, nelr);
     }
 
-	
+#ifdef HYPERQ
+    // Only 2 here, may change later
+    for (int s = 0; s < NUM_STREAMS; s++) {
+        CUDA_SAFE_CALL(cudaStreamDestroy(streams[s]));
+    }
+#endif
+
+
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaFree(areas));
+    CUDA_SAFE_CALL(cudaFree(elements_surrounding_elements));
+    CUDA_SAFE_CALL(cudaFree(normals));
+    CUDA_SAFE_CALL(cudaFree(variables));
+    CUDA_SAFE_CALL(cudaFree(old_variables));
+    CUDA_SAFE_CALL(cudaFree(fluxes));
+    CUDA_SAFE_CALL(cudaFree(step_factors));
+#else
 	dealloc<float>(areas);
 	dealloc<int>(elements_surrounding_elements);
 	dealloc<float>(normals);
@@ -669,7 +768,7 @@ void cfd(ResultDatabase &resultDB, OptionParser &op)
 	dealloc<float>(old_variables);
 	dealloc<float>(fluxes);
 	dealloc<float>(step_factors);
-
+#endif
     char atts[1024];
     sprintf(atts, "numelements:%d", nel);
     resultDB.AddResult("cfd_kernel_time", atts, "sec", kernelTime);
