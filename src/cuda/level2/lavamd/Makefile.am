@@ -14,13 +14,13 @@ cudadir = $(bindir)/CUDA
 cuda_PROGRAMS = lavamd
 
 # How to build those programs?
+# used to be lavaMD.cpp
 lavamd_SOURCES = \
-lavaMD.cpp \
-lavaMD.h \
 main.cpp \
 util/timer/timer.c
 
 lavamd_LDADD = \
 kernel_gpu_cuda_wrapper.o \
+lavaMD.o \
 $(CUDA_LIBS) $(LIBS) -lm
 

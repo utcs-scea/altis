@@ -5,6 +5,7 @@
 #include "OptionParser.h"
 #include "ResultDatabase.h"
 #include "cuda.h"
+#include "cudacommon.h"
 
 #define fp double
 #define SEED 7

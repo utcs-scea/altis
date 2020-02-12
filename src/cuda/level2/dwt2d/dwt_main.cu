@@ -24,6 +24,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <cuda_profiler_api.h>
+
 #include <unistd.h>
 #include <error.h>
 #include <stdio.h>
@@ -85,19 +87,32 @@ void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &res
 #endif
     CUDA_SAFE_CALL(cudaMemset(c_r_out, 0, componentSize));
     
+
+#ifdef HYPERQ
+        cudaStream_t streams[3];
+        for (int s = 0; s < 3; s++) {
+            CUDA_SAFE_CALL(cudaStreamCreate(&streams[s]));
+        }
+#endif
+
 #ifdef UNIFIED_MEMORY
 #ifdef HYPERQ
     T *backup2, *backup3;
     CUDA_SAFE_CALL(cudaMallocManaged((void**)&backup, componentSize));
     CUDA_SAFE_CALL(cudaMallocManaged((void**)&backup2, componentSize));
     CUDA_SAFE_CALL(cudaMallocManaged((void**)&backup3, componentSize));
+
+    // prefetch to increase performance
+    CUDA_SAFE_CALL(cudaMemPrefetchAsync(backup, componentSize, 0, streams[0]));
+    CUDA_SAFE_CALL(cudaMemPrefetchAsync(backup2, componentSize, 0, streams[1]));
+    CUDA_SAFE_CALL(cudaMemPrefetchAsync(backup3, componentSize, 0, streams[2]));
 #else
     CUDA_SAFE_CALL(cudaMallocManaged((void**)&backup, componentSize));
 #endif
 
 #else
 #ifdef HYPERQ
-    T *backup2, *bakcup3;
+    T *backup2, *backup3;
     CUDA_SAFE_CALL(cudaMalloc((void**)&backup, componentSize));
     CUDA_SAFE_CALL(cudaMalloc((void**)&backup2, componentSize));
     CUDA_SAFE_CALL(cudaMalloc((void**)&backup3, componentSize));
@@ -109,12 +124,7 @@ void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &res
 	
     if (d->components == 3) {
 
-#ifdef HYPERQ
-        cudaStream_t streams[3];
-        for (int s = 0; s < 3; s++) {
-            CUDA_SAFE_CALL(cudaStreamCreate(&streams[s]));
-        }
-#endif
+
         /* Alloc two more buffers for G and B */
         T *c_g_out, *c_b_out;
 #ifdef UNIFIED_MEMORY
@@ -165,8 +175,9 @@ cudaEventCreate(&start);
 cudaEventCreate(&stop);
 cudaEventRecord(start, 0);
 
-for (int i = 0; i < 15; i++) {
+cudaProfilerStart();
 #ifdef HYPERQ
+    // So far no concurrent kernel running, possible resource utilization
         nStage2dDWT(c_r, c_r_out, backup, d->pixWidth, d->pixHeight, d->dwtLvls, forward, transferTime, kernelTime, verbose, quiet, streams[0]);
         nStage2dDWT(c_g, c_g_out, backup2, d->pixWidth, d->pixHeight, d->dwtLvls, forward, transferTime, kernelTime, verbose, quiet, streams[1]);
         nStage2dDWT(c_b, c_b_out, backup3, d->pixWidth, d->pixHeight, d->dwtLvls, forward, transferTime, kernelTime, verbose, quiet, streams[2]);
@@ -176,7 +187,7 @@ for (int i = 0; i < 15; i++) {
         nStage2dDWT(c_g, c_g_out, backup, d->pixWidth, d->pixHeight, d->dwtLvls, forward, transferTime, kernelTime, verbose, quiet);
         nStage2dDWT(c_b, c_b_out, backup, d->pixWidth, d->pixHeight, d->dwtLvls, forward, transferTime, kernelTime, verbose, quiet);
 #endif
-}
+cudaProfilerStop();
 
 cudaEventRecord(stop, 0);
 cudaEventSynchronize(stop);

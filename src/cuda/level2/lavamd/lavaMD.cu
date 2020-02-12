@@ -69,7 +69,11 @@ void runTest(ResultDatabase &resultDB, OptionParser &op, int boxes1d) {
     dim_cpu.box_mem = dim_cpu.number_boxes * sizeof(box_str);
 
     // allocate boxes
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaMallocManaged(&box_cpu, dim_cpu.box_mem));
+#else
     box_cpu = (box_str*)malloc(dim_cpu.box_mem);
+#endif
 
     // initialize number of home boxes
     nh = 0;
@@ -128,7 +132,11 @@ void runTest(ResultDatabase &resultDB, OptionParser &op, int boxes1d) {
     } // home boxes in z direction
 
     // input (distances)
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaMallocManaged(&rv_cpu, dim_cpu.space_mem));
+#else
     rv_cpu = (FOUR_VECTOR*)malloc(dim_cpu.space_mem);
+#endif
     for(i=0; i<dim_cpu.space_elem; i=i+1){
         rv_cpu[i].v = (rand()%10 + 1) / 10.0;			// get a number in the range 0.1 - 1.0
         rv_cpu[i].x = (rand()%10 + 1) / 10.0;			// get a number in the range 0.1 - 1.0
@@ -137,13 +145,21 @@ void runTest(ResultDatabase &resultDB, OptionParser &op, int boxes1d) {
     }
 
     // input (charge)
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaMallocManaged(&qv_cpu, dim_cpu.space_mem2));
+#else
     qv_cpu = (fp*)malloc(dim_cpu.space_mem2);
+#endif
     for(i=0; i<dim_cpu.space_elem; i=i+1){
         qv_cpu[i] = (rand()%10 + 1) / 10.0;			// get a number in the range 0.1 - 1.0
     }
 
     // output (forces)
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaMallocManaged(&fv_cpu, dim_cpu.space_mem));
+#else
     fv_cpu = (FOUR_VECTOR*)malloc(dim_cpu.space_mem);
+#endif
     for(i=0; i<dim_cpu.space_elem; i=i+1){
         fv_cpu[i].v = 0;								// set to 0, because kernels keeps adding to initial value
         fv_cpu[i].x = 0;								// set to 0, because kernels keeps adding to initial value
@@ -169,8 +185,15 @@ void runTest(ResultDatabase &resultDB, OptionParser &op, int boxes1d) {
         fclose(fptr);
     }
 
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaFree(rv_cpu));
+    CUDA_SAFE_CALL(cudaFree(qv_cpu));
+    CUDA_SAFE_CALL(cudaFree(fv_cpu));
+    CUDA_SAFE_CALL(cudaFree(box_cpu));
+#else
     free(rv_cpu);
     free(qv_cpu);
     free(fv_cpu);
     free(box_cpu);
+#endif
 }

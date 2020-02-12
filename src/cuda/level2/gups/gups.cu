@@ -257,10 +257,12 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
          prop.maxThreadsPerMultiProcessor);
 
   benchtype *d_t;
-  if (cudaMalloc((void **)&d_t, n * sizeof(benchtype)) != cudaSuccess) {
-    fprintf(stderr, "Memory allocation failed!\n");
-    exit(-1);
-  }
+#ifdef UNIFIED_MEMORY
+  CUDA_SAFE_CALL(cudaMallocManaged((void **)&d_t, n * sizeof(benchtype))); 
+  // no prefetch or advise
+#else
+  CUDA_SAFE_CALL(cudaMalloc((void **)&d_t, n * sizeof(benchtype))); 
+#endif
 
   // max warp size
   dim3 grid(prop.multiProcessorCount *

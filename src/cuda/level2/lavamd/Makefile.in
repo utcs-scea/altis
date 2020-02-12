@@ -102,11 +102,11 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(cudadir)"
 PROGRAMS = $(cuda_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
-am_lavamd_OBJECTS = lavaMD.$(OBJEXT) main.$(OBJEXT) \
-	util/timer/timer.$(OBJEXT)
+am_lavamd_OBJECTS = main.$(OBJEXT) util/timer/timer.$(OBJEXT)
 lavamd_OBJECTS = $(am_lavamd_OBJECTS)
 am__DEPENDENCIES_1 =
-lavamd_DEPENDENCIES = kernel_gpu_cuda_wrapper.o $(am__DEPENDENCIES_1)
+lavamd_DEPENDENCIES = kernel_gpu_cuda_wrapper.o lavaMD.o \
+	$(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -301,14 +301,14 @@ AM_CPPFLAGS = $(CUDA_INC)
 cudadir = $(bindir)/CUDA
 
 # How to build those programs?
+# used to be lavaMD.cpp
 lavamd_SOURCES = \
-lavaMD.cpp \
-lavaMD.h \
 main.cpp \
 util/timer/timer.c
 
 lavamd_LDADD = \
 kernel_gpu_cuda_wrapper.o \
+lavaMD.o \
 $(CUDA_LIBS) $(LIBS) -lm
 
 all: all-am
@@ -406,7 +406,6 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lavaMD.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@util/timer/$(DEPDIR)/timer.Po@am__quote@
 
