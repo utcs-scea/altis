@@ -335,6 +335,32 @@ namespace dwt_cuda {
     kernelTime += elapsedTime * 1.e-3;
     CHECK_CUDA_ERROR();
   }
+
+#ifdef HYPERQ
+  template <int WIN_SX, int WIN_SY>
+  void launchRDWT97Kernel (float * in, float * out, int sx, int sy, float &kernelTime, cudaStream_t stream) {
+    // compute optimal number of steps of each sliding window
+    const int steps = divRndUp(sy, 15 * WIN_SY);
+    
+    // prepare grid size
+    dim3 gSize(divRndUp(sx, WIN_SX), divRndUp(sy, WIN_SY * steps));
+    
+    // timing events
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    float elapsedTime;
+
+    // finally launch kernel
+    cudaEventRecord(start, 0);
+    rdwt97Kernel<WIN_SX, WIN_SY><<<gSize, WIN_SX, 0, stream>>>(in, out, sx, sy, steps);
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsedTime, start, stop);
+    kernelTime += elapsedTime * 1.e-3;
+    CHECK_CUDA_ERROR();
+  }
+#endif
   
   
   
@@ -356,7 +382,7 @@ namespace dwt_cuda {
       kernelTime += rdwt97(in, out, llSizeX, llSizeY, levels - 1);
       
       // copy reverse transformed LL band from output back into the input
-      memCopy(in, out, llSizeX, llSizeY);
+      //memCopy(in, out, llSizeX, llSizeY);
     }
     
     // select right width of kernel for the size of the image
@@ -369,6 +395,32 @@ namespace dwt_cuda {
     }
       return kernelTime;
   }
+
+#ifdef HYPERQ
+  float rdwt97(float * in, float * out, int sizeX, int sizeY, int levels, cudaStream_t stream) {
+    float kernelTime = 0;
+
+    if(levels > 1) {
+      // let this function recursively reverse transform deeper levels first
+      const int llSizeX = divRndUp(sizeX, 2);
+      const int llSizeY = divRndUp(sizeY, 2);
+      kernelTime += rdwt97(in, out, llSizeX, llSizeY, levels - 1, stream);
+      
+      // copy reverse transformed LL band from output back into the input
+      //memCopy(in, out, llSizeX, llSizeY);
+    }
+    
+    // select right width of kernel for the size of the image
+    if(sizeX >= 960) {
+      launchRDWT97Kernel<192, 8>(in, out, sizeX, sizeY, kernelTime, stream);
+    } else if (sizeX >= 480) {
+      launchRDWT97Kernel<128, 6>(in, out, sizeX, sizeY, kernelTime, stream);
+    } else {
+      launchRDWT97Kernel<64, 6>(in, out, sizeX, sizeY, kernelTime, stream);
+    }
+      return kernelTime;
+  }
+#endif
   
 
   

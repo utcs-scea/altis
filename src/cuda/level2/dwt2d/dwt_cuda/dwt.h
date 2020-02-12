@@ -70,6 +70,9 @@ namespace dwt_cuda {
   /// @param sizeY   height of input image (in pixels)
   /// @param levels  number of recursive DWT levels
   float fdwt53(int * in, int * out, int sizeX, int sizeY, int levels, bool verbose, bool quiet);
+#ifdef HYPERQ
+  float fdwt53(int * in, int * out, int sizeX, int sizeY, int levels, bool verbose, bool quiet, cudaStream_t stream);
+#endif
   
   
   /// Reverse 5/3 2D DWT. See common rules (above) for more details.
@@ -81,6 +84,9 @@ namespace dwt_cuda {
   /// @param sizeY   height of input image (in pixels)
   /// @param levels  number of recursive DWT levels
   float rdwt53(int * in, int * out, int sizeX, int sizeY, int levels);
+#ifdef HYPERQ
+  float rdwt53(int * in, int * out, int sizeX, int sizeY, int levels, cudaStream_t stream);
+#endif
   
   
   /// Forward 9/7 2D DWT. See common rules (above) for more details.
@@ -91,6 +97,9 @@ namespace dwt_cuda {
   /// @param sizeY   height of input image (in pixels)
   /// @param levels  number of recursive DWT levels
   float fdwt97(float * in, float * out, int sizeX, int sizeY, int levels);
+#ifdef HYPERQ
+  float fdwt97(float * in, float * out, int sizeX, int sizeY, int levels, cudaStream_t stream);
+#endif
   
   
   /// Reverse 9/7 2D DWT. See common rules (above) for more details.
@@ -102,6 +111,9 @@ namespace dwt_cuda {
   /// @param sizeY   height of input image (in pixels)
   /// @param levels  number of recursive DWT levels
   float rdwt97(float * in, float * out, int sizeX, int sizeY, int levels);
+#ifdef HYPERQ
+  float rdwt97(float * in, float * out, int sizeX, int sizeY, int levels, cudaStream_t stream);
+#endif
   
   
 } // namespace dwt_cuda

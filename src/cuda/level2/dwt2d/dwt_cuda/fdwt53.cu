@@ -366,6 +366,40 @@ namespace dwt_cuda {
     CHECK_CUDA_ERROR();
   }
   
+#ifdef HYPERQ
+  template <int WIN_SX, int WIN_SY>
+  void launchFDWT53Kernel (int * in, int * out, int sx, int sy, float &kernelTime, bool verbose, bool quiet, cudaStream_t stream) {
+    // compute optimal number of steps of each sliding window
+	
+    const int steps = divRndUp(sy, 15 * WIN_SY);
+
+	int gx = divRndUp(sx, WIN_SX);
+	int gy = divRndUp(sy, WIN_SY * steps);
+
+    // prepare grid size
+    dim3 gSize(divRndUp(sx, WIN_SX), divRndUp(sy, WIN_SY * steps));
+
+    if(verbose && !quiet) {
+        printf("sliding steps = %d , gx = %d , gy = %d \n", steps, gx, gy);
+        printf("\n globalx=%d, globaly=%d, blocksize=%d\n", gSize.x, gSize.y, WIN_SX);
+    }
+    
+    // timing events
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    float elapsedTime;
+
+    // run kernel, possibly measure time and finally check the call
+    cudaEventRecord(start, 0);
+    fdwt53Kernel<WIN_SX, WIN_SY><<<gSize, WIN_SX, 0, stream>>>(in, out, sx, sy, steps);
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsedTime, start, stop);
+    kernelTime += elapsedTime * 1.e-3;
+    CHECK_CUDA_ERROR();
+  }
+#endif
   
   
   /// Forward 5/3 2D DWT. See common rules (above) for more details.
@@ -392,13 +426,41 @@ namespace dwt_cuda {
       // copy output's LL band back into input buffer
       const int llSizeX = divRndUp(sizeX, 2); 
       const int llSizeY = divRndUp(sizeY, 2);
-      memCopy(in, out, llSizeX, llSizeY); //the function memCopy in cuda_dwt/common.h line 238
+      //memCopy(in, out, llSizeX, llSizeY); //the function memCopy in cuda_dwt/common.h line 238
       
       // run remaining levels of FDWT
       kernelTime += fdwt53(in, out, llSizeX, llSizeY, levels - 1, verbose, quiet);
     }
     return kernelTime;
   }
+
+#ifdef HYPERQ
+  float fdwt53(int * in, int * out, int sizeX, int sizeY, int levels, bool verbose, bool quiet, cudaStream_t stream) {
+    float kernelTime = 0;
+
+    // select right width of kernel for the size of the image
+    if(sizeX >= 960) {
+      launchFDWT53Kernel<192, 8>(in, out, sizeX, sizeY, kernelTime, verbose, quiet, stream);
+    } else if (sizeX >= 480) {
+      launchFDWT53Kernel<128, 8>(in, out, sizeX, sizeY, kernelTime, verbose, quiet, stream);
+    } else {
+      launchFDWT53Kernel<64, 8>(in, out, sizeX, sizeY, kernelTime, verbose, quiet, stream);
+    }
+    
+    // if this was not the last level, continue recursively with other levels
+    if(levels > 1) {
+      // copy output's LL band back into input buffer
+      const int llSizeX = divRndUp(sizeX, 2); 
+      const int llSizeY = divRndUp(sizeY, 2);
+      //memCopy(in, out, llSizeX, llSizeY); //the function memCopy in cuda_dwt/common.h line 238
+      //memCopy(in, out, llSizeX, llSizeY, stream); //the function memCopy in cuda_dwt/common.h line 238
+      
+      // run remaining levels of FDWT
+      kernelTime += fdwt53(in, out, llSizeX, llSizeY, levels - 1, verbose, quiet, stream);
+    }
+    return kernelTime;
+  }
+#endif
   
   
 

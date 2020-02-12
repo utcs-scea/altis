@@ -159,10 +159,29 @@ void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &res
 
         rgbToComponents(c_r, c_g, c_b, d->srcImg, d->pixWidth, d->pixHeight, transferTime, kernelTime);
         /* Compute DWT and always store into file */
+float time;
+cudaEvent_t start, stop;
+cudaEventCreate(&start);
+cudaEventCreate(&stop);
+cudaEventRecord(start, 0);
+
+for (int i = 0; i < 15; i++) {
+#ifdef HYPERQ
+        nStage2dDWT(c_r, c_r_out, backup, d->pixWidth, d->pixHeight, d->dwtLvls, forward, transferTime, kernelTime, verbose, quiet, streams[0]);
+        nStage2dDWT(c_g, c_g_out, backup2, d->pixWidth, d->pixHeight, d->dwtLvls, forward, transferTime, kernelTime, verbose, quiet, streams[1]);
+        nStage2dDWT(c_b, c_b_out, backup3, d->pixWidth, d->pixHeight, d->dwtLvls, forward, transferTime, kernelTime, verbose, quiet, streams[2]);
+
+#else
         nStage2dDWT(c_r, c_r_out, backup, d->pixWidth, d->pixHeight, d->dwtLvls, forward, transferTime, kernelTime, verbose, quiet);
         nStage2dDWT(c_g, c_g_out, backup, d->pixWidth, d->pixHeight, d->dwtLvls, forward, transferTime, kernelTime, verbose, quiet);
         nStage2dDWT(c_b, c_b_out, backup, d->pixWidth, d->pixHeight, d->dwtLvls, forward, transferTime, kernelTime, verbose, quiet);
+#endif
+}
 
+cudaEventRecord(stop, 0);
+cudaEventSynchronize(stop);
+cudaEventElapsedTime(&time, start, stop);
+printf("Time to generate:  %3.1f ms \n", time);
         // -------test----------
         // T *h_r_out=(T*)malloc(componentSize);
 		// cudaMemcpy(h_r_out, c_g_out, componentSize, cudaMemcpyDeviceToHost);

@@ -42,6 +42,13 @@ inline float fdwt(float *in, float *out, int width, int height, int levels, bool
 {
         return dwt_cuda::fdwt97(in, out, width, height, levels);
 }
+
+#ifdef HYPERQ
+inline float fdwt(float *in, float *out, int width, int height, int levels, bool verbose, bool quiet, cudaStream_t stream)
+{
+        return dwt_cuda::fdwt97(in, out, width, height, levels, stream);
+}
+#endif
 /*
 inline void fdwt(float *in, float *out, int width, int height, int levels, float *diffOut)
 {
@@ -53,6 +60,13 @@ inline float fdwt(int *in, int *out, int width, int height, int levels, bool ver
 {
         return dwt_cuda::fdwt53(in, out, width, height, levels, verbose, quiet);
 }
+
+#ifdef HYPERQ
+inline float fdwt(int *in, int *out, int width, int height, int levels, bool verbose, bool quiet, cudaStream_t stream)
+{
+        return dwt_cuda::fdwt53(in, out, width, height, levels, verbose, quiet, stream);
+}
+#endif
 /*
 inline void fdwt(int *in, int *out, int width, int height, int levels, int *diffOut)
 {
@@ -65,10 +79,24 @@ inline float rdwt(float *in, float *out, int width, int height, int levels)
         return dwt_cuda::rdwt97(in, out, width, height, levels);
 }
 
+#ifdef HYPERQ
+inline float rdwt(float *in, float *out, int width, int height, int levels, cudaStream_t stream)
+{
+        return dwt_cuda::rdwt97(in, out, width, height, levels, stream);
+}
+#endif
+
 inline float rdwt(int *in, int *out, int width, int height, int levels)
 {
         return dwt_cuda::rdwt53(in, out, width, height, levels);
 }
+
+#ifdef HYPERQ
+inline float rdwt(int *in, int *out, int width, int height, int levels, cudaStream_t stream)
+{
+        return dwt_cuda::rdwt53(in, out, width, height, levels, stream);
+}
+#endif
 
 template<typename T>
 int nStage2dDWT(T * in, T * out, T * backup, int pixWidth, int pixHeight,
@@ -107,6 +135,45 @@ int nStage2dDWT(T * in, T * out, T * backup, int pixWidth, int pixHeight,
 template int nStage2dDWT<float>(float*, float*, float*, int, int, int, bool, float&, float&, bool, bool);
 template int nStage2dDWT<int>(int*, int*, int*, int, int, int, bool, float&, float&, bool, bool);
 
+
+#ifdef HYPERQ
+template<typename T>
+int nStage2dDWT(T * in, T * out, T * backup, int pixWidth, int pixHeight,
+        int stages, bool forward, float &transferTime, float &kernelTime,
+        bool verbose, bool quiet, cudaStream_t stream)
+{
+    if(verbose && !quiet) {
+        printf("%d stages of 2D DWT:\n", stages);
+    }
+    
+    /* create backup of input, because each test iteration overwrites it */
+    const int size = pixHeight * pixWidth * sizeof(T);
+
+    /* timing events */
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    float elapsed;
+
+    cudaEventRecord(start, 0);
+    cudaMemcpyAsync(backup, in, size, cudaMemcpyDeviceToDevice, stream);
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed, start, stop);
+    transferTime += elapsed * 1.e-3;
+    
+    /* Measure time of individual levels. */
+    if(forward) {
+        kernelTime += fdwt(in, out, pixWidth, pixHeight, stages, verbose, quiet, stream);
+    } else {
+        kernelTime += rdwt(in, out, pixWidth, pixHeight, stages, stream);
+    }
+    
+    return 0;
+}
+template int nStage2dDWT<float>(float*, float*, float*, int, int, int, bool, float&, float&, bool, bool, cudaStream_t);
+template int nStage2dDWT<int>(int*, int*, int*, int, int, int, bool, float&, float&, bool, bool, cudaStream_t);
+#endif
 
 
 /*

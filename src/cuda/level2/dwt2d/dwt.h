@@ -27,6 +27,11 @@
 #ifndef _DWT_H
 #define _DWT_H
 
+#ifdef HYPERQ
+template<typename T> 
+int nStage2dDWT(T *in, T *out, T * backup, int pixWidth, int pixHeight, int stages, bool forward, float &transferTime, float &kernelTime, bool verbose, bool quiet, cudaStream_t stream);
+#endif
+
 template<typename T> 
 int nStage2dDWT(T *in, T *out, T * backup, int pixWidth, int pixHeight, int stages, bool forward, float &transferTime, float &kernelTime, bool verbose, bool quiet);
 
