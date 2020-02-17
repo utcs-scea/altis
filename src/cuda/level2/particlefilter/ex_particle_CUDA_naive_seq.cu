@@ -326,7 +326,12 @@ void videoSequence(int * I, int IszX, int IszY, int Nfr, int * seed){
 	}
 	
 	/*dilate matrix*/
+#ifdef UNIFIED_MEMORY
+    int *newMatrix = NULL;
+    CUDA_SAFE_CALL(cudaMallocManaged(&newMatrix, sizeof(int) * IszX * IszY * Nfr));
+#else
 	int * newMatrix = (int *)malloc(sizeof(int)*IszX*IszY*Nfr);
+#endif
 	imdilate_disk(I, IszX, IszY, Nfr, 5, newMatrix);
 	int x, y;
 	for(x = 0; x < IszX; x++){
@@ -336,7 +341,11 @@ void videoSequence(int * I, int IszX, int IszY, int Nfr, int * seed){
 			}
 		}
 	}
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaFree(newMatrix));
+#else
 	free(newMatrix);
+#endif
 	
 	/*define background, add noise*/
 	setIf(0, 100, I, &IszX, &IszY, &Nfr);
@@ -408,7 +417,12 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 	//expected object locations, compared to center
 	int radius = 5;
 	int diameter = radius*2 - 1;
+#ifdef UNIFIED_MEMORY
+    int *disk = NULL;
+    CUDA_SAFE_CALL(cudaMallocManaged(&disk, diameter * diameter * sizeof(int)));
+#else
 	int * disk = (int *)malloc(diameter*diameter*sizeof(int));
+#endif
 	strelDisk(disk, radius);
 	int countOnes = 0;
 	int x, y;
@@ -418,21 +432,46 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 				countOnes++;
 		}
 	}
+#ifdef UNIFIED_MEMORY
+    double *objxy = NULL;
+    CUDA_SAFE_CALL(cudaMallocManaged(&objxy, countOnes*2*sizeof(double)));
+#else
 	double * objxy = (double *)malloc(countOnes*2*sizeof(double));
+#endif
 	getneighbors(disk, countOnes, objxy, radius);
 	
 	//initial weights are all equal (1/Nparticles)
+#ifdef UNIFIED_MEMORY
+    double *weights = NULL;
+    CUDA_SAFE_CALL(cudaMallocManaged(&weights, sizeof(double) * Nparticles));
+#else
 	double * weights = (double *)malloc(sizeof(double)*Nparticles);
+#endif
 	for(x = 0; x < Nparticles; x++){
 		weights[x] = 1/((double)(Nparticles));
 	}
 	//initial likelihood to 0.0
+#ifdef UNIFIED_MEMORY
+    double *likelihood = NULL;
+    CUDA_SAFE_CALL(cudaMallocManaged(&likelihood, sizeof(double) * Nparticles));
+    double *arrayX = NULL;
+    CUDA_SAFE_CALL(cudaMallocManaged(&arrayX, sizeof(double) * Nparticles));
+    double *arrayY = NULL;
+    CUDA_SAFE_CALL(cudaMallocManaged(&arrayY, sizeof(double) * Nparticles));
+    double *xj = NULL;
+    CUDA_SAFE_CALL(cudaMallocManaged(&xj, sizeof(double) * Nparticles));
+    double *yj = NULL;
+    CUDA_SAFE_CALL(cudaMallocManaged(&yj, sizeof(double) * Nparticles));
+    double *CDF = NULL;
+    CUDA_SAFE_CALL(cudaMallocManaged(&CDF, sizeof(double) * Nparticles));
+#else
 	double * likelihood = (double *)malloc(sizeof(double)*Nparticles);
 	double * arrayX = (double *)malloc(sizeof(double)*Nparticles);
 	double * arrayY = (double *)malloc(sizeof(double)*Nparticles);
 	double * xj = (double *)malloc(sizeof(double)*Nparticles);
 	double * yj = (double *)malloc(sizeof(double)*Nparticles);
 	double * CDF = (double *)malloc(sizeof(double)*Nparticles);
+#endif
 	
 	//GPU copies of arrays
 	double * arrayX_GPU;
@@ -441,17 +480,33 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 	double * yj_GPU;
 	double * CDF_GPU;
 	
+#ifdef UNIFIED_MEMORY
+    int *ind = NULL;
+    CUDA_SAFE_CALL(cudaMallocManaged(&ind, sizeof(int) * countOnes));
+    double *u = NULL;
+    CUDA_SAFE_CALL(cudaMallocManaged(&u, sizeof(double) * Nparticles));
+#else
 	int * ind = (int*)malloc(sizeof(int)*countOnes);
 	double * u = (double *)malloc(sizeof(double)*Nparticles);
+#endif
 	double * u_GPU;
 	
 	//CUDA memory allocation
+#ifdef UNIFIED_MEMORY
+    arrayX_GPU = arrayX;
+    arrayY_GPU = arrayY;
+    xj_GPU = xj;
+    yj_GPU = yj;
+    CDF_GPU = CDF;
+    u_GPU = u;
+#else
 	CUDA_SAFE_CALL(cudaMalloc((void **) &arrayX_GPU, sizeof(double)*Nparticles));
 	CUDA_SAFE_CALL(cudaMalloc((void **) &arrayY_GPU, sizeof(double)*Nparticles));
 	CUDA_SAFE_CALL(cudaMalloc((void **) &xj_GPU, sizeof(double)*Nparticles));
 	CUDA_SAFE_CALL(cudaMalloc((void **) &yj_GPU, sizeof(double)*Nparticles));
 	CUDA_SAFE_CALL(cudaMalloc((void **) &CDF_GPU, sizeof(double)*Nparticles));
 	CUDA_SAFE_CALL(cudaMalloc((void **) &u_GPU, sizeof(double)*Nparticles));
+#endif
 	
 	for(x = 0; x < Nparticles; x++){
 		arrayX[x] = xe;
@@ -530,12 +585,16 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 		//CUDA memory copying from CPU memory to GPU memory
         cudaEventRecord(start, 0);
 
+#ifdef UNIFIED_MEMORY
+        // Use demand paging, or hyperq async cpy
+#else
 		cudaMemcpy(arrayX_GPU, arrayX, sizeof(double)*Nparticles, cudaMemcpyHostToDevice);
 		cudaMemcpy(arrayY_GPU, arrayY, sizeof(double)*Nparticles, cudaMemcpyHostToDevice);
 		cudaMemcpy(xj_GPU, xj, sizeof(double)*Nparticles, cudaMemcpyHostToDevice);
 		cudaMemcpy(yj_GPU, yj, sizeof(double)*Nparticles, cudaMemcpyHostToDevice);
 		cudaMemcpy(CDF_GPU, CDF, sizeof(double)*Nparticles, cudaMemcpyHostToDevice);
 		cudaMemcpy(u_GPU, u, sizeof(double)*Nparticles, cudaMemcpyHostToDevice);
+#endif
 
         cudaEventRecord(stop, 0);
         cudaEventSynchronize(stop);
@@ -556,8 +615,12 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
         cudaThreadSynchronize();
 		//CUDA memory copying back from GPU to CPU memory
         cudaEventRecord(start, 0);
+#ifdef UNIFIED_MEMORY
+        // no need for copy right now, could use demand paging or async stream
+#else
 		cudaMemcpy(yj, yj_GPU, sizeof(double)*Nparticles, cudaMemcpyDeviceToHost);
 		cudaMemcpy(xj, xj_GPU, sizeof(double)*Nparticles, cudaMemcpyDeviceToHost);
+#endif
         cudaEventRecord(stop, 0);
         cudaEventSynchronize(stop);
         cudaEventElapsedTime(&elapsedTime, start, stop);
@@ -580,14 +643,29 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
     resultDB.AddOverall("Time", "sec", kernelTime+transferTime);
 	
 	//CUDA freeing of memory
+#ifndef UNIFIED_MEMORY
 	cudaFree(u_GPU);
 	cudaFree(CDF_GPU);
 	cudaFree(yj_GPU);
 	cudaFree(xj_GPU);
 	cudaFree(arrayY_GPU);
 	cudaFree(arrayX_GPU);
+#endif
 	
 	//free memory
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaFree(disk));
+    CUDA_SAFE_CALL(cudaFree(objxy));
+    CUDA_SAFE_CALL(cudaFree(weights));
+    CUDA_SAFE_CALL(cudaFree(likelihood));
+    CUDA_SAFE_CALL(cudaFree(arrayX));
+    CUDA_SAFE_CALL(cudaFree(arrayY));
+    CUDA_SAFE_CALL(cudaFree(xj));
+    CUDA_SAFE_CALL(cudaFree(yj));
+    CUDA_SAFE_CALL(cudaFree(CDF));
+    CUDA_SAFE_CALL(cudaFree(u));
+    CUDA_SAFE_CALL(cudaFree(ind));
+#else
 	free(disk);
 	free(objxy);
 	free(weights);
@@ -599,6 +677,7 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 	free(CDF);
 	free(u);
 	free(ind);
+#endif
 }
 
 void addBenchmarkSpecOptions(OptionParser &op) {
@@ -663,17 +742,32 @@ void particlefilter_naive(ResultDatabase &resultDB, int args[]){
     Nparticles = args[3];
 
 	//establish seed
+#ifdef UNIFIED_MEMORY
+    int *seed = NULL;
+    CUDA_SAFE_CALL(cudaMallocManaged(&seed, sizeof(int) * Nparticles));
+#else
 	int * seed = (int *)malloc(sizeof(int)*Nparticles);
+#endif
 	int i;
 	for(i = 0; i < Nparticles; i++)
 		seed[i] = time(0)*i;
 	//malloc matrix
+#ifdef UNIFIED_MEMORY
+    int *I = NULL;
+    CUDA_SAFE_CALL(cudaMallocManaged(&I, sizeof(int) * IszX * IszY * Nfr));
+#else
 	int * I = (int *)malloc(sizeof(int)*IszX*IszY*Nfr);
+#endif
 	//call video sequence
 	videoSequence(I, IszX, IszY, Nfr, seed);
 	//call particle filter
 	particleFilter(I, IszX, IszY, Nfr, seed, Nparticles, resultDB);
 	
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaFree(seed));
+    CUDA_SAFE_CALL(cudaFree(I));
+#else
 	free(seed);
 	free(I);
+#endif
 }

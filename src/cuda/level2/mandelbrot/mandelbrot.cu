@@ -211,8 +211,12 @@ void mandelbrot(int size, int MAX_DWELL) {
 	int w = size, h = size;
 	size_t dwell_sz = w * h * sizeof(int);
 	int *h_dwells, *d_dwells;
+#ifdef UNIFIED_MEMORY
+	CUDA_SAFE_CALL(cudaMallocManaged((void**)&d_dwells, dwell_sz));
+#else
 	CUDA_SAFE_CALL(cudaMalloc((void**)&d_dwells, dwell_sz));
 	h_dwells = (int*)malloc(dwell_sz);
+#endif
 
 	// compute the dwells, copy them back
 	dim3 bs(64, 4), grid(divup(w, bs.x), divup(h, bs.y));
@@ -227,7 +231,11 @@ void mandelbrot(int size, int MAX_DWELL) {
     CHECK_CUDA_ERROR();
 	CUDA_SAFE_CALL(cudaThreadSynchronize());
     cudaEventRecord(start, 0);
+#ifdef UNIFIED_MEMORY
+    h_dwells = d_dwells;
+#else
 	CUDA_SAFE_CALL(cudaMemcpy(h_dwells, d_dwells, dwell_sz, cudaMemcpyDeviceToHost));
+#endif
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&elapsed, start, stop);
@@ -235,7 +243,9 @@ void mandelbrot(int size, int MAX_DWELL) {
 
 	// free data
 	cudaFree(d_dwells);
+#ifndef UNIFIED_MEMORY
 	free(h_dwells);
+#endif
 }
 
 void mandelbrot_dyn(int size, int MAX_DWELL) {
@@ -243,8 +253,12 @@ void mandelbrot_dyn(int size, int MAX_DWELL) {
 	int w = size, h = size;
 	size_t dwell_sz = w * h * sizeof(int);
 	int *h_dwells, *d_dwells;
+#ifdef UNIFIED_MEMORY
+	CUDA_SAFE_CALL(cudaMallocManaged((void**)&d_dwells, dwell_sz));
+#else
 	CUDA_SAFE_CALL(cudaMalloc((void**)&d_dwells, dwell_sz));
 	h_dwells = (int*)malloc(dwell_sz);
+#endif
 
 	// compute the dwells, copy them back
 	dim3 bs(BSX, BSY), grid(INIT_SUBDIV, INIT_SUBDIV);
@@ -259,7 +273,12 @@ void mandelbrot_dyn(int size, int MAX_DWELL) {
     CHECK_CUDA_ERROR();
 	CUDA_SAFE_CALL(cudaThreadSynchronize());
     cudaEventRecord(start, 0);
+#ifdef UNIFIED_MEMORY
+    // Prefetch can be used
+    h_dwells = d_dwells;
+#else
 	CUDA_SAFE_CALL(cudaMemcpy(h_dwells, d_dwells, dwell_sz, cudaMemcpyDeviceToHost));
+#endif
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&elapsed, start, stop);
@@ -267,7 +286,9 @@ void mandelbrot_dyn(int size, int MAX_DWELL) {
 
 	// free data
 	cudaFree(d_dwells);
+#ifndef UNIFIED_MEMORY
 	free(h_dwells);
+#endif
 }
 
 void addBenchmarkSpecOptions(OptionParser &op) {
@@ -318,7 +339,6 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
         resultDB.AddResult("mandelbrot_total_time", atts, "sec", transferTime + kernelTime);
         resultDB.AddResult("mandelbrot_parity", atts, "N", transferTime / kernelTime);
         resultDB.AddOverall("Time", "sec", kernelTime+transferTime);
-        /*
 #ifdef DYNAMIC_PARALLELISM
         float totalTime = kernelTime;
         kernelTime = 0.0f;
@@ -330,7 +350,6 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
         resultDB.AddResult("mandelbrot_dynpar_parity", atts, "N", transferTime / kernelTime);
         resultDB.AddResult("mandelbrot_dynpar_speedup", atts, "N", totalTime/kernelTime);
 #endif
-*/
 
         if(!quiet) {
             printf("Done.\n");

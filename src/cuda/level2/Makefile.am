@@ -1,1 +1,1 @@
-SUBDIRS=cfd dwt2d fdtd2d gups kmeans lavamd mandelbrot nw particlefilter srad where darknet
+SUBDIRS=cfd dwt2d gups kmeans lavamd mandelbrot nw particlefilter srad where darknet raytracing

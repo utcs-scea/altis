@@ -26,7 +26,7 @@
 //
 // ****************************************************************************
 void addBenchmarkSpecOptions(OptionParser &op) {
-  op.addOption("pinned", OPT_BOOL, "0", "use pinned (pagelocked) memory");
+  op.addOption("pinned", OPT_BOOL, "1", "use pinned (pagelocked) memory");
 }
 
 // ****************************************************************************
@@ -57,6 +57,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   const bool verbose = op.getOptionBool("verbose");
   const bool quiet = op.getOptionBool("quiet");
   const bool pinned = op.getOptionBool("pinned");
+  const int id = op.getOptionInt("device");
 
   // Sizes are in kb
   int nSizes = 20;
@@ -68,7 +69,12 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   // Create some host memory pattern
   float *hostMem = NULL;
   if (pinned) {
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaMallocManaged((void **)&hostMem, sizeof(float) * numMaxFloats));
+    CUDA_SAFE_CALL(cudaMemPrefetchAsync(hostMem, sizeof(float) * numMaxFloats, cudaCpuDeviceId));
+#else
     cudaMallocHost((void **)&hostMem, sizeof(float) * numMaxFloats);
+#endif
     while (cudaGetLastError() != cudaSuccess) {
       // drop the size and try again
       if (verbose && !quiet) {
@@ -80,7 +86,12 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
         return;
       }
       numMaxFloats = 1024 * (sizes[nSizes - 1]) / 4;
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaMallocManaged((void **)&hostMem, sizeof(float) * numMaxFloats));
+    CUDA_SAFE_CALL(cudaMemPrefetchAsync(hostMem, sizeof(float) * numMaxFloats, cudaCpuDeviceId));
+#else
       cudaMallocHost((void **)&hostMem, sizeof(float) * numMaxFloats);
+#endif
     }
   } else {
     hostMem = new float[numMaxFloats];
@@ -91,7 +102,16 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   }
 
   float *device;
+#ifdef UNIFIED_MEMORY
+  if (pinned)
+    device = hostMem;
+  else {
+    cudaMallocManaged((void **)&device, sizeof(float) * numMaxFloats);
+    CUDA_SAFE_CALL(cudaMemPrefetchAsync(device, sizeof(float) * numMaxFloats, id));
+  }
+#else
   cudaMalloc((void **)&device, sizeof(float) * numMaxFloats);
+#endif
   while (cudaGetLastError() != cudaSuccess) {
     // drop the size and try again
     if (verbose && !quiet) {
@@ -103,7 +123,16 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
       return;
     }
     numMaxFloats = 1024 * (sizes[nSizes - 1]) / 4;
+#ifdef UNIFIED_MEMORY
+    if (pinned)
+        device = hostMem;
+    else {
+        cudaMallocManaged((void **)&device, sizeof(float) * numMaxFloats);
+        CUDA_SAFE_CALL(cudaMemPrefetchAsync(device, sizeof(float) * numMaxFloats, id));
+    }
+#else
     cudaMalloc((void **)&device, sizeof(float) * numMaxFloats);
+#endif
   }
 
   const unsigned int passes = op.getOptionInt("passes");
@@ -127,7 +156,18 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
       int nbytes = sizes[sizeIndex] * 1024;
 
       cudaEventRecord(start, 0);
+#ifdef UNIFIED_MEMORY
+      if (pinned)
+        CUDA_SAFE_CALL(cudaMemPrefetchAsync(device, nbytes, id));
+      else
+        CUDA_SAFE_CALL(cudaMemcpy(device, hostMem, nbytes, cudaMemcpyHostToDevice));
+
+      cudaDeviceSynchronize();
+
+      // wait 
+#else
       CUDA_SAFE_CALL(cudaMemcpy(device, hostMem, nbytes, cudaMemcpyHostToDevice));
+#endif
       cudaEventRecord(stop, 0);
       cudaEventSynchronize(stop);
       float t = 0;
@@ -148,7 +188,9 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   // Cleanup
   CUDA_SAFE_CALL(cudaFree((void *)device));
   if (pinned) {
+#ifndef UNIFIED_MEMORY
     CUDA_SAFE_CALL(cudaFreeHost((void *)hostMem));
+#endif
   } else {
     delete[] hostMem;
   }

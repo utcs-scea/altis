@@ -271,7 +271,7 @@ AS_IF([test "x$task_graph" = "xyes"],
 AS_IF([test "x$unified_memory" = "xyes"], 
     [
        AC_MSG_RESULT([supports unified memory: yes])
-       CUDA_CPPFLAGS+=[" -DUNIFIED_MEMORY"]
+       CUDA_CPPFLAGS+=[" -DasdNIFIED_MEMORYasdfasdfsa"]
     ],
     [
        AC_MSG_RESULT([supports unified memory: no])
@@ -329,15 +329,14 @@ AC_CONFIG_FILES([Makefile
                  src/cuda/level2/Makefile
                  src/cuda/level2/cfd/Makefile
                  src/cuda/level2/dwt2d/Makefile
-                 src/cuda/level2/fdtd2d/Makefile
                  src/cuda/level2/gups/Makefile
                  src/cuda/level2/kmeans/Makefile
                  src/cuda/level2/lavamd/Makefile
                  src/cuda/level2/mandelbrot/Makefile
-                 src/cuda/level2/neuralnet/Makefile
                  src/cuda/level2/darknet/Makefile
                  src/cuda/level2/nw/Makefile
                  src/cuda/level2/particlefilter/Makefile
+                 src/cuda/level2/raytracing/Makefile
                  src/cuda/level2/srad/Makefile
                  src/cuda/level2/where/Makefile
                  ])

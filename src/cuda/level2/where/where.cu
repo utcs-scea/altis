@@ -58,7 +58,12 @@ void seedArr(int *arr, int size) {
 
 void where(ResultDatabase &resultDB, int size, int coverage) {
 
+#ifdef UNIFIED_MEMORY
+    int *arr = NULL;
+    CUDA_SAFE_CALL(cudaMallocManaged(&arr, sizeof(int) * size));
+#else
     int *arr = (int*)malloc(sizeof(int) * size);
+#endif
     int *final;
     seedArr(arr, size);
 
@@ -67,12 +72,21 @@ void where(ResultDatabase &resultDB, int size, int coverage) {
     int *d_prefix;
     int *d_final;
     
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaMallocManaged( (void**) &d_results, sizeof(int) * size));
+    CUDA_SAFE_CALL(cudaMallocManaged( (void**) &d_prefix, sizeof(int) * size));
+#else
     CUDA_SAFE_CALL(cudaMalloc( (void**) &d_arr, sizeof(int) * size));
     CUDA_SAFE_CALL(cudaMalloc( (void**) &d_results, sizeof(int) * size));
     CUDA_SAFE_CALL(cudaMalloc( (void**) &d_prefix, sizeof(int) * size));
+#endif
 
     cudaEventRecord(start, 0);
+#ifdef UNIFIED_MEMORY
+    d_arr = arr;
+#else
     cudaMemcpy(d_arr, arr, sizeof(int) * size, cudaMemcpyHostToDevice);
+#endif
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&elapsedTime, start, stop);
@@ -98,15 +112,24 @@ void where(ResultDatabase &resultDB, int size, int coverage) {
 
     int matchSize;
     cudaEventRecord(start, 0);
+#ifdef UNIFIED_MEMORY
+    matchSize = (int)*(d_prefix + size - 1);
+#else
     cudaMemcpy(&matchSize, d_prefix + size - 1, sizeof(int), cudaMemcpyDeviceToHost);
+#endif
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&elapsedTime, start, stop);
     transferTime += elapsedTime * 1.e-3;
     matchSize++;
 
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaMallocManaged( (void**) &d_final, sizeof(int) * matchSize));
+    final = d_final;
+#else
     CUDA_SAFE_CALL(cudaMalloc( (void**) &d_final, sizeof(int) * matchSize));
     final = (int*)malloc(sizeof(int) * matchSize);
+#endif
 
     cudaEventRecord(start, 0);
     mapMatches<<<grid, threads>>>(d_arr, d_results, d_prefix, d_final, size);
@@ -117,18 +140,30 @@ void where(ResultDatabase &resultDB, int size, int coverage) {
     CHECK_CUDA_ERROR();
 
     cudaEventRecord(start, 0);
+#ifdef UNIFIED_MEMORY
+    // No cpy just demand paging
+#else
     cudaMemcpy(final, d_final, sizeof(int) * matchSize, cudaMemcpyDeviceToHost);
+#endif
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&elapsedTime, start, stop);
     transferTime += elapsedTime * 1.e-3;
 
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaFree(d_arr));
+    CUDA_SAFE_CALL(cudaFree(d_results));
+    CUDA_SAFE_CALL(cudaFree(d_prefix));
+    CUDA_SAFE_CALL(cudaFree(d_final));
+
+#else
     free(arr);
     free(final);
     CUDA_SAFE_CALL(cudaFree(d_arr));
     CUDA_SAFE_CALL(cudaFree(d_results));
     CUDA_SAFE_CALL(cudaFree(d_prefix));
     CUDA_SAFE_CALL(cudaFree(d_final));
+#endif
     
     char atts[1024];
     sprintf(atts, "size:%d, coverage:%d", size, coverage);

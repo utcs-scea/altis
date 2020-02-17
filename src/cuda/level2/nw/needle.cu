@@ -168,9 +168,14 @@ void runTest(ResultDatabase &resultDB, OptionParser &op) {
 
   max_rows = max_rows + 1;
   max_cols = max_cols + 1;
+#ifdef UNIFIED_MEMORY
+  CUDA_SAFE_CALL(cudaMallocManaged(&referrence, max_rows * max_cols * sizeof(int)));
+  CUDA_SAFE_CALL(cudaMallocManaged(&input_itemsets, max_rows * max_cols * sizeof(int)));
+#else
   referrence = (int *)malloc(max_rows * max_cols * sizeof(int));
   input_itemsets = (int *)malloc(max_rows * max_cols * sizeof(int));
   output_itemsets = (int *)malloc(max_rows * max_cols * sizeof(int));
+#endif
 
   if (!input_itemsets) {
       fprintf(stderr, "Error: Can not allocate memory\n");
@@ -202,8 +207,11 @@ void runTest(ResultDatabase &resultDB, OptionParser &op) {
   for (int j = 1; j < max_cols; j++) input_itemsets[j] = -j * penalty;
 
   size = max_cols * max_rows;
+
+#ifndef UNIFIED_MEMORY
   CUDA_SAFE_CALL(cudaMalloc((void **)&referrence_cuda, sizeof(int) * size));
   CUDA_SAFE_CALL(cudaMalloc((void **)&matrix_cuda, sizeof(int) * size));
+#endif
 
   cudaEvent_t start, stop;
   cudaEventCreate(&start);
@@ -213,10 +221,16 @@ void runTest(ResultDatabase &resultDB, OptionParser &op) {
   double kernelTime = 0;
 
   cudaEventRecord(start, 0);
+#ifdef UNIFIED_MEMORY
+  // Notice that here we used demand paging so no cpy time included, could also use HyperQ
+  referrence_cuda = referrence;
+  matrix_cuda = input_itemsets;
+#else
   CUDA_SAFE_CALL(cudaMemcpy(referrence_cuda, referrence, sizeof(int) * size,
           cudaMemcpyHostToDevice));
   CUDA_SAFE_CALL(cudaMemcpy(matrix_cuda, input_itemsets, sizeof(int) * size,
           cudaMemcpyHostToDevice));
+#endif
   cudaEventRecord(stop, 0);
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&elapsedTime, start, stop);
@@ -254,8 +268,13 @@ void runTest(ResultDatabase &resultDB, OptionParser &op) {
   }
 
   cudaEventRecord(start, 0);
+#ifdef UNIFIED_MEMORY
+  // demand paging will not happen here
+  output_itemsets = matrix_cuda; 
+#else
   cudaMemcpy(output_itemsets, matrix_cuda, sizeof(int) * size,
           cudaMemcpyDeviceToHost);
+#endif
   cudaEventRecord(stop, 0);
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&elapsedTime, start, stop);
@@ -324,12 +343,17 @@ void runTest(ResultDatabase &resultDB, OptionParser &op) {
       fclose(fpo);
   }
 
+
+#ifdef UNIFIED_MEMORY
+  CUDA_SAFE_CALL(cudaFree(referrence_cuda));
+  CUDA_SAFE_CALL(cudaFree(matrix_cuda));
+#else
   cudaFree(referrence_cuda);
   cudaFree(matrix_cuda);
-
   free(referrence);
   free(input_itemsets);
   free(output_itemsets);
+#endif
 
   char tmp[32];
   sprintf(tmp, "%ditems", size);
