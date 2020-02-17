@@ -1,11 +1,10 @@
-# Mirovia
+# Altis
 
-## To Install:
-1. ```git clone https://github.com/sarahgrace/mirovia.git```
-2. ```cd mirovia```
-3. ```bash configure --prefix=$MIROVIA_ROOT```
+## To Use:
+1. ```git clone https://github.com/utcs-scea/altis.git```
+2. ```cd altis```
+3. ```bash configure --prefix=$ALTIS_ROOT```
 4. ```make```
-5. ```make install```
 
 ## To Run Suite:
 ``` python driver.py [options]```
@@ -19,7 +18,7 @@ Options:
   -b, --benchmark=BENCHMARKS    comma-separated list of benchmarks to run, or 'all' to run entire suite, defaults to 'all'
   -v, --verbose                 enable verbose output
 ```
-Note: Results are written to ```$MIROVIA_ROOT/results/$BENCHMARK```
+Note: Results are written to ```$ALTIS_ROOT/results/$BENCHMARK```
 
 ## To Run a Single Benchmark:
 1. ```cd src/cuda/$BENCHMARK_LEVEL/$BENCHMARK```
