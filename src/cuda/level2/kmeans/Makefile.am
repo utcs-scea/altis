@@ -15,11 +15,8 @@ cuda_PROGRAMS = kmeans
 
 # How to build those programs?
 kmeans_SOURCES = main.cpp \
-                 cluster.cpp \
-                 kmeans.cpp \
-                 kmeans_clustering.cpp \
                  rmse.cpp
-kmeans_LDADD = kmeans_cuda.o $(CUDA_LIBS) $(LIBS)
+kmeans_LDADD = kmeans_cuda.o cluster.o kmeans.o kmeans_clustering.o $(CUDA_LIBS) $(LIBS) -lm
 
 
 

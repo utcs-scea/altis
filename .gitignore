@@ -5,6 +5,8 @@
 *.out
 *.png
 *.jpg
+*.csv
+*.R
 *_cl.cpp
 *.buildflags
 *Makefile

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -ue
+
+sudo /usr/local/cuda-10.0/bin/nvprof --unified-memory-profiling per-process-device -m all --csv --log-file metrics_big_zemaitis_uvm.csv ./particlefilter_float -s 4 -n 1
