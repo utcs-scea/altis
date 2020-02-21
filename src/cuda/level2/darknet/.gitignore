@@ -1,6 +1,5 @@
 *.o
 *.dSYM
-*.csv
 *.out
 *.png
 *.jpg
