@@ -45,6 +45,7 @@
 #endif
 
 #include "ResultDatabase.h"
+#include "cudacommon.h"
 
 /* rmse.c */
 float   euclid_dist_2        (float*, float*, int);

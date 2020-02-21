@@ -6038,7 +6038,7 @@ if test "x$unified_memory" = "xyes"; then :
 
        { $as_echo "$as_me:${as_lineno-$LINENO}: result: supports unified memory: yes" >&5
 $as_echo "supports unified memory: yes" >&6; }
-       CUDA_CPPFLAGS+=" -DasdNIFIED_MEMORYasdfasdfsa"
+       CUDA_CPPFLAGS+=" -DUNIFIED_MEMORY"
 
 else
 

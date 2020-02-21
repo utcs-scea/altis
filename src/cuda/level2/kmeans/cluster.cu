@@ -76,6 +76,7 @@
 #include "ResultDatabase.h"
 #include "kmeans_cuda.h"
 #include "kmeans.h"
+#include "cudacommon.h"
 
 extern double wtime(void);
 float	min_rmse_ref = FLT_MAX;			/* reference min_rmse value */
@@ -103,7 +104,11 @@ int cluster(int      npoints,	        /* number of data points */
 	int		i;
 
 	/* allocate memory for membership */
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaMallocManaged(&membership, npoints * sizeof(int)));
+#else
     membership = (int*) malloc(npoints * sizeof(int));
+#endif
 
 	/* sweep k from min to max_nclusters to find the best number of clusters */
 	for(nclusters = min_nclusters; nclusters <= max_nclusters; nclusters++)
@@ -133,8 +138,13 @@ int cluster(int      npoints,	        /* number of data points */
                     quiet);
 
 			if (*cluster_centres) {
+#ifdef UNIFIED_MEMORY
+                CUDA_SAFE_CALL(cudaFree((*cluster_centres)[0]));
+                CUDA_SAFE_CALL(cudaFree(*cluster_centres));
+#else
 				free((*cluster_centres)[0]);
 				free(*cluster_centres);
+#endif
 			}
 			*cluster_centres = tmp_cluster_centres;
 	        
@@ -160,7 +170,11 @@ int cluster(int      npoints,	        /* number of data points */
 		deallocateMemory();							/* free device memory (@ kmeans_cuda.cu) */
 	}
 
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaFree(membership));
+#else
     free(membership);
+#endif
 
     return index;
 }

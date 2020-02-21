@@ -103,9 +103,9 @@ void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &res
     CUDA_SAFE_CALL(cudaMallocManaged((void**)&backup3, componentSize));
 
     // prefetch to increase performance
-    CUDA_SAFE_CALL(cudaMemPrefetchAsync(backup, componentSize, 0, streams[0]));
-    CUDA_SAFE_CALL(cudaMemPrefetchAsync(backup2, componentSize, 0, streams[1]));
-    CUDA_SAFE_CALL(cudaMemPrefetchAsync(backup3, componentSize, 0, streams[2]));
+    //CUDA_SAFE_CALL(cudaMemPrefetchAsync(backup, componentSize, 0, streams[0]));
+    //CUDA_SAFE_CALL(cudaMemPrefetchAsync(backup2, componentSize, 0, streams[1]));
+    //CUDA_SAFE_CALL(cudaMemPrefetchAsync(backup3, componentSize, 0, streams[2]));
 #else
     CUDA_SAFE_CALL(cudaMallocManaged((void**)&backup, componentSize));
 #endif

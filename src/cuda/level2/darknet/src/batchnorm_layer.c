@@ -7,7 +7,7 @@ void test_batchnorm_layer_forward(int batch, int width, int height, int chan) {
     printf("----- batchnorm forward -----\n");
     layer l = make_batchnorm_layer(batch, width, height, chan);
     network *net = make_network(1);
-    net->input_gpu = cuda_make_array(l.output, l.w*l.h*l.c*l.batch);
+    net->input_gpu = cuda_make_array(0, l.w*l.h*l.c*l.batch);
     // Can chose to test simple inference
     net->train = 1;
     cudaProfilerStart();

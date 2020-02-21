@@ -82,40 +82,71 @@ void allocateMemory(int npoints, int nfeatures, int nclusters, float **features)
 	num_blocks = num_blocks_perdim*num_blocks_perdim;
 
 	/* allocate memory for memory_new[] and initialize to -1 (host) */
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaMallocManaged(&membership_new, npoints * sizeof(int)));
+#else
 	membership_new = (int*) malloc(npoints * sizeof(int));
+#endif
 	for(int i=0;i<npoints;i++) {
 		membership_new[i] = -1;
 	}
 
 	/* allocate memory for block_new_centers[] (host) */
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaMallocManaged(&block_new_centers, nclusters * nfeatures * sizeof(float)));
+#else
 	block_new_centers = (float *) malloc(nclusters*nfeatures*sizeof(float));
+#endif
 	
 	/* allocate memory for feature_flipped_d[][], feature_d[][] (device) */
+    // TODO change unnecessary copy
+#ifdef UNIFIED_MEMORY
+	//CUDA_SAFE_CALL(cudaMallocManaged((void**) &feature_flipped_d, npoints*nfeatures*sizeof(float)));
+	//CUDA_SAFE_CALL(cudaMemcpy(feature_flipped_d, features[0], npoints*nfeatures*sizeof(float), cudaMemcpyHostToDevice));
+    feature_flipped_d = features[0];
+	CUDA_SAFE_CALL(cudaMallocManaged((void**) &feature_d, npoints*nfeatures*sizeof(float)));
+#else
 	cudaMalloc((void**) &feature_flipped_d, npoints*nfeatures*sizeof(float));
 	cudaMemcpy(feature_flipped_d, features[0], npoints*nfeatures*sizeof(float), cudaMemcpyHostToDevice);
 	cudaMalloc((void**) &feature_d, npoints*nfeatures*sizeof(float));
+#endif
 		
 	/* invert the data array (kernel execution) */	
 	invert_mapping<<<num_blocks,num_threads>>>(feature_flipped_d,feature_d,npoints,nfeatures);
     //CHECK_CUDA_ERROR();
 		
 	/* allocate memory for membership_d[] and clusters_d[][] (device) */
+#ifdef UNIFIED_MEMORY
+	//CUDA_SAFE_CALL(cudaMallocManaged((void**) &membership_d, npoints*sizeof(int)));
+	//CUDA_SAFE_CALL(cudaMallocManaged((void**) &clusters_d, nclusters*nfeatures*sizeof(float)));
+#else
 	cudaMalloc((void**) &membership_d, npoints*sizeof(int));
 	cudaMalloc((void**) &clusters_d, nclusters*nfeatures*sizeof(float));
+#endif
 
 	
 #ifdef BLOCK_DELTA_REDUCE
 	// allocate array to hold the per block deltas on the gpu side
-	
+#ifdef UNIFIED_MEMORY
+	CUDA_SAFE_CALL(cudaMallociManaged((void**) &block_deltas_d, num_blocks_perdim * num_blocks_perdim * sizeof(int)));
+#else
 	cudaMalloc((void**) &block_deltas_d, num_blocks_perdim * num_blocks_perdim * sizeof(int));
+#endif
 	//cudaMemcpy(block_delta_d, &delta_h, sizeof(int), cudaMemcpyHostToDevice);
 #endif
 
 #ifdef BLOCK_CENTER_REDUCE
 	// allocate memory and copy to card cluster  array in which to accumulate center points for the next iteration
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaMallocManaged((void**) &block_clusters_d, 
+            num_blocks_perdim * num_blocks_perdim * 
+            nclusters * nfeatures * sizeof(float)));
+
+#else
     cudaMalloc((void**) &block_clusters_d, 
             num_blocks_perdim * num_blocks_perdim * 
             nclusters * nfeatures * sizeof(float));
+#endif
 	//cudaMemcpy(new_clusters_d, new_centers[0], nclusters*nfeatures*sizeof(float), cudaMemcpyHostToDevice);
 #endif
 
@@ -126,13 +157,19 @@ void allocateMemory(int npoints, int nfeatures, int nclusters, float **features)
 /* free host and device memory */
 void deallocateMemory()
 {
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaFree(membership_new));
+    CUDA_SAFE_CALL(cudaFree(block_new_centers));
+#else
 	free(membership_new);
 	free(block_new_centers);
-	cudaFree(feature_d);
-	cudaFree(feature_flipped_d);
-	cudaFree(membership_d);
-
+    cudaFree(membership_d);
 	cudaFree(clusters_d);
+#endif
+	cudaFree(feature_d);
+	//cudaFree(feature_flipped_d);
+	//cudaFree(membership_d);
+
 #ifdef BLOCK_CENTER_REDUCE
     cudaFree(block_clusters_d);
 #endif
@@ -167,9 +204,16 @@ kmeansCuda(float  **feature,				/* in: [npoints][nfeatures] */
 
     cudaEventRecord(start, 0);
     /* copy membership (host to device) */
+#ifdef UNIFIED_MEMORY
+    //CUDA_SAFE_CALL(cudaMemcpy(membership_d, membership_new, npoints*sizeof(int), cudaMemcpyHostToDevice));
+    membership_d = membership_new;
+    //CUDA_SAFE_CALL(cudaMemcpy(clusters_d, clusters[0], nclusters*nfeatures*sizeof(float), cudaMemcpyHostToDevice));
+    clusters_d = clusters[0];
+#else
     cudaMemcpy(membership_d, membership_new, npoints*sizeof(int), cudaMemcpyHostToDevice);
     /* copy clusters (host to device) */
     cudaMemcpy(clusters_d, clusters[0], nclusters*nfeatures*sizeof(float), cudaMemcpyHostToDevice);
+#endif
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&elapsedTime, start, stop);
@@ -245,7 +289,11 @@ kmeansCuda(float  **feature,				/* in: [npoints][nfeatures] */
 
   cudaEventRecord(start, 0);
 	/* copy back membership (device to host) */
+#ifdef UNIFIED_MEMORY
+	//CUDA_SAFE_CALL(cudaMemcpy(membership_new, membership_d, npoints*sizeof(int), cudaMemcpyDeviceToHost));	
+#else
 	cudaMemcpy(membership_new, membership_d, npoints*sizeof(int), cudaMemcpyDeviceToHost);	
+#endif
   cudaEventRecord(stop, 0);
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&elapsedTime, start, stop);
@@ -253,28 +301,55 @@ kmeansCuda(float  **feature,				/* in: [npoints][nfeatures] */
 
 #ifdef BLOCK_CENTER_REDUCE
     /*** Copy back arrays of per block sums ***/
+#ifdef UNIFIED_MEMORY
+    float * block_clusters_h = NULL;
+#else
     float * block_clusters_h = (float *) malloc(
         num_blocks_perdim * num_blocks_perdim * 
         nclusters * nfeatures * sizeof(float));
+#endif
         
   cudaEventRecord(start, 0);
+#ifdef UNIFIED_MEMORY
+  /*
+    CUDA_SAFE_CALL(cudaMemcpy(block_clusters_h, block_clusters_d, 
+        num_blocks_perdim * num_blocks_perdim * 
+        nclusters * nfeatures * sizeof(float), 
+        cudaMemcpyDeviceToHost));
+        */
+  block_clusters_h = block_clusters_d;
+#else
 	cudaMemcpy(block_clusters_h, block_clusters_d, 
         num_blocks_perdim * num_blocks_perdim * 
         nclusters * nfeatures * sizeof(float), 
         cudaMemcpyDeviceToHost);
+#endif
   cudaEventRecord(stop, 0);
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&elapsedTime, start, stop);
   transferTime += elapsedTime * 1.e-3; // convert to seconds
 #endif
 #ifdef BLOCK_DELTA_REDUCE
+#ifdef UNIFIED_MEMORY
+  int * block_deltas_h = NULL;
+#else
     int * block_deltas_h = (int *) malloc(
         num_blocks_perdim * num_blocks_perdim * sizeof(int));
+#endif
         
   cudaEventRecord(start, 0);
+#ifdef UNIFIED_MEMORY
+  block_deltas_h = block_deltas_d;
+  /*
+    CUDA_SAFE_CALL(cudaMemcpy(block_deltas_h, block_deltas_d, 
+        num_blocks_perdim * num_blocks_perdim * sizeof(int), 
+        cudaMemcpyDeviceToHost));
+        */
+#else
 	cudaMemcpy(block_deltas_h, block_deltas_d, 
         num_blocks_perdim * num_blocks_perdim * sizeof(int), 
         cudaMemcpyDeviceToHost);
+#endif
   cudaEventRecord(stop, 0);
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&elapsedTime, start, stop);

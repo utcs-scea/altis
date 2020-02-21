@@ -91,12 +91,18 @@ float *cuda_make_array(float *x, size_t n)
 {
     float *x_gpu;
     size_t size = sizeof(float)*n;
+#ifdef UNIFIED_MEMORY
+    cudaError_t status = cudaMallocManaged((void **)&x_gpu, size, cudaMemAttachGlobal);
+#else
     cudaError_t status = cudaMalloc((void **)&x_gpu, size);
+#endif
     check_error(status);
     if(x){
+        // TODO: No cpying now since x is always 0, needs to change this later
         status = cudaMemcpy(x_gpu, x, size, cudaMemcpyHostToDevice);
         check_error(status);
     } else {
+        // change to demand paging
         fill_gpu(n, 0, x_gpu, 1);
     }
     if(!x_gpu) error("Cuda malloc failed\n");

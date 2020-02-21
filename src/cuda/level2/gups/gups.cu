@@ -101,7 +101,7 @@
 #include "ResultDatabase.h"
 #include "cudacommon.h"
 
-#define DEFAULT_LOGN 1 << 26 //20
+#define DEFAULT_LOGN 26 //20
 #define POLY 0x0000000000000007ULL
 
 #define DEFAULT_GPU 0
@@ -222,12 +222,15 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
   size_t n = 0;
 
   // Specify table size
+  int problemSizes[4] = {20, 22, 24, 26};
+  int toShifts = problemSizes[op.getOptionInt("size") - 1];
+
   int logn = op.getOptionInt("shifts");
   // TODO: watch out size
-  if (logn > 0) {
+  if (logn > 0 && logn != 20) {
     n = (size_t) 1 << logn;
   } else {
-    n = (size_t) 1 << DEFAULT_LOGN;
+    n = (size_t) 1 << toShifts;
   }
 
   std::cout << "Total table size = " << n << " (" << n*sizeof(uint64_t) << " bytes.)" << std::endl;
@@ -236,16 +239,7 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
 
   int ndev;
   cudaGetDeviceCount(&ndev);
-  int dev = 0;
-
-  /*
-  if (argc > 2) {
-    dev = atoi(argv[2]);
-  }
-  if (dev < 0 || dev >= ndev) {
-    dev = 0;
-  }
-  */
+  int dev = op.getOptionInt("device");
 
   cudaDeviceProp prop;
   cudaGetDeviceProperties(&prop, DEFAULT_GPU);

@@ -32,8 +32,8 @@ COMMON+= -DGPU -I/usr/local/cuda/include/
 CFLAGS+= -DGPU
 LDFLAGS+= -L/usr/local/cuda/lib64 -lcuda -lcudart -lcublas -lcurand
 
-COMMON+= -DCUDNN 
-CFLAGS+= -DCUDNN
+COMMON+= -DCUDNN  -DUNIFIED_MEMORY
+CFLAGS+= -DCUDNN  -DUNIFIED_MEMORY
 CXXFLAGS=-I./../../../common
 LDFLAGS+= -lcudnn
 

@@ -271,7 +271,7 @@ AS_IF([test "x$task_graph" = "xyes"],
 AS_IF([test "x$unified_memory" = "xyes"], 
     [
        AC_MSG_RESULT([supports unified memory: yes])
-       CUDA_CPPFLAGS+=[" -DasdNIFIED_MEMORYasdfasdfsa"]
+       CUDA_CPPFLAGS+=[" -DUNIFIED_MEMORY"]
     ],
     [
        AC_MSG_RESULT([supports unified memory: no])

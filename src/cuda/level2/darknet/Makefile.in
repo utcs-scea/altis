@@ -134,7 +134,7 @@ CCDEPMODE = @CCDEPMODE@
 
 #OPTS=-O0 -g
 CFLAGS = -Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors \
-	-fPIC $(OPTS) -DGPU -DCUDNN
+	-fPIC $(OPTS) -DGPU -DCUDNN -DUNIFIED_MEMORY
 CPPFLAGS = @CPPFLAGS@
 CUDA_CPPFLAGS = @CUDA_CPPFLAGS@
 CUDA_INCDIR = @CUDA_INCDIR@
@@ -249,7 +249,8 @@ OBJDIR = ./obj/
 CPP = g++
 ARFLAGS = rcs
 OPTS = -Ofast
-COMMON = -Iinclude/ -Isrc/ -DGPU -I/usr/local/cuda/include/ -DCUDNN
+COMMON = -Iinclude/ -Isrc/ -DGPU -I/usr/local/cuda/include/ -DCUDNN \
+	-DUNIFIED_MEMORY
 OBJ = gemm.o utils.o cuda.o deconvolutional_layer.o \
 	convolutional_layer.o list.o image.o activations.o im2col.o \
 	col2im.o blas.o crop_layer.o dropout_layer.o maxpool_layer.o \

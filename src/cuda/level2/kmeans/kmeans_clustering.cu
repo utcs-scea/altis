@@ -105,13 +105,22 @@ float** kmeans_clustering(float **feature,    /* in: [npoints][nfeatures] */
     }
 
     /* allocate space for and initialize returning variable clusters[] */
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaMallocManaged(&clusters, nclusters * sizeof(float*)));
+    CUDA_SAFE_CALL(cudaMallocManaged(&(clusters[0]), nclusters* nfeatures * sizeof(float)));
+#else
     clusters    = (float**) malloc(nclusters *             sizeof(float*));
     clusters[0] = (float*)  malloc(nclusters * nfeatures * sizeof(float));
+#endif
     for (i=1; i<nclusters; i++)
         clusters[i] = clusters[i-1] + nfeatures;
 
 	/* initialize the random clusters */
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaMallocManaged(&initial, npoints * sizeof(int)));
+#else
 	initial = (int *) malloc (npoints * sizeof(int));
+#endif
 	for (i = 0; i < npoints; i++) {
 		initial[i] = i;
 	}
@@ -138,8 +147,13 @@ float** kmeans_clustering(float **feature,    /* in: [npoints][nfeatures] */
     /* allocate space for and initialize new_centers_len and new_centers */
     new_centers_len = (int*) calloc(nclusters, sizeof(int));
 
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaMallocManaged(&new_centers, nclusters * sizeof(float*)));
+    CUDA_SAFE_CALL(cudaMallocManaged(&(new_centers[0]), nclusters * nfeatures * sizeof(float)));
+#else
     new_centers    = (float**) malloc(nclusters *            sizeof(float*));
     new_centers[0] = (float*)  calloc(nclusters * nfeatures, sizeof(float));
+#endif
     for (i=1; i<nclusters; i++)
         new_centers[i] = new_centers[i-1] + nfeatures;
 
@@ -187,8 +201,13 @@ float** kmeans_clustering(float **feature,    /* in: [npoints][nfeatures] */
         printf("Iterated %d times\n", c);
     }
 
+#ifdef UNIFIED_MEMORY
+    CUDA_SAFE_CALL(cudaFree(new_centers[0]));
+    CUDA_SAFE_CALL(cudaFree(new_centers));
+#else
     free(new_centers[0]);
     free(new_centers);
+#endif
     free(new_centers_len);
 
     return clusters;

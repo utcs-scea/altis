@@ -101,11 +101,11 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(cudadir)"
 PROGRAMS = $(cuda_PROGRAMS)
-am_kmeans_OBJECTS = main.$(OBJEXT) cluster.$(OBJEXT) kmeans.$(OBJEXT) \
-	kmeans_clustering.$(OBJEXT) rmse.$(OBJEXT)
+am_kmeans_OBJECTS = main.$(OBJEXT) rmse.$(OBJEXT)
 kmeans_OBJECTS = $(am_kmeans_OBJECTS)
 am__DEPENDENCIES_1 =
-kmeans_DEPENDENCIES = kmeans_cuda.o $(am__DEPENDENCIES_1)
+kmeans_DEPENDENCIES = kmeans_cuda.o cluster.o kmeans.o \
+	kmeans_clustering.o $(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -289,12 +289,9 @@ cudadir = $(bindir)/CUDA
 
 # How to build those programs?
 kmeans_SOURCES = main.cpp \
-                 cluster.cpp \
-                 kmeans.cpp \
-                 kmeans_clustering.cpp \
                  rmse.cpp
 
-kmeans_LDADD = kmeans_cuda.o $(CUDA_LIBS) $(LIBS)
+kmeans_LDADD = kmeans_cuda.o cluster.o kmeans.o kmeans_clustering.o $(CUDA_LIBS) $(LIBS) -lm
 all: all-am
 
 .SUFFIXES:
@@ -381,9 +378,6 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cluster.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kmeans.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kmeans_clustering.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rmse.Po@am__quote@
 

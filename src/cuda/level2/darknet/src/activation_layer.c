@@ -119,6 +119,8 @@ void forward_activation_layer_gpu(layer l, network net)
     // pointers may be equal. However, this requires xDesc and yDesc descriptors
     // to be identical (particularly, the strides of the input and output must
     // match for in-place operation to be allowed).
+    
+    // Not in-place update here
     cudnnStatus_t stat = cudnnActivationForward(cudnn_handle(), l.activationDesc, &one,
             l.activationTensorDesc, net.input_gpu, &zero, l.activationTensorDesc,
             l.output_gpu);

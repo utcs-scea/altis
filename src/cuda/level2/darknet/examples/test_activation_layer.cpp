@@ -53,16 +53,21 @@ void test_activation_layer(ResultDatabase &resultDB, OptionParser &op) {
     // Config parameter
     cout << "Begin activation layer test..." << endl;
     show_activation_type(ACTIVATION_METHOD);
+    int batchSizes[4] = {32, 64, 128, 256};
+    int inputSize[4] = {256, 512, 1024, 2048};
 
     int is_bidirectional = op.getOptionInt("bidirection");
+    int size = op.getOptionInt("size") - 1;
+    int batch = batchSizes[size];
+    int input_size = inputSize[size];
 
     if (is_bidirectional == 1) {
-        test_activation_layer_forward(BATCH, INPUT_SIZE, ACTIVATION_METHOD);
-        test_activation_layer_backward(BATCH, INPUT_SIZE, ACTIVATION_METHOD);
+        test_activation_layer_forward(batch, input_size, ACTIVATION_METHOD);
+        test_activation_layer_backward(batch, input_size, ACTIVATION_METHOD);
     } else if (is_bidirectional == 0) {
-        test_activation_layer_forward(BATCH, INPUT_SIZE, ACTIVATION_METHOD);
+        test_activation_layer_forward(batch, input_size, ACTIVATION_METHOD);
     } else if (is_bidirectional == -1) {
-        test_activation_layer_backward(BATCH, INPUT_SIZE, ACTIVATION_METHOD);
+        test_activation_layer_backward(batch, input_size, ACTIVATION_METHOD);
     } else {
         cerr << is_bidirectional << " is not a valid bidirection flag" << endl;
         exit(1);

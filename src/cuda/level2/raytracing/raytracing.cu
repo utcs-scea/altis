@@ -9,11 +9,9 @@
 #include "camera.h"
 #include "material.h"
 
-/*
 #include "OptionParser.h"
-#include "ResutlDatabase.h"
+#include "ResultDatabase.h"
 #include "cudacommon.h"
-*/
 
 // limited version of checkCudaErrors from helper_cuda.h in CUDA examples
 #define checkCudaErrors(val) check_cuda( (val), #val, __FILE__, __LINE__ )
@@ -148,10 +146,18 @@ __global__ void free_world(hitable **d_list, hitable **d_world, camera **d_camer
     delete *d_camera;
 }
 
-int main() {
+void addBenchmarkSpecOptions(OptionParser &op) {
+    op.addOption("Xdim", OPT_INT, "400", "specify image x dimension", '\0');
+    op.addOption("Ydim", OPT_INT, "300", "specify image y dimension", '\0');
+}
+
+void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
+    int xDim[4] = {400,800, 1200, 1600};
+    int yDim[4] = {300, 600, 900, 1200};
+    int size = op.getOptionInt("size");
     //int nx = 1200;
-    int nx = 1200;
-    int ny = 800;
+    int nx = xDim[size-1];
+    int ny = yDim[size-1];
     //int ny = 1000;
     int ns = 10;
     int tx = 8;
@@ -175,7 +181,11 @@ int main() {
     checkCudaErrors(cudaMalloc((void **)&d_rand_state, num_pixels*sizeof(curandState)));
 #endif
     curandState *d_rand_state2;
+#ifdef UNIFIED_MEMORY
+    checkCudaErrors(cudaMallocManaged((void **)&d_rand_state2, 1*sizeof(curandState)));
+#else
     checkCudaErrors(cudaMalloc((void **)&d_rand_state2, 1*sizeof(curandState)));
+#endif
 
     // we need that 2nd random state to be initialized for the world creation
     rand_init<<<1,1>>>(d_rand_state2);
@@ -185,15 +195,28 @@ int main() {
     // make our world of hitables & the camera
     hitable **d_list;
     int num_hitables = 22*22+1+3;
+#ifdef UNIFIED_MEMORY
+    checkCudaErrors(cudaMallocManaged((void **)&d_list, num_hitables*sizeof(hitable *)));
+#else
     checkCudaErrors(cudaMalloc((void **)&d_list, num_hitables*sizeof(hitable *)));
+#endif
     hitable **d_world;
+#ifdef UNIFIED_MEMORY
+    checkCudaErrors(cudaMallocManaged((void **)&d_world, sizeof(hitable *)));
+#else
     checkCudaErrors(cudaMalloc((void **)&d_world, sizeof(hitable *)));
+#endif
     camera **d_camera;
+#ifdef UNIFIED_MEMORY
+    checkCudaErrors(cudaMallocManaged((void **)&d_camera, sizeof(camera *)));
+#else
     checkCudaErrors(cudaMalloc((void **)&d_camera, sizeof(camera *)));
+#endif
     create_world<<<1,1>>>(d_list, d_world, d_camera, nx, ny, d_rand_state2);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
+    // use cudaevent
     clock_t start, stop;
     start = clock();
     // Render our buffer

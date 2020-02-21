@@ -57,7 +57,7 @@ avgpool_layer make_avgpool_layer(int batch, int w, int h, int c)
     assert(stat == CUDNN_STATUS_SUCCESS);
     // no padding for now, may need to change parameter
     stat = cudnnSetPooling2dDescriptor(l.poolingDesc, CUDNN_POOLING_AVERAGE_COUNT_INCLUDE_PADDING,
-            CUDNN_PROPAGATE_NAN, l.h, l.w, 0, 0, 1, 1);
+            CUDNN_PROPAGATE_NAN, 3, 3, 0, 0, 1, 1); // windows to 3
     assert(stat == CUDNN_STATUS_SUCCESS);
 
     stat = cudnnCreateTensorDescriptor(&l.poolingInputTensorDesc);

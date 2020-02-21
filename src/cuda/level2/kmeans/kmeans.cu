@@ -141,9 +141,15 @@ int setup(ResultDatabase &resultDB, OptionParser &op) {
   }
 
   // allocate space for features[] and read attributes of all objects
+#ifdef UNIFIED_MEMORY
+  CUDA_SAFE_CALL(cudaMallocManaged(&buf, npoints*nfeatures*sizeof(float)));
+  CUDA_SAFE_CALL(cudaMallocManaged(&features, npoints*nfeatures*sizeof(float)));
+  features[0] = buf;
+#else
   buf = (float *)malloc(npoints * nfeatures * sizeof(float));
   features = (float **)malloc(npoints * sizeof(float *));
   features[0] = (float *)malloc(npoints * nfeatures * sizeof(float));
+#endif
   // starting index for each point
   for (i = 1; i < npoints; i++) {
       features[i] = features[i - 1] + nfeatures;
@@ -182,8 +188,10 @@ int setup(ResultDatabase &resultDB, OptionParser &op) {
     exit(0);
   }
 
+#ifndef UNIFIED_MEMORY
   memcpy(features[0], buf,npoints * nfeatures *sizeof(float)); /* now features holds 2-dimensional array of features */
   free(buf);
+#endif
 
   /* ======================= core of the clustering ===================*/
 
@@ -226,7 +234,12 @@ int setup(ResultDatabase &resultDB, OptionParser &op) {
   }
 
   /* free up memory */
+#ifdef UNIFIED_MEMORY
+  CUDA_SAFE_CALL(cudaFree(features[0]));
+  CUDA_SAFE_CALL(cudaFree(features));
+#else
   free(features[0]);
   free(features);
+#endif
   return (0);
 }

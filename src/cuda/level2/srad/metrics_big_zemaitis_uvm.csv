@@ -1,0 +1,5 @@
+==6651== NVPROF is profiling process 6651, command: ./srad -s 3 -n 1 -d 2
+==6651== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
+==6651== Profiling application: ./srad -s 3 -n 1 -d 2
+==6651== Profiling result:
+No events/metrics were profiled.
