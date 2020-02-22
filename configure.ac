@@ -271,7 +271,7 @@ AS_IF([test "x$task_graph" = "xyes"],
 AS_IF([test "x$unified_memory" = "xyes"], 
     [
        AC_MSG_RESULT([supports unified memory: yes])
-       CUDA_CPPFLAGS+=[" -DUNIFIED_MEMORY"]
+       CUDA_CPPFLAGS+=[" -DJJUdNIFIED_MEMORY"]
     ],
     [
        AC_MSG_RESULT([supports unified memory: no])
@@ -289,7 +289,7 @@ AS_IF([test "x$grid_sync" = "xyes"],
 AS_IF([test "x$hyperq" = "xyes"], 
     [
         AC_MSG_RESULT([supports hyperq: yes])
-        CUDA_CPPFLAGS+=[" -DHYPERQ"]
+        CUDA_CPPFLAGS+=[" -DHYdddPERQ"]
     ],
     [
         AC_MSG_RESULT([supports hyperq: no])

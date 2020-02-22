@@ -1,5 +1,5 @@
-==48520== NVPROF is profiling process 48520, command: ./srad -s 2 -n 1 -d 2
-==48520== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
-==48520== Profiling application: ./srad -s 2 -n 1 -d 2
-==48520== Profiling result:
+==3309== NVPROF is profiling process 3309, command: ./srad -s 2 -n 1 -d 2
+==3309== Some kernel(s) will be replayed on device 2 in order to collect all events/metrics.
+==3309== Profiling application: ./srad -s 2 -n 1 -d 2
+==3309== Profiling result:
 No events/metrics were profiled.
