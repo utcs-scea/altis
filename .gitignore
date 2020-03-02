@@ -1,6 +1,7 @@
 *.o
 *.a
 *.d
+*.xml
 *.dSYM
 *.out
 *.png
