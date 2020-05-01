@@ -65,3 +65,5 @@ src/cuda/level2/dwt2d/input.bmp.dwt.b
 src/cuda/level2/dwt2d/input.bmp.dwt.g
 src/cuda/level2/dwt2d/input.bmp.dwt.r
 
+/.vs
+/Project1
