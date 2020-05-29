@@ -1,3 +1,3 @@
-cd ~/mirovia
+cd ~/altis
 automake
 ./configure

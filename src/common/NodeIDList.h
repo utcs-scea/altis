@@ -19,7 +19,7 @@
 //
 // ****************************************************************************
 
-namespace Mirovia {
+namespace Altis {
     const int MAGIC_KEY_NODE_ID_LIST = 0x1071badc;
     typedef std::list <std::string> NodeIDList;
 };
