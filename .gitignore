@@ -1,3 +1,4 @@
+*.vscode*
 *.o
 *.a
 *.d
@@ -11,6 +12,7 @@
 *_cl.cpp
 *.buildflags
 *Makefile
+*Makefile.in
 config.log
 config.status
 config/common.mk
