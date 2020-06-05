@@ -1,9 +1,1 @@
-﻿  cmd_arg_reader.cpp
-C:\Users\ed\source\repos\concurrency\kmeans\cuda\shared\src\cmd_arg_reader.cpp(124,45): warning C4458: declaration of 'args' hides class member
-C:\Users\ed\source\repos\concurrency\kmeans\cuda\shared\inc\cmd_arg_reader.h(162,17): message : see declaration of 'CmdArgReader::args'
-  shrUtils.cpp
-  Note: including windows.h
-  Note: including math.h
-  Note: including assert.h
-  Generating Code...
-  shrUtils_vs2010.vcxproj -> C:\Users\ed\source\repos\concurrency\kmeans\cuda\shared\lib\x64\shrUtils64D.lib
+﻿
