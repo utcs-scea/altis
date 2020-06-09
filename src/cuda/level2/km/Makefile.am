@@ -20,4 +20,5 @@ main.cpp
 
 km_LDADD = \
 kmmain.o \
+kmeansraw.o \
 $(CUDA_LIBS) $(LIBS) -lm
