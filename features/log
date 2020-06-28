@@ -1,0 +1,1284 @@
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Reading graph file
+Done reading graph file
+Graph size: 1024 nodes, 5174 edges
+Pass 0:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 1:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 2:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 3:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 4:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 5:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 6:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 7:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 8:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 9:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Reading graph file
+Done reading graph file
+Graph size: 2048 nodes, 10102 edges
+Pass 0:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 1:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 2:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 3:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 4:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 5:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 6:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 7:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 8:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 9:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Reading graph file
+Done reading graph file
+Graph size: 4096 nodes, 20591 edges
+Pass 0:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 1:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 2:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 3:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 4:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 5:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 6:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 7:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 8:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 9:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Reading graph file
+Done reading graph file
+Graph size: 8192 nodes, 41327 edges
+Pass 0:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 1:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 2:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 3:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 4:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 5:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 6:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 7:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 8:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 9:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Reading graph file
+Done reading graph file
+Graph size: 65536 nodes, 327892 edges
+Pass 0:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 1:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 2:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 3:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 4:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 5:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 6:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 7:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 8:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 9:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Reading graph file
+Done reading graph file
+Graph size: 131072 nodes, 654763 edges
+Pass 0:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 1:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 2:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 3:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 4:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 5:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 6:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 7:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 8:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 9:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Reading graph file
+Done reading graph file
+Graph size: 261444 nodes, 1307511 edges
+Pass 0:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 1:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 2:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 3:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 4:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 5:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 6:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 7:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 8:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 9:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Reading graph file
+Done reading graph file
+Graph size: 524288 nodes, 2620339 edges
+Pass 0:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 1:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 2:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 3:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 4:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 5:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 6:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 7:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 8:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 9:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Reading graph file
+Done reading graph file
+Graph size: 1048576 nodes, 5247000 edges
+Pass 0:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 1:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 2:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 3:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 4:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 5:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 6:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 7:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 8:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 9:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Reading graph file
+Done reading graph file
+Graph size: 2097152 nodes, 10483080 edges
+Pass 0:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 1:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 2:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 3:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 4:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 5:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 6:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 7:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 8:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 9:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Reading graph file
+Done reading graph file
+Graph size: 4194304 nodes, 20973265 edges
+Pass 0:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 1:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 2:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 3:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 4:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 5:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 6:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 7:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 8:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 9:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Reading graph file
+Done reading graph file
+Graph size: 8388608 nodes, 41946404 edges
+Pass 0:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 1:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 2:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 3:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 4:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 5:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 6:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 7:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 8:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Pass 9:
+Executing BFS...Done.
+Executing BFS using unified memory...Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Row length: 16
+Column length: 1024
+Pyramid height: 4
+gridSize: [1024],border:[4],blockSize: [512],blockGrid:[3],targetBlock:[504]
+Pass 0: Done.
+Pass 1: Done.
+Pass 2: Done.
+Pass 3: Done.
+Pass 4: Done.
+Pass 5: Done.
+Pass 6: Done.
+Pass 7: Done.
+Pass 8: Done.
+Pass 9: Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Row length: 16
+Column length: 2048
+Pyramid height: 4
+gridSize: [2048],border:[4],blockSize: [512],blockGrid:[5],targetBlock:[504]
+Pass 0: Done.
+Pass 1: Done.
+Pass 2: Done.
+Pass 3: Done.
+Pass 4: Done.
+Pass 5: Done.
+Pass 6: Done.
+Pass 7: Done.
+Pass 8: Done.
+Pass 9: Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Row length: 16
+Column length: 4096
+Pyramid height: 4
+gridSize: [4096],border:[4],blockSize: [512],blockGrid:[9],targetBlock:[504]
+Pass 0: Done.
+Pass 1: Done.
+Pass 2: Done.
+Pass 3: Done.
+Pass 4: Done.
+Pass 5: Done.
+Pass 6: Done.
+Pass 7: Done.
+Pass 8: Done.
+Pass 9: Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Row length: 16
+Column length: 8192
+Pyramid height: 4
+gridSize: [8192],border:[4],blockSize: [512],blockGrid:[17],targetBlock:[504]
+Pass 0: Done.
+Pass 1: Done.
+Pass 2: Done.
+Pass 3: Done.
+Pass 4: Done.
+Pass 5: Done.
+Pass 6: Done.
+Pass 7: Done.
+Pass 8: Done.
+Pass 9: Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Row length: 16
+Column length: 65536
+Pyramid height: 4
+gridSize: [65536],border:[4],blockSize: [512],blockGrid:[131],targetBlock:[504]
+Pass 0: Done.
+Pass 1: Done.
+Pass 2: Done.
+Pass 3: Done.
+Pass 4: Done.
+Pass 5: Done.
+Pass 6: Done.
+Pass 7: Done.
+Pass 8: Done.
+Pass 9: Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Row length: 16
+Column length: 131072
+Pyramid height: 4
+gridSize: [131072],border:[4],blockSize: [512],blockGrid:[261],targetBlock:[504]
+Pass 0: Done.
+Pass 1: Done.
+Pass 2: Done.
+Pass 3: Done.
+Pass 4: Done.
+Pass 5: Done.
+Pass 6: Done.
+Pass 7: Done.
+Pass 8: Done.
+Pass 9: Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Row length: 16
+Column length: 261444
+Pyramid height: 4
+gridSize: [261444],border:[4],blockSize: [512],blockGrid:[519],targetBlock:[504]
+Pass 0: Done.
+Pass 1: Done.
+Pass 2: Done.
+Pass 3: Done.
+Pass 4: Done.
+Pass 5: Done.
+Pass 6: Done.
+Pass 7: Done.
+Pass 8: Done.
+Pass 9: Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Row length: 16
+Column length: 524288
+Pyramid height: 4
+gridSize: [524288],border:[4],blockSize: [512],blockGrid:[1041],targetBlock:[504]
+Pass 0: Done.
+Pass 1: Done.
+Pass 2: Done.
+Pass 3: Done.
+Pass 4: Done.
+Pass 5: Done.
+Pass 6: Done.
+Pass 7: Done.
+Pass 8: Done.
+Pass 9: Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Row length: 16
+Column length: 1048576
+Pyramid height: 4
+gridSize: [1048576],border:[4],blockSize: [512],blockGrid:[2081],targetBlock:[504]
+Pass 0: Done.
+Pass 1: Done.
+Pass 2: Done.
+Pass 3: Done.
+Pass 4: Done.
+Pass 5: Done.
+Pass 6: Done.
+Pass 7: Done.
+Pass 8: Done.
+Pass 9: Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Row length: 16
+Column length: 2097152
+Pyramid height: 4
+gridSize: [2097152],border:[4],blockSize: [512],blockGrid:[4162],targetBlock:[504]
+Pass 0: Done.
+Pass 1: Done.
+Pass 2: Done.
+Pass 3: Done.
+Pass 4: Done.
+Pass 5: Done.
+Pass 6: Done.
+Pass 7: Done.
+Pass 8: Done.
+Pass 9: Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Row length: 16
+Column length: 4194304
+Pyramid height: 4
+gridSize: [4194304],border:[4],blockSize: [512],blockGrid:[8323],targetBlock:[504]
+Pass 0: Done.
+Pass 1: Done.
+Pass 2: Done.
+Pass 3: Done.
+Pass 4: Done.
+Pass 5: Done.
+Pass 6: Done.
+Pass 7: Done.
+Pass 8: Done.
+Pass 9: Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Row length: 16
+Column length: 8388608
+Pyramid height: 4
+gridSize: [8388608],border:[4],blockSize: [512],blockGrid:[16645],targetBlock:[504]
+Pass 0: Done.
+Pass 1: Done.
+Pass 2: Done.
+Pass 3: Done.
+Pass 4: Done.
+Pass 5: Done.
+Pass 6: Done.
+Pass 7: Done.
+Pass 8: Done.
+Pass 9: Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+WG size of kernel = 16 X 16
+Image Size: 32 x 32
+Speckle size: 8 x 8
+Num Iterations: 50
+Pass 0:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.627271 vs 1.627271
+Running SRAD with cooperative groups...Failed.
+Pass 1:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.624110 vs 1.624110
+Running SRAD with cooperative groups...Failed.
+Pass 2:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+2.708561 vs 2.708561
+Running SRAD with cooperative groups...Failed.
+Pass 3:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+2.634915 vs 2.634915
+Running SRAD with cooperative groups...Failed.
+Pass 4:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+2.629704 vs 2.629704
+Running SRAD with cooperative groups...Failed.
+Pass 5:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.031978 vs 1.031978
+Running SRAD with cooperative groups...Failed.
+Pass 6:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.094746 vs 1.094746
+Running SRAD with cooperative groups...Failed.
+Pass 7:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.088534 vs 1.088534
+Running SRAD with cooperative groups...Failed.
+Pass 8:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.089392 vs 1.089392
+Running SRAD with cooperative groups...Failed.
+Pass 9:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.998494 vs 1.998494
+Running SRAD with cooperative groups...Failed.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+WG size of kernel = 16 X 16
+Image Size: 64 x 64
+Speckle size: 8 x 8
+Num Iterations: 50
+Pass 0:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.627271 vs 1.627271
+Running SRAD with cooperative groups...Failed.
+Pass 1:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+2.629704 vs 2.629704
+Running SRAD with cooperative groups...Failed.
+Pass 2:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.089392 vs 1.089392
+Running SRAD with cooperative groups...Failed.
+Pass 3:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.878749 vs 1.878749
+Running SRAD with cooperative groups...Failed.
+Pass 4:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.496840 vs 1.496840
+Running SRAD with cooperative groups...Failed.
+Pass 5:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+2.335662 vs 2.335662
+Running SRAD with cooperative groups...Failed.
+Pass 6:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.228715 vs 1.228715
+Running SRAD with cooperative groups...Failed.
+Pass 7:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+2.150658 vs 2.150658
+Running SRAD with cooperative groups...Failed.
+Pass 8:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.358016 vs 1.358016
+Running SRAD with cooperative groups...Failed.
+Pass 9:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.136826 vs 1.136826
+Running SRAD with cooperative groups...Failed.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+WG size of kernel = 16 X 16
+Image Size: 128 x 128
+Speckle size: 8 x 8
+Num Iterations: 50
+Pass 0:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.627271 vs 1.627271
+Running SRAD with cooperative groups...Failed.
+Pass 1:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.496840 vs 1.496840
+Running SRAD with cooperative groups...Failed.
+Pass 2:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.358016 vs 1.358016
+Running SRAD with cooperative groups...Failed.
+Pass 3:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.390325 vs 1.390325
+Running SRAD with cooperative groups...Failed.
+Pass 4:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+2.481709 vs 2.481709
+Running SRAD with cooperative groups...Failed.
+Pass 5:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.566640 vs 1.566640
+Running SRAD with cooperative groups...Failed.
+Pass 6:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+2.657015 vs 2.657015
+Running SRAD with cooperative groups...Failed.
+Pass 7:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.655039 vs 1.655039
+Running SRAD with cooperative groups...Failed.
+Pass 8:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.024336 vs 1.024336
+Running SRAD with cooperative groups...Failed.
+Pass 9:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.299630 vs 1.299630
+Running SRAD with cooperative groups...Failed.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+WG size of kernel = 16 X 16
+Image Size: 256 x 256
+Speckle size: 8 x 8
+Num Iterations: 50
+Pass 0:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.627271 vs 1.627271
+Running SRAD with cooperative groups...Failed.
+Pass 1:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+2.481709 vs 2.481709
+Running SRAD with cooperative groups...Failed.
+Pass 2:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.024336 vs 1.024336
+Running SRAD with cooperative groups...Failed.
+Pass 3:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.834895 vs 1.834895
+Running SRAD with cooperative groups...Failed.
+Pass 4:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.621496 vs 1.621496
+Running SRAD with cooperative groups...Failed.
+Pass 5:
+error=77 name=an illegal memory access was encountered at ln: 190
+  Chose device: name='Tesla P100-SXM2-16GB' index=0
+WG size of kernel = 16 X 16
+Image Size: 512 x 512
+Speckle size: 8 x 8
+Num Iterations: 50
+Pass 0:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.627271 vs 1.627271
+Running SRAD with cooperative groups...Failed.
+Pass 1:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.621496 vs 1.621496
+Running SRAD with cooperative groups...Failed.
+Pass 2:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+2.208252 vs 2.208252
+Running SRAD with cooperative groups...Failed.
+Pass 3:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+2.021826 vs 2.021826
+Running SRAD with cooperative groups...Failed.
+Pass 4:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+2.468718 vs 2.468718
+Running SRAD with cooperative groups...Failed.
+Pass 5:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.405255 vs 1.405255
+Running SRAD with cooperative groups...Failed.
+Pass 6:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.613735 vs 1.613735
+Running SRAD with cooperative groups...Failed.
+Pass 7:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+2.067661 vs 2.067661
+Running SRAD with cooperative groups...Failed.
+Pass 8:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.285860 vs 1.285860
+Running SRAD with cooperative groups...Failed.
+Pass 9:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.454034 vs 1.454034
+Running SRAD with cooperative groups...Failed.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+WG size of kernel = 16 X 16
+Image Size: 1024 x 1024
+Speckle size: 8 x 8
+Num Iterations: 50
+Pass 0:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.627271 vs 1.627271
+Running SRAD with cooperative groups...Failed.
+Pass 1:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+2.468718 vs 2.468718
+Running SRAD with cooperative groups...Failed.
+Pass 2:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.285860 vs 1.285860
+Running SRAD with cooperative groups...Failed.
+Pass 3:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.136638 vs 1.136638
+Running SRAD with cooperative groups...Failed.
+Pass 4:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.879771 vs 1.879771
+Running SRAD with cooperative groups...Failed.
+Pass 5:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+2.401821 vs 2.401821
+Running SRAD with cooperative groups...Failed.
+Pass 6:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.733017 vs 1.733017
+Running SRAD with cooperative groups...Failed.
+Pass 7:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.140629 vs 1.140629
+Running SRAD with cooperative groups...Failed.
+Pass 8:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+2.700958 vs 2.700958
+Running SRAD with cooperative groups...Failed.
+Pass 9:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.354177 vs 1.354177
+Running SRAD with cooperative groups...Failed.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+WG size of kernel = 16 X 16
+Image Size: 2048 x 2048
+Speckle size: 8 x 8
+Num Iterations: 50
+Pass 0:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.627271 vs 1.627271
+Running SRAD with cooperative groups...Failed.
+Pass 1:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.879771 vs 1.879771
+Running SRAD with cooperative groups...Failed.
+Pass 2:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+2.700958 vs 2.700958
+Running SRAD with cooperative groups...Failed.
+Pass 3:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.733397 vs 1.733397
+Running SRAD with cooperative groups...Failed.
+Pass 4:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.531636 vs 1.531636
+Running SRAD with cooperative groups...Failed.
+Pass 5:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.102236 vs 1.102236
+Running SRAD with cooperative groups...Failed.
+Pass 6:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.566499 vs 1.566499
+Running SRAD with cooperative groups...Failed.
+Pass 7:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+2.327206 vs 2.327206
+Running SRAD with cooperative groups...Failed.
+Pass 8:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+2.394183 vs 2.394183
+Running SRAD with cooperative groups...Failed.
+Pass 9:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.325481 vs 1.325481
+Running SRAD with cooperative groups...Failed.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+WG size of kernel = 16 X 16
+Image Size: 4096 x 4096
+Speckle size: 8 x 8
+Num Iterations: 50
+Pass 0:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.627271 vs 1.627271
+Running SRAD with cooperative groups...Failed.
+Pass 1:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.531636 vs 1.531636
+Running SRAD with cooperative groups...Failed.
+Pass 2:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+2.394183 vs 2.394183
+Running SRAD with cooperative groups...Failed.
+Pass 3:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+2.569699 vs 2.569699
+Running SRAD with cooperative groups...Failed.
+Pass 4:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.756295 vs 1.756295
+Running SRAD with cooperative groups...Failed.
+Pass 5:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+2.627797 vs 2.627797
+Running SRAD with cooperative groups...Failed.
+Pass 6:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.664664 vs 1.664664
+Running SRAD with cooperative groups...Failed.
+Pass 7:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.291680 vs 1.291680
+Running SRAD with cooperative groups...Failed.
+Pass 8:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.684082 vs 1.684082
+Running SRAD with cooperative groups...Failed.
+Pass 9:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.086650 vs 1.086650
+Running SRAD with cooperative groups...Failed.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+WG size of kernel = 16 X 16
+Image Size: 8192 x 8192
+Speckle size: 8 x 8
+Num Iterations: 50
+Pass 0:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.627271 vs 1.627271
+Running SRAD with cooperative groups...Failed.
+Pass 1:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.756295 vs 1.756295
+Running SRAD with cooperative groups...Failed.
+Pass 2:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.684082 vs 1.684082
+Running SRAD with cooperative groups...Failed.
+Pass 3:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.795652 vs 1.795652
+Running SRAD with cooperative groups...Failed.
+Pass 4:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.514617 vs 1.514617
+Running SRAD with cooperative groups...Failed.
+Pass 5:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.171738 vs 1.171738
+Running SRAD with cooperative groups...Failed.
+Pass 6:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.370453 vs 1.370453
+Running SRAD with cooperative groups...Failed.
+Pass 7:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.728710 vs 1.728710
+Running SRAD with cooperative groups...Failed.
+Pass 8:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.031947 vs 1.031947
+Running SRAD with cooperative groups...Failed.
+Pass 9:
+Running SRAD...Done.
+Error: Validation failed at row 0, col 0
+1.753280 vs 1.753280
+Running SRAD with cooperative groups...Failed.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Image Size: 32 by 32
+Num Iterations: 512
+Using dynamic parallelism
+Pass 0:
+Done.
+Pass 1:
+Done.
+Pass 2:
+Done.
+Pass 3:
+Done.
+Pass 4:
+Done.
+Pass 5:
+Done.
+Pass 6:
+Done.
+Pass 7:
+Done.
+Pass 8:
+Done.
+Pass 9:
+Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Image Size: 64 by 64
+Num Iterations: 512
+Using dynamic parallelism
+Pass 0:
+Done.
+Pass 1:
+Done.
+Pass 2:
+Done.
+Pass 3:
+Done.
+Pass 4:
+Done.
+Pass 5:
+Done.
+Pass 6:
+Done.
+Pass 7:
+Done.
+Pass 8:
+Done.
+Pass 9:
+Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Image Size: 128 by 128
+Num Iterations: 512
+Using dynamic parallelism
+Pass 0:
+Done.
+Pass 1:
+Done.
+Pass 2:
+Done.
+Pass 3:
+Done.
+Pass 4:
+Done.
+Pass 5:
+Done.
+Pass 6:
+Done.
+Pass 7:
+Done.
+Pass 8:
+Done.
+Pass 9:
+Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Image Size: 256 by 256
+Num Iterations: 512
+Using dynamic parallelism
+Pass 0:
+Done.
+Pass 1:
+Done.
+Pass 2:
+Done.
+Pass 3:
+Done.
+Pass 4:
+Done.
+Pass 5:
+Done.
+Pass 6:
+Done.
+Pass 7:
+Done.
+Pass 8:
+Done.
+Pass 9:
+Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Image Size: 512 by 512
+Num Iterations: 512
+Using dynamic parallelism
+Pass 0:
+Done.
+Pass 1:
+Done.
+Pass 2:
+Done.
+Pass 3:
+Done.
+Pass 4:
+Done.
+Pass 5:
+Done.
+Pass 6:
+Done.
+Pass 7:
+Done.
+Pass 8:
+Done.
+Pass 9:
+Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Image Size: 1024 by 1024
+Num Iterations: 512
+Using dynamic parallelism
+Pass 0:
+Done.
+Pass 1:
+Done.
+Pass 2:
+Done.
+Pass 3:
+Done.
+Pass 4:
+Done.
+Pass 5:
+Done.
+Pass 6:
+Done.
+Pass 7:
+Done.
+Pass 8:
+Done.
+Pass 9:
+Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Image Size: 2048 by 2048
+Num Iterations: 512
+Using dynamic parallelism
+Pass 0:
+Done.
+Pass 1:
+Done.
+Pass 2:
+Done.
+Pass 3:
+Done.
+Pass 4:
+Done.
+Pass 5:
+Done.
+Pass 6:
+Done.
+Pass 7:
+Done.
+Pass 8:
+Done.
+Pass 9:
+Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Image Size: 4096 by 4096
+Num Iterations: 512
+Using dynamic parallelism
+Pass 0:
+Done.
+Pass 1:
+Done.
+Pass 2:
+Done.
+Pass 3:
+Done.
+Pass 4:
+Done.
+Pass 5:
+Done.
+Pass 6:
+Done.
+Pass 7:
+Done.
+Pass 8:
+Done.
+Pass 9:
+Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Image Size: 8192 by 8192
+Num Iterations: 512
+Using dynamic parallelism
+Pass 0:
+Done.
+Pass 1:
+Done.
+Pass 2:
+Done.
+Pass 3:
+Done.
+Pass 4:
+Done.
+Pass 5:
+Done.
+Pass 6:
+Done.
+Pass 7:
+Done.
+Pass 8:
+Done.
+Pass 9:
+Done.
+Chose device: name='Tesla P100-SXM2-16GB' index=0
+Image Size: 65536 by 65536
+Num Iterations: 512
+Using dynamic parallelism
+Pass 0:
+error=77 name=an illegal memory access was encountered at ln: 227
+  

@@ -1,6 +1,7 @@
 include $(top_builddir)/config/config.mk
 include $(top_builddir)/config/targets.mk
 
+# EXTRAFLAGS = 
 # How to find source files
 VPATH = $(srcdir):$(srcdir)/../../common:$(srcdir)/../../../common
 
@@ -14,9 +15,10 @@ cudadir = $(bindir)/CUDA
 cuda_PROGRAMS = kmeans
 
 # How to build those programs?
-kmeans_SOURCES = main.cpp \
-                 rmse.cpp
-kmeans_LDADD = kmeans_cuda.o cluster.o kmeans.o kmeans_clustering.o $(CUDA_LIBS) $(LIBS) -lm
+kmeans_SOURCES = \
+main.cpp 
 
-
-
+kmeans_LDADD = \
+kmmain.o \
+kmeansraw.o \
+$(CUDA_LIBS) $(LIBS) -lm
