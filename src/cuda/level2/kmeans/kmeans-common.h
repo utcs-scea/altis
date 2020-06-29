@@ -18,7 +18,7 @@ static const int COUNTER_SHMEMSIZE = (256 * sizeof(int));
 static const int ACCUM_SHMEMSIZE = (SHMEMSIZE-COUNTER_SHMEMSIZE);       
 static const int SHMEMCNTR_FLOATS = (COUNTER_SHMEMSIZE/sizeof(float));
 static const int SHMEMACCUM_FLOATS = (ACCUM_SHMEMSIZE/sizeof(float));
-static const int CONSTMEMSIZE = 16384*4;    // default constant memory size
+static const int CONSTMEMSIZE = 16384*sizeof(float);    // default constant memory size
 static const int CONSTRSRVSIZE = SHMEMSIZE;
 
 

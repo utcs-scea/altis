@@ -10,7 +10,8 @@
 #include "kmeansraw.h"
 
 
-typedef double (*LPFNKMEANS)(const int nSteps,
+typedef double (*LPFNKMEANS)(ResultDatabase &DB,
+                             const int nSteps,
                              void * h_Points,
                              void * h_Centers,
 	                         const int nPoints,
@@ -18,7 +19,8 @@ typedef double (*LPFNKMEANS)(const int nSteps,
 	                         bool bVerify,
 	                         bool bVerbose);
 
-typedef void (*LPFNBNC)(char * szFile, 
+typedef void (*LPFNBNC)(ResultDatabase &DB,
+                        char * szFile, 
                         LPFNKMEANS lpfn, 
                         int nSteps,
                         int nSeed,
@@ -62,9 +64,6 @@ int g_nSteps = DEFAULTSTEPS;
 
 LPFNKMEANS g_lpfnKMeans = NULL;
 LPFNBNC g_lpfnBnc = NULL;
-//char* g_lpszDefaultInput = "C:\\Users\\ed\\source\\repos\\concurrency\\kmeans\\inputs\\random-n65536-d32-c16.txt";
-//char *g_lpszDefaultInput = "~/Desktop/altis/src/cuda/level2/km/inputs/random-n65536-d32-c16.txt";
-//char *g_lpszDefaultInput = "/home/ed/Desktop/altis/src/cuda/level2/km/inputs/random-n65536-d32-c16.txt";
 char *g_lpszDefaultInput = "/home/ed/Desktop/altis/src/cuda/level2/km/inputs/random-n1000000-d128-c128.txt";
 char g_vInputFile[4096];
 char g_vKMeansVersion[4096];
@@ -128,11 +127,10 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
     g_nCenters = op.getOptionInt("centers");
     g_nSteps = op.getOptionInt("steps");
     g_nSeed = op.getOptionInt("seed");
-    //g_vKMeansVersion = op.getOptionString("type");
     strcpy(g_vKMeansVersion, op.getOptionString("type").c_str());
     if (g_nSeed == 0) {
         struct timespec ts;
-        if(clock_gettime(CLOCK_MONOTONIC,&ts) != 0) {
+        if (clock_gettime(CLOCK_MONOTONIC,&ts) != 0) {
             //error
             printf("failed to get clock tick\n");
             exit(-1);
@@ -147,7 +145,7 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
 
     g_lpfnKMeans = choose_kmeans_impl(g_vKMeansVersion, g_nRank, g_nCenters);
     g_lpfnBnc = choose_kmeans_bnc(g_vKMeansVersion, g_nRank, g_nCenters);
-    if(!g_lpfnKMeans || !g_lpfnBnc) {
+    if (!g_lpfnKMeans || !g_lpfnBnc) {
         if (!g_lpfnKMeans) std::cout <<"first" << std::endl;
         if (!g_lpfnBnc) std::cout <<"second" << std::endl;
 	    fprintf(stderr, 
@@ -158,7 +156,6 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
         exit(-1);
     }
 
-    // TODO: add custom input file here
     std::string customInput = op.getOptionString("inputFile");
     if (customInput.size() <= 0) {
         strncpy(g_vInputFile, g_lpszDefaultInput, 4096);
@@ -166,7 +163,8 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
         strncpy(g_vInputFile, customInput.c_str(), 4096);
     }
 
-    (*g_lpfnBnc)(g_vInputFile,
+    (*g_lpfnBnc)(DB,
+                 g_vInputFile,
                  g_lpfnKMeans,
                  g_nSteps,
                  g_nSeed,

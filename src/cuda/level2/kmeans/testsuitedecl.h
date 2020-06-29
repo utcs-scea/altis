@@ -23,6 +23,7 @@
 #define declare_testcase_hdr(name, rnk, cent, cman, accman, rowmaj)  \
 double                                                               \
 buildfnname(name, rnk, cent)(                                        \
+    ResultDatabase &DB,                                              \
 	const int nSteps,                                                \
 	void * lpvPoints,                                                \
 	void * lpvCenters,                                               \
@@ -35,6 +36,7 @@ buildfnname(name, rnk, cent)(                                        \
 #define declare_bnc_header(name, rnk, cent, cman, accman, rowmaj)    \
 void                                                                 \
 buildbncfnname(name, rnk, cent)(                                     \
+    ResultDatabase &DB,                                              \
 	char * lpszInputFile,                                            \
 	LPFNKMEANS lpfn,                                                 \
     int nSteps,                                                      \
@@ -47,6 +49,7 @@ buildbncfnname(name, rnk, cent)(                                     \
 #define declare_testcase(name, rnk, cent, cman, accman, rowmaj)  \
 double                                                           \
 buildfnname(name, rnk, cent)(                                    \
+    ResultDatabase &DB,                                          \
 	const int nSteps,                                            \
 	void * lpvPoints,                                            \
 	void * lpvCenters,                                           \
@@ -61,7 +64,8 @@ buildfnname(name, rnk, cent)(                                    \
                      cent,                                       \
                      cman<rnk, cent>,                            \
                      accman<rnk, cent, rowmaj>,                  \
-                     rowmaj>::benchmark(nSteps,                  \
+                     rowmaj>::benchmark(DB,                      \
+                                       nSteps,                   \
                                        lpvPoints,                \
                                        lpvCenters,               \
                                        nPoints,                  \
@@ -73,6 +77,7 @@ buildfnname(name, rnk, cent)(                                    \
 #define declare_bnc_fn(name, rnk, cent, cman, accman, rowmaj) \
 void                                                          \
 buildbncfnname(name, rnk, cent)(                              \
+    ResultDatabase &DB,                                       \
 	char * lpszInputFile,                                     \
 	LPFNKMEANS lpfn,                                          \
     int nSteps,                                               \
@@ -85,7 +90,8 @@ buildbncfnname(name, rnk, cent)(                              \
               cent,                                           \
               cman<rnk, cent>,                                \
               accman<rnk, cent, rowmaj>,                      \
-              rowmaj>::bncmain(lpszInputFile,                 \
+              rowmaj>::bncmain(DB,                            \
+                               lpszInputFile,                 \
                                lpfn,                          \
                                nSteps,                        \
                                nSeed,                         \

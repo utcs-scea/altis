@@ -17,14 +17,14 @@
 #include "genericvector.h"
 #include "kmeans-common.h"
 #include "cudacommon.h"
+#include "ResultDatabase.h"
 #include <assert.h>
 #include <cfloat>
 #include <iostream>
 
-texture<float, cudaTextureType1D, cudaReadModeElementType> t_points;
-// texture<float, 1, cudaReadModeElementType> t_points;
 
-typedef double (*LPFNKMEANS)(const int nSteps,
+typedef double (*LPFNKMEANS)(ResultDatabase &DB,
+    const int nSteps,
     void* h_Points,
     void* h_Centers,
     const int nPoints,
@@ -32,15 +32,15 @@ typedef double (*LPFNKMEANS)(const int nSteps,
     bool bVerify,
     bool bVerbose);
 
-typedef void (*LPFNBNC)(char* szFile,
+typedef void (*LPFNBNC)(ResultDatabase &DB,
+    char* szFile,
     LPFNKMEANS lpfn,
     int nSteps,
     int nSeed,
     bool bVerify,
     bool bVerbose);
 
-//__constant__ float d_cnst_centers[CONSTRSRVSIZE/sizeof(float)];
-__constant__ float d_cnst_centers[16384];
+__constant__ float d_cnst_centers[CONSTMEMSIZE / sizeof(float)];
 
 template <int R, int C> 
 class centersmanagerRO {
@@ -49,8 +49,7 @@ protected:
     float * m_pRO;
 public:
     centersmanagerRO(float * pG) : m_pG(pG), m_pRO(NULL) {} 
-    //bool useROMem() { return R*C<CONSTRSRVSIZE/sizeof(float); }
-    bool useROMem() { return R*C<16384; }
+    bool useROMem() { return R*C<CONSTMEMSIZE/sizeof(float); }
     float * dataRW() { return m_pG; } 
     float * dataRO() { return d_cnst_centers; }
     bool update(float * p, bool bHtoD=false) { return (bHtoD ? updateHtoD(p) : updateDtoD(p)); }
@@ -359,7 +358,7 @@ protected:
             // printf("accumulateSM_RCeqBlockSize<%d,%d><<<%d,%d>>>(...)\n", R, C, nBlocks, nBlockSize);
             accumulateSM_RCeqBlockSize<R,C><<<nBlocks, nBlockSize>>>(pP, pC, pCC, pCI, nP);
         } else {
-            //printf("accumulateSMColumnMajor_RCeqBS<%d,%d><<<%d,%d>>>(...)\n", R, C, nBlocks, nBlockSize);
+            // printf("accumulateSMColumnMajor_RCeqBS<%d,%d><<<%d,%d>>>(...)\n", R, C, nBlocks, nBlockSize);
             accumulateSMColumnMajor_RCeqBS<R,C><<<nBlocks, nBlockSize>>>(pP, pC, pCC, pCI, nP);
         }
     }
@@ -372,7 +371,7 @@ protected:
         const int nMinPointsBlocks = iDivUp(nP, nBlockSize);
         const int nBlocks = max(nMinAccumBlocks, nMinPointsBlocks);
         if(ROWMAJ) {
-			printf("accumulateSM<%d, %d, %d><<<%d,%d>>>()\n", R,C,nElemsPerThread,nBlocks,nBlockSize);
+			// printf("accumulateSM<%d, %d, %d><<<%d,%d>>>()\n", R,C,nElemsPerThread,nBlocks,nBlockSize);
             accumulateSM<R,C,nElemsPerThread><<<nBlocks, THREADBLOCK_SIZE>>>(pP, pC, pCC, pCI, nP);
         } else {
             accumulateSMColumnMajor<R,C><<<nBlocks, THREADBLOCK_SIZE>>>(pP, pC, pCC, pCI, nP); 
@@ -425,16 +424,7 @@ _vdistancefcm(
     float * pBStart = &pBVectors[nBIndex];
     for(int i=0; i<R; i++) {
         float a = (*(pAStart + i*nAVectorCount));
-
-
-// TODO texture fetch
-// float a = tex1Dfetch(t_points, nAIndex+i*nAVectorCount);
-
-
-        // float a = __ldg(pAStart + i*nAVectorCount);
         float b = (*(pBStart + i*nBVectorCount));
-        // float a = __ldg(pAStart + i*nAVectorCount);
-        // float b = __ldg(pBStart + i*nBVectorCount);
         float delta = a-b;
         accum += delta*delta;
     }
@@ -518,44 +508,13 @@ public:
         assert(m_nCenters == C);
         const uint nCentersBlocks = iDivUp(m_nCenters, THREADBLOCK_SIZE);
         const uint nPointsBlocks = iDivUp(m_nPoints, THREADBLOCK_SIZE);
-
-cudaProfilerStart();
-
-cudaEvent_t start, stop;
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
-
-
-cudaEvent_t inner_start, inner_stop;
-    cudaEventCreate(&inner_start);
-    cudaEventCreate(&inner_stop);
-
-    float totalElapsedTime = 0;
-    float innertotalElapsedTime = 0;
-    cudaEventRecord(start, 0);
-
-        for(int i=0; i<m_nSteps; i++) {
-    float kernelExeTime = 0;
+        for (int i=0; i<m_nSteps; i++) {
             _V(updatecentersIn(m_dCenters));    // deal with centers data
-            cudaEventRecord(inner_start, 0);
 		    _V(mapCenters(m_dPoints, m_dClusterIds, m_nPoints));
-            cudaEventRecord(inner_stop, 0);
-cudaEventSynchronize(inner_stop);
-    cudaEventElapsedTime(&kernelExeTime, inner_start, inner_stop);
-    innertotalElapsedTime += kernelExeTime;
 		    _V(resetAccumulators(m_dCenters, m_dClusterCounts));
 		    _V(accumulate(m_dPoints, m_dCenters, m_dClusterCounts, m_dClusterIds, m_nPoints));
 		    _V(finalizeAccumulators(m_dCenters, m_dClusterCounts));
 	    }
-        
-cudaEventRecord(stop, 0);
-cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&totalElapsedTime, start, stop);
-    double totalExecTime = totalElapsedTime;
-    std::cout << "per it time (ms): " << totalExecTime / m_nSteps << std::endl;
-    std::cout << "kernel time (ms): " << innertotalElapsedTime / m_nSteps << std::endl;
-
-cudaProfilerStop();
         return true;
     }
 
@@ -586,34 +545,14 @@ protected:
         if(ROWMAJ) {
             if(m_centers.useROMem()) {
                 mapPointsToCenters<R,C,true><<<nPointsBlocks, THREADBLOCK_SIZE>>>(pP, pC, pCI, nP);
-                //mapPointsToCenters<R,C,true><<<63*63, THREADBLOCK_SIZE>>>(pP, pC, pCI, nP);
             } else {
                 mapPointsToCenters<R,C,false><<<nPointsBlocks, THREADBLOCK_SIZE>>>(pP, pC, pCI, nP);
-                //mapPointsToCenters<R,C,false><<<63*63, THREADBLOCK_SIZE>>>(pP, pC, pCI, nP);
             }
         } else {
             if(m_centers.useROMem()) {
                 mapPointsToCentersColumnMajor<R,C,true><<<nPointsBlocks, THREADBLOCK_SIZE>>>(pP, pC, pCI, nP);
-                //mapPointsToCentersColumnMajor<R,C,true><<<63*63, THREADBLOCK_SIZE>>>(pP, pC, pCI, nP);
             } else {
-                // TODO use texture here
-
-
-                /*
-cudaChannelFormatDesc channelDesc =
-                             cudaCreateChannelDesc<float>();
-t_points.filterMode = cudaFilterModePoint;   
-t_points.normalized = false;
-t_points.channelDesc = channelDesc;
-
-    size_t offset;
-	checkCudaErrors(cudaBindTexture(&offset, &t_points, pP, &channelDesc, nP*R*sizeof(float)));
-    assert(offset == 0);
-    */
-
-
                 mapPointsToCentersColumnMajor<R,C,false><<<nPointsBlocks, THREADBLOCK_SIZE>>>(pP, pC, pCI, nP);
-                //mapPointsToCentersColumnMajor<R,C,false><<<63*63, THREADBLOCK_SIZE>>>(pP, pC, pCI, nP);
             }
         }
     }
@@ -898,7 +837,6 @@ t_points.channelDesc = channelDesc;
         }
         bool bSuccess = unmatched.size() == 0;
         if(bVerbose && !bSuccess) {
-            // std::set<pt<R>*>::iterator si;
             int nDumped = 0;
             fprintf(stderr, "Could not match %d centers:\n", unmatched.size());
             for(auto si=unmatched.begin(); si!=unmatched.end(); si++) {
@@ -952,7 +890,6 @@ t_points.channelDesc = channelDesc;
         }
         bool bSuccess = unmatched.size() == 0;
         if(bVerbose && !bSuccess) {
-            // std::map<int, pt<R>*>::iterator si;
             fprintf(stderr, "Could not match %d centers:\n", unmatched.size());
             for(auto si=unmatched.begin(); si!=unmatched.end(); si++) {
                 if(++nRows > nRowLimit) {
@@ -1008,6 +945,7 @@ public:
 
     static double
     benchmark(
+        ResultDatabase &DB,
 	    const int nSteps,
 	    void * lpvPoints,
 	    void * lpvCenters,
@@ -1025,7 +963,7 @@ public:
 	    pt<R> * h_InCenters = reinterpret_cast<pt<R>*>(lpvCenters);        
 	    float * h_Points = reinterpret_cast<float*>(h_InPoints);
 	    float * h_Centers = reinterpret_cast<float*>(h_InCenters);
-        if(!ROWMAJ) {
+        if (!ROWMAJ) {
             h_TxPoints = transpose(h_InPoints, nPoints);
             h_TxCenters = transpose(h_InCenters, nCenters);
             h_Points = h_TxPoints;
@@ -1062,28 +1000,42 @@ public:
                                             nPoints,
                                             nCenters);
 
+        float elapsed;
+        cudaEvent_t start, stop;
+        checkCudaErrors(cudaEventCreate(&start));
+        checkCudaErrors(cudaEventCreate(&stop));
+
+        checkCudaErrors(cudaEventRecord(start, 0));
+
         pKMeans->execute();
 	    checkCudaErrors( cudaDeviceSynchronize() );
 
-	    if(bVerbose) {
+        checkCudaErrors(cudaEventRecord(stop, 0));
+        checkCudaErrors(cudaEventSynchronize(stop));
+        checkCudaErrors(cudaEventElapsedTime(&elapsed, start, stop));
+
+        checkCudaErrors(cudaEventDestroy(start));
+        checkCudaErrors(cudaEventDestroy(stop));
+
+	    if (bVerbose) {
 		    uint byteCount = (uint)(uiPointsBytes + uiCentersBytes);
+            //DB.addResult("KMeans() time (avg)", elapsed * 1.0e-3, );
 		    //shrLog("kmeans() time (average) : %.5f sec, %.4f MB/sec\n\n", dAvgSecs, ((double)byteCount * 1.0e-6) / dAvgSecs);
 		    //shrLogEx(LOGBOTH | MASTER, 0, "kmeans, Throughput = %.4f MB/s, Time = %.5f s, Size = %u Bytes, NumDevsUsed = %u, Workgroup = %u\n", 
 					    //(1.0e-6 * (double)byteCount / dAvgSecs), dAvgSecs, byteCount, 1, THREADBLOCK_SIZE); 
 	    }
 
-	    if(bVerify) {
+	    if (bVerify) {
 		    //shrLog(" ...reading back GPU results\n");
 		    checkCudaErrors( cudaMemcpy(h_Centers, d_Centers, uiCentersBytes, cudaMemcpyDeviceToHost) );
-            if(!ROWMAJ) {
+            if (!ROWMAJ) {
                 rtranspose(h_TxCenters, nCenters, (float*)h_InCenters);
             }
 	    }
 
 
-pt<R> * printC = reinterpret_cast<pt<R>*>(h_Centers);
-ggPrintCenters(stdout, printC);
-//MyPrintCenters(h_Centers);
+//pt<R> * printC = reinterpret_cast<pt<R>*>(h_Centers);
+//ggPrintCenters(stdout, printC);
 
 
 	    //shrLog("cleaning up device resources...\n");
@@ -1091,7 +1043,7 @@ ggPrintCenters(stdout, printC);
 	    checkCudaErrors( cudaFree((void*)d_Centers) );
 	    checkCudaErrors( cudaFree((void*)d_ClusterIds) );
 	    checkCudaErrors( cudaFree((void*)d_ClusterCounts) );
-        if(!ROWMAJ) {
+        if (!ROWMAJ) {
             free(h_TxCenters);
             free(h_TxPoints);
         }
@@ -1139,7 +1091,6 @@ ggPrintCenters(stdout, printC);
         std::vector<int>& vclusterids
         )
     {
-        // std::vector<pt<R>>::iterator vi;
         int index = 0;
         for(auto vi=vpoints.begin(); vi!=vpoints.end(); vi++) 
             vclusterids[index++] = NearestCenter(*vi, vcenters);
@@ -1169,6 +1120,7 @@ ggPrintCenters(stdout, printC);
 
     static void 
     bncmain(
+        ResultDatabase &DB,
         char * lpszInputFile, 
         LPFNKMEANS lpfnKMeans,
         int nSteps,
@@ -1214,14 +1166,7 @@ ggPrintCenters(stdout, printC);
 	    pt<R> *h_Points = NULL;
 	    pt<R> *h_Centers = NULL;
 	    int * h_ClusterIds = NULL;
-		//bool bTooBig = (uiPointsBytes > 1024U*1024U*1024U*4U);
 		bool bTooBig = (uiPointsBytes > UINT_MAX);
-
-        std::cout << "Npoints: " << nPoints << std::endl;
-        std::cout << "R: " << R << std::endl;
-        std::cout << "left side: " << uiPointsBytes << std::endl;
-        std::cout << "right side: " << UINT_MAX << std::endl;
-        std::cout << "bool: " << bTooBig << std::endl;
 
 		// if the points won't fit in GPU memory, there is
 		// no point in going through the exercise of watching 
@@ -1229,7 +1174,7 @@ ggPrintCenters(stdout, printC);
 		// collect the CPU comparison number). If it's obviously
 		// too big, skip the CUDA rigmaroll.
 
-		if(!bTooBig) {
+		if (!bTooBig) {
 
 			pt<R> *h_Points = (pt<R>*)malloc(uiPointsBytes);
 			pt<R> *h_Centers = (pt<R>*)malloc(uiCentersBytes);
@@ -1245,18 +1190,17 @@ ggPrintCenters(stdout, printC);
 
 			//fprintf(stdout, "initial centers:\n");
 			//PrintCenters<DEFAULTRANK>(stdout, h_Centers, nCenters);
-            //cudaProfilerStart();
-			dAvgSecs = (*lpfnKMeans)(nSteps, 
+			dAvgSecs = (*lpfnKMeans)(DB,
+                                     nSteps, 
 									 h_Points, 
 									 h_Centers, 
 									 nPoints, 
 									 nCenters, 
 									 bVerify,
 									 bVerbose);
-            //cudaProfilerStop();
 		}
 
-	    if(bVerify) {
+	    if (bVerify) {
 		    //shrLog("\nValidating GPU results...\n");
 		    for(int nStep=0; nStep<nSteps; nStep++) {
 			    MapPointsToCentersSequential(refcenters, points, refclusterids);
@@ -1266,7 +1210,7 @@ ggPrintCenters(stdout, printC);
 		    // compare the results, complaining loudly on a mismatch,
 		    // and print the final output along with timing data for each impl.
 		    
-			if(!bTooBig) {
+			if (!bTooBig) {
 				pt<R>* pCenters = h_Centers;
 				for(auto vi=centers.begin(); vi!=centers.end(); vi++) 
 					*vi = *pCenters++;

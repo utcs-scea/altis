@@ -16,7 +16,10 @@
 #include <string>
 #include <cuda_runtime.h>
 
-typedef double (*LPFNKMEANS)(const int nSteps,
+#include "ResultDatabase.h"
+
+typedef double (*LPFNKMEANS)(ResultDatabase &DB,
+                             const int nSteps,
                              void * h_Points,
                              void * h_Centers,
 	                         const int nPoints,
@@ -24,7 +27,8 @@ typedef double (*LPFNKMEANS)(const int nSteps,
 	                         bool bVerify,
 	                         bool bVerbose);
 
-typedef void (*LPFNBNC)(char * szFile, 
+typedef void (*LPFNBNC)(ResultDatabase &DB,
+                        char * szFile, 
                         LPFNKMEANS lpfn, 
                         int nSteps,
                         int nSeed,
