@@ -28,7 +28,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	A macro that defines safe exit. </summary>
 ///
-/// <remarks>	Ed, 5/20/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/20/2020. </remarks>
 ///
 /// <param name="val">	The value. </param>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	A macro that defines safe exit. </summary>
 ///
-/// <remarks>	Ed, 5/20/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/20/2020. </remarks>
 ///
 /// <param name="val">	The value. </param>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -55,7 +55,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	A macro that defines check cuda error noexit. </summary>
 ///
-/// <remarks>	Ed, 5/20/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/20/2020. </remarks>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define CHECK_CUDA_ERROR_NOEXIT()                                             \
@@ -72,7 +72,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	A macro that defines check cuda error. </summary>
 ///
-/// <remarks>	Ed, 5/20/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/20/2020. </remarks>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define CHECK_CUDA_ERROR()                                                    \
@@ -90,14 +90,14 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	Another macro that defines check cuda error, no sync. </summary>
 ///
-/// <remarks>	Ed, 6/8/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 6/8/2020. </remarks>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define checkCudaErrors(err)           __checkCudaErrors (err, __FILE__, __LINE__)
 
     inline void __checkCudaErrors( cudaError err, const char *file, const int line )
     {
-        if( cudaSuccess != err) {
+        if (cudaSuccess != err) {
 	        fprintf(stderr, "%s(%i) : CUDA Runtime API error %d: %s.\n",
                     file, line, (int)err, cudaGetErrorString( err ) );
             exit(-1);
@@ -107,7 +107,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	This will output the proper error string when calling cudaGetLastError. </summary>
 ///
-/// <remarks>	Ed, 6/8/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 6/8/2020. </remarks>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define getLastCudaError(msg)      __getLastCudaError (msg, __FILE__, __LINE__)
@@ -117,7 +117,7 @@
     inline void __getLastCudaError( const char *errorMessage, const char *file, const int line )
     {
         cudaError_t err = cudaGetLastError();
-        if( cudaSuccess != err) {
+        if (cudaSuccess != err) {
             fprintf(stderr, "%s(%i) : getLastCudaError() CUDA error : %s : (%d) %s.\n",
                     file, line, errorMessage, (int)err, cudaGetErrorString( err ) );
             exit(-1);
@@ -138,7 +138,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	A macro that defines cuda safe call noexit. </summary>
 ///
-/// <remarks>	Ed, 5/20/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/20/2020. </remarks>
 ///
 /// <param name="call">	The call. </param>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -151,12 +151,10 @@
     }                                                                         \
 } while (0)
 
-// Alternative macro to catch CUDA errors
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	A macro that defines cuda safe call. </summary>
 ///
-/// <remarks>	Ed, 5/20/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/20/2020. </remarks>
 ///
 /// <param name="call">	The call. </param>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -173,7 +171,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	A function that returns the max number of cuda threads per block. </summary>
 ///
-/// <remarks>	Bodun Hu, 5/20/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/20/2020. </remarks>
 ///
 /// <param name="val">	The max number of cuda threads per block. </param>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -188,7 +186,7 @@ static inline int max_threads_per_block(int device)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	A function that returns the warp size. </summary>
 ///
-/// <remarks>	Bodun Hu, 5/20/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/20/2020. </remarks>
 ///
 /// <param name="val">	The warp size. </param>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -200,14 +198,18 @@ static inline int warp_size(int device)
     return prop.warpSize;
 }
 
-
+#ifdef UNIFIED_MEMORY
+#define ALTIS_CUDA_MALLOC(ptr, size)    checkCudaErrors(cudaMallocManaged(ptr, size))
+#else
+#define ALTIS_CUDA_MALLOC(ptr, size)    checkCudaErrors(cudaMalloc(ptr, size));
+#endif
 
 // Alleviate aliasing issues
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	A macro that defines restrict. </summary>
 ///
-/// <remarks>	Ed, 5/20/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/20/2020. </remarks>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define RESTRICT __restrict__
