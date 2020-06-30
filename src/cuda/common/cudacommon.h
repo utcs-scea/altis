@@ -20,8 +20,13 @@
 #include <cuda.h>
 #include <cuda_runtime_api.h>
 
-#include "cuda_device_attr.h"
-
+#if defined __has_include
+#  if __has_include ("cuda_device_attr.h")
+#    include "cuda_device_attr.h"
+#  else
+#    error "cuda_device_attr.h can't be found. Please refer to README for instructions."
+#  endif
+#endif
 
 // On Windows, if we call exit, our console may disappear,
 // taking the error message with it, so prompt before exiting.
