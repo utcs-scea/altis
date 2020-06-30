@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
 
         // Initialization
         EnumerateDevicesAndChoose(device, properties, quiet);
-        if(properties)
+        if (properties)
         {
             return 0;
         }
@@ -188,10 +188,10 @@ int main(int argc, char *argv[])
 
         // If quiet, output overall result
         // else output metrics
-        if(quiet) {
+        if (quiet) {
             resultDB.DumpOverall();
         } else {
-            if(metricsfile.empty()) {
+            if (metricsfile.empty()) {
                 cout << endl;
                 resultDB.DumpSummary(cout);
             } else {

@@ -12,6 +12,7 @@ using std::ostream;
 using std::ofstream;
 using std::ifstream;
 
+#define NUM_COL 8   /* Number of column to show in final result summary */
 
 // ****************************************************************************
 // Class:  ResultDatabase
@@ -97,7 +98,7 @@ class ResultDatabase
 
   private:
     bool IsFileEmpty(string fileName);
-
+    std::vector<size_t> setColumnWidth(int colNum);
 };
 
 

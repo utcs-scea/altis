@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
+#include <limits>
 
 using namespace std;
 
@@ -310,51 +311,62 @@ void ResultDatabase::DumpDetailed(ostream &out)
 // ****************************************************************************
 void ResultDatabase::DumpSummary(ostream &out)
 {
+    std::vector<size_t> ColumnWidths = setColumnWidth(NUM_COL);
+    auto maxColWidth = *max_element(std::begin(ColumnWidths), std::end(ColumnWidths));
+
     vector<Result> sorted(results);
 
     sort(sorted.begin(), sorted.end());
 
     // TODO: in big parallel runs, the "trials" are the procs
     // and we really don't want to print them all out....
-    out << "test\t"
-        << "atts\t"
-        << "units\t"
-        << "median\t"
-        << "mean\t"
-        << "stddev\t"
-        << "min\t"
-        << "max\t";
+    out << left << setw(ColumnWidths[0])
+        << "test"
+        << left << setw(ColumnWidths[1])
+        << "atts"
+        << left << setw(ColumnWidths[2])
+        << "units"
+        << left << setw(ColumnWidths[3])
+        << "median"
+        << left << setw(ColumnWidths[4])
+        << "mean"
+        << left << setw(ColumnWidths[5])
+        << "stddev"
+        << left << setw(ColumnWidths[6])
+        << "min"
+        << left << setw(ColumnWidths[7])
+        << "max";
     out << endl;
 
     for (int i=0; i<sorted.size(); i++)
     {
         Result &r = sorted[i];
-        if(r.test == "Overall") {
+        if (r.test == "Overall") {
             continue;
         }
-        out << r.test << "\t";
-        out << r.atts << "\t";
-        out << r.unit << "\t";
+        out << left << setw(ColumnWidths[0]) << r.test;
+        out << left << setw(ColumnWidths[1]) << r.atts;
+        out << left << setw(ColumnWidths[2]) << r.unit;
         if (r.GetMedian() == FLT_MAX)
-            out << "N/A\t";
+            out << left << setw(ColumnWidths[3]) << "N/A";
         else
-            out << r.GetMedian() << "\t";
+            out << left << setw(ColumnWidths[3]) << r.GetMedian();
         if (r.GetMean() == FLT_MAX)
-            out << "N/A\t";
+            out << left << setw(ColumnWidths[4]) << "N/A";
         else
-            out << r.GetMean()   << "\t";
+            out << left << setw(ColumnWidths[4]) << r.GetMean();
         if (r.GetStdDev() == FLT_MAX)
-            out << "N/A\t";
+            out << left << setw(ColumnWidths[5]) << "N/A";
         else
-            out << r.GetStdDev() << "\t";
+            out << left << setw(ColumnWidths[5]) << r.GetStdDev();
         if (r.GetMin() == FLT_MAX)
-            out << "N/A\t";
+            out << left << setw(ColumnWidths[6]) << "N/A";
         else
-            out << r.GetMin()    << "\t";
+            out << left << setw(ColumnWidths[6]) << r.GetMin();
         if (r.GetMax() == FLT_MAX)
-            out << "N/A\t";
+            out << left << setw(ColumnWidths[7]) << "N/A";
         else
-            out << r.GetMax()    << "\t";
+            out << left << setw(ColumnWidths[7]) << r.GetMax();
 
         out << endl;
     }
@@ -433,7 +445,7 @@ void ResultDatabase::DumpCsv(string fileName)
     for (int i=0; i<sorted.size(); i++)
     {
         Result &r = sorted[i];
-        if(r.test == "Overall") {
+        if (r.test == "Overall") {
             continue;
         }
         out << r.test << ", ";
@@ -476,6 +488,52 @@ void ResultDatabase::DumpOverall() {
             break;
         }
     }
+}
+
+std::vector<size_t> ResultDatabase::setColumnWidth(int numCol)
+{
+    std::string testCol ("test");
+    std::string attsCol ("atts");
+    std::string unitsCol ("units");
+    std::string medianCol ("median");
+    std::string meanCol = ("mean");
+    std::string stddevCol = ("stddev");
+    std::string minCol = ("min");
+    std::string maxCol = ("max");
+    size_t colWidthVectortmp[] = {testCol.length(), attsCol.length(), unitsCol.length(),
+        medianCol.length(), meanCol.length(), stddevCol.length(), minCol.length(), maxCol.length()};
+    std::vector<size_t> colWidthVector(colWidthVectortmp, colWidthVectortmp + numCol);
+
+    size_t NanLen = 3;
+
+    vector<Result> sorted(results);
+
+    sort(sorted.begin(), sorted.end());
+
+    for (int i=0; i<sorted.size(); i++)
+    {
+        Result &r = sorted[i];
+        if (r.test == "Overall") {
+            continue;
+        }
+        /* So far there are only 8 columns */
+        colWidthVector[0] = std::max(r.test.length(), colWidthVector[0]);
+        colWidthVector[1] = std::max(r.atts.length(), colWidthVector[1]);
+        colWidthVector[2] = std::max(r.unit.length(), colWidthVector[2]);
+        colWidthVector[3] = std::max(NanLen, std::max( std::to_string(r.GetMedian()).length(), colWidthVector[3] ));
+        colWidthVector[4] = std::max(NanLen, std::max( std::to_string(r.GetMean()).length(), colWidthVector[4] ));
+        colWidthVector[5] = std::max(NanLen, std::max( std::to_string(r.GetStdDev()).length(), colWidthVector[5] ));
+        colWidthVector[6] = std::max(NanLen, std::max( std::to_string(r.GetMin()).length(), colWidthVector[6] ));
+        colWidthVector[7] = std::max(NanLen, std::max( std::to_string(r.GetMax()).length(), colWidthVector[7] ));
+    }
+
+    /* Increase the gap between each column */
+    size_t gap = 7;
+    for (int i = 0; i < colWidthVector.size(); i++) {
+        colWidthVector[i] += gap;
+    }
+
+    return colWidthVector;
 }
 
 // ****************************************************************************

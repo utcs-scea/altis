@@ -31,7 +31,7 @@ float elapsedTime;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	Checks. </summary>
 ///
-/// <remarks>	Ed, 5/20/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/20/2020. </remarks>
 ///
 /// <param name="val">  	The value. </param>
 /// <param name="bound">	The bound. </param>
@@ -46,7 +46,7 @@ __device__ bool check(int val, int bound) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	Mark matches. </summary>
 ///
-/// <remarks>	Ed, 5/20/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/20/2020. </remarks>
 ///
 /// <param name="arr">	  	[in,out] If non-null, the array. </param>
 /// <param name="results">	[in,out] If non-null, the results. </param>
@@ -76,7 +76,7 @@ __global__ void markMatches(int *arr, int *results, int size, int bound) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	Map matches. </summary>
 ///
-/// <remarks>	Ed, 5/20/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/20/2020. </remarks>
 ///
 /// <param name="arr">	  	[in,out] If non-null, the array. </param>
 /// <param name="results">	[in,out] If non-null, the results. </param>
@@ -105,7 +105,7 @@ __global__ void mapMatches(int *arr, int *results, int *prefix, int *final, int 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	Seed array. </summary>
 ///
-/// <remarks>	Ed, 5/20/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/20/2020. </remarks>
 ///
 /// <param name="arr"> 	[in,out] If non-null, the array. </param>
 /// <param name="size">	The size. </param>
@@ -120,7 +120,7 @@ void seedArr(int *arr, int size) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	Wheres. </summary>
 ///
-/// <remarks>	Ed, 5/20/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu)ward Hu (bodunhu@utexas.edu), 5/20/2020. </remarks>
 ///
 /// <param name="resultDB">	[in,out] The result database. </param>
 /// <param name="size">	   	The size. </param>
@@ -248,7 +248,7 @@ void where(ResultDatabase &resultDB, int size, int coverage) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	Adds a benchmark specifier options. </summary>
 ///
-/// <remarks>	Ed, 5/20/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/20/2020. </remarks>
 ///
 /// <param name="op">	[in,out] The operation. </param>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -261,7 +261,7 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	Executes the benchmark operation. </summary>
 ///
-/// <remarks>	Ed, 5/20/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/20/2020. </remarks>
 ///
 /// <param name="resultDB">	[in,out] The result database. </param>
 /// <param name="op">	   	[in,out] The operation. </param>
