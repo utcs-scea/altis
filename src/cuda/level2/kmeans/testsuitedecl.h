@@ -16,9 +16,7 @@
 */
 
 #define buildfnname(name, rank, cent) kmeans_ ## name ## _r ## rank ## _c ##cent
-//#define buildfnname(name, rank, cent) kmeans_ ## name
 #define buildbncfnname(name, rank, cent) kmeans_init_ ## name ## _r ## rank ## _c ##cent
-//#define buildbncfnname(name, rank, cent) kmeans_init_ ## name
 
 #define declare_testcase_hdr(name, rnk, cent, cman, accman, rowmaj)  \
 double                                                               \
@@ -264,24 +262,11 @@ find_lpfn(                                                                      
     std::map<std::string, std::map<int, std::map<int, LPFNKMEANS>>>::iterator ni;      \
     std::map<int, std::map<int, LPFNKMEANS>>::iterator ri;                             \
     std::map<int, LPFNKMEANS>::iterator ci;                                            \
-    std::cout << "desired key: " << name << std::endl;\
-    for (auto it = tbl.begin(); it != tbl.end(); it++) {\
-        std::cout << "tbl key: " << it->first << std::endl;\
-    }\
     ni=tbl.find(name);                                                                 \
     if(ni!=tbl.end()) {                                                                \
-        std::cout << std::endl;\
         ri=ni->second.find(nRank);                                                     \
-std::cout << "desired nRank: " << nRank << std::endl;\
-        for (auto it_2 = ni->second.begin(); it_2 != ni->second.end(); it_2 ++) {\
-            std::cout << "key's nRank " << it_2->first << std::endl;\
-        }\
         if(ri!=ni->second.end()) {                                                     \
             ci=ri->second.find(nCenters);                                              \
-std::cout << "desired nCenters: " << nCenters << std::endl;\
-for (auto it_3 = ri->second.begin(); it_3 != ri->second.end(); it_3 ++) {\
-            std::cout << "key's nCenters " << it_3->first << std::endl;\
-        }\
             if(ci!=ri->second.end()) {                                                 \
                 return ci->second;                                                     \
             }                                                                          \

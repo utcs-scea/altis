@@ -20,6 +20,8 @@
 #include <cuda.h>
 #include <cuda_runtime_api.h>
 
+#include "cuda_device_attr.h"
+
 
 // On Windows, if we call exit, our console may disappear,
 // taking the error message with it, so prompt before exiting.

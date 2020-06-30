@@ -490,6 +490,22 @@ void ResultDatabase::DumpOverall() {
     }
 }
 
+// ****************************************************************************
+//  Method:  ResultDatabase::setColumnWidth
+//
+//  Purpose:
+//    Set the column width for each column so that they will be aligned when 
+//    printed on console.
+//
+//  Arguments:
+//
+//  Programmer:  Edward Hu (bodunhu@utexas.edu)
+//  Creation:    June 29th, 2020
+//
+//  Modifications:
+//
+//
+// ****************************************************************************
 std::vector<size_t> ResultDatabase::setColumnWidth(int numCol)
 {
     std::string testCol ("test");

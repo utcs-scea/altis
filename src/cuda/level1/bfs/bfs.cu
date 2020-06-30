@@ -31,7 +31,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	A macro that defines Minimum nodes. (Unused) </summary>
 ///
-/// <remarks>	Ed, 5/19/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/19/2020. </remarks>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define MIN_NODES 20
@@ -39,7 +39,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	A macro that defines Maximum nodes. (Unused) </summary>
 ///
-/// <remarks>	Ed, 5/19/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/19/2020. </remarks>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define MAX_NODES ULONG_MAX
@@ -47,7 +47,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	A macro that defines Minimum edges in the graph. </summary>
 ///
-/// <remarks>	Ed, 5/19/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/19/2020. </remarks>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define MIN_EDGES 2
@@ -55,7 +55,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	A macro that defines Maximum Initialize edges in the graph. </summary>
 ///
-/// <remarks>	Ed, 5/19/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/19/2020. </remarks>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define MAX_INIT_EDGES 4 // Nodes will have, on average, 2*MAX_INIT_EDGES edges
@@ -63,7 +63,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	A macro that defines Minimum weight of an edge. </summary>
 ///
-/// <remarks>	Ed, 5/19/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/19/2020. </remarks>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define MIN_WEIGHT 1
@@ -71,7 +71,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	A macro that defines Maximum weight of an edge. </summary>
 ///
-/// <remarks>	Ed, 5/19/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/19/2020. </remarks>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define MAX_WEIGHT 10
@@ -79,25 +79,17 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	A macro that defines seed for random number generator. </summary>
 ///
-/// <remarks>	Ed, 5/19/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/19/2020. </remarks>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define SEED 7
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/// <summary>	A macro that defines Maximum CUDA threads per block. </summary>
-///
-/// <remarks>	Ed, 5/19/2020. </remarks>
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#define MAX_THREADS_PER_BLOCK 256
 
 using namespace std;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	A node structure in the graph. </summary>
 ///
-/// <remarks>	Ed, 5/19/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/19/2020. </remarks>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct Node
@@ -111,7 +103,7 @@ struct Node
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	Initializes the graph. </summary>
 ///
-/// <remarks>	Ed, 5/19/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/19/2020. </remarks>
 ///
 /// <param name="op">			 	[in,out] The operation. </param>
 /// <param name="no_of_nodes">   	[in,out] The no of nodes. </param>
@@ -126,7 +118,7 @@ void initGraph(OptionParser &op, int &no_of_nodes, int &edge_list_size, int &sou
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	BFS graph runner. </summary>
 ///
-/// <remarks>	Ed, 5/19/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/19/2020. </remarks>
 ///
 /// <param name="resultDB">		 	[in,out] The result database. </param>
 /// <param name="op">			 	[in,out] The operation. </param>
@@ -145,7 +137,7 @@ float BFSGraph(ResultDatabase &resultDB, OptionParser &op, int no_of_nodes, int 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	BFS graph using unified memory. </summary>
 ///
-/// <remarks>	Ed, 5/19/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/19/2020. </remarks>
 ///
 /// <param name="resultDB">		 	[in,out] The result database. </param>
 /// <param name="op">			 	[in,out] The operation. </param>
@@ -166,7 +158,7 @@ float BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, int no_o
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	BFS Kernel. </summary>
 ///
-/// <remarks>	Ed, 5/19/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/19/2020. </remarks>
 ///
 /// <param name="g_graph_nodes">			[in,out] If non-null, the graph nodes. </param>
 /// <param name="g_graph_edges">			[in,out] If non-null, the graph edges. </param>
@@ -198,7 +190,7 @@ __global__ void Kernel( Node* g_graph_nodes, int* g_graph_edges, bool* g_graph_m
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	BFS Kernel 2. </summary>
 ///
-/// <remarks>	Ed, 5/19/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/19/2020. </remarks>
 ///
 /// <param name="g_graph_mask">				[in,out] If non-null, true to graph mask. </param>
 /// <param name="g_updating_graph_mask">	[in,out] If non-null, true to updating graph mask. </param>
@@ -322,7 +314,7 @@ float time = BFSGraph(resultDB, op, no_of_nodes, edge_list_size, source, h_graph
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	Generate Uniform distribution. </summary>
 ///
-/// <remarks>	Ed, 5/19/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/19/2020. </remarks>
 ///
 /// <param name="rangeLow"> 	The range low. </param>
 /// <param name="rangeHigh">	The range high. </param>
@@ -344,7 +336,7 @@ int uniform_distribution(int rangeLow, int rangeHigh) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	Initializes the graph. </summary>
 ///
-/// <remarks>	Ed, 5/19/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/19/2020. </remarks>
 ///
 /// <param name="op">			 	[in,out] The operation. </param>
 /// <param name="no_of_nodes">   	[in,out] The no of nodes. </param>
@@ -449,7 +441,7 @@ void initGraph(OptionParser &op, int &no_of_nodes, int &edge_list_size, int &sou
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	Bfs graph using CUDA. </summary>
 ///
-/// <remarks>	Ed, 5/19/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/19/2020. </remarks>
 ///
 /// <param name="resultDB">		 	[in,out] The result database. </param>
 /// <param name="op">			 	[in,out] The operation. </param>
@@ -644,7 +636,7 @@ double transferTime = 0.;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	Bfs graph with unified memory using CUDA. </summary>
 ///
-/// <remarks>	Ed, 5/19/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/19/2020. </remarks>
 ///
 /// <param name="resultDB">		 	[in,out] The result database. </param>
 /// <param name="op">			 	[in,out] The operation. </param>

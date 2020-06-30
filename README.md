@@ -3,17 +3,32 @@
 This benchmark assumes availability of CUDA and CUDNN. To install CUDA; follow the instruction on [NVIDIA CUDA Installation Guide for Linux](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html). To install CUDNN, follow the instruction from [Deep Learning SDK Documentation](https://docs.nvidia.com/deeplearning/sdk/cudnn-install/index.html). This benchmark is tested on a machine with Ubuntu 18.04.4 LTS, gcc 7.4, and CUDA 10.0. The CUDNN version we used is 7.6.5.
 
 ## To Use:
+
+Simply run ```./setup.sh```,  
+
+Or run through each of the following steps:
+
 1. ```git clone https://github.com/utcs-scea/altis.git```
 2. ```cd altis```
-3. ```bash configure --prefix=$ALTIS_ROOT```
-4. ```make```
+3. ```cd config```
+4. ```git clone https://github.com/BDHU/CUDA_Device_Attribute_generation.git```
+5. ```cd CUDA_Device_Attribute_generation/```
+6. ```make```
+7. ```./deviceQuery ../../src/cuda/common/ [device ID]```
+8. ```cd ../..```
+9. ```bash configure --prefix=$ALTIS_ROOT```
+10. ```make -j6```
 
-Note: If the configure script fails to execute due to dependency issues in automake toolchain, run the following command before executing ```configure```:
+Note: If the configure script fails to execute due to dependency issues in automake toolchain, run the following command before executing ```configure``` again:
 * ```libtoolize --force```
 * ```aclocal```
 * ```autoheader```
 * ```automake --force-missing --add-missing```
 * ```autoconf```
+
+The reason why we have to clone *CUDA_Device_Attribute_Generation* first before compiling is that it will geneate a file called ```cuda_device_attr.h```, which includes CUDA device-specific parameters required by many benchmark programs. Without the header file, the benchmark will fail to compile. To see how to use this tool, please refer to [CUDA_Device_Attribute_Generation](https://github.com/BDHU/CUDA_Device_Attribute_Generation) for additional instructions.  
+
+To change NVIDIA CUDA compute capabiltiy for target device, go to ```configure.ac``` and change the corresponding ```-gencode=``` parameters. Then execute ```autoconf``` to genereate a new ```configure``` script, after which run ```make``` again to compile.
 
 <!--
 ## To Run Suite:

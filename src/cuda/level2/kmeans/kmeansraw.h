@@ -601,7 +601,7 @@ protected:
 
         if ((infile = fopen(filename, "r")) == NULL) {
             fprintf(stderr, "Error: no such file (%s)\n", filename);
-            return NULL;
+            safe_exit(-1);
         }
 
         /* first find the number of objects */
@@ -736,21 +736,6 @@ protected:
         fprintf(fp, "\n");
     }
 
-    static void ggPrintCenters(
-        FILE * fp,
-        pt<R> * pCenters,
-        int nColLimit=8,
-        int nRowLimit=16
-        )
-    {
-        nRowLimit=(nRowLimit==0)?C:min(nRowLimit,C);
-	    for(int i=0; i<nRowLimit; i++)
-            pCenters[i].dump(fp,nColLimit);
-        if(nRowLimit < C) 
-            fprintf(fp, "...");
-        fprintf(fp, "\n");
-    }
-
     static void MyPrintCenters(
         float * pCenters,
         int nColLimit=8,
@@ -823,7 +808,6 @@ protected:
         )
     {
         std::set<pt<R>*> unmatched;
-        // std::vector<pt<R>>::iterator vi, xi;
         for(auto vi=centers.begin(); vi!=centers.end(); vi++) {
             bool bFound = false;
             for(auto xi=refcenters.begin(); xi!=refcenters.end(); xi++) {
@@ -864,7 +848,6 @@ protected:
         std::map<int, float> unmatched_deltas;
         std::map<int, int> matched;
         std::map<int, int> revmatched;
-        // std::vector<pt<N>>::iterator vi, xi;
         int nCenterIdx=0;    
         for(auto vi=centers.begin(); vi!=centers.end(); vi++, nCenterIdx++) {
             bool bFound = false;        
@@ -889,8 +872,8 @@ protected:
             }
         }
         bool bSuccess = unmatched.size() == 0;
-        if(bVerbose && !bSuccess) {
-            fprintf(stderr, "Could not match %d centers:\n", unmatched.size());
+        if (bVerbose && !bSuccess) {
+            std::cerr << "Could not match " << unmatched.size() << " centers: " << std::endl;
             for(auto si=unmatched.begin(); si!=unmatched.end(); si++) {
                 if(++nRows > nRowLimit) {
                     fprintf(stderr, "...\n");
@@ -1017,26 +1000,25 @@ public:
         checkCudaErrors(cudaEventDestroy(start));
         checkCudaErrors(cudaEventDestroy(stop));
 
+        char atts[1024];
+        sprintf(atts, "iterations:%d, centers:%d, rank:%d", nSteps, C, R);
+        DB.AddResult("kmeans total execution time", atts, "sec", elapsed * 1.0e-3);
+        DB.AddResult("kmeans execution time per iteration", atts, "sec", elapsed * 1.0e-3 / nSteps);
+
 	    if (bVerbose) {
 		    uint byteCount = (uint)(uiPointsBytes + uiCentersBytes);
-            //DB.addResult("KMeans() time (avg)", elapsed * 1.0e-3, );
-		    //shrLog("kmeans() time (average) : %.5f sec, %.4f MB/sec\n\n", dAvgSecs, ((double)byteCount * 1.0e-6) / dAvgSecs);
+            DB.AddResult("kmeans thoughput", atts, "MB/sec", ((double)byteCount * 1.0e-6) / (elapsed * 1.0e-3));
 		    //shrLogEx(LOGBOTH | MASTER, 0, "kmeans, Throughput = %.4f MB/s, Time = %.5f s, Size = %u Bytes, NumDevsUsed = %u, Workgroup = %u\n", 
 					    //(1.0e-6 * (double)byteCount / dAvgSecs), dAvgSecs, byteCount, 1, THREADBLOCK_SIZE); 
 	    }
 
 	    if (bVerify) {
-		    //shrLog(" ...reading back GPU results\n");
+		    std::cout << " ...reading back GPU results" << std::endl;
 		    checkCudaErrors( cudaMemcpy(h_Centers, d_Centers, uiCentersBytes, cudaMemcpyDeviceToHost) );
             if (!ROWMAJ) {
                 rtranspose(h_TxCenters, nCenters, (float*)h_InCenters);
             }
 	    }
-
-
-//pt<R> * printC = reinterpret_cast<pt<R>*>(h_Centers);
-//ggPrintCenters(stdout, printC);
-
 
 	    //shrLog("cleaning up device resources...\n");
 	    checkCudaErrors( cudaFree((void*)d_Points) );
@@ -1047,9 +1029,7 @@ public:
             free(h_TxCenters);
             free(h_TxPoints);
         }
-	    //return dAvgSecs;
-        // TODO placeholder
-        return 1.0;
+        return (double)elapsed * 1.0e-3;
     }
 
     static float 
@@ -1153,7 +1133,7 @@ public:
         ChooseInitialCenters(points,                   // points to choose from              
                              centers,                  // destination array of initial centers
                              refcenters,               // save a copy for the reference impl to check
-                             nSeed);                 // random seed. ACHTUNG! Beware benchmarkers
+                             nSeed);                   // random seed. ACHTUNG! Beware benchmarkers
 
 	    int nPoints = (int)points.size();
 	    int nCenters = C;

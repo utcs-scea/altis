@@ -32,8 +32,6 @@ typedef unsigned char uchar;
 ////////////////////////////////////////////////////////////////////////////////
 // GPU-specific common definitions
 ////////////////////////////////////////////////////////////////////////////////
-#define LOG2_WARP_SIZE 5U
-#define WARP_SIZE (1U << LOG2_WARP_SIZE)
 #define SHARED_MEMORY_BANKS 16
 //#define THREADBLOCK_SIZE (4 * SHARED_MEMORY_BANKS)
 #define THREADBLOCK_SIZE 256
