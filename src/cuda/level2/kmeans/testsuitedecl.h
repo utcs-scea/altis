@@ -27,6 +27,7 @@ buildfnname(name, rnk, cent)(                                        \
 	void * lpvCenters,                                               \
 	const int nPoints,                                               \
 	const int nCenters,                                              \
+    bool bAccumOnCpu,                                                \
 	bool bVerify,                                                    \
 	bool bVerbose                                                    \
 	);                                                               \
@@ -39,6 +40,7 @@ buildbncfnname(name, rnk, cent)(                                     \
 	LPFNKMEANS lpfn,                                                 \
     int nSteps,                                                      \
     int nSeed,                                                       \
+    bool bAccumOnCpu,                                                \
     bool bVerify,                                                    \
     bool bVerbose                                                    \
 	);                                                               \
@@ -53,6 +55,7 @@ buildfnname(name, rnk, cent)(                                    \
 	void * lpvCenters,                                           \
 	const int nPoints,                                           \
 	const int nCenters,                                          \
+    bool bAccumOnCpu,                                            \
 	bool bVerify,                                                \
 	bool bVerbose                                                \
 	)                                                            \
@@ -68,6 +71,7 @@ buildfnname(name, rnk, cent)(                                    \
                                        lpvCenters,               \
                                        nPoints,                  \
                                        nCenters,                 \
+                                       bAccumOnCpu,              \
                                        bVerify,                  \
                                        bVerbose);                \
 }                           
@@ -80,6 +84,7 @@ buildbncfnname(name, rnk, cent)(                              \
 	LPFNKMEANS lpfn,                                          \
     int nSteps,                                               \
     int nSeed,                                                \
+    bool bAccumOnCpu,                                         \
     bool bVerify,                                             \
     bool bVerbose                                             \
 	)                                                         \
@@ -93,6 +98,7 @@ buildbncfnname(name, rnk, cent)(                              \
                                lpfn,                          \
                                nSteps,                        \
                                nSeed,                         \
+                               bAccumOnCpu,                   \
                                bVerify,                       \
                                bVerbose);                     \
 }                                                             \

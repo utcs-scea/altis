@@ -138,7 +138,7 @@ AS_IF([test "x$with_cuda" != xno],
         AS_IF([test "x$with_cuda" = xyes],
             [AS_IF([test "x$CUDA_CPPFLAGS" = x],
                 [dnl generate CUDA code for broad spectrum of devices (Pascal arch specific)
-                 CUDA_CPPFLAGS=["-arch=sm_60 -gencode=arch=compute_60,code=sm_60, --cudart shared"]
+                 CUDA_CPPFLAGS=["-arch=sm_61 -gencode=arch=compute_61,code=sm_61, --cudart shared"]
                  AC_MSG_NOTICE([using CUDA_CPPFLAGS=$CUDA_CPPFLAGS])
                  AC_MSG_WARN([*** ALTIS programs may fail if these -gencode values do not apply to your GPU.  If they don't apply, or if you want to shorten ALTIS's compile time, determine the -gencode options that apply for your GPU and re-configure ALTIS explicitly specifying only those options in CUDA_CPPFLAGS during the configure. ***])
                 ]

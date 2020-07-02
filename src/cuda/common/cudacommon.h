@@ -17,6 +17,7 @@
 #endif // __APPLE__
 
 #include <stdio.h>
+#include <assert.h>
 #include <cuda.h>
 #include <cuda_runtime_api.h>
 
@@ -58,6 +59,23 @@
 
 #define safe_exit(val) exit(val)
 #endif
+
+#ifdef UNIFIED_MEMORY
+#define ALTIS_CUDA_MALLOC(ptr, size)    checkCudaErrors(cudaMallocManaged((void **)&ptr, (size_t)size))
+#define ALTIS_CUDA_FREE(ptr)            checkCudaErrors(cudaFree(ptr))
+#else
+#define ALTIS_CUDA_MALLOC(ptr, size)    checkCudaErrors(cudaMalloc((void **)&ptr, (size_t)size))
+#define ALTIS_CUDA_FREE(ptr)            checkCudaErrors(cudaFree(ptr))
+#endif
+
+#ifdef UNIFIED_MEMORY
+#define ALTIS_MALLOC(ptr, size)         checkCudaErrors(cudaMallocManaged((void **)&ptr, (size_t)size))
+#define ALTIS_FREE(ptr)                 checkCudaErrors(cudaFree(ptr))
+#else
+#define ALTIS_MALLOC(ptr, size)         ptr = malloc((size_t)size); assert(ptr)
+#define ALTIS_FREE(ptr)                 free(ptr)
+#endif
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	A macro that defines check cuda error noexit. </summary>
@@ -204,12 +222,6 @@ static inline int warp_size(int device)
     CUDA_SAFE_CALL(cudaGetDeviceProperties(&prop, device));
     return prop.warpSize;
 }
-
-#ifdef UNIFIED_MEMORY
-#define ALTIS_CUDA_MALLOC(ptr, size)    checkCudaErrors(cudaMallocManaged(ptr, size))
-#else
-#define ALTIS_CUDA_MALLOC(ptr, size)    checkCudaErrors(cudaMalloc(ptr, size));
-#endif
 
 // Alleviate aliasing issues
 

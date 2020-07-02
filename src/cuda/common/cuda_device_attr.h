@@ -29,6 +29,8 @@
 #define CONST_MEM    65536
 #define SHARED_MEM_PER_BLOCK    49152
 #define SHARED_MEM_PER_SM    98304
+#define SHARED_MEMORY_BANKS    32
+#define SHARED_MEMORY_BANK_BANDWIDTH    4 // Each bank has a bandwidth of 32 bits per clock cycle
 #define REGS_PER_BLOCK    65536
 #define WARP_SIZE    32
 #define MAX_THREADS_PER_SM    2048

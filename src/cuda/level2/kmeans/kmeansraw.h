@@ -29,6 +29,7 @@ typedef double (*LPFNKMEANS)(ResultDatabase &DB,
     void* h_Centers,
     const int nPoints,
     const int nCenters,
+    bool bVCpuAccum,
     bool bVerify,
     bool bVerbose);
 
@@ -37,6 +38,7 @@ typedef void (*LPFNBNC)(ResultDatabase &DB,
     LPFNKMEANS lpfn,
     int nSteps,
     int nSeed,
+    bool bVCpuAccum,
     bool bVerify,
     bool bVerbose);
 
@@ -112,7 +114,8 @@ __global__ void finalizeCentersShmap(float * pC, int * pCC) {
 	int idx = blockIdx.x*blockDim.x+threadIdx.x;
     if(idx >= R*C) return;
     int cidx = idx/R;
-    int nNumerator = pCC[idx];
+    // int nNumerator = pCC[idx];   TODO check
+    int nNumerator = pCC[cidx];
     if(nNumerator == 0) {       
         pC[idx] = 0.0f;
     } else {
@@ -178,7 +181,7 @@ class accumulatorGM {
 public:
 
     static void reset(float * pC, int * pCC) { 
-        if(ROWMAJ) {
+        if (ROWMAJ) {
             resetExplicit<R,C><<<iDivUp(C, THREADBLOCK_SIZE), THREADBLOCK_SIZE>>>(pC, pCC);
         } else {
             resetExplicitColumnMajor<R,C><<<iDivUp(C, THREADBLOCK_SIZE), THREADBLOCK_SIZE>>>(pC, pCC);
@@ -187,7 +190,7 @@ public:
 
     static void accumulate(float * pP, float * pC, int * pCC, int * pCI, int nP) {
         const uint nPointsBlocks = iDivUp(nP, THREADBLOCK_SIZE);
-        if(ROWMAJ) {
+        if (ROWMAJ) {
             accumulateCenters<R,C><<<nPointsBlocks, THREADBLOCK_SIZE>>>(pP, pC, pCC, pCI, nP);
         } else {
             accumulateCentersColumnMajor<R,C><<<nPointsBlocks, THREADBLOCK_SIZE>>>(pP, pC, pCC, pCI, nP);
@@ -196,11 +199,48 @@ public:
 
     static void finalize(float * pC, int * pCC) {
         const int nAccums = iDivUp(C, THREADBLOCK_SIZE);
-        if(ROWMAJ) {
+        if (ROWMAJ) {
             finalizeCentersBasic<R,C><<<nAccums, THREADBLOCK_SIZE>>>(pC, pCC);
         } else {
             finalizeCentersColumnMajor<R,C><<<nAccums, THREADBLOCK_SIZE>>>(pC, pCC);
         }
+    }
+
+    static void finalizeCPU(float *deviceCenters, int *deviceCentersCounts) {
+        float *hstCenters = NULL;
+        int *hstCentersCounts = NULL;
+
+#ifdef UNIFIED_MEMORY
+        hstCenters = deviceCenters;
+        hstCentersCounts = deviceCentersCounts;
+
+        if (ROWMAJ) {
+            for (int i = 0; i < C; i++) {
+                int center_len = hstCentersCounts[i];
+                for (int j = 0; j < R; j++) {
+                    int index = i * R + j;
+                    if (center_len == 0) {
+                        hstCenters[index] = 0.0f;
+                    } else {
+                        hstCenters[index] /= center_len;
+                    }
+                }
+            }
+        } else {
+            for (int i = 0; i < C; i++) {
+                int center_len = hstCentersCounts[i];
+                for (int j = 0; j < R; j++) {
+                    int index = j * C + i;
+                    if (center_len == 0) {
+                        hstCenters[index] = 0.0f;
+                    } else {
+                        hstCenters[index] /= center_len;
+                    }
+                }
+            }
+        }
+#else
+#endif
     }
 };
 
@@ -209,8 +249,8 @@ class accumulatorGMMS {
 public:
 
     static void reset(float * pC, int * pCC) {
-        cudaMemset(pC, 0, R*C*sizeof(float));
-        cudaMemset(pCC, 0, C*sizeof(int));
+        checkCudaErrors(cudaMemset(pC, 0, R*C*sizeof(float)));
+        checkCudaErrors(cudaMemset(pCC, 0, C*sizeof(int)));
     }
 
     static void accumulate(float * pP, float * pC, int * pCC, int * pCI, int nP) {
@@ -219,6 +259,10 @@ public:
 
     static void finalize(float * pC, int * pCC) {
         accumulatorGM<R,C,ROWMAJ>::finalize(pC, pCC);
+    }
+
+    static void finalizeCPU(float *pC, int *pCC) {
+        accumulatorGM<R,C,ROWMAJ>::finalizeCPU(pC, pCC);
     }
 
 };
@@ -329,10 +373,11 @@ class accumulatorSM {
 public:
     static void reset(float * pC, int * pCC) { accumulatorGM<R,C,ROWMAJ>::reset(pC, pCC); }
     static void finalize(float * pC, int * pCC) { accumulatorGMMS<R,C,ROWMAJ>::finalize(pC, pCC); }
+    static void finalizeCPU(float * pC, int * pCC) { accumulatorGMMS<R,C,ROWMAJ>::finalizeCPU(pC, pCC); }
 
     static void
     accumulate(float * pP, float * pC, int * pCC, int * pCI, int nP) { 
-        if(R*C>SHMEMACCUM_FLOATS) {
+        if (R*C>SHMEMACCUM_FLOATS) {
             accumulatorGM<R,C,ROWMAJ>::accumulate(pP, pC, pCC, pCI, nP);
         } else {
             if(R*C<MAXBLOCKTHREADS) {
@@ -385,12 +430,13 @@ public:
     static void reset(float * pC, int * pCC) { accumulatorSM<R,C,ROWMAJ>::reset(pC, pCC); }
     static void accumulate(float * pP, float * pC, int * pCC, int * pCI, int nP) { accumulatorSM<R,C,ROWMAJ>::accumulate(pP, pC, pCC, pCI, nP); }
     static void finalize(float * pC, int * pCC) { 
-        if(ROWMAJ) {
+        if (ROWMAJ) {
             finalizeCentersShmap<R,C><<<iDivUp(R*C, THREADBLOCK_SIZE), THREADBLOCK_SIZE>>>(pC, pCC); 
         } else {
             finalizeCentersColumnMajorShmap<R,C><<<iDivUp(R*C, THREADBLOCK_SIZE), THREADBLOCK_SIZE>>>(pC, pCC); 
         }
     }
+    static void finalizeCPU(float * pC, int * pCC) { accumulatorSM<R,C,ROWMAJ>::finalizeCPU(pC, pCC); }
 
 };
 
@@ -504,7 +550,7 @@ public:
                                  m_nCenters(nCenters),
                                  m_centers(d_Centers) {}
 
-    bool execute() {
+    bool execute(bool accumOnCpu) {
         assert(m_nCenters == C);
         const uint nCentersBlocks = iDivUp(m_nCenters, THREADBLOCK_SIZE);
         const uint nPointsBlocks = iDivUp(m_nPoints, THREADBLOCK_SIZE);
@@ -513,7 +559,11 @@ public:
 		    _V(mapCenters(m_dPoints, m_dClusterIds, m_nPoints));
 		    _V(resetAccumulators(m_dCenters, m_dClusterCounts));
 		    _V(accumulate(m_dPoints, m_dCenters, m_dClusterCounts, m_dClusterIds, m_nPoints));
-		    _V(finalizeAccumulators(m_dCenters, m_dClusterCounts));
+            if (!accumOnCpu) {    // GPU accum
+		        _V(finalizeAccumulators(m_dCenters, m_dClusterCounts));
+            } else {    // CPU accum
+                finalizeAccumulatorsCPU(m_dCenters, m_dClusterCounts);
+            }
 	    }
         return true;
     }
@@ -536,20 +586,24 @@ protected:
     void resetAccumulators(float * pC, int * pCC) { m_accumulator.reset(pC, pCC); }
     void accumulate(float * pP, float * pC, int * pCC, int * pCI, int nP) { m_accumulator.accumulate(pP, pC, pCC, pCI, nP); }
     void finalizeAccumulators(float * pC, int * pCI) { m_accumulator.finalize(pC, pCI); }
+    void finalizeAccumulatorsCPU(float * pC, int * pCI) {
+        checkCudaErrors(cudaDeviceSynchronize());
+        m_accumulator.finalizeCPU(pC, pCI);
+    }
     float * centers() { return m_centers.data(); }
 
     void mapCenters(float * pP, int * pCI, int nP) {
         const uint nCentersBlocks = iDivUp(C, THREADBLOCK_SIZE);
         const uint nPointsBlocks = iDivUp(nP, THREADBLOCK_SIZE);	    
         float * pC = m_centers.dataRO();
-        if(ROWMAJ) {
-            if(m_centers.useROMem()) {
+        if (ROWMAJ) {
+            if (m_centers.useROMem()) {
                 mapPointsToCenters<R,C,true><<<nPointsBlocks, THREADBLOCK_SIZE>>>(pP, pC, pCI, nP);
             } else {
                 mapPointsToCenters<R,C,false><<<nPointsBlocks, THREADBLOCK_SIZE>>>(pP, pC, pCI, nP);
             }
         } else {
-            if(m_centers.useROMem()) {
+            if (m_centers.useROMem()) {
                 mapPointsToCentersColumnMajor<R,C,true><<<nPointsBlocks, THREADBLOCK_SIZE>>>(pP, pC, pCI, nP);
             } else {
                 mapPointsToCentersColumnMajor<R,C,false><<<nPointsBlocks, THREADBLOCK_SIZE>>>(pP, pC, pCI, nP);
@@ -891,7 +945,10 @@ public:
     static float * transpose(float * pP, int nP, float * pTxP=NULL) {
         size_t  uiPointsBytes = nP * R * sizeof(float);
         float * pInput = reinterpret_cast<float*>(pP);
-        if(pTxP == NULL) pTxP = (float*)malloc(uiPointsBytes);
+        if(pTxP == NULL) {
+            // pTxP = (float*)malloc(uiPointsBytes);
+            ALTIS_MALLOC(pTxP, uiPointsBytes);
+        }
         for(int i=0; i<nP; i++) {
             for(int j=0; j<R; j++) { 
                 int nInputIdx = (i*R)+j;
@@ -910,7 +967,10 @@ public:
     static float * rtranspose(float * pP, int nP, float * pTxP=NULL) {
         size_t  uiPointsBytes = nP * R * sizeof(float);
         float * pInput = reinterpret_cast<float*>(pP);
-        if(pTxP == NULL) pTxP = (float*)malloc(uiPointsBytes);
+        if(pTxP == NULL) {
+            // pTxP = (float*)malloc(uiPointsBytes);
+            ALTIS_MALLOC(pTxP, uiPointsBytes);
+        }
         for(int i=0; i<nP; i++) {
             for(int j=0; j<R; j++) { 
                 int nTxIdx = (i*R)+j;
@@ -934,6 +994,7 @@ public:
 	    void * lpvCenters,
 	    const int nPoints,
 	    const int nCenters,
+        bool bVCpuAccum,
 	    bool bVerify,
 	    bool bVerbose
 	    )
@@ -963,12 +1024,19 @@ public:
 	    size_t  uiClusterCountsBytes = nCenters * sizeof(int);
 
         //INFORM(bVerbose, "Initializing data...\n");
+        #ifndef UNIFIED_MEMORY
         checkCudaErrors( cudaMalloc((void **)&d_Points, uiPointsBytes ) );
         checkCudaErrors( cudaMalloc((void **)&d_Centers, uiCentersBytes ) );
         checkCudaErrors( cudaMalloc((void **)&d_ClusterIds, uiClusterIdsBytes ) );
         checkCudaErrors( cudaMalloc((void **)&d_ClusterCounts, uiClusterCountsBytes ) );
 	    checkCudaErrors( cudaMemcpy(d_Points, h_Points, uiPointsBytes, cudaMemcpyHostToDevice) );
 	    checkCudaErrors( cudaMemcpy(d_Centers, h_Centers, uiCentersBytes, cudaMemcpyHostToDevice) );
+        #else
+        d_Points = h_Points;
+        d_Centers = h_Centers;
+        ALTIS_CUDA_MALLOC(d_ClusterIds, uiClusterIdsBytes);
+        ALTIS_CUDA_MALLOC(d_ClusterCounts, uiClusterCountsBytes);
+        #endif
 	    //INFORM(bVerbose, "Starting up kmeans-raw...\n\n");
 
         // fprintf(stdout, "initial centers:\n");
@@ -990,7 +1058,7 @@ public:
 
         checkCudaErrors(cudaEventRecord(start, 0));
 
-        pKMeans->execute();
+        pKMeans->execute(bVCpuAccum);
 	    checkCudaErrors( cudaDeviceSynchronize() );
 
         checkCudaErrors(cudaEventRecord(stop, 0));
@@ -1014,25 +1082,37 @@ public:
 
 	    if (bVerify) {
 		    std::cout << " ...reading back GPU results" << std::endl;
+            #ifndef UNIFIED_MEMORY
 		    checkCudaErrors( cudaMemcpy(h_Centers, d_Centers, uiCentersBytes, cudaMemcpyDeviceToHost) );
+            #else
+            /* h_Centers = d_Centers, the ptr will be freed in bncmain. */
+            h_Centers = d_Centers;  // TODO check
+            #endif
             if (!ROWMAJ) {
                 rtranspose(h_TxCenters, nCenters, (float*)h_InCenters);
             }
 	    }
 
 	    //shrLog("cleaning up device resources...\n");
+        #ifndef UNIFIED_MEMORY
 	    checkCudaErrors( cudaFree((void*)d_Points) );
 	    checkCudaErrors( cudaFree((void*)d_Centers) );
 	    checkCudaErrors( cudaFree((void*)d_ClusterIds) );
 	    checkCudaErrors( cudaFree((void*)d_ClusterCounts) );
+        #else
+        ALTIS_FREE(d_ClusterIds);
+        ALTIS_FREE(d_ClusterCounts);
+        #endif
         if (!ROWMAJ) {
-            free(h_TxCenters);
-            free(h_TxPoints);
+            // free(h_TxCenters);
+            ALTIS_FREE(h_TxCenters);
+            // free(h_TxPoints);
+            ALTIS_FREE(h_TxPoints);
         }
         return (double)elapsed * 1.0e-3;
     }
 
-    static float 
+    static float
     hdistance(
         pt<R> &a,
         pt<R> &b
@@ -1105,6 +1185,7 @@ public:
         LPFNKMEANS lpfnKMeans,
         int nSteps,
         int nSeed,
+        bool bVCpuAccum,
         bool bVerify,
         bool bVerbose
         )
@@ -1145,7 +1226,7 @@ public:
 		double dAvgSecs = 0.0;
 	    pt<R> *h_Points = NULL;
 	    pt<R> *h_Centers = NULL;
-	    int * h_ClusterIds = NULL;
+	    // int * h_ClusterIds = NULL;
 		bool bTooBig = (uiPointsBytes > UINT_MAX);
 
 		// if the points won't fit in GPU memory, there is
@@ -1156,17 +1237,23 @@ public:
 
 		if (!bTooBig) {
 
-			pt<R> *h_Points = (pt<R>*)malloc(uiPointsBytes);
-			pt<R> *h_Centers = (pt<R>*)malloc(uiCentersBytes);
-			int * h_ClusterIds = (int*)malloc(uiClusterIdsBytes);
-			memset(h_ClusterIds, 0, uiClusterIdsBytes);
-			//std::vector<pt<R>>::iterator vi;
+			// pt<R> *h_Points = (pt<R>*)malloc(uiPointsBytes);
+            ALTIS_MALLOC(h_Points, uiPointsBytes);
+			// pt<R> *h_Centers = (pt<R>*)malloc(uiCentersBytes);
+            ALTIS_MALLOC(h_Centers, uiCentersBytes);
+			// int * h_ClusterIds = (int*)malloc(uiClusterIdsBytes);
+            // ALTIS_MALLOC(h_ClusterIds, uiClusterIdsBytes);
+			// memset(h_ClusterIds, 0, uiClusterIdsBytes);
+
 			pt<R>* pPoints = h_Points;
-			for(auto vi=points.begin(); vi!=points.end(); vi++) 
+			for (auto vi=points.begin(); vi!=points.end(); vi++) {
 				*pPoints++ = *vi;
+            }
 			pt<R>* pCenters = h_Centers;
-			for(auto vi=centers.begin(); vi!=centers.end(); vi++) 
+			for (auto vi=centers.begin(); vi!=centers.end(); vi++) {
 				*pCenters++ = *vi;
+            }
+
 
 			//fprintf(stdout, "initial centers:\n");
 			//PrintCenters<DEFAULTRANK>(stdout, h_Centers, nCenters);
@@ -1176,6 +1263,7 @@ public:
 									 h_Centers, 
 									 nPoints, 
 									 nCenters, 
+                                     bVCpuAccum,
 									 bVerify,
 									 bVerbose);
 		}
@@ -1202,9 +1290,11 @@ public:
 	    }
 
 	    //shrLog("Cleaning up...\n");
-        free(h_Centers);
-        free(h_Points);
-        free(h_ClusterIds);
+        // free(h_Centers);
+        ALTIS_FREE(h_Centers);
+        // free(h_Points);
+        ALTIS_FREE(h_Points);
+        // free(h_ClusterIds);
     }
 };
 

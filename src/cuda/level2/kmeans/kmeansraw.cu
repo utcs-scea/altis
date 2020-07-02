@@ -23,7 +23,8 @@ typedef double (*LPFNKMEANS)(ResultDatabase &DB,
                              void * h_Points,
                              void * h_Centers,
 	                         const int nPoints,
-	                         const int nCenters,
+                             const int nCenters,
+                             bool bVCpuAccum,
 	                         bool bVerify,
 	                         bool bVerbose);
 
@@ -32,6 +33,7 @@ typedef void (*LPFNBNC)(ResultDatabase &DB,
                         LPFNKMEANS lpfn, 
                         int nSteps,
                         int nSeed,
+                        bool bVCpuAccum,
                         bool bVerify,
                         bool bVerbose);
 
@@ -66,17 +68,17 @@ declare_testsuite(32, 128);
 declare_testsuite_lg(32, 256);
 declare_testsuite_lg(32, 512);
 // 
-declare_testsuite(64, 16);
-declare_testsuite(64, 32);
-declare_testsuite(64, 64);
-declare_testsuite(64, 128);
-declare_testsuite_lg(64, 256);
-declare_testsuite_lg(64, 512);
+// declare_testsuite(64, 16);
+// declare_testsuite(64, 32);
+// declare_testsuite(64, 64);
+// declare_testsuite(64, 128);
+// declare_testsuite_lg(64, 256);
+// declare_testsuite_lg(64, 512);
 // 
 
-declare_testsuite(128, 16);
-declare_testsuite(128, 32);
-declare_testsuite(128, 64);
-declare_testsuite_lg(128, 128);
-declare_testsuite_lg(128, 256);
-declare_testsuite_lg(128, 512);
+// declare_testsuite(128, 16);
+// declare_testsuite(128, 32);
+// declare_testsuite(128, 64);
+// declare_testsuite_lg(128, 128);
+// declare_testsuite_lg(128, 256);
+// declare_testsuite_lg(128, 512);
