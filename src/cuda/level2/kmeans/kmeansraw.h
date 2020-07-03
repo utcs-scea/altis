@@ -22,6 +22,21 @@
 #include <cfloat>
 #include <iostream>
 
+#ifdef GRID_SYNC
+
+#include <cooperative_groups.h>
+using namespace cooperative_groups;
+
+typedef struct {
+    float * pP;
+    float * pC;
+    int * pCC;
+    int * pCI;
+    int nP;
+} kmeans_params;
+
+#endif
+
 
 typedef double (*LPFNKMEANS)(ResultDatabase &DB,
     const int nSteps,
@@ -525,6 +540,58 @@ mapPointsToCentersColumnMajor(float * pP, float * pC, int * pCI, int nP) {
 	pCI[idx] = nearestCenterColumnMajor<R,C>(pP, bRO ? d_cnst_centers : pC, idx, nP);
 }
 
+template<int R, int C, bool bRO, bool ROWMAJ=true>
+__global__ void kmeansOnGPURaw(kmeans_params params) {
+        float * pP = params.pP;
+        float * pC = params.pC;
+        int * pCC = params.pCC;
+        int * pCI = params.pCI;
+        int nP = params.nP;
+
+        grid_group grid = this_grid();
+        {
+            int idx = blockIdx.x*blockDim.x+threadIdx.x;
+	        if(idx < nP) {
+	            pCI[idx] = nearestCenter<R,C>(&pP[idx*R], bRO ? d_cnst_centers : pC);
+            }
+        }
+        // sync
+        grid.sync();
+        {
+            int idx = blockIdx.x*blockDim.x+threadIdx.x;
+	        if(idx < C) {
+            // printf("resetExplicit: pCC[%d]=>%.3f/%d\n", idx, pC[idx*R], pCC[idx]);
+                for(int i=0;i<R;i++) 
+                    pC[idx*R+i] = 0.0f;
+                pCC[idx] = 0;
+            }
+        }
+        //sync
+        grid.sync();
+        {
+            int idx = blockIdx.x*blockDim.x+threadIdx.x;
+            if(idx < nP) {
+            int clusterid = pCI[idx];
+                for(int i=0;i<R;i++) 
+                    atomicAdd(&pC[(clusterid*R)+i], pP[(idx*R)+i]);
+                atomicAdd(&pCC[clusterid], 1);
+            }
+        }
+        // sync
+        grid.sync();
+        {
+            int idx = blockIdx.x*blockDim.x+threadIdx.x;
+            if(idx >= C) return;
+            int nNumerator = pCC[idx];
+            if(nNumerator == 0) {       
+                for(int i=0;i<R;i++) 
+                    pC[(idx*R)+i] = 0.0f;
+            } else {
+                for(int i=0;i<R;i++) 
+                    pC[(idx*R)+i] /= pCC[idx];
+            }
+        }
+    }
 
 template<int R, 
          int C, 
@@ -554,17 +621,37 @@ public:
         assert(m_nCenters == C);
         const uint nCentersBlocks = iDivUp(m_nCenters, THREADBLOCK_SIZE);
         const uint nPointsBlocks = iDivUp(m_nPoints, THREADBLOCK_SIZE);
-        for (int i=0; i<m_nSteps; i++) {
-            _V(updatecentersIn(m_dCenters));    // deal with centers data
-		    _V(mapCenters(m_dPoints, m_dClusterIds, m_nPoints));
-		    _V(resetAccumulators(m_dCenters, m_dClusterCounts));
-		    _V(accumulate(m_dPoints, m_dCenters, m_dClusterCounts, m_dClusterIds, m_nPoints));
-            if (!accumOnCpu) {    // GPU accum
-		        _V(finalizeAccumulators(m_dCenters, m_dClusterCounts));
-            } else {    // CPU accum
-                finalizeAccumulatorsCPU(m_dCenters, m_dClusterCounts);
+        if (1) {
+            kmeans_params param;
+            param.pP = m_dPoints;
+            param.pC = m_dCenters;
+            param.pCC = m_dClusterCounts;
+            param.pCI = m_dClusterIds;
+            param.nP = m_nPoints;
+            void *p_params = &param;
+            dim3 dimGrid(nPointsBlocks);
+            dim3 dimBlock(THREADBLOCK_SIZE);
+            for (int i=0; i<m_nSteps; i++) {
+                _V(updatecentersIn(m_dCenters));
+                if (m_centers.useROMem()) {
+                    checkCudaErrors(cudaLaunchCooperativeKernel((void *)kmeansOnGPURaw<R, C, true>, dimGrid, dimBlock, &p_params));
+                } else {
+                    checkCudaErrors(cudaLaunchCooperativeKernel((void *)kmeansOnGPURaw<R, C, false>, dimGrid, dimBlock, &p_params));
+                }
             }
-	    }
+        } else {
+            for (int i=0; i<m_nSteps; i++) {
+                _V(updatecentersIn(m_dCenters));    // deal with centers data
+                _V(mapCenters(m_dPoints, m_dClusterIds, m_nPoints));
+                _V(resetAccumulators(m_dCenters, m_dClusterCounts));
+                _V(accumulate(m_dPoints, m_dCenters, m_dClusterCounts, m_dClusterIds, m_nPoints));
+                if (!accumOnCpu) {    // GPU accum
+                    _V(finalizeAccumulators(m_dCenters, m_dClusterCounts));
+                } else {    // CPU accum
+                    finalizeAccumulatorsCPU(m_dCenters, m_dClusterCounts);
+                }
+            }
+        }
         return true;
     }
 
