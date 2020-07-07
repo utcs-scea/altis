@@ -18,9 +18,6 @@ cuda_PROGRAMS = kmeans
 kmeans_link.o: kmmain.o
 	$(NVCC) ${CUDA_CPPFLAGS} $(CPPFLAGS) $(NVCXXFLAGS) -dlink $< -o kmeans_link.o
 
-kmeansraw_link.o: kmeansraw.o
-	$(NVCC) ${CUDA_CPPFLAGS} $(CPPFLAGS) $(NVCXXFLAGS) -dlink $< -o kmeansraw_link.o
-
 # How to build those programs?
 kmeans_SOURCES = \
 main.cpp 
@@ -28,6 +25,4 @@ main.cpp
 kmeans_LDADD = \
 kmmain.o \
 kmeans_link.o \
-kmeansraw.o \
-kmeansraw_link.o \
 $(CUDA_LIBS) $(LIBS) -lm

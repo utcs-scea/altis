@@ -12,31 +12,28 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Parameters
 ////////////////////////////////////////////////////////////////////////////////
-static const int DEFAULTRANK = 16;        // known to match input file. see comment on ReadInput<>, default is 24
-static const int DEFAULTSTEPS = 1000;     // number of steps to perform. Can also do convergence test.
-static const int DEFAULTCENTERS = 64;  // number of clusters to find
+#define DEFAULTRANK 16                    // known to match input file. see comment on ReadInput<>, default is 24
+#define DEFAULTSTEPS 1000                 // number of steps to perform. Can also do convergence test.
+#define DEFAULTCENTERS 64                 // number of clusters to find
 
-static const int SHMEMSIZE = SHARED_MEM_PER_BLOCK;       // default shared mem size
-static const int COUNTER_SHMEMSIZE = (256 * sizeof(int));
-static const int ACCUM_SHMEMSIZE = (SHMEMSIZE-COUNTER_SHMEMSIZE);
-static const int SHMEMCNTR_FLOATS = (COUNTER_SHMEMSIZE/sizeof(float));
-static const int SHMEMACCUM_FLOATS = (ACCUM_SHMEMSIZE/sizeof(float));
-static const int CONSTMEMSIZE = CONST_MEM;    // default constant memory size
-static const int CONSTRSRVSIZE = SHMEMSIZE; // TODO check
+#define COUNTER_SHMEMSIZE (256 * sizeof(int))
+#define ACCUM_SHMEMSIZE (SHARED_MEM_PER_BLOCK-COUNTER_SHMEMSIZE)
+#define SHMEMCNTR_FLOATS (COUNTER_SHMEMSIZE/sizeof(float))
+#define SHMEMACCUM_FLOATS (ACCUM_SHMEMSIZE/sizeof(float))
+#define CONSTRSRVSIZE (CONST_MEM - 0x00100);    // reserved const mem
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Common definitions
 ////////////////////////////////////////////////////////////////////////////////
-#define UINT_BITS 32
 typedef unsigned int uint;
 typedef unsigned char uchar;
 
 ////////////////////////////////////////////////////////////////////////////////
 // GPU-specific common definitions
 ////////////////////////////////////////////////////////////////////////////////
-#define THREADBLOCK_SIZE (4 * SHARED_MEMORY_BANKS)
-// #define THREADBLOCK_SIZE 256
+// #define THREADBLOCK_SIZE (4 * SHARED_MEMORY_BANKS)
+#define THREADBLOCK_SIZE 64
 #define WARP_COUNT 6
 #define UMUL(a, b) ( (a) * (b) )
 #define UMAD(a, b, c) ( UMUL((a), (b)) + (c) )

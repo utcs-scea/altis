@@ -57,7 +57,8 @@ typedef void (*LPFNBNC)(ResultDatabase &DB,
     bool bVerify,
     bool bVerbose);
 
-__constant__ float d_cnst_centers[CONSTMEMSIZE / sizeof(float)];
+__constant__ float d_cnst_centers[CONST_MEM / sizeof(float) - 0x00100];
+// extern __constant__ float d_cnst_centers;
 
 template <int R, int C> 
 class centersmanagerRO {
@@ -66,7 +67,7 @@ protected:
     float * m_pRO;
 public:
     centersmanagerRO(float * pG) : m_pG(pG), m_pRO(NULL) {} 
-    bool useROMem() { return R*C<CONSTMEMSIZE/sizeof(float); }
+    bool useROMem() { return R*C<CONST_MEM/sizeof(float); }
     float * dataRW() { return m_pG; } 
     float * dataRO() { return d_cnst_centers; }
     bool update(float * p, bool bHtoD=false) { return (bHtoD ? updateHtoD(p) : updateDtoD(p)); }
@@ -629,8 +630,17 @@ public:
             param.pCI = m_dClusterIds;
             param.nP = m_nPoints;
             void *p_params = &param;
-            dim3 dimGrid(nPointsBlocks);
-            dim3 dimBlock(THREADBLOCK_SIZE);
+
+            int minGridSize = 0, blockSize = 0;
+            checkCudaErrors(cudaOccupancyMaxPotentialBlockSize(
+                            &minGridSize,
+                            &blockSize,
+                            (void*)kmeansOnGPURaw<R, C, true>,
+                            0,
+                            0));
+
+            dim3 dimGrid(minGridSize, 1, 1), dimBlock(blockSize, 1, 1);
+
             for (int i=0; i<m_nSteps; i++) {
                 _V(updatecentersIn(m_dCenters));
                 if (m_centers.useROMem()) {

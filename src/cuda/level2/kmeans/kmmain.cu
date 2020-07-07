@@ -33,23 +33,31 @@ typedef void (*LPFNBNC)(ResultDatabase &DB,
 
 #define FILE_STR_BUFF_LEN 4096
 
+// __constant__ float d_cnst_centers[CONST_MEM / sizeof(float)];
+
 //declare_suite_hdrs(4);
-declare_suite_hdrs(16)
-declare_suite_hdrs(24);
+// declare_suite_hdrs(16)
+// declare_suite_hdrs(24);
 declare_suite_hdrs(32)
 // declare_suite_hdrs(64);
 // declare_suite_hdrs(128)
 
+declare_testsuite(32, 16);
+declare_testsuite(32, 32);
+declare_testsuite(32, 64);
+declare_testsuite(32, 128);
+declare_testsuite_lg(32, 256);
+declare_testsuite_lg(32, 512);
 
 std::map<std::string, std::map<int, std::map<int, LPFNKMEANS>>> g_lpfns;
 std::map<std::string, std::map<int, std::map<int, LPFNBNC>>> g_bncfns;
 bool g_blpfnInit = false;
 
-decl_init_lpfn_table_begin(g_lpfns, g_bncfns, g_blpfnInit);     // set g_blpfnInit to true
+decl_init_lpfn_table_begin(g_lpfns, g_bncfns, g_blpfnInit);     // must set g_blpfnInit to true
 
     //create_suite_entries(g_lpfns, g_bncfns, 4);
-    create_suite_entries(g_lpfns, g_bncfns, 16);
-    create_suite_entries(g_lpfns, g_bncfns, 24);
+    // create_suite_entries(g_lpfns, g_bncfns, 16);
+    // create_suite_entries(g_lpfns, g_bncfns, 24);
     create_suite_entries(g_lpfns, g_bncfns, 32);
     // create_suite_entries(g_lpfns, g_bncfns, 64);
     // create_suite_entries(g_lpfns, g_bncfns, 128);
@@ -58,24 +66,6 @@ decl_init_lpfn_table_end(g_lpfns, g_bncfns, g_blpfnInit);
 declare_lpfn_finder(g_lpfns, g_blpfnInit)
 declare_bnc_finder(g_bncfns, g_blpfnInit)
 
-int gVerbose = 0;
-
-bool g_bVerbose = false;
-bool g_bVerify = false;
-bool g_bCpu = false;
-#define DEFAULTSTEPS 1000
-int g_nSteps = DEFAULTSTEPS;
-
-
-LPFNKMEANS g_lpfnKMeans = NULL;
-LPFNBNC g_lpfnBnc = NULL;
-/* Change the input addr to whatever you want */
-char *g_lpszDefaultInput = "/home/ed/Desktop/altis/src/cuda/level2/km/inputs/random-n1000000-d128-c128.txt";
-char g_vInputFile[FILE_STR_BUFF_LEN];
-char g_vKMeansVersion[FILE_STR_BUFF_LEN];
-int g_nRank;
-int g_nCenters;
-int g_nSeed = 0;
 
 LPFNKMEANS
 choose_kmeans_impl(
@@ -128,6 +118,26 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 }
 
 void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
+
+    int gVerbose = 0;
+
+    bool g_bVerbose = false;
+    bool g_bVerify = false;
+    bool g_bCpu = false;
+    #define DEFAULTSTEPS 1000
+    int g_nSteps = DEFAULTSTEPS;
+
+
+    LPFNKMEANS g_lpfnKMeans = NULL;
+    LPFNBNC g_lpfnBnc = NULL;
+    /* Change the input addr to whatever you want */
+    char *g_lpszDefaultInput = "/home/ed/Desktop/altis/src/cuda/level2/km/inputs/random-n1000000-d128-c128.txt";
+    char g_vInputFile[FILE_STR_BUFF_LEN];
+    char g_vKMeansVersion[FILE_STR_BUFF_LEN];
+    int g_nRank;
+    int g_nCenters;
+    int g_nSeed = 0;
+
     int dev = op.getOptionInt("device");
     CUDA_SAFE_CALL(cudaSetDevice(dev));
     g_nRank = op.getOptionInt("rank");
