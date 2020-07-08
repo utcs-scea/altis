@@ -28,6 +28,7 @@ buildfnname(name, rnk, cent)(                                        \
 	const int nPoints,                                               \
 	const int nCenters,                                              \
     bool bAccumOnCpu,                                                \
+    bool bCoop,                                                      \
 	bool bVerify,                                                    \
 	bool bVerbose                                                    \
 	);                                                               \
@@ -41,6 +42,7 @@ buildbncfnname(name, rnk, cent)(                                     \
     int nSteps,                                                      \
     int nSeed,                                                       \
     bool bAccumOnCpu,                                                \
+    bool bCoop,                                                      \
     bool bVerify,                                                    \
     bool bVerbose                                                    \
 	);                                                               \
@@ -56,6 +58,7 @@ buildfnname(name, rnk, cent)(                                    \
 	const int nPoints,                                           \
 	const int nCenters,                                          \
     bool bAccumOnCpu,                                            \
+    bool bCoop,                                                  \
 	bool bVerify,                                                \
 	bool bVerbose                                                \
 	)                                                            \
@@ -72,6 +75,7 @@ buildfnname(name, rnk, cent)(                                    \
                                        nPoints,                  \
                                        nCenters,                 \
                                        bAccumOnCpu,              \
+                                       bCoop,                    \
                                        bVerify,                  \
                                        bVerbose);                \
 }                           
@@ -85,6 +89,7 @@ buildbncfnname(name, rnk, cent)(                              \
     int nSteps,                                               \
     int nSeed,                                                \
     bool bAccumOnCpu,                                         \
+    bool bCoop,                                               \
     bool bVerify,                                             \
     bool bVerbose                                             \
 	)                                                         \
@@ -99,6 +104,7 @@ buildbncfnname(name, rnk, cent)(                              \
                                nSteps,                        \
                                nSeed,                         \
                                bAccumOnCpu,                   \
+                               bCoop,                         \
                                bVerify,                       \
                                bVerbose);                     \
 }                                                             \

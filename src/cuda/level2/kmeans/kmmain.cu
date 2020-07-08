@@ -17,6 +17,7 @@ typedef double (*LPFNKMEANS)(ResultDatabase &DB,
 	                         const int nPoints,
                              const int nCenters,
                              bool bVCpuAccum,
+                             bool bCoop,
 	                         bool bVerify,
 	                         bool bVerbose);
 
@@ -26,6 +27,7 @@ typedef void (*LPFNBNC)(ResultDatabase &DB,
                         int nSteps,
                         int nSeed,
                         bool bVCpuAccum,
+                        bool bCoop,
                         bool bVerify,
                         bool bVerbose);
 
@@ -33,12 +35,10 @@ typedef void (*LPFNBNC)(ResultDatabase &DB,
 
 #define FILE_STR_BUFF_LEN 4096
 
-// __constant__ float d_cnst_centers[CONST_MEM / sizeof(float)];
-
 //declare_suite_hdrs(4);
 // declare_suite_hdrs(16)
 // declare_suite_hdrs(24);
-declare_suite_hdrs(32)
+declare_suite_hdrs(32);
 // declare_suite_hdrs(64);
 // declare_suite_hdrs(128)
 
@@ -115,6 +115,7 @@ void addBenchmarkSpecOptions(OptionParser &op) {
     op.addOption("type", OPT_STRING, "raw", "A valid version of kmeans");
     op.addOption("seed", OPT_INT, "0", "seed for rand gen");
     op.addOption("cpu", OPT_BOOL, "0", "perform accumulation on CPU instead");
+    op.addOption("coop", OPT_BOOL, "0", "use grid sync for keamns");
 }
 
 void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
@@ -124,6 +125,7 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
     bool g_bVerbose = false;
     bool g_bVerify = false;
     bool g_bCpu = false;
+    bool g_bCoop = false;
     #define DEFAULTSTEPS 1000
     int g_nSteps = DEFAULTSTEPS;
 
@@ -146,6 +148,10 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
     g_nSeed = op.getOptionInt("seed");
     g_bVerify = op.getOptionBool("verify");
     g_bCpu = op.getOptionBool("cpu");
+    g_bCoop = op.getOptionBool("coop");
+#ifndef GRID_SYNC
+    g_bCoop = false;
+#endif
     strcpy(g_vKMeansVersion, op.getOptionString("type").c_str());
     if (g_nSeed == 0) {
         struct timespec ts;
@@ -186,6 +192,7 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
                  g_nSteps,
                  g_nSeed,
                  g_bCpu,
+                 g_bCoop,
                  g_bVerify,
                  g_bVerbose);
     

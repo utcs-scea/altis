@@ -45,6 +45,7 @@ typedef double (*LPFNKMEANS)(ResultDatabase &DB,
     const int nPoints,
     const int nCenters,
     bool bVCpuAccum,
+    bool bCoop,
     bool bVerify,
     bool bVerbose);
 
@@ -54,6 +55,7 @@ typedef void (*LPFNBNC)(ResultDatabase &DB,
     int nSteps,
     int nSeed,
     bool bVCpuAccum,
+    bool bCoop,
     bool bVerify,
     bool bVerbose);
 
@@ -618,11 +620,11 @@ public:
                                  m_nCenters(nCenters),
                                  m_centers(d_Centers) {}
 
-    bool execute(bool accumOnCpu) {
+    bool execute(bool accumOnCpu, bool bCoop) {
         assert(m_nCenters == C);
         const uint nCentersBlocks = iDivUp(m_nCenters, THREADBLOCK_SIZE);
         const uint nPointsBlocks = iDivUp(m_nPoints, THREADBLOCK_SIZE);
-        if (1) {
+        if (bCoop) {
             kmeans_params param;
             param.pP = m_dPoints;
             param.pC = m_dCenters;
@@ -1092,6 +1094,7 @@ public:
 	    const int nPoints,
 	    const int nCenters,
         bool bVCpuAccum,
+        bool bCoop,
 	    bool bVerify,
 	    bool bVerbose
 	    )
@@ -1155,7 +1158,7 @@ public:
 
         checkCudaErrors(cudaEventRecord(start, 0));
 
-        pKMeans->execute(bVCpuAccum);
+        pKMeans->execute(bVCpuAccum, bCoop);
 	    checkCudaErrors( cudaDeviceSynchronize() );
 
         checkCudaErrors(cudaEventRecord(stop, 0));
@@ -1283,6 +1286,7 @@ public:
         int nSteps,
         int nSeed,
         bool bVCpuAccum,
+        bool bCoop,
         bool bVerify,
         bool bVerbose
         )
@@ -1361,6 +1365,7 @@ public:
 									 nPoints, 
 									 nCenters, 
                                      bVCpuAccum,
+                                     bCoop,
 									 bVerify,
 									 bVerbose);
 		}
@@ -1380,6 +1385,7 @@ public:
 				for(auto vi=centers.begin(); vi!=centers.end(); vi++) 
 					*vi = *pCenters++;
 				bSuccess = CompareResults(centers, refcenters,  0.1f, bVerbose);
+                assert(bSuccess);
 			}
             // TODO placeholder
             //double dAvgSecs = 0;
