@@ -33,7 +33,7 @@ typedef unsigned char uchar;
 // GPU-specific common definitions
 ////////////////////////////////////////////////////////////////////////////////
 // #define THREADBLOCK_SIZE (4 * SHARED_MEMORY_BANKS)
-#define THREADBLOCK_SIZE 64
+#define THREADBLOCK_SIZE MAX_THREADS_PER_BLOCK / 4
 #define WARP_COUNT 6
 #define UMUL(a, b) ( (a) * (b) )
 #define UMAD(a, b, c) ( UMUL((a), (b)) + (c) )

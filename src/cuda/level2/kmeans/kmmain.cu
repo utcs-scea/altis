@@ -36,11 +36,18 @@ typedef void (*LPFNBNC)(ResultDatabase &DB,
 #define FILE_STR_BUFF_LEN 4096
 
 //declare_suite_hdrs(4);
-// declare_suite_hdrs(16)
+declare_suite_hdrs(16)
 // declare_suite_hdrs(24);
 declare_suite_hdrs(32);
 // declare_suite_hdrs(64);
 // declare_suite_hdrs(128)
+
+declare_testsuite(16, 16);
+declare_testsuite(16, 32);
+declare_testsuite(16, 64);
+declare_testsuite(16, 128);
+declare_testsuite_lg(16, 256);
+declare_testsuite_lg(16, 512);
 
 declare_testsuite(32, 16);
 declare_testsuite(32, 32);
@@ -56,7 +63,7 @@ bool g_blpfnInit = false;
 decl_init_lpfn_table_begin(g_lpfns, g_bncfns, g_blpfnInit);     // must set g_blpfnInit to true
 
     //create_suite_entries(g_lpfns, g_bncfns, 4);
-    // create_suite_entries(g_lpfns, g_bncfns, 16);
+    create_suite_entries(g_lpfns, g_bncfns, 16);
     // create_suite_entries(g_lpfns, g_bncfns, 24);
     create_suite_entries(g_lpfns, g_bncfns, 32);
     // create_suite_entries(g_lpfns, g_bncfns, 64);
