@@ -19,7 +19,8 @@ typedef double (*LPFNKMEANS)(ResultDatabase &DB,
                              bool bVCpuAccum,
                              bool bCoop,
 	                         bool bVerify,
-	                         bool bVerbose);
+	                         bool bVerbose,
+                             bool bShowCenters);
 
 typedef void (*LPFNBNC)(ResultDatabase &DB,
                         char * szFile, 
@@ -29,7 +30,8 @@ typedef void (*LPFNBNC)(ResultDatabase &DB,
                         bool bVCpuAccum,
                         bool bCoop,
                         bool bVerify,
-                        bool bVerbose);
+                        bool bVerbose,
+                        bool bShowCenters);
 
 #include "testsuitedecl.h"
 
@@ -115,6 +117,7 @@ choose_kmeans_bnc(
 }
 
 void addBenchmarkSpecOptions(OptionParser &op) {
+    op.addOption("showCenters", OPT_BOOL, "0", "show centers before and after execution");
     op.addOption("verify", OPT_BOOL, "0", "verify the results computed on host");
     op.addOption("rank", OPT_INT, "16", "An integer-valued rank");
     op.addOption("centers", OPT_INT, "64", "An integer-valued centers argument");
@@ -129,6 +132,7 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
 
     int gVerbose = 0;
 
+    bool g_bShowCenters = false;
     bool g_bVerbose = false;
     bool g_bVerify = false;
     bool g_bCpu = false;
@@ -154,6 +158,7 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
     g_nSteps = op.getOptionInt("steps");
     g_nSeed = op.getOptionInt("seed");
     g_bVerify = op.getOptionBool("verify");
+    g_bShowCenters = op.getOptionBool("showCenters");
     g_bCpu = op.getOptionBool("cpu");
     g_bCoop = op.getOptionBool("coop");
 #ifndef GRID_SYNC
@@ -201,7 +206,8 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
                  g_bCpu,
                  g_bCoop,
                  g_bVerify,
-                 g_bVerbose);
+                 g_bVerbose,
+                 g_bShowCenters);
     
     cudaDeviceReset();
 }

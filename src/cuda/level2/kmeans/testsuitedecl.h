@@ -30,7 +30,8 @@ buildfnname(name, rnk, cent)(                                        \
     bool bAccumOnCpu,                                                \
     bool bCoop,                                                      \
 	bool bVerify,                                                    \
-	bool bVerbose                                                    \
+	bool bVerbose,                                                   \
+    bool bShowCenters                                                \
 	);                                                               \
 
 #define declare_bnc_header(name, rnk, cent, cman, accman, rowmaj)    \
@@ -44,7 +45,8 @@ buildbncfnname(name, rnk, cent)(                                     \
     bool bAccumOnCpu,                                                \
     bool bCoop,                                                      \
     bool bVerify,                                                    \
-    bool bVerbose                                                    \
+    bool bVerbose,                                                   \
+    bool bShowCenters                                                \
 	);                                                               \
 
 
@@ -60,7 +62,8 @@ buildfnname(name, rnk, cent)(                                    \
     bool bAccumOnCpu,                                            \
     bool bCoop,                                                  \
 	bool bVerify,                                                \
-	bool bVerbose                                                \
+	bool bVerbose,                                               \
+    bool bShowCenters                                            \
 	)                                                            \
 {                                                                \
                                                                  \
@@ -77,7 +80,8 @@ buildfnname(name, rnk, cent)(                                    \
                                        bAccumOnCpu,              \
                                        bCoop,                    \
                                        bVerify,                  \
-                                       bVerbose);                \
+                                       bVerbose,                 \
+                                       bShowCenters);            \
 }                           
 
 #define declare_bnc_fn(name, rnk, cent, cman, accman, rowmaj) \
@@ -91,7 +95,8 @@ buildbncfnname(name, rnk, cent)(                              \
     bool bAccumOnCpu,                                         \
     bool bCoop,                                               \
     bool bVerify,                                             \
-    bool bVerbose                                             \
+    bool bVerbose,                                            \
+    bool bShowCenters                                         \
 	)                                                         \
 {                                                             \
     kmeansraw<rnk,                                            \
@@ -106,7 +111,8 @@ buildbncfnname(name, rnk, cent)(                              \
                                bAccumOnCpu,                   \
                                bCoop,                         \
                                bVerify,                       \
-                               bVerbose);                     \
+                               bVerbose,                      \
+                               bShowCenters);                 \
 }                                                             \
                                        
 #define declare_testsuite(rank, cent)                                                                     \

@@ -47,7 +47,8 @@ typedef double (*LPFNKMEANS)(ResultDatabase &DB,
     bool bVCpuAccum,
     bool bCoop,
     bool bVerify,
-    bool bVerbose);
+    bool bVerbose,
+    bool bShowCenters);
 
 typedef void (*LPFNBNC)(ResultDatabase &DB,
     char* szFile,
@@ -57,7 +58,8 @@ typedef void (*LPFNBNC)(ResultDatabase &DB,
     bool bVCpuAccum,
     bool bCoop,
     bool bVerify,
-    bool bVerbose);
+    bool bVerbose,
+    bool bShowCenters);
 
 __constant__ float d_cnst_centers[CONST_MEM / sizeof(float) - 0x00100];
 // extern __constant__ float d_cnst_centers;
@@ -559,6 +561,7 @@ __global__ void kmeansOnGPURaw(kmeans_params params) {
     int idx = blockIdx.x*blockDim.x+threadIdx.x;
 
 
+    /* Map points to centers is the most time consuming part */
     /* mapPointsToCenters() and mapPointsToCentersColumnMajor() */
     grid_group grid = this_grid();
     {
@@ -839,24 +842,28 @@ protected:
         param.nP = m_nPoints;
         void *p_params = &param;
 
-        // int minGridSize = 0, blockSize = 0;
-        // checkCudaErrors(cudaOccupancyMaxPotentialBlockSize(
-        //                 &minGridSize,
-        //                 &blockSize,
-        //                 (void*)kmeansOnGPURaw<R, C, true>,
-        //                 0,
-        //                 0));
+        int minGridSize = 0, blockSize = 0;
+        checkCudaErrors(cudaOccupancyMaxPotentialBlockSize(
+                        &minGridSize,
+                        &blockSize,
+                        (void*)kmeansOnGPURaw<R, C, nElemsPerThread, false>,
+                        0,
+                        0));
 
-        dim3 dimGrid(nPointsBlocks, 1, 1), dimBlock(THREADBLOCK_SIZE, 1, 1);
+        // dim3 dimGrid(nPointsBlocks, 1, 1), dimBlock(THREADBLOCK_SIZE, 1, 1);
+        dim3 dimGrid(minGridSize, 1, 1), dimBlock(blockSize, 1, 1);
 
         int maxNumbBlocksAllowed;
         // checkCudaErrors(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&maxNumbBlocksAllowed, kmeansOnGPURaw<R, C, nElemsPerThread, true>,
         //     THREADBLOCK_SIZE, sizeof(float)*(R*C+C)));
-        checkCudaErrors(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&maxNumbBlocksAllowed, kmeansOnGPURaw<R, C, nElemsPerThread, true>,
+        checkCudaErrors(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&maxNumbBlocksAllowed, kmeansOnGPURaw<R, C, nElemsPerThread, false>,
             THREADBLOCK_SIZE, 0));
         
         std::cout << "max blocks: " << maxNumbBlocksAllowed << std::endl;
         std::cout << "use blocks: " << THREADBLOCK_SIZE << std::endl;
+
+        std::cout << "generated grid: " << minGridSize << std::endl;
+        std::cout << "generated blocks: " << blockSize << std::endl;
 
         for (int i=0; i<m_nSteps; i++) {
             _V(updatecentersIn(m_dCenters));
@@ -1275,7 +1282,8 @@ public:
         bool bVCpuAccum,
         bool bCoop,
 	    bool bVerify,
-	    bool bVerbose
+	    bool bVerbose,
+        bool bShowCenters
 	    )
     {
         assert(nCenters == C);
@@ -1359,7 +1367,7 @@ public:
 					    //(1.0e-6 * (double)byteCount / dAvgSecs), dAvgSecs, byteCount, 1, THREADBLOCK_SIZE); 
 	    }
 
-	    if (bVerify) {
+	    if (bVerify || bShowCenters) {
 		    std::cout << " ...reading back GPU results" << std::endl;
             #ifndef UNIFIED_MEMORY
 		    checkCudaErrors( cudaMemcpy(h_Centers, d_Centers, uiCentersBytes, cudaMemcpyDeviceToHost) );
@@ -1467,7 +1475,8 @@ public:
         bool bVCpuAccum,
         bool bCoop,
         bool bVerify,
-        bool bVerbose
+        bool bVerbose,
+        bool bShowCenters
         )
     {
         int nP = 0;
@@ -1537,6 +1546,10 @@ public:
 
 			//fprintf(stdout, "initial centers:\n");
 			//PrintCenters<DEFAULTRANK>(stdout, h_Centers, nCenters);
+            if (bShowCenters) {
+                std::cout << "initial centers:" << std::endl;
+                PrintCenters(stdout, h_Centers);
+            }
 			dAvgSecs = (*lpfnKMeans)(DB,
                                      nSteps, 
 									 h_Points, 
@@ -1546,8 +1559,14 @@ public:
                                      bVCpuAccum,
                                      bCoop,
 									 bVerify,
-									 bVerbose);
+									 bVerbose,
+                                     bShowCenters);
 		}
+
+        if (bShowCenters) {
+            std::cout << "final centers:" << std::endl;
+            PrintCenters(stdout, h_Centers);
+        }
 
 	    if (bVerify) {
 		    //shrLog("\nValidating GPU results...\n");
