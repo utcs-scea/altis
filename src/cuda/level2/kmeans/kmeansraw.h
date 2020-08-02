@@ -25,7 +25,6 @@
 
 #include "kmeans_kernel.cu"
 
-
 typedef double (*LPFNKMEANS)(ResultDatabase &DB,
     const int nSteps,
     void* h_Points,
@@ -78,10 +77,16 @@ public:
     bool update(float * p, bool bHtoD=false) { return true; }
     bool updateHtoD(float * p) { return true; }
     bool updateDToD(float * p) { return true; }
+
 };
 
 template <int R, int C, bool ROWMAJ=true> 
 class accumulatorGM {
+public:
+    bool useSharedAccumulate() { return false; }
+    bool useSharedFinalize() { return false; }
+    bool accumGeneral() { return false; }
+    int shrMemSize() { return 0; }
 public:
 
     static void reset(float * pC, int * pCC) { 
@@ -151,6 +156,11 @@ public:
 template <int R, int C, bool ROWMAJ=true> 
 class accumulatorGMMS {
 public:
+    bool useSharedAccumulate() { return false; };
+    bool useSharedFinalize() { return false; }
+    bool accumGeneral() { return false; }
+    int shrMemSize() { return 0; }
+public:
 
     static void reset(float * pC, int * pCC) {
         checkCudaErrors(cudaMemset(pC, 0, R*C*sizeof(float)));
@@ -173,6 +183,33 @@ public:
 
 template <int R, int C, bool ROWMAJ=true> 
 class accumulatorSM {
+public:
+    bool useSharedAccumulate() {
+        return (R * C <= SHMEMACCUM_FLOATS);
+    }
+
+    bool useSharedFinalize() {
+        return false;
+    }
+
+    bool accumGeneral() {
+        if (R*C>SHMEMACCUM_FLOATS) {
+            return false;
+        } else {
+            if (R*C<MAXBLOCKTHREADS) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }
+    int shrMemSize() {
+        if (R*C > SHMEMACCUM_FLOATS) return 0;
+        else {
+            return (sizeof(float) * R*C + sizeof(int) * C);
+        }
+    }
+
 public:
     static void reset(float * pC, int * pCC) { accumulatorGM<R,C,ROWMAJ>::reset(pC, pCC); }
     static void finalize(float * pC, int * pCC) { accumulatorGMMS<R,C,ROWMAJ>::finalize(pC, pCC); }
@@ -230,6 +267,34 @@ protected:
 template <int R, int C, bool ROWMAJ=true> 
 class accumulatorSMMAP {
 public:
+    bool useSharedAccumulate() {
+        return (R * C <= SHMEMACCUM_FLOATS);
+    }
+
+    bool useSharedFinalize() {
+        return true;
+    }
+
+    bool accumGeneral() {
+        if (R*C>SHMEMACCUM_FLOATS) {
+            return false;
+        } else {
+            if (R*C<MAXBLOCKTHREADS) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }
+
+    int shrMemSize() {
+        if (R*C > SHMEMACCUM_FLOATS) return 0;
+        else {
+            return (sizeof(float) * R*C + sizeof(int) * C);
+        }
+    }
+        
+public:
     static void reset(float * pC, int * pCC) { accumulatorSM<R,C,ROWMAJ>::reset(pC, pCC); }
     static void accumulate(float * pP, float * pC, int * pCC, int * pCI, int nP) { accumulatorSM<R,C,ROWMAJ>::accumulate(pP, pC, pCC, pCI, nP); }
     static void finalize(float * pC, int * pCC) { 
@@ -240,7 +305,9 @@ public:
         }
     }
     static void finalizeCPU(float * pC, int * pCC) { accumulatorSM<R,C,ROWMAJ>::finalizeCPU(pC, pCC); }
+    static bool sharedAccum() {
 
+    }
 };
 
 template<int R, 
@@ -299,7 +366,7 @@ protected:
     int     m_nPoints;
     int     m_nCenters;
 
-    CM m_centers; 
+    CM m_centers;
     SM m_accumulator;
     bool updatecentersIn(float * p_Centers) { return m_centers.update(p_Centers); }
     bool initcentersInput(float * p_Centers) { return m_centers.updateHtoD(p_Centers); }
@@ -313,8 +380,7 @@ protected:
 
     void kmeansCoop() {
         const uint nPointsBlocks = iDivUp(m_nPoints, THREADBLOCK_SIZE);
-		const int nElemsPerThread = (R*C)/THREADBLOCK_SIZE;
-        /* Marshal parameters */
+        // Marshal parameters
         kmeans_params param;
         param.pP = m_dPoints;
         param.pC = m_dCenters;
@@ -323,28 +389,36 @@ protected:
         param.nP = m_nPoints;
         void *p_params = &param;
 
-        int minGridSize = 0, blockSize = 0;
-        checkCudaErrors(cudaOccupancyMaxPotentialBlockSize(
-                        &minGridSize,
-                        &blockSize,
-                        (void*)kmeansOnGPURaw<R, C, nElemsPerThread, false>,
-                        0,
-                        0));
+        // decide required template params for coop kernel
+        // int R: provided
+        // int C: provided
+		const int nElemsPerThread = (R*C)/THREADBLOCK_SIZE;
+        const bool bRO = m_centers.useROMem();
+        // bool ROWMAJ: provided
+        const bool sharedAccum = m_accumulator.useSharedAccumulate();
+        const bool sharedFinalize = m_accumulator.useSharedFinalize();
+        const bool accumulateGeneral = m_accumulator.accumGeneral();
+        //const bool accumulateSM = m_accumulator.
+        const dynamicSMemSize = m_accumulator.shrMemSize();
 
-        // dim3 dimGrid(nPointsBlocks, 1, 1), dimBlock(THREADBLOCK_SIZE, 1, 1);
-        dim3 dimGrid(minGridSize, 1, 1), dimBlock(blockSize, 1, 1);
 
-        int maxNumbBlocksAllowed;
-        // checkCudaErrors(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&maxNumbBlocksAllowed, kmeansOnGPURaw<R, C, nElemsPerThread, true>,
-        //     THREADBLOCK_SIZE, sizeof(float)*(R*C+C)));
-        checkCudaErrors(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&maxNumbBlocksAllowed, kmeansOnGPURaw<R, C, nElemsPerThread, false>,
-            THREADBLOCK_SIZE, 0));
+        int maxBlocksAvailablePerSM;
+        void *kmeansCoopKernel = buildcoopkernel(R, C, nElemsPerThread, bRO, ROWMAJ, sharedAccum,
+                    sharedFinalize, accumulateGeneral);
+        checkCudaErrors(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&maxBlocksAvailablePerSM,
+                    kmeansCoopKernel, 
+                    THREADBLOCK_SIZE, dynamicSMemSize));
+
+        const int maxThreadsAvailable = THREADBLOCK_SIZE * maxBlocksAvailablePerSM * SM_COUNT;
+        const int maxBlockAvailable = maxBlocksAvailablePerSM * SM_COUNT;
+
+        std::cout << "generated grid: " << maxThreadsAvailable << std::endl;
+        std::cout << "generated blocks: " << maxBlockAvailable << std::endl;
+
+        // Decide whether to use mutli-points coop kernel
+        dim3 dimGrid(nPointsBlocks, 1, 1);
+        dim3 dimBlock(THREADBLOCK_SIZE, 1, 1);
         
-        std::cout << "max blocks: " << maxNumbBlocksAllowed << std::endl;
-        std::cout << "use blocks: " << THREADBLOCK_SIZE << std::endl;
-
-        std::cout << "generated grid: " << minGridSize << std::endl;
-        std::cout << "generated blocks: " << blockSize << std::endl;
 
         for (int i=0; i<m_nSteps; i++) {
             _V(updatecentersIn(m_dCenters));

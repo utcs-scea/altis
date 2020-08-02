@@ -6,6 +6,46 @@
 
 #pragma once
 
+#define buildcoopkernel(R, C, nElemsPerThread, bRO, ROWMAJ, sharedAccum, sharedFinalize, accumulateGeneral)  \
+void *getKmeansCoopKernel(R, C, nElemsPerThread, bRO, ROWMAJ, sharedAccum, sharedFinalize, accumulateGeneral) {\
+    if (bRO == true && sharedAccum == true && sharedFinalize == true && accumulateGeneral == true)           \
+        return kmeansOnGPURaw<R,C,nElemsPerThread, true, ROWMAJ, true, true, true>;                          \
+    else if (bRO == true && sharedAccum == true && sharedFinalize == true && accumulateGeneral == false)     \
+        return kmeansOnGPURaw<R,C,nElemsPerThread, true, ROWMAJ, true, true, false>;                         \
+    else if (bRO == true && sharedAccum == true && sharedFinalize == false && accumulateGeneral == true)     \
+        return kmeansOnGPURaw<R,C,nElemsPerThread, true, ROWMAJ, true, false, true>;                         \
+    else if (bRO == true && sharedAccum == true && sharedFinalize == false && accumulateGeneral == false)    \
+        return kmeansOnGPURaw<R,C,nElemsPerThread, true, ROWMAJ, true, false, false>;                        \
+    else if (bRO == true && sharedAccum == false && sharedFinalize == true && accumulateGeneral == true)     \
+        return kmeansOnGPURaw<R,C,nElemsPerThread, true, ROWMAJ, false, true, true>;                         \
+    else if (bRO == true && sharedAccum == false && sharedFinalize == true && accumulateGeneral == false)    \
+        return kmeansOnGPURaw<R,C,nElemsPerThread, true, ROWMAJ, false, true, false>;                        \
+    else if (bRO == true && sharedAccum == false && sharedFinalize == false && accumulateGeneral == true)    \
+        return kmeansOnGPURaw<R,C,nElemsPerThread, true, ROWMAJ, false, false, true>;                        \
+    else if (bRO == true && sharedAccum == false && sharedFinalize == false && accumulateGeneral == false)   \
+        return kmeansOnGPURaw<R,C,nElemsPerThread, true, ROWMAJ, false, false, false>;                       \
+    else if (bRO == false && sharedAccum == true && sharedFinalize == true && accumulateGeneral == true)     \
+        return kmeansOnGPURaw<R,C,nElemsPerThread, false, ROWMAJ, true, true, true>;                         \
+    else if (bRO == false && sharedAccum == true && sharedFinalize == true && accumulateGeneral == false)    \
+        return kmeansOnGPURaw<R,C,nElemsPerThread, false, ROWMAJ, true, true, false>;                        \
+    else if (bRO == false && sharedAccum == true && sharedFinalize == false && accumulateGeneral == true)    \
+        return kmeansOnGPURaw<R,C,nElemsPerThread, false, ROWMAJ, true, false, true>;                        \
+    else if (bRO == false && sharedAccum == true && sharedFinalize == false && accumulateGeneral == false)   \
+        return kmeansOnGPURaw<R,C,nElemsPerThread, false, ROWMAJ, true, false, false>;                       \
+    else if (bRO == false && sharedAccum == false && sharedFinalize == true && accumulateGeneral == true)    \
+        return kmeansOnGPURaw<R,C,nElemsPerThread, false, ROWMAJ, false, true, true>;                        \
+    else if (bRO == false && sharedAccum == false && sharedFinalize == true && accumulateGeneral == false)   \
+        return kmeansOnGPURaw<R,C,nElemsPerThread, false, ROWMAJ, false, true, false>;                       \
+    else if (bRO == false && sharedAccum == false && sharedFinalize == false && accumulateGeneral == true)   \
+        return kmeansOnGPURaw<R,C,nElemsPerThread, false, ROWMAJ, false, false, true>;                       \
+    else if (bRO == false && sharedAccum == false && sharedFinalize == false && accumulateGeneral == false)  \
+        return kmeansOnGPURaw<R,C,nElemsPerThread, false, ROWMAJ, false, false, false>;                      \
+    else                                                                                                     \
+        return NULL;                                                                                         \
+}\
+
+
+
 /*
 #define buildfnnamebase(name) kmeans_##name
 #define initfnnamebase(name) kmeans_init_##name

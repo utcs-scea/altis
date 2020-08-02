@@ -326,7 +326,7 @@ mapPointsToCentersColumnMajor(float * pP, float * pC, int * pCI, int nP) {
  * This the coop kernel impl
  */
 template<int R, int C, int nLDElemsPerThread, bool bRO, bool ROWMAJ=true, bool sharedAccum=false, bool sharedFinalize=false,
-        bool accumulateGeneral=false, bool accumulateSM=false>
+        bool accumulateGeneral=false>
 __global__ void kmeansOnGPURaw(kmeans_params params) {
     /* Marshall off parameters */
     float * pP = params.pP;
