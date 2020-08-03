@@ -305,9 +305,6 @@ public:
         }
     }
     static void finalizeCPU(float * pC, int * pCC) { accumulatorSM<R,C,ROWMAJ>::finalizeCPU(pC, pCC); }
-    static bool sharedAccum() {
-
-    }
 };
 
 template<int R, 
@@ -399,15 +396,15 @@ protected:
         const bool sharedFinalize = m_accumulator.useSharedFinalize();
         const bool accumulateGeneral = m_accumulator.accumGeneral();
         //const bool accumulateSM = m_accumulator.
-        const dynamicSMemSize = m_accumulator.shrMemSize();
+        const int dynamicSMemSize = m_accumulator.shrMemSize();
 
 
         int maxBlocksAvailablePerSM;
-        void *kmeansCoopKernel = buildcoopkernel(R, C, nElemsPerThread, bRO, ROWMAJ, sharedAccum,
+        auto kmeansCoopKernel = kmeansOnGPURaw<R, C, nElemsPerThread, true>;
+        buildcoopkernel(kmeansCoopKernel, R, C, nElemsPerThread, bRO, ROWMAJ, sharedAccum,
                     sharedFinalize, accumulateGeneral);
         checkCudaErrors(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&maxBlocksAvailablePerSM,
-                    kmeansCoopKernel, 
-                    THREADBLOCK_SIZE, dynamicSMemSize));
+                    kmeansCoopKernel, THREADBLOCK_SIZE, dynamicSMemSize));
 
         const int maxThreadsAvailable = THREADBLOCK_SIZE * maxBlocksAvailablePerSM * SM_COUNT;
         const int maxBlockAvailable = maxBlocksAvailablePerSM * SM_COUNT;

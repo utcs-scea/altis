@@ -390,11 +390,15 @@ __global__ void kmeansOnGPURaw(kmeans_params params) {
                 }
             }
         } else {
+            // This is a workaround for coop kernel because if R or C is too large
+            // the compilation will fail due to large shared mem size, this should
+            // never be reached
+            if (R * C * sizeof(float) > ACCUM_SHMEMSIZE || C * sizeof(int) > COUNTER_SHMEMSIZE) return;
+            __shared__ float accums[R*C];
+            __shared__ int cnts[C];
             if (accumulateGeneral == false) {
                 if (ROWMAJ) {
                     /* accumulateSM_RCeqBlockSize() */
-                    __shared__ float accums[R*C];
-                    __shared__ int cnts[C];
                     dassert(R*C*sizeof(float) <= ACCUM_SHMEMSIZE);
                     dassert(C*sizeof(int) <= COUNTER_SHMEMSIZE);
                     // dassert(R*C <= 1024);
@@ -413,8 +417,6 @@ __global__ void kmeansOnGPURaw(kmeans_params params) {
                     if(threadIdx.x < R*C) atomicAdd(&pC[threadIdx.x], accums[threadIdx.x]);
                     if(threadIdx.x < C) atomicAdd(&pCC[threadIdx.x], cnts[threadIdx.x]);
                 } else {    /* accumulateSMColumnMajor_RCeqBS() */
-                    __shared__ float accums[R*C];
-                    __shared__ int cnts[C];
                     dassert(R*C*sizeof(float) <= ACCUM_SHMEMSIZE);
                     dassert(C*sizeof(int) <= COUNTER_SHMEMSIZE);
                     if(threadIdx.x < R*C) accums[threadIdx.x] = 0.0f;
@@ -432,8 +434,6 @@ __global__ void kmeansOnGPURaw(kmeans_params params) {
                 }
             } else {
                 if (ROWMAJ) {   /* accumulateSM() */
-                    __shared__ float accums[R*C];
-                    __shared__ int cnts[C];
                     dassert(R*C*sizeof(float) <= ACCUM_SHMEMSIZE);
                     dassert(C*sizeof(int) <= COUNTER_SHMEMSIZE);
                     if(threadIdx.x < C) cnts[threadIdx.x] = 0;
@@ -458,8 +458,6 @@ __global__ void kmeansOnGPURaw(kmeans_params params) {
                             atomicAdd(&pC[nLDIdx], accums[nLDIdx]);
                     }
                 } else {    /* accumulateSMColumnMajor() */
-                    __shared__ float accums[R*C];
-                    __shared__ int cnts[C];
                     dassert(R*C*sizeof(float) <= ACCUM_SHMEMSIZE);
                     dassert(C*sizeof(int) <= COUNTER_SHMEMSIZE);
                     if(threadIdx.x < C) {
