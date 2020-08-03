@@ -378,15 +378,7 @@ protected:
     void kmeansCoop() {
         const uint nPointsBlocks = iDivUp(m_nPoints, THREADBLOCK_SIZE);
         // Marshal parameters
-        kmeans_params param;
-        param.pP = m_dPoints;
-        param.pC = m_dCenters;
-        param.pCC = m_dClusterCounts;
-        param.pCI = m_dClusterIds;
-        param.nP = m_nPoints;
-        void *p_params = &param;
-
-        // decide required template params for coop kernel
+                // decide required template params for coop kernel
         // int R: provided
         // int C: provided
 		const int nElemsPerThread = (R*C)/THREADBLOCK_SIZE;
@@ -400,8 +392,8 @@ protected:
 
 
         int maxBlocksAvailablePerSM;
-        auto kmeansCoopKernel = kmeansOnGPURaw<R, C, nElemsPerThread, true>;
-        buildcoopkernel(kmeansCoopKernel, R, C, nElemsPerThread, bRO, ROWMAJ, sharedAccum,
+        auto kmeansCoopKernel = kmeansOnGPURaw<1, 1, 1, true>;
+        buildcoopkernel(kmeansCoopKernel, kmeansOnGPURaw, R, C, nElemsPerThread, bRO, ROWMAJ, sharedAccum,
                     sharedFinalize, accumulateGeneral);
         checkCudaErrors(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&maxBlocksAvailablePerSM,
                     kmeansCoopKernel, THREADBLOCK_SIZE, dynamicSMemSize));
@@ -413,16 +405,64 @@ protected:
         std::cout << "generated blocks: " << maxBlockAvailable << std::endl;
 
         // Decide whether to use mutli-points coop kernel
-        dim3 dimGrid(nPointsBlocks, 1, 1);
-        dim3 dimBlock(THREADBLOCK_SIZE, 1, 1);
-        
+        bool multiPointsKernel = false;
+        if (maxThreadsAvailable >= m_nPoints) multiPointsKernel = false;
+        else multiPointsKernel = true;
 
-        for (int i=0; i<m_nSteps; i++) {
-            _V(updatecentersIn(m_dCenters));
-            if (m_centers.useROMem()) {
-                checkCudaErrors(cudaLaunchCooperativeKernel((void *)kmeansOnGPURaw<R, C, nElemsPerThread, true>, dimGrid, dimBlock, &p_params));
-            } else {
-                checkCudaErrors(cudaLaunchCooperativeKernel((void *)kmeansOnGPURaw<R, C, nElemsPerThread, false>, dimGrid, dimBlock, &p_params));
+        if (multiPointsKernel == true) {
+            auto kmeansCoopKernelMutli = kmeansOnGPUMultiPoints<1, 1, 1, true>;
+            buildcoopkernel(kmeansCoopKernelMutli, kmeansOnGPUMultiPoints, R, C, nElemsPerThread, bRO, ROWMAJ, sharedAccum,
+                    sharedFinalize, accumulateGeneral);
+            checkCudaErrors(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&maxBlocksAvailablePerSM,
+                    kmeansCoopKernelMutli, THREADBLOCK_SIZE, dynamicSMemSize));
+            const int maxThreadsAvailableMulti = THREADBLOCK_SIZE * maxBlocksAvailablePerSM * SM_COUNT;
+            const int maxBlockAvailableMulti = maxBlocksAvailablePerSM * SM_COUNT;
+
+            std::cout << "multi threads: " << maxThreadsAvailable << std::endl;
+            std::cout << "multi blocks: " << maxBlockAvailable << std::endl;
+
+            assert(C <= maxThreadsAvailableMulti);
+
+            kmeans_params_multi param;
+            param.pP = m_dPoints;
+            param.pC = m_dCenters;
+            param.pCC = m_dClusterCounts;
+            param.pCI = m_dClusterIds;
+            param.nP = m_nPoints;
+            param.numPointsPerThread = iDivUp(m_nPoints, maxThreadsAvailableMulti);
+            param.totalThreads = maxThreadsAvailableMulti;
+            void *p_params = &param;
+
+            dim3 dimGrid(maxBlockAvailableMulti, 1, 1);
+            dim3 dimBlock(THREADBLOCK_SIZE, 1, 1);
+
+            for (int i=0; i<m_nSteps; i++) {
+                _V(updatecentersIn(m_dCenters));
+                if (m_centers.useROMem()) {
+                    checkCudaErrors(cudaLaunchCooperativeKernel((void *)kmeansOnGPUMultiPoints<R, C, nElemsPerThread, true>, dimGrid, dimBlock, &p_params));
+                } else {
+                    checkCudaErrors(cudaLaunchCooperativeKernel((void *)kmeansOnGPUMultiPoints<R, C, nElemsPerThread, false>, dimGrid, dimBlock, &p_params));
+                }
+            }
+        } else {
+            dim3 dimGrid(nPointsBlocks, 1, 1);
+            dim3 dimBlock(THREADBLOCK_SIZE, 1, 1);
+            
+            kmeans_params param;
+            param.pP = m_dPoints;
+            param.pC = m_dCenters;
+            param.pCC = m_dClusterCounts;
+            param.pCI = m_dClusterIds;
+            param.nP = m_nPoints;
+            void *p_params = &param;
+
+            for (int i=0; i<m_nSteps; i++) {
+                _V(updatecentersIn(m_dCenters));
+                if (m_centers.useROMem()) {
+                    checkCudaErrors(cudaLaunchCooperativeKernel((void *)kmeansOnGPURaw<R, C, nElemsPerThread, true>, dimGrid, dimBlock, &p_params));
+                } else {
+                    checkCudaErrors(cudaLaunchCooperativeKernel((void *)kmeansOnGPURaw<R, C, nElemsPerThread, false>, dimGrid, dimBlock, &p_params));
+                }
             }
         }
     }

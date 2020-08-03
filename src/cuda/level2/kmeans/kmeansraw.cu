@@ -78,9 +78,9 @@ declare_testsuite_lg(64, 256);
 declare_testsuite_lg(64, 512);
 
 
-// declare_testsuite(128, 16);
-// declare_testsuite(128, 32);
-// declare_testsuite(128, 64);
-// declare_testsuite_lg(128, 128);
-// declare_testsuite_lg(128, 256);
-// declare_testsuite_lg(128, 512);
+declare_testsuite(128, 16);
+declare_testsuite(128, 32);
+declare_testsuite(128, 64);
+declare_testsuite_lg(128, 128);
+declare_testsuite_lg(128, 256);
+declare_testsuite_lg(128, 512);

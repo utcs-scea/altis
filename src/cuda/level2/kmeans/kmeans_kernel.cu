@@ -17,6 +17,17 @@ typedef struct {
     int nP;
 } kmeans_params;
 
+typedef struct {
+    float * pP;
+    float * pC;
+    int * pCC;
+    int * pCI;
+    int nP;
+    int numPointsPerThread;
+    int totalThreads;
+} kmeans_params_multi;
+
+
 #endif
 
 __constant__ float d_cnst_centers[CONST_MEM / sizeof(float) - 0x00100];
@@ -66,8 +77,8 @@ __global__ void finalizeCentersShmap(float * pC, int * pCC) {
 	int idx = blockIdx.x*blockDim.x+threadIdx.x;
     if(idx >= R*C) return;
     int cidx = idx/R;
-    // int nNumerator = pCC[idx];   TODO check
-    int nNumerator = pCC[cidx];
+    int nNumerator = pCC[idx];   //TODO check
+    //int nNumerator = pCC[cidx];
     if(nNumerator == 0) {       
         pC[idx] = 0.0f;
     } else {
@@ -471,6 +482,248 @@ __global__ void kmeansOnGPURaw(kmeans_params params) {
                         for(int i=0;i<R;i++) 
                             atomicAdd(&accums[clusterid+(C*i)], pP[idx+(nP*i)]);
                         atomicAdd(&cnts[clusterid], 1);
+                    }
+                    __syncthreads();
+                    if(threadIdx.x < C) {
+                        atomicAdd(&pCC[threadIdx.x], cnts[threadIdx.x]);
+                        for(int i=0;i<R;i++) 
+                            atomicAdd(&pC[threadIdx.x*R+i], accums[threadIdx.x*R+i]);
+                    }
+                }
+            }
+        }
+    }
+    grid.sync();
+    /* finalizeCentersBasic() and finalizeCentersColumnMajor() */
+    {   /* finalizeCentersBasic() */
+        // Assume the number of threads is greater than the number of centers
+        if (sharedFinalize == false ) {
+            if (ROWMAJ) {
+                if(idx >= C) return;
+                int nNumerator = pCC[idx];
+                if (nNumerator == 0) {       
+                    for(int i=0;i<R;i++) 
+                        pC[(idx*R)+i] = 0.0f;
+                } else {
+                    for(int i=0;i<R;i++) 
+                        pC[(idx*R)+i] /= pCC[idx];
+                }
+            } else {    /* finalizeCentersColumnMajor() */
+                if(idx >= C) return;
+            
+                int nNumerator = pCC[idx];
+                if (nNumerator) {
+                    for(int i=0;i<R;i++) {
+                        pC[idx+(i*C)] /= pCC[idx];
+                    }
+                } else {
+                    for(int i=0;i<R;i++) {
+                        pC[idx+(i*C)] = 0.0f;
+                    }
+                }
+            }
+        } else {
+            /* finalizeCentersShmap() */
+            if (ROWMAJ) {
+                if(idx >= R*C) return;
+                int cidx = idx/R;
+                // int nNumerator = pCC[idx];   TODO check
+                int nNumerator = pCC[cidx];
+                if(nNumerator == 0) {       
+                    pC[idx] = 0.0f;
+                } else {
+                    pC[idx] /= pCC[cidx];
+                }
+            } else { /* finalizeCentersColumnMajorShmap() */
+                int cidx = idx % C;
+                if(cidx<C&&idx<R*C) {
+                    int nNumerator = pCC[cidx];
+                    if(nNumerator) {
+                        pC[idx] /= pCC[cidx];
+                    } else {
+                        pC[idx] = 0.0f;
+                    }
+                }
+            }
+        }
+    }
+}
+
+/*
+ * This the coop kernel impl
+ */
+template<int R, int C, int nLDElemsPerThread, bool bRO, bool ROWMAJ=true, bool sharedAccum=false, bool sharedFinalize=false,
+        bool accumulateGeneral=false>
+__global__ void kmeansOnGPUMultiPoints(kmeans_params_multi params) {
+    /* Marshall off parameters */
+    float * pP = params.pP;
+    float * pC = params.pC;
+    int * pCC = params.pCC;
+    int * pCI = params.pCI;
+    int nP = params.nP;
+
+    const int numPointsPerThread = params.numPointsPerThread;
+    const int totalThreads = params.totalThreads;
+
+    const int idx = blockIdx.x*blockDim.x+threadIdx.x;
+    int x;
+    int index;
+
+    /* Map points to centers is the most time consuming part */
+    /* mapPointsToCenters() and mapPointsToCentersColumnMajor() */
+    grid_group grid = this_grid();
+    {
+        for (x = 0; x < numPointsPerThread; x++) {
+            index = idx + x * totalThreads;
+            if (ROWMAJ) /* mapPointsToCenters()  */
+            {
+                if(index < nP) {
+                    pCI[index] = nearestCenter<R,C>(&pP[index*R], bRO ? d_cnst_centers : pC);
+                }
+            } else {    /* mapPointsToCentersColumnMajor() */
+                if(index < nP) {
+                    pCI[index] = nearestCenterColumnMajor<R,C>(pP, bRO ? d_cnst_centers : pC, index, nP);
+                }
+            }
+        }
+    }
+    grid.sync();
+    /* resetExplicit() and resetExplicitColumnMajor() */
+    {
+        // It's better that the number of threads is at least larger than the
+        // number of centers
+        if (ROWMAJ) {   /* resetExplicit() */
+            if(idx < C) {
+                for(int i=0;i<R;i++) 
+                    pC[idx*R+i] = 0.0f;
+                pCC[idx] = 0;
+            }
+        } else {    /* resetExplicitColumnMajor() */
+            if(idx < C) {
+                for(int i=0;i<R;i++) 
+                    pC[(idx*C)+i] = 0.0f;
+                pCC[idx] = 0;
+            }
+        }
+    }
+    grid.sync();
+    {   /* accumulateCenters() and accumulateCentersColumnMajor() */
+        if (sharedAccum == false) {
+            for (x = 0; x < numPointsPerThread; x++) {
+                index = idx + x * totalThreads;
+                if (ROWMAJ) {
+                    if(index < nP) {
+                    int clusterid = pCI[index];
+                        for(int i=0;i<R;i++) 
+                            atomicAdd(&pC[(clusterid*R)+i], pP[(index*R)+i]);
+                        atomicAdd(&pCC[clusterid], 1);
+                    }
+                } else {    /* accumulateCentersColumnMajor() */
+                    if(index < nP) {
+                        int clusterid = pCI[index];
+                        for(int i=0;i<R;i++) {
+                            atomicAdd(&pC[clusterid+(i*C)], pP[index+(i*nP)]);
+                        }
+                        atomicAdd(&pCC[clusterid], 1);
+                    }
+                }
+            }
+        } else {
+            // TODO
+            // This is a workaround for coop kernel because if R or C is too large
+            // the compilation will fail due to large shared mem size, this should
+            // never be reached
+            if (R * C * sizeof(float) > ACCUM_SHMEMSIZE || C * sizeof(int) > COUNTER_SHMEMSIZE) return;
+            
+            __shared__ float accums[R*C];
+            __shared__ int cnts[C];
+            if (accumulateGeneral == false) {
+                if (ROWMAJ) {
+                    /* accumulateSM_RCeqBlockSize() */
+                    dassert(R*C*sizeof(float) <= ACCUM_SHMEMSIZE);
+                    dassert(C*sizeof(int) <= COUNTER_SHMEMSIZE);
+                    // dassert(R*C <= 1024);
+                    dassert(R*C <= MAXBLOCKTHREADS);
+                    dassert(threadIdx.x < R*C);
+                    if(threadIdx.x < R*C) accums[threadIdx.x] = 0.0f;
+                    if(threadIdx.x < C) cnts[threadIdx.x] = 0;
+                    __syncthreads();
+                    for (x = 0; x < numPointsPerThread; x++) {
+                        index = idx + x * totalThreads;
+                        if(index < nP) {
+                            int clusterid = pCI[index];
+                            for(int i=0;i<R;i++) 
+                                atomicAdd(&accums[(clusterid*R)+i], pP[(index*R)+i]);
+                            atomicAdd(&cnts[clusterid], 1);
+                        }
+                    }
+                    __syncthreads();
+                    if(threadIdx.x < R*C) atomicAdd(&pC[threadIdx.x], accums[threadIdx.x]);
+                    if(threadIdx.x < C) atomicAdd(&pCC[threadIdx.x], cnts[threadIdx.x]);
+                } else {    /* accumulateSMColumnMajor_RCeqBS() */
+                    dassert(R*C*sizeof(float) <= ACCUM_SHMEMSIZE);
+                    dassert(C*sizeof(int) <= COUNTER_SHMEMSIZE);
+                    if(threadIdx.x < R*C) accums[threadIdx.x] = 0.0f;
+                    if(threadIdx.x < C) cnts[threadIdx.x] = 0;
+                    __syncthreads();
+                    for (x = 0; x < numPointsPerThread; x++) {
+                        index = idx + x * totalThreads;
+                        if(index < nP) {
+                            int clusterid = pCI[index];
+                            for(int i=0;i<R;i++) 
+                                atomicAdd(&accums[clusterid+(C*i)], pP[index+(nP*i)]);
+                            atomicAdd(&cnts[clusterid], 1);
+                        }
+                    }
+                    __syncthreads();
+                    if(threadIdx.x < R*C) atomicAdd(&pC[threadIdx.x], accums[threadIdx.x]);
+                    if(threadIdx.x < C) atomicAdd(&pCC[threadIdx.x], cnts[threadIdx.x]);
+                }
+            } else {
+                if (ROWMAJ) {   /* accumulateSM() */
+                    dassert(R*C*sizeof(float) <= ACCUM_SHMEMSIZE);
+                    dassert(C*sizeof(int) <= COUNTER_SHMEMSIZE);
+                    if(threadIdx.x < C) cnts[threadIdx.x] = 0;
+                    for(int ridx=0; ridx<nLDElemsPerThread; ridx++) {
+                        int nCenterIdx = ridx*C;
+                        int nLDIdx = threadIdx.x + nCenterIdx;
+                        if(nLDIdx < R*C) accums[nLDIdx] = 0.0f;
+                    }
+                    __syncthreads();
+                    for (x = 0; x < numPointsPerThread; x++) {
+                        index = idx + x * totalThreads;
+                        if(index < nP) {
+                            int clusterid = pCI[index];
+                            for(int i=0;i<R;i++) 
+                                atomicAdd(&accums[(clusterid*R)+i], pP[(index*R)+i]);
+                            atomicAdd(&cnts[clusterid], 1);
+                        }
+                    }
+                    __syncthreads();
+                    if(threadIdx.x < C) atomicAdd(&pCC[threadIdx.x], cnts[threadIdx.x]);
+                    for(int ridx=0; ridx<nLDElemsPerThread; ridx++) {
+                        int nCenterIdx = ridx*C;
+                        int nLDIdx = threadIdx.x + nCenterIdx;
+                        if(nLDIdx < R*C) 
+                            atomicAdd(&pC[nLDIdx], accums[nLDIdx]);
+                    }
+                } else {    /* accumulateSMColumnMajor() */
+                    dassert(R*C*sizeof(float) <= ACCUM_SHMEMSIZE);
+                    dassert(C*sizeof(int) <= COUNTER_SHMEMSIZE);
+                    if(threadIdx.x < C) {
+                        cnts[threadIdx.x] = 0;
+                        for(int i=0;i<R;i++) 
+                            accums[threadIdx.x*R+i] = 0.0f;
+                    }
+                    __syncthreads();
+                    for (x = 0; x < numPointsPerThread; x++) {
+                        index = idx + x * totalThreads;
+                        if(index < nP) {
+                            int clusterid = pCI[index];
+                            for(int i=0;i<R;i++) 
+                                atomicAdd(&accums[clusterid+(C*i)], pP[index+(nP*i)]);
+                            atomicAdd(&cnts[clusterid], 1);
+                        }
                     }
                     __syncthreads();
                     if(threadIdx.x < C) {

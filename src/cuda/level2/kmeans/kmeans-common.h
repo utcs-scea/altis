@@ -20,7 +20,7 @@
 #define ACCUM_SHMEMSIZE (SHARED_MEM_PER_BLOCK-COUNTER_SHMEMSIZE)
 #define SHMEMCNTR_FLOATS (COUNTER_SHMEMSIZE/sizeof(float))
 #define SHMEMACCUM_FLOATS (ACCUM_SHMEMSIZE/sizeof(float))
-#define CONSTRSRVSIZE (CONST_MEM - 0x00100);    // reserved const mem
+#define CONSTRSRVSIZE (CONST_MEM - 0x00150);    // reserved const mem
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -87,39 +87,39 @@ inline uint iSnapDown(uint a, uint b){
 
 #define sharedAccumAvailable(R, C) ((R*C*sizeof(float) <= ACCUM_SHMEMSIZE) && (C*sizeof(int) <= COUNTER_SHMEMSIZE)) 
 
-#define buildcoopkernel(ptr, R, C, nElemsPerThread, bRO, ROWMAJ, sharedAccum, sharedFinalize, accumulateGeneral)  \
+#define buildcoopkernel(ptr, kernel, R, C, nElemsPerThread, bRO, ROWMAJ, sharedAccum, sharedFinalize, accumulateGeneral)  \
     if (bRO == true && sharedAccum == true && sharedFinalize == true && accumulateGeneral == true)                \
-        ptr = kmeansOnGPURaw<R,C,nElemsPerThread, true, ROWMAJ, true, true, true>;                                \
+        ptr = kernel<R,C,nElemsPerThread, true, ROWMAJ, true, true, true>;                                \
     else if (bRO == true && sharedAccum == true && sharedFinalize == true && accumulateGeneral == false)          \
-        ptr = kmeansOnGPURaw<R,C,nElemsPerThread, true, ROWMAJ, true, true, false>;                               \
+        ptr = kernel<R,C,nElemsPerThread, true, ROWMAJ, true, true, false>;                               \
     else if (bRO == true && sharedAccum == true && sharedFinalize == false && accumulateGeneral == true)          \
-        ptr = kmeansOnGPURaw<R,C,nElemsPerThread, true, ROWMAJ, true, false, true>;                               \
+        ptr = kernel<R,C,nElemsPerThread, true, ROWMAJ, true, false, true>;                               \
     else if (bRO == true && sharedAccum == true && sharedFinalize == false && accumulateGeneral == false)         \
-        ptr = kmeansOnGPURaw<R,C,nElemsPerThread, true, ROWMAJ, true, false, false>;                              \
+        ptr = kernel<R,C,nElemsPerThread, true, ROWMAJ, true, false, false>;                              \
     else if (bRO == true && sharedAccum == false && sharedFinalize == true && accumulateGeneral == true)          \
-        ptr = kmeansOnGPURaw<R,C,nElemsPerThread, true, ROWMAJ, false, true, true>;                               \
+        ptr = kernel<R,C,nElemsPerThread, true, ROWMAJ, false, true, true>;                               \
     else if (bRO == true && sharedAccum == false && sharedFinalize == true && accumulateGeneral == false)         \
-        ptr = kmeansOnGPURaw<R,C,nElemsPerThread, true, ROWMAJ, false, true, false>;                              \
+        ptr = kernel<R,C,nElemsPerThread, true, ROWMAJ, false, true, false>;                              \
     else if (bRO == true && sharedAccum == false && sharedFinalize == false && accumulateGeneral == true)         \
-        ptr = kmeansOnGPURaw<R,C,nElemsPerThread, true, ROWMAJ, false, false, true>;                              \
+        ptr = kernel<R,C,nElemsPerThread, true, ROWMAJ, false, false, true>;                              \
     else if (bRO == true && sharedAccum == false && sharedFinalize == false && accumulateGeneral == false)        \
-        ptr = kmeansOnGPURaw<R,C,nElemsPerThread, true, ROWMAJ, false, false, false>;                             \
+        ptr = kernel<R,C,nElemsPerThread, true, ROWMAJ, false, false, false>;                             \
     else if (bRO == false && sharedAccum == true && sharedFinalize == true && accumulateGeneral == true)          \
-        ptr = kmeansOnGPURaw<R,C,nElemsPerThread, false, ROWMAJ, true, true, true>;                               \
+        ptr = kernel<R,C,nElemsPerThread, false, ROWMAJ, true, true, true>;                               \
     else if (bRO == false && sharedAccum == true && sharedFinalize == true && accumulateGeneral == false)         \
-        ptr = kmeansOnGPURaw<R,C,nElemsPerThread, false, ROWMAJ, true, true, false>;                              \
+        ptr = kernel<R,C,nElemsPerThread, false, ROWMAJ, true, true, false>;                              \
     else if (bRO == false && sharedAccum == true && sharedFinalize == false && accumulateGeneral == true)         \
-        ptr = kmeansOnGPURaw<R,C,nElemsPerThread, false, ROWMAJ, true, false, true>;                              \
+        ptr = kernel<R,C,nElemsPerThread, false, ROWMAJ, true, false, true>;                              \
     else if (bRO == false && sharedAccum == true && sharedFinalize == false && accumulateGeneral == false)        \
-        ptr = kmeansOnGPURaw<R,C,nElemsPerThread, false, ROWMAJ, true, false, false>;                             \
+        ptr = kernel<R,C,nElemsPerThread, false, ROWMAJ, true, false, false>;                             \
     else if (bRO == false && sharedAccum == false && sharedFinalize == true && accumulateGeneral == true)         \
-        ptr = kmeansOnGPURaw<R,C,nElemsPerThread, false, ROWMAJ, false, true, true>;                              \
+        ptr = kernel<R,C,nElemsPerThread, false, ROWMAJ, false, true, true>;                              \
     else if (bRO == false && sharedAccum == false && sharedFinalize == true && accumulateGeneral == false)        \
-        ptr = kmeansOnGPURaw<R,C,nElemsPerThread, false, ROWMAJ, false, true, false>;                             \
+        ptr = kernel<R,C,nElemsPerThread, false, ROWMAJ, false, true, false>;                             \
     else if (bRO == false && sharedAccum == false && sharedFinalize == false && accumulateGeneral == true)        \
-        ptr = kmeansOnGPURaw<R,C,nElemsPerThread, false, ROWMAJ, false, false, true>;                             \
+        ptr = kernel<R,C,nElemsPerThread, false, ROWMAJ, false, false, true>;                             \
     else if (bRO == false && sharedAccum == false && sharedFinalize == false && accumulateGeneral == false)       \
-        ptr = kmeansOnGPURaw<R,C,nElemsPerThread, false, ROWMAJ, false, false, false>;                            \
+        ptr = kernel<R,C,nElemsPerThread, false, ROWMAJ, false, false, false>;                            \
     else                                                                                                          \
         ptr = NULL;                                                                                               \
 

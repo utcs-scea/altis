@@ -37,12 +37,22 @@ typedef void (*LPFNBNC)(ResultDatabase &DB,
 
 #define FILE_STR_BUFF_LEN 4096
 
-//declare_suite_hdrs(4);
-declare_suite_hdrs(16)
-// declare_suite_hdrs(24);
+/*
+declare_suite_hdrs(4);
+declare_suite_hdrs(16);
+declare_suite_hdrs(24);
+*/
 declare_suite_hdrs(32);
-// declare_suite_hdrs(64);
-// declare_suite_hdrs(128)
+declare_suite_hdrs(64);
+declare_suite_hdrs(128);
+
+/*
+declare_testsuite(4, 16);
+declare_testsuite(4, 32);
+declare_testsuite(4, 64);
+declare_testsuite(4, 128);
+declare_testsuite(4, 256);
+declare_testsuite(4, 512);
 
 declare_testsuite(16, 16);
 declare_testsuite(16, 32);
@@ -51,12 +61,35 @@ declare_testsuite(16, 128);
 declare_testsuite_lg(16, 256);
 declare_testsuite_lg(16, 512);
 
+declare_testsuite(24, 16);
+declare_testsuite(24, 32);
+declare_testsuite(24, 64);
+declare_testsuite(24, 128);
+declare_testsuite_lg(24, 256);
+declare_testsuite_lg(24, 512);
+*/
+
 declare_testsuite(32, 16);
 declare_testsuite(32, 32);
 declare_testsuite(32, 64);
 declare_testsuite(32, 128);
 declare_testsuite_lg(32, 256);
 declare_testsuite_lg(32, 512);
+
+declare_testsuite(64, 16);
+declare_testsuite(64, 32);
+declare_testsuite(64, 64);
+declare_testsuite(64, 128);
+declare_testsuite_lg(64, 256);
+declare_testsuite_lg(64, 512);
+
+declare_testsuite(128, 16);
+declare_testsuite(128, 32);
+declare_testsuite(128, 64);
+declare_testsuite_lg(128, 128);
+declare_testsuite_lg(128, 256);
+declare_testsuite_lg(128, 512);
+
 
 std::map<std::string, std::map<int, std::map<int, LPFNKMEANS>>> g_lpfns;
 std::map<std::string, std::map<int, std::map<int, LPFNBNC>>> g_bncfns;
@@ -65,11 +98,11 @@ bool g_blpfnInit = false;
 decl_init_lpfn_table_begin(g_lpfns, g_bncfns, g_blpfnInit);     // must set g_blpfnInit to true
 
     //create_suite_entries(g_lpfns, g_bncfns, 4);
-    create_suite_entries(g_lpfns, g_bncfns, 16);
-    // create_suite_entries(g_lpfns, g_bncfns, 24);
+    //create_suite_entries(g_lpfns, g_bncfns, 16);
+    //create_suite_entries(g_lpfns, g_bncfns, 24);
     create_suite_entries(g_lpfns, g_bncfns, 32);
-    // create_suite_entries(g_lpfns, g_bncfns, 64);
-    // create_suite_entries(g_lpfns, g_bncfns, 128);
+    create_suite_entries(g_lpfns, g_bncfns, 64);
+    create_suite_entries(g_lpfns, g_bncfns, 128);
 
 decl_init_lpfn_table_end(g_lpfns, g_bncfns, g_blpfnInit);
 declare_lpfn_finder(g_lpfns, g_blpfnInit)
