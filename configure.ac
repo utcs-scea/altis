@@ -106,6 +106,13 @@ AS_IF([test "x$with_cuda" != xno],
               CUDA_INCDIR=`AS_DIRNAME([$cudabindir])`/include
               CPPFLAGS="$CPPFLAGS -I$CUDA_INCDIR"
 
+              OPTIX_HDR_FILE=/usr/local/NVIDIA-OptiX-SDK-6.5.0-linux64/include/optix.h
+              OPTIX_PATH=`AS_DIRNAME[$OPTIX_HDR_FILE]`
+              AC_CHECK_FILE([$OPTIX_HDR_FILE],
+                  [],
+                  [NVCC=""],
+              )
+
               AC_CHECK_HEADERS([cuda.h cuda_runtime.h],[],
                   [NVCC=""]
                   )
@@ -113,6 +120,9 @@ AS_IF([test "x$with_cuda" != xno],
                   [NVCC=""]
                   )
               AC_CHECK_LIB([cufft], [cufftPlan1d], [],
+                  [NVCC=""]
+                  )
+              AC_CHECK_LIB([cudnn], [cudnnGetRNNDescriptor], [],
                   [NVCC=""]
                   )
 

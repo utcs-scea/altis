@@ -21,20 +21,6 @@
 #include "ResultDatabase.h"
 #include "cudacommon.h"
 
-// limited version of checkCudaErrors from helper_cuda.h in CUDA examples
-#define checkCudaErrors(val) check_cuda( (val), #val, __FILE__, __LINE__ )
-
-void check_cuda(cudaError_t result, char const *const func, const char *const file, int const line) {
-    if (result) {
-        std::cerr << "CUDA error = " << static_cast<unsigned int>(result) << " at " <<
-            file << ":" << line << " '" << func << "' \n";
-        // Make sure we call CUDA Device Reset before exiting
-        cudaDeviceReset();
-        exit(99);
-    }
-}
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	Matching the C++ code would recurse enough into color() calls that
 /// it was blowing up the stack, so we have to turn this into a
@@ -236,8 +222,8 @@ __global__ void free_world(hitable **d_list, hitable **d_world, camera **d_camer
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void addBenchmarkSpecOptions(OptionParser &op) {
-    op.addOption("Xdim", OPT_INT, "400", "specify image x dimension", '\0');
-    op.addOption("Ydim", OPT_INT, "300", "specify image y dimension", '\0');
+    op.addOption("Xdim", OPT_INT, "1200", "specify image x dimension", '\0');
+    op.addOption("Ydim", OPT_INT, "800", "specify image y dimension", '\0');
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
