@@ -106,7 +106,8 @@ AS_IF([test "x$with_cuda" != xno],
               CUDA_INCDIR=`AS_DIRNAME([$cudabindir])`/include
               CPPFLAGS="$CPPFLAGS -I$CUDA_INCDIR"
 
-              OPTIX_HDR_FILE=/usr/local/NVIDIA-OptiX-SDK-6.5.0-linux64/include/optix.h
+              # OPTIX_HDR_FILE=/usr/local/NVIDIA-OptiX-SDK-6.5.0-linux64/include/optix.h
+              OPTIX_HDR_FILE=$OPTIX_INSTALL_PATH/include/optix.h
               OPTIX_PATH=`AS_DIRNAME[$OPTIX_HDR_FILE]`
               AC_CHECK_FILE([$OPTIX_HDR_FILE],
                   [],

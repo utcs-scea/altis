@@ -40,8 +40,8 @@ optix::Context g_context;
   executable (ie, we can simply declare and usethis here as
   'extern'.  */
 extern "C" const char embedded_sphere_programs[];
-extern "C" const char embedded_raygen_program[];
-extern "C" const char embedded_miss_program[];
+extern "C" const char embedded_raygen_programs[];
+extern "C" const char embedded_miss_programs[];
 extern "C" const char embedded_metal_programs[];
 extern "C" const char embedded_dielectric_programs[];
 extern "C" const char embedded_lambertian_programs[];
@@ -234,7 +234,7 @@ optix::Buffer createFrameBuffer(int Nx, int Ny)
 void setRayGenProgram()
 {
   optix::Program rayGenAndBackgroundProgram
-    = g_context->createProgramFromPTXString(embedded_raygen_program,
+    = g_context->createProgramFromPTXString(embedded_raygen_programs,
                                             "renderPixel");
   g_context->setEntryPointCount(1);
   g_context->setRayGenerationProgram(/*program ID:*/0, rayGenAndBackgroundProgram);
@@ -243,7 +243,7 @@ void setRayGenProgram()
 void setMissProgram()
 {
   optix::Program missProgram
-    = g_context->createProgramFromPTXString(embedded_miss_program,
+    = g_context->createProgramFromPTXString(embedded_miss_programs,
                                             "miss_program");
   g_context->setMissProgram(/*program ID:*/0, missProgram);
 }
