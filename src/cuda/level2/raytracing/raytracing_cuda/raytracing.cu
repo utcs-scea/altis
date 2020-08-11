@@ -242,7 +242,6 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
     checkCudaErrors(cudaEventCreate(&start));
     checkCudaErrors(cudaEventCreate(&stop));
     
-
     checkCudaErrors(cudaEventCreate(&total_start));
     checkCudaErrors(cudaEventCreate(&total_stop)); 
     checkCudaErrors(cudaEventRecord(total_start, 0));

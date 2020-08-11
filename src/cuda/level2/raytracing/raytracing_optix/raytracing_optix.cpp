@@ -31,7 +31,7 @@
 
 #include "OptionParser.h"
 #include "ResultDatabase.h"
-//#include "cudacommon.h"
+// #include "cudacommon.h" Cause compilation err
 
 optix::Context g_context;
 
@@ -249,47 +249,71 @@ void setMissProgram()
 }
 
 void addBenchmarkSpecOptions(OptionParser &op) {
-    op.addOption("Xdim", OPT_INT, "1200", "specify image x dimension", '\0');
-    op.addOption("Ydim", OPT_INT, "800", "specify image y dimension", '\0');
+    op.addOption("X", OPT_INT, "1200", "specify image x dimension", '\0');
+    op.addOption("Y", OPT_INT, "800", "specify image y dimension", '\0');
+    op.addOption("samples", OPT_INT, "10", "specify number of iamge samples", '\0');
 }
 
 void RunBenchmark(ResultDatabase &DB, OptionParser &op)
 {
-  // before doing anything else: create a optix context
-  g_context = optix::Context::create();
-  g_context->setRayTypeCount(1);
-  g_context->setStackSize( 8000 );
-  
-  // define some image size ...
-  const size_t Nx = 1200, Ny = 800;
+    /* cudaEvent_t total_start, total_stop; */
+    /* cudaEvent_t start, stop; */
+    /* checkCudaErrors(cudaEventCreate(&start)); */
+    /* checkCudaErrors(cudaEventCreate(&stop)); */
+    
+    /* checkCudaErrors(cudaEventCreate(&total_start)); */
+    /* checkCudaErrors(cudaEventCreate(&total_stop)); */ 
+    /* checkCudaErrors(cudaEventRecord(total_start, 0)); */
 
-  // create - and set - the camera
-  const vec3f lookfrom(13, 2, 3);
-  const vec3f lookat(0, 0, 0);
-  Camera camera(lookfrom,
+
+    // before doing anything else: create a optix context
+    g_context = optix::Context::create();
+    g_context->setRayTypeCount(1);
+    g_context->setStackSize( 8000 );
+
+    // define some image size ...
+    size_t xDim[4] = {400, 1200, 4096, 15360};
+    size_t yDim[4] = {300, 800, 2160, 8640};
+    size_t size = (size_t)op.getOptionInt("size") - 1;
+    size_t Nx = xDim[size];
+    size_t Ny = yDim[size];
+    if (op.getOptionInt("X") != 1200 || op.getOptionInt("Y") != 800) {
+        Nx = (size_t)op.getOptionInt("X");
+        Ny = (size_t)op.getOptionInt("Y");
+    }
+    int numSamples = op.getOptionInt("samples");
+    assert(numSamples > 0);
+    int num_passes = op.getOptionInt("passes");
+
+    // create - and set - the camera
+    const vec3f lookfrom(13, 2, 3);
+    const vec3f lookat(0, 0, 0);
+    Camera camera(lookfrom,
                 lookat,
                 /* up */ vec3f(0, 1, 0),
                 /* fovy, in degrees */ 20.0,
                 /* aspect */ float(Nx) / float(Ny),
                 /* aperture */ 0.1f,
                 /* dist to focus: */ 10.f);
-  camera.set();
+    camera.set();
 
-  // set the ray generation and miss shader program
-  setRayGenProgram();
-  setMissProgram();
+    // set the ray generation and miss shader program
+    setRayGenProgram();
+    setMissProgram();
 
-  // create a frame buffer
-  optix::Buffer fb = createFrameBuffer(Nx, Ny);
-  g_context["fb"]->set(fb);
+    // create a frame buffer
+    optix::Buffer fb = createFrameBuffer(Nx, Ny);
+    g_context["fb"]->set(fb);
 
-  // create the world to render
-  optix::GeometryGroup world = createScene();
-  g_context["world"]->set(world);
+    // create the world to render
+    optix::GeometryGroup world = createScene();
+    g_context["world"]->set(world);
 
-  const int numSamples = 128;
-  g_context["numSamples"]->setInt(numSamples);
+    // const int numSamples = 128;
+    g_context["numSamples"]->setInt(numSamples);
 
+    char atts[1024];
+    sprintf(atts, "img: %zu by %zu, samples: %d, iter:%d", Nx, Ny, num_passes, num_passes);
 #if 1
   {
     // Note: this little piece of code (in the #if 1/#endif bracket)
@@ -304,24 +328,24 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op)
     auto t0 = std::chrono::system_clock::now();
     renderFrame(0,0);
     auto t1 = std::chrono::system_clock::now();
-    std::cout << "done building optix data structures, which took "
-              << std::setprecision(4) << std::chrono::duration<double>(t1-t0).count()
-              << " seconds" << std::endl;
+    DB.AddResult("Optix Data Structures Building Time", atts, "sec", std::chrono::duration<float>(t1-t0).count());
   }
 #endif
 
-  // render the frame (and time it)
-  auto t0 = std::chrono::system_clock::now();
-  renderFrame(Nx, Ny);
-  auto t1 = std::chrono::system_clock::now();
-  std::cout << "done rendering, which took "
-            << std::setprecision(4) << std::chrono::duration<double>(t1-t0).count()
-            << " seconds (for " << numSamples << " paths per pixel)" << std::endl;
-       
-  // ... map it, save it, and cleanly unmap it after reading...
-  const vec3f *pixels = (const vec3f *)fb->map();
-  savePPM("finalChapter.ppm",Nx,Ny,pixels);
-  fb->unmap();
+  int i = 0;
+  for (; i < num_passes; i++) {
+      // render the frame (and time it)
+      auto t0 = std::chrono::system_clock::now();
+      renderFrame(Nx, Ny);
+      auto t1 = std::chrono::system_clock::now();
+#if 0
+      // ... map it, save it, and cleanly unmap it after reading...
+      const vec3f *pixels = (const vec3f *)fb->map();
+      savePPM("finalChapter.ppm",Nx,Ny,pixels);
+      fb->unmap();
+#endif
+      DB.AddResult("Rendering Time", atts, "sec", std::chrono::duration<float>(t1-t0).count());
+  }
   // ... done.
 }
 
