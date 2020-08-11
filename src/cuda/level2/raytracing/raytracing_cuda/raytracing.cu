@@ -236,8 +236,8 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
-    int xDim[4] = {400,800, 1200, 1600};
-    int yDim[4] = {300, 600, 800, 1200};
+    int xDim[4] = {400, 800, 1200, 3840};
+    int yDim[4] = {300, 600, 800, 2160};
     int size = op.getOptionInt("size") - 1;
     //int nx = 1200;
     int nx = xDim[size];

@@ -348,6 +348,8 @@ AC_CONFIG_FILES([Makefile
                  src/cuda/level2/nw/Makefile
                  src/cuda/level2/particlefilter/Makefile
                  src/cuda/level2/raytracing/Makefile
+                 src/cuda/level2/raytracing/raytracing_cuda/Makefile
+                 src/cuda/level2/raytracing/raytracing_optix/Makefile
                  src/cuda/level2/srad/Makefile
                  src/cuda/level2/where/Makefile
                  ])

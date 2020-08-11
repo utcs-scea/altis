@@ -5737,7 +5737,8 @@ $as_echo X$cudabindir |
 	  s/.*/./; q'`/include
               CPPFLAGS="$CPPFLAGS -I$CUDA_INCDIR"
 
-              OPTIX_HDR_FILE=/usr/local/NVIDIA-OptiX-SDK-6.5.0-linux64/include/optix.h
+              # OPTIX_HDR_FILE=/usr/local/NVIDIA-OptiX-SDK-6.5.0-linux64/include/optix.h
+              OPTIX_HDR_FILE=$OPTIX_INSTALL_PATH/include/optix.h
               OPTIX_PATH=`$as_dirname --  ||
 $as_expr X : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
 	 X : 'X\(//\)[^/]' \| \
@@ -6186,7 +6187,7 @@ fi
 
 
 
-ac_config_files="$ac_config_files Makefile config/common.mk config/config.mk config/dirtargets.mk config/targets.mk src/Makefile src/common/Makefile src/cuda/Makefile src/cuda/level0/Makefile src/cuda/level0/busspeeddownload/Makefile src/cuda/level0/busspeedreadback/Makefile src/cuda/level0/devicememory/Makefile src/cuda/level0/maxflops/Makefile src/cuda/level1/Makefile src/cuda/level1/bfs/Makefile src/cuda/level1/gemm/Makefile src/cuda/level1/pathfinder/Makefile src/cuda/level1/sort/Makefile src/cuda/level2/Makefile src/cuda/level2/cfd/Makefile src/cuda/level2/dwt2d/Makefile src/cuda/level2/gups/Makefile src/cuda/level2/kmeans/Makefile src/cuda/level2/lavamd/Makefile src/cuda/level2/mandelbrot/Makefile src/cuda/level2/darknet/Makefile src/cuda/level2/nw/Makefile src/cuda/level2/particlefilter/Makefile src/cuda/level2/raytracing/Makefile src/cuda/level2/srad/Makefile src/cuda/level2/where/Makefile"
+ac_config_files="$ac_config_files Makefile config/common.mk config/config.mk config/dirtargets.mk config/targets.mk src/Makefile src/common/Makefile src/cuda/Makefile src/cuda/level0/Makefile src/cuda/level0/busspeeddownload/Makefile src/cuda/level0/busspeedreadback/Makefile src/cuda/level0/devicememory/Makefile src/cuda/level0/maxflops/Makefile src/cuda/level1/Makefile src/cuda/level1/bfs/Makefile src/cuda/level1/gemm/Makefile src/cuda/level1/pathfinder/Makefile src/cuda/level1/sort/Makefile src/cuda/level2/Makefile src/cuda/level2/cfd/Makefile src/cuda/level2/dwt2d/Makefile src/cuda/level2/gups/Makefile src/cuda/level2/kmeans/Makefile src/cuda/level2/lavamd/Makefile src/cuda/level2/mandelbrot/Makefile src/cuda/level2/darknet/Makefile src/cuda/level2/nw/Makefile src/cuda/level2/particlefilter/Makefile src/cuda/level2/raytracing/Makefile src/cuda/level2/raytracing/raytracing_cuda/Makefile src/cuda/level2/raytracing/raytracing_optix/Makefile src/cuda/level2/srad/Makefile src/cuda/level2/where/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -6956,6 +6957,8 @@ do
     "src/cuda/level2/nw/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level2/nw/Makefile" ;;
     "src/cuda/level2/particlefilter/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level2/particlefilter/Makefile" ;;
     "src/cuda/level2/raytracing/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level2/raytracing/Makefile" ;;
+    "src/cuda/level2/raytracing/raytracing_cuda/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level2/raytracing/raytracing_cuda/Makefile" ;;
+    "src/cuda/level2/raytracing/raytracing_optix/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level2/raytracing/raytracing_optix/Makefile" ;;
     "src/cuda/level2/srad/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level2/srad/Makefile" ;;
     "src/cuda/level2/where/Makefile") CONFIG_FILES="$CONFIG_FILES src/cuda/level2/where/Makefile" ;;
 

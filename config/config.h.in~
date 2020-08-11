@@ -46,9 +46,6 @@
 /* Define to 1 if you have the `cublas' library (-lcublas). */
 #undef HAVE_LIBCUBLAS
 
-/* Define to 1 if you have the `cudnn' library (-lcudnn). */
-#undef HAVE_LIBCUDNN
-
 /* Define to 1 if you have the `cufft' library (-lcufft). */
 #undef HAVE_LIBCUFFT
 
