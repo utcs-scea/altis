@@ -1,9 +1,9 @@
 include $(top_builddir)/config/config.mk
 include $(top_builddir)/config/targets.mk
 
-OPTIX_FILES_DIR = programs
+OPTIX_FILES_DIR = $(srcdir)/programs
 
-OPTIX_FILES = $(wildcard programs/*.cu)
+OPTIX_FILES = $(wildcard $(OPTIX_FILES_DIR)/*.cu)
 
 # How to find source files
 VPATH = $(srcdir):$(srcdir)/../../../common:$(srcdir)/../../../../common:$(srcdir)/programs
@@ -23,7 +23,7 @@ $(OPTIX_FILES_DIR)/%.ptx_embedded.c: $(OPTIX_FILES_DIR)/%.ptx
 	$(dir $(NVCC))bin2c -c --padd 0 --type char --name embedded_$(basename $(notdir $<))_programs $< > $@
 
 $(OPTIX_FILES_DIR)/%.ptx_embedded.o: $(OPTIX_FILES_DIR)/%.ptx_embedded.c
-	$(NVCC) ${CUDA_CPPFLAGS} $(CPPFLAGS) $(NVCXXFLAGS) -c $< -o $(notdir $@)
+	$(NVCC) ${CUDA_CPPFLAGS} $(CPPFLAGS) $(NVCXXFLAGS) -c $< -o $@
 
 raytracing_optix.o: raytracing_optix.cpp $(OPTIX_FILES:.cu=.ptx_embedded.o)
 	$(NVCC) ${CUDA_CPPFLAGS} $(CPPFLAGS) $(NVCXXFLAGS) -c $< -o $@
@@ -32,13 +32,8 @@ optix_raytracing_SOURCES = \
 main.cpp
 
 optix_raytracing_LDADD = \
+$(OPTIX_FILES:.cu=.ptx_embedded.o) \
 raytracing_optix.o \
-dielectric.ptx_embedded.o \
-lambertian.ptx_embedded.o \
-metal.ptx_embedded.o \
-miss.ptx_embedded.o \
-raygen.ptx_embedded.o \
-sphere.ptx_embedded.o \
 $(CUDA_LIBS) $(LIBS) -lm
 
 optix_raytracing_LDFLAGS = \

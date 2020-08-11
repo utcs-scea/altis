@@ -3,11 +3,11 @@
 //
 // summary:	Raytracing class
 // 
-// origin: Ray tracing(https://github.com/ssangx/raytracing.cuda)
+// origin: Raytracing(https://github.com/rogerallen/raytracinginoneweekendincuda)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
-#include <time.h>
+#include <cuda_profiler_api.h>
 #include <float.h>
 #include <curand_kernel.h>
 #include "vec3.h"
@@ -222,8 +222,9 @@ __global__ void free_world(hitable **d_list, hitable **d_world, camera **d_camer
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void addBenchmarkSpecOptions(OptionParser &op) {
-    op.addOption("Xdim", OPT_INT, "1200", "specify image x dimension", '\0');
-    op.addOption("Ydim", OPT_INT, "800", "specify image y dimension", '\0');
+    op.addOption("X", OPT_INT, "1200", "specify image x dimension", '\0');
+    op.addOption("Y", OPT_INT, "800", "specify image y dimension", '\0');
+    op.addOption("samples", OPT_INT, "10", "specify number of iamge samples", '\0');
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -236,16 +237,31 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
-    int xDim[4] = {400, 800, 1200, 3840};
-    int yDim[4] = {300, 600, 800, 2160};
+    cudaEvent_t total_start, total_stop;
+    cudaEvent_t start, stop;
+    checkCudaErrors(cudaEventCreate(&start));
+    checkCudaErrors(cudaEventCreate(&stop));
+    
+
+    checkCudaErrors(cudaEventCreate(&total_start));
+    checkCudaErrors(cudaEventCreate(&total_stop)); 
+    checkCudaErrors(cudaEventRecord(total_start, 0));
+
+    // Predefined image resolutions
+    int xDim[4] = {400, 1200, 4096, 15360};
+    int yDim[4] = {300, 800, 2160, 8640};
     int size = op.getOptionInt("size") - 1;
-    //int nx = 1200;
     int nx = xDim[size];
     int ny = yDim[size];
-    //int ny = 1000;
-    int ns = 10;
+    if (op.getOptionInt("X") != 1200 || op.getOptionInt("Y") != 800) {
+        nx = op.getOptionInt("X");
+        ny = op.getOptionInt("Y");
+    }
+    int ns = op.getOptionInt("samples");
+    assert(ns > 0);
     int tx = 8;
     int ty = 8;
+    int num_passes = op.getOptionInt("passes");
 
     std::cerr << "Rendering a " << nx << "x" << ny << " image with " << ns << " samples per pixel ";
     std::cerr << "in " << tx << "x" << ty << " blocks.\n";
@@ -259,17 +275,10 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
 
     // allocate random state
     curandState *d_rand_state;
-#ifdef UNIFIED_MEMORY
-    checkCudaErrors(cudaMallocManaged((void **)&d_rand_state, num_pixels*sizeof(curandState)));
-#else
-    checkCudaErrors(cudaMalloc((void **)&d_rand_state, num_pixels*sizeof(curandState)));
-#endif
+    ALTIS_CUDA_MALLOC(d_rand_state, num_pixels*sizeof(curandState));
+
     curandState *d_rand_state2;
-#ifdef UNIFIED_MEMORY
-    checkCudaErrors(cudaMallocManaged((void **)&d_rand_state2, 1*sizeof(curandState)));
-#else
-    checkCudaErrors(cudaMalloc((void **)&d_rand_state2, 1*sizeof(curandState)));
-#endif
+    ALTIS_CUDA_MALLOC(d_rand_state2, 1*sizeof(curandState));
 
     // we need that 2nd random state to be initialized for the world creation
     rand_init<<<1,1>>>(d_rand_state2);
@@ -279,54 +288,54 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
     // make our world of hitables & the camera
     hitable **d_list;
     int num_hitables = 22*22+1+3;
-#ifdef UNIFIED_MEMORY
-    checkCudaErrors(cudaMallocManaged((void **)&d_list, num_hitables*sizeof(hitable *)));
-#else
-    checkCudaErrors(cudaMalloc((void **)&d_list, num_hitables*sizeof(hitable *)));
-#endif
+    ALTIS_CUDA_MALLOC(d_list, num_hitables*sizeof(hitable *));
+    
     hitable **d_world;
-#ifdef UNIFIED_MEMORY
-    checkCudaErrors(cudaMallocManaged((void **)&d_world, sizeof(hitable *)));
-#else
-    checkCudaErrors(cudaMalloc((void **)&d_world, sizeof(hitable *)));
-#endif
+    ALTIS_CUDA_MALLOC(d_world, sizeof(hitable *));
+
     camera **d_camera;
-#ifdef UNIFIED_MEMORY
-    checkCudaErrors(cudaMallocManaged((void **)&d_camera, sizeof(camera *)));
-#else
-    checkCudaErrors(cudaMalloc((void **)&d_camera, sizeof(camera *)));
-#endif
+    ALTIS_CUDA_MALLOC(d_camera, sizeof(camera *));
+    
     create_world<<<1,1>>>(d_list, d_world, d_camera, nx, ny, d_rand_state2);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
     // use cudaevent
-    clock_t start, stop;
-    start = clock();
-    // Render our buffer
-    dim3 blocks(nx/tx+1,ny/ty+1);
-    dim3 threads(tx,ty);
-    render_init<<<blocks, threads>>>(nx, ny, d_rand_state);
-    checkCudaErrors(cudaGetLastError());
-    checkCudaErrors(cudaDeviceSynchronize());
-    render<<<blocks, threads>>>(fb, nx, ny,  ns, d_camera, d_world, d_rand_state);
-    checkCudaErrors(cudaGetLastError());
-    checkCudaErrors(cudaDeviceSynchronize());
-    stop = clock();
-    double timer_seconds = ((double)(stop - start)) / CLOCKS_PER_SEC;
-    std::cerr << "took " << timer_seconds << " seconds.\n";
+        char atts[1024];
+    sprintf(atts, "img: %d by %d, samples: %d, iter:%d", nx, ny, ns, num_passes);
+    int i = 0;
+    for (; i < num_passes; i++) {
+        checkCudaErrors(cudaEventRecord(start, 0));
+        // Render our buffer
+        dim3 blocks(nx/tx+1,ny/ty+1);
+        dim3 threads(tx,ty);
+        render_init<<<blocks, threads>>>(nx, ny, d_rand_state);
+        checkCudaErrors(cudaGetLastError());
+        checkCudaErrors(cudaDeviceSynchronize());
+        render<<<blocks, threads>>>(fb, nx, ny,  ns, d_camera, d_world, d_rand_state);
+        checkCudaErrors(cudaGetLastError());
+        checkCudaErrors(cudaDeviceSynchronize());
+        checkCudaErrors(cudaEventRecord(stop, 0));
+        checkCudaErrors(cudaEventSynchronize(stop));
+        float t = 0;
+        checkCudaErrors(cudaEventElapsedTime(&t, start, stop));
+        DB.AddResult("raytracing rendering time", atts, "sec", t * 1.0e-3);
+    }
+    // std::cerr << "took " << timer_seconds << " seconds.\n";
 
+#if 0
     // Output FB as Image
-    //std::cout << "P3\n" << nx << " " << ny << "\n255\n";
+    std::cout << "P3\n" << nx << " " << ny << "\n255\n";
     for (int j = ny-1; j >= 0; j--) {
         for (int i = 0; i < nx; i++) {
             size_t pixel_index = j*nx + i;
             int ir = int(255.99*fb[pixel_index].r());
             int ig = int(255.99*fb[pixel_index].g());
             int ib = int(255.99*fb[pixel_index].b());
-            //std::cout << ir << " " << ig << " " << ib << "\n";
+            std::cout << ir << " " << ig << " " << ib << "\n";
         }
     }
+#endif
 
     // clean up
     checkCudaErrors(cudaDeviceSynchronize());
@@ -338,5 +347,14 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
     checkCudaErrors(cudaFree(d_rand_state));
     checkCudaErrors(cudaFree(fb));
 
-    cudaDeviceReset();
+    checkCudaErrors(cudaEventRecord(total_stop, 0));
+    checkCudaErrors(cudaEventSynchronize(total_stop));
+    float total_time = 0.0f;
+    checkCudaErrors(cudaEventElapsedTime(&total_time, total_start, total_stop));
+    DB.AddResult("raytracing total execution time", atts, "sec", total_time * 1.0e-3);
+
+    checkCudaErrors(cudaEventDestroy(start));
+    checkCudaErrors(cudaEventDestroy(stop));
+
+    checkCudaErrors(cudaDeviceReset());
 }
