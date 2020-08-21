@@ -1,6 +1,6 @@
 # Altis
 
-This benchmark assumes availability of CUDA and CUDNN. To install CUDA; follow the instruction on [NVIDIA CUDA Installation Guide for Linux](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html). To install CUDNN, follow the instruction from [Deep Learning SDK Documentation](https://docs.nvidia.com/deeplearning/sdk/cudnn-install/index.html). This benchmark is tested on a machine with Ubuntu 18.04.4 LTS, gcc 7.4, and CUDA 10.0. The CUDNN version we used is 7.6.5.
+This benchmark assumes availability of CUDA, OptiX, and CUDNN. To install CUDA; follow the instruction on [NVIDIA CUDA Installation Guide for Linux](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html). To install OptiX, download it from [NVIDIA OptiX](https://developer.nvidia.com/designworks/optix/download). After OptiX is downloaded, add the intallation path as a shell environment variable by ```export OPTIX_INSTALL_PATH="Your OptiX installation path"```. To install CUDNN, follow the instruction from [Deep Learning SDK Documentation](https://docs.nvidia.com/deeplearning/sdk/cudnn-install/index.html). This benchmark is tested on a machine with Ubuntu 18.04.4 LTS, gcc 7.4, and CUDA 10.0. The CUDNN version we used is 7.6.5.
 
 ## To Use:
 
