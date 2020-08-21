@@ -10,8 +10,8 @@
 #include "ResultDatabase.h"
 #include "Timer.h"
 #include "Utility.h"
-#include "cublas.h"
-//#include "cublas_v2.h"
+//#include "cublas.h"
+#include "cublas_v2.h"
 #include "cuda.h"
 #include "cuda_runtime.h"
 #include "cudacommon.h"
@@ -34,11 +34,10 @@ using namespace std;
 /// <param name="testName">	Name of the test. </param>
 /// <param name="resultDB">	[in,out] The result database. </param>
 /// <param name="op">	   	[in,out] The operation. </param>
-/// <param name="is_half"> 	Whether to use half precision. </param>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op, bool is_half);
+void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op);
 
 // origianlly don't need handle in v1 cublas
 
@@ -62,9 +61,14 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op, bool i
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-inline void devGEMM(char transa, char transb, int m, int n, int k, T alpha,
-                    const T *A, int lda, const T *B, int ldb, T beta, T *C,
-                    int ldc);
+inline void devGEMM(cublasHandle_t handle,
+                    cublasOperation_t transa, cublasOperation_t transb,
+                    int m, int n, int k,
+                    const T *alpha,
+                    const T *A, int lda,
+                    const T *B, int ldb,
+                    const T *beta,
+                    T *C, int ldc);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -78,10 +82,14 @@ inline void devGEMM(char transa, char transb, int m, int n, int k, T alpha,
 
 template <class T> void fill(T *A, int n, int maxi) {
   for (int j = 0; j < n; j++) {
-    A[j] = T((rand() % (maxi * 2 + 1)) - maxi) / (maxi + 1.);
+      if constexpr (std::is_same<T, float>::value || std::is_same<T, double>::value)
+          A[j] = T((rand() % (maxi * 2 + 1)) - maxi) / (maxi + 1.);
+      else if constexpr (std::is_same<T, half>::value)
+          A[j] = __float2half(float((rand() % (maxi * 2 + 1)) - maxi) / (maxi + 1.));
+      else
+          safe_exit(-1);
   }
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	Reads a matrix. </summary>
@@ -159,7 +167,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   if(!quiet) {
     cout << "Running single precision test" << endl;
   }
-  RunTest<float>("SGEMM", resultDB, op, false);
+  RunTest<float>("SGEMM", resultDB, op);
 
 
   // Test to see if this device supports double precision
@@ -168,17 +176,15 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     if(!quiet) {
         cout << "Running double precision test" << endl;
     }
-    RunTest<double>("DGEMM", resultDB, op, false);
+    RunTest<double>("DGEMM", resultDB, op);
   }
 
-  /*
   if ((deviceProp.major >= 6)) {
     if (!quiet) {
         cout << "Running half preicsion test" << endl;
     }
-    RunTest<half>("HGEMM", resultDB, op, true);
+    RunTest<half>("HGEMM", resultDB, op);
   }
-  */
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -188,11 +194,10 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 /// <param name="testName">	Name of the test. </param>
 /// <param name="resultDB">	[in,out] The result database. </param>
 /// <param name="op">	   	[in,out] The operation. </param>
-/// <param name="is_half"> 	Whether to execute half precision op. </param>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op, bool is_half) {
+void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
   int passes = op.getOptionInt("passes");
   int device = op.getOptionInt("device");
   int kib;
@@ -213,7 +218,12 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op, bool i
   int N = kib * 1024 / sizeof(T);
 
   // Initialize the cublas library
-  cublasInit();
+  cublasHandle_t handle; // CUBLAS context
+  cublasStatus_t stat = cublasCreate(&handle);
+  if (stat != CUBLAS_STATUS_SUCCESS) {
+        std::cerr << "CUBLAS initialization failed" << std::endl;
+        safe_exit(-1);
+  }
 
   // Allocate GPU memory
 #ifdef UNIFIED_MEMORY
@@ -223,9 +233,9 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op, bool i
   CUDA_SAFE_CALL(cudaMallocManaged(&dC, N * N* sizeof(T)));
 
   if (filename == "") {
-    fill<T>(dA, N * N, 31);
-    fill<T>(dB, N * N, 31);
-    fill<T>(dC, N * N, 31);
+      fill<T>(dA, N * N, 31);
+      fill<T>(dB, N * N, 31);
+      fill<T>(dC, N * N, 31);
   } else {
       readMatrix(dA, dB, dC, N * N, filename);
   }
@@ -246,9 +256,9 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op, bool i
 
   // Fill matrix or read from input file
   if (filename == "") {
-    fill<T>(A, N * N, 31);
-    fill<T>(B, N * N, 31);
-    fill<T>(C, N * N, 31);
+      fill<T>(A, N * N, 31);
+      fill<T>(B, N * N, 31);
+      fill<T>(C, N * N, 31);
   } else {
     readMatrix(A, B, C, N * N, filename);
   }
@@ -273,9 +283,6 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op, bool i
   CUDA_SAFE_CALL(cudaMemcpy(dB, B, N * N * sizeof(T), cudaMemcpyHostToDevice));
 #endif
 
-  cublasHandle_t handle; // CUBLAS context
-  //CUDA_SAFE_CALL(cublasCreate(&handle));
-
   cudaEventRecord(stop, 0);
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&elapsedTime, start, stop);
@@ -285,8 +292,8 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op, bool i
 /// <summary>	. </summary>
   for (int j = 0; j < passes; j++) {
     for (int i = 0; i < 2; i++) {
-      const char transa = 'N';
-      const char transb = i ? 'T' : 'N';
+      const cublasOperation_t transa = CUBLAS_OP_N;
+      const cublasOperation_t transb = i ? CUBLAS_OP_T : CUBLAS_OP_N;
       const int nb = 128;
       const int idim = N / nb;
 
@@ -302,7 +309,7 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op, bool i
       const T beta = 0; //-1;
 
       // Warm Up
-      devGEMM<T>(transa, transb, m, n, k, alpha, dA, lda, dB, ldb, beta, dC,
+      devGEMM<T>(handle, transa, transb, m, n, k, &alpha, dA, lda, dB, ldb, &beta, dC,
                     ldc);
       cudaDeviceSynchronize();
       CHECK_CUDA_ERROR();
@@ -311,7 +318,7 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op, bool i
       float kernelTime = 0.0f;
       for (int ii = 0; ii < 4; ++ii) {
         cudaEventRecord(start, 0);
-        devGEMM<T>(transa, transb, m, n, k, alpha, dA, lda, dB, ldb, beta, dC,
+        devGEMM<T>(handle, transa, transb, m, n, k, &alpha, dA, lda, dB, ldb, &beta, dC,
                    ldc);
         cudaEventRecord(stop, 0);
         cudaEventSynchronize(stop);
@@ -324,10 +331,10 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op, bool i
 
       cudaEventRecord(start, 0);    // timing may be affected by async
 #ifdef UNIFIED_MEMORY
-      CUDA_SAFE_CALL(cudaMemPrefetchAsync(dC, N * N * sizeof(float), cudaCpuDeviceId));
+      CUDA_SAFE_CALL(cudaMemPrefetchAsync(dC, N * N * sizeof(T), cudaCpuDeviceId));
 #else
       CUDA_SAFE_CALL(
-          cudaMemcpy(C, dC, N * N * sizeof(float), cudaMemcpyDeviceToHost));
+          cudaMemcpy(C, dC, N * N * sizeof(T), cudaMemcpyDeviceToHost));
 #endif
       cudaEventRecord(stop, 0);
       cudaEventSynchronize(stop);
@@ -343,13 +350,14 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op, bool i
 
       double cublasGflops = 2. * m * n * k / cublasTime / 1e9;
       double pcieGflops = 2. * m * n * k / (cublasTime + transferTime) / 1e9;
+      std::string transb_string = (transb == CUBLAS_OP_T)? "T" : "N";
       string atts = "dim:" + toString(dim);
-      resultDB.AddResult(testName + "-" + transb + "-TransferTime", atts, "sec", transferTime);
-      resultDB.AddResult(testName + "-" + transb + "-KernelTime", atts, "sec", cublasTime);
-      resultDB.AddResult(testName + "-" + transb + "-TotalTime", atts, "sec", transferTime + cublasTime);
-      resultDB.AddResult(testName + "-" + transb, atts, "GFlops", cublasGflops);
-      resultDB.AddResult(testName + "-" + transb + "_PCIe", atts, "GFlops", pcieGflops);
-      resultDB.AddResult(testName + "-" + transb + "_Parity", atts, "N", transferTime / cublasTime);
+      resultDB.AddResult(testName + "-" + transb_string + "-TransferTime", atts, "sec", transferTime);
+      resultDB.AddResult(testName + "-" + transb_string + "-KernelTime", atts, "sec", cublasTime);
+      resultDB.AddResult(testName + "-" + transb_string + "-TotalTime", atts, "sec", transferTime + cublasTime);
+      resultDB.AddResult(testName + "-" + transb_string, atts, "GFlops", cublasGflops);
+      resultDB.AddResult(testName + "-" + transb_string + "_PCIe", atts, "GFlops", pcieGflops);
+      resultDB.AddResult(testName + "-" + transb_string + "_Parity", atts, "N", transferTime / cublasTime);
       resultDB.AddOverall("GFlops", "", cublasGflops);
     }
   }
@@ -373,9 +381,7 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op, bool i
   CUDA_SAFE_CALL(cudaEventDestroy(start));
 
   CUDA_SAFE_CALL(cudaEventDestroy(stop));
-  //cublasDestroy(handle);
-
-  cublasShutdown();
+  cublasDestroy(handle);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -398,11 +404,15 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op, bool i
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <>
-inline void devGEMM<double>(char transa, char transb, int m, int n, int k,
-                            double alpha, const double *A, int lda,
-                            const double *B, int ldb, double beta, double *C,
-                            int ldc) {
-  cublasDgemm(transa, transb, m, n, k, alpha, A, lda, B, ldb, beta, C, ldc);
+inline void devGEMM<double>(cublasHandle_t handle,
+                            cublasOperation_t transa, cublasOperation_t transb,
+                            int m, int n, int k,
+                            const double *alpha,
+                            const double *A, int lda,
+                            const double *B, int ldb,
+                            const double *beta,
+                            double *C, int ldc) {
+  cublasDgemm(handle, transa, transb, m, n, k, alpha, A, lda, B, ldb, beta, C, ldc);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -425,19 +435,26 @@ inline void devGEMM<double>(char transa, char transb, int m, int n, int k,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <>
-inline void devGEMM<float>(char transa, char transb, int m, int n, int k,
-                           float alpha, const float *A, int lda, const float *B,
-                           int ldb, float beta, float *C, int ldc) {
-  cublasSgemm(transa, transb, m, n, k, alpha, A, lda, B, ldb, beta, C, ldc);
+inline void devGEMM<float>(cublasHandle_t handle,
+                           cublasOperation_t transa, cublasOperation_t transb,
+                           int m, int n, int k,
+                           const float *alpha,
+                           const float *A, int lda,
+                           const float *B, int ldb,
+                           const float *beta,
+                           float *C, int ldc) {
+  cublasSgemm(handle, transa, transb, m, n, k, alpha, A, lda, B, ldb, beta, C, ldc);
 }
 
-/*
 template <>
-inline void devGEMM<half>(cublasHandle_t handle, char transa, char transb, int m, int n, int k,
-                            half alpha, const half *A, int lda,
-                            const half *B, int ldb, half beta, half *C,
-                            int ldc) {
+inline void devGEMM<half>(cublasHandle_t handle,
+                          cublasOperation_t transa, cublasOperation_t transb,
+                          int m, int n, int k,
+                          const half *alpha,
+                          const half *A, int lda,
+                          const half *B, int ldb,
+                          const half *beta,
+                          half *C, int ldc) {
   cublasHgemm(handle, transa, transb, m, n, k, alpha, A, lda, B, ldb, beta, C, ldc);
 }
-*/
 
