@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <float.h>
+#include <time.h>
 #include <sys/time.h>
 #include "OptionParser.h"
 #include "ResultDatabase.h"
@@ -39,6 +40,14 @@ int A = 1103515245;
 @var C value for LCG
  */
 int C = 12345;
+
+double get_wall_time(){
+    struct timeval time;
+    if (gettimeofday(&time,NULL)){
+        return 0;
+    }
+    return (double)time.tv_sec + (double)time.tv_usec * .000001;
+}
 
 /********************************
  * CALC LIKELIHOOD SUM
@@ -142,7 +151,7 @@ UPDATE WEIGHTS
 UPDATES WEIGHTS
 param1 weights
 param2 likelihood
-param3 Nparcitles
+param3 Nparticles
  ****************************/
 __device__ double updateWeights(double * weights, double * likelihood, int Nparticles) {
     int x;
@@ -708,33 +717,16 @@ void particleFilter(unsigned char * I, int IszX, int IszY, int Nfr, int * seed, 
     transferTime += elapsedTime * 1.e-3;
 
 
+    double wall1 = get_wall_time();
     for (k = 1; k < Nfr; k++) {
         
         cudaEventRecord(start, 0);
-        likelihood_kernel << < num_blocks, threads_per_block >> > (arrayX_GPU, arrayY_GPU, xj_GPU, yj_GPU, CDF_GPU, ind_GPU, objxy_GPU, likelihood_GPU, I_GPU, u_GPU, weights_GPU, Nparticles, countOnes, max_size, k, IszY, Nfr, seed_GPU, partial_sums);
-        cudaEventRecord(stop, 0);
-        cudaEventSynchronize(stop);
-        cudaEventElapsedTime(&elapsedTime, start, stop);
-        kernelTime += elapsedTime * 1.e-3;
-        CHECK_CUDA_ERROR();
-
-        cudaEventRecord(start, 0);
+        likelihood_kernel << < num_blocks, threads_per_block >> > (arrayX_GPU,
+                arrayY_GPU, xj_GPU, yj_GPU, CDF_GPU, ind_GPU, objxy_GPU,
+                likelihood_GPU, I_GPU, u_GPU, weights_GPU, Nparticles,
+                countOnes, max_size, k, IszY, Nfr, seed_GPU, partial_sums);
         sum_kernel << < num_blocks, threads_per_block >> > (partial_sums, Nparticles);
-        cudaEventRecord(stop, 0);
-        cudaEventSynchronize(stop);
-        cudaEventElapsedTime(&elapsedTime, start, stop);
-        kernelTime += elapsedTime * 1.e-3;
-        CHECK_CUDA_ERROR();
-
-        cudaEventRecord(start, 0);
         normalize_weights_kernel << < num_blocks, threads_per_block >> > (weights_GPU, Nparticles, partial_sums, CDF_GPU, u_GPU, seed_GPU);
-        cudaEventRecord(stop, 0);
-        cudaEventSynchronize(stop);
-        cudaEventElapsedTime(&elapsedTime, start, stop);
-        kernelTime += elapsedTime * 1.e-3;
-        CHECK_CUDA_ERROR();
-        
-        cudaEventRecord(start, 0);
         find_index_kernel << < num_blocks, threads_per_block >> > (arrayX_GPU, arrayY_GPU, CDF_GPU, u_GPU, xj_GPU, yj_GPU, weights_GPU, Nparticles);
         cudaEventRecord(stop, 0);
         cudaEventSynchronize(stop);
@@ -746,6 +738,280 @@ void particleFilter(unsigned char * I, int IszX, int IszY, int Nfr, int * seed, 
 
     //block till kernels are finished
     cudaDeviceSynchronize();
+    double wall2 = get_wall_time();
+
+    cudaFree(xj_GPU);
+    cudaFree(yj_GPU);
+    cudaFree(CDF_GPU);
+    cudaFree(u_GPU);
+    cudaFree(likelihood_GPU);
+    cudaFree(I_GPU);
+    cudaFree(objxy_GPU);
+    cudaFree(ind_GPU);
+    cudaFree(seed_GPU);
+    cudaFree(partial_sums);
+
+    cudaEventRecord(start, 0);
+    CUDA_SAFE_CALL(cudaMemcpy(arrayX, arrayX_GPU, sizeof (double) *Nparticles, cudaMemcpyDeviceToHost));
+    CUDA_SAFE_CALL(cudaMemcpy(arrayY, arrayY_GPU, sizeof (double) *Nparticles, cudaMemcpyDeviceToHost));
+    CUDA_SAFE_CALL(cudaMemcpy(weights, weights_GPU, sizeof (double) *Nparticles, cudaMemcpyDeviceToHost));
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsedTime, start, stop);
+    transferTime += elapsedTime * 1.e-3;
+
+    xe = 0;
+    ye = 0;
+    // estimate the object location by expected values
+    for (x = 0; x < Nparticles; x++) {
+        xe += arrayX[x] * weights[x];
+        ye += arrayY[x] * weights[x];
+    }
+    if(verbose && !quiet) {
+        printf("XE: %lf\n", xe);
+        printf("YE: %lf\n", ye);
+        double distance = sqrt(pow((double) (xe - (int) roundDouble(IszY / 2.0)), 2) + pow((double) (ye - (int) roundDouble(IszX / 2.0)), 2));
+        printf("%lf\n", distance);
+    }
+    
+    char atts[1024];
+    sprintf(atts, "dimx:%d, dimy:%d, numframes:%d, numparticles:%d", IszX, IszY, Nfr, Nparticles);
+    resultDB.AddResult("particlefilter_float_kernel_time", atts, "sec", kernelTime);
+    resultDB.AddResult("particlefilter_float_transfer_time", atts, "sec", transferTime);
+    resultDB.AddResult("particlefilter_float_total_time", atts, "sec", kernelTime+transferTime);
+    resultDB.AddResult("particlefilter_float_parity", atts, "N", transferTime / kernelTime);
+    resultDB.AddOverall("Time", "sec", kernelTime+transferTime);
+
+    //CUDA freeing of memory
+    cudaFree(weights_GPU);
+    cudaFree(arrayY_GPU);
+    cudaFree(arrayX_GPU);
+
+    //free regular memory
+    free(likelihood);
+    free(arrayX);
+    free(arrayY);
+    free(xj);
+    free(yj);
+    free(CDF);
+    free(ind);
+    free(u);
+}
+
+/**
+ * The implementation of the particle filter using OpenMP for many frames
+ * @see http://openmp.org/wp/
+ * @note This function is designed to work with a video of several frames. In addition, it references a provided MATLAB function which takes the video, the objxy matrix and the x and y arrays as arguments and returns the likelihoods
+ * @param I The video to be run
+ * @param IszX The x dimension of the video
+ * @param IszY The y dimension of the video
+ * @param Nfr The number of frames
+ * @param seed The seed array used for random number generation
+ * @param Nparticles The number of particles to be used
+ */
+void particleFilterGraph(unsigned char * I, int IszX, int IszY, int Nfr, int * seed, int Nparticles, ResultDatabase &resultDB) {
+
+    float kernelTime = 0.0f;
+    float transferTime = 0.0f;
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    float elapsedTime;
+
+    int max_size = IszX * IszY*Nfr;
+    //original particle centroid
+    double xe = roundDouble(IszY / 2.0);
+    double ye = roundDouble(IszX / 2.0);
+
+    //expected object locations, compared to center
+    int radius = 5;
+    int diameter = radius * 2 - 1;
+    int * disk = (int*) malloc(diameter * diameter * sizeof (int));
+    strelDisk(disk, radius);
+    int countOnes = 0;
+    int x, y;
+    for (x = 0; x < diameter; x++) {
+        for (y = 0; y < diameter; y++) {
+            if (disk[x * diameter + y] == 1)
+                countOnes++;
+        }
+    }
+    int * objxy = (int *) malloc(countOnes * 2 * sizeof (int));
+    getneighbors(disk, countOnes, objxy, radius);
+    //initial weights are all equal (1/Nparticles)
+    double * weights = (double *) malloc(sizeof (double) *Nparticles);
+    for (x = 0; x < Nparticles; x++) {
+        weights[x] = 1 / ((double) (Nparticles));
+    }
+
+    //initial likelihood to 0.0
+    double * likelihood = (double *) malloc(sizeof (double) *Nparticles);
+    double * arrayX = (double *) malloc(sizeof (double) *Nparticles);
+    double * arrayY = (double *) malloc(sizeof (double) *Nparticles);
+    double * xj = (double *) malloc(sizeof (double) *Nparticles);
+    double * yj = (double *) malloc(sizeof (double) *Nparticles);
+    double * CDF = (double *) malloc(sizeof (double) *Nparticles);
+
+    //GPU copies of arrays
+    double * arrayX_GPU;
+    double * arrayY_GPU;
+    double * xj_GPU;
+    double * yj_GPU;
+    double * CDF_GPU;
+    double * likelihood_GPU;
+    unsigned char * I_GPU;
+    double * weights_GPU;
+    int * objxy_GPU;
+
+    int * ind = (int*) malloc(sizeof (int) *countOnes * Nparticles);
+    int * ind_GPU;
+    double * u = (double *) malloc(sizeof (double) *Nparticles);
+    double * u_GPU;
+    int * seed_GPU;
+    double* partial_sums;
+
+    //CUDA memory allocation
+    CUDA_SAFE_CALL(cudaMalloc((void **) &arrayX_GPU, sizeof (double) *Nparticles));
+    CUDA_SAFE_CALL(cudaMalloc((void **) &arrayY_GPU, sizeof (double) *Nparticles));
+    CUDA_SAFE_CALL(cudaMalloc((void **) &xj_GPU, sizeof (double) *Nparticles));
+    CUDA_SAFE_CALL(cudaMalloc((void **) &yj_GPU, sizeof (double) *Nparticles));
+    CUDA_SAFE_CALL(cudaMalloc((void **) &CDF_GPU, sizeof (double) *Nparticles));
+    CUDA_SAFE_CALL(cudaMalloc((void **) &u_GPU, sizeof (double) *Nparticles));
+    CUDA_SAFE_CALL(cudaMalloc((void **) &likelihood_GPU, sizeof (double) *Nparticles));
+    //set likelihood to zero
+    CUDA_SAFE_CALL(cudaMemset((void *) likelihood_GPU, 0, sizeof (double) *Nparticles));
+    CUDA_SAFE_CALL(cudaMalloc((void **) &weights_GPU, sizeof (double) *Nparticles));
+    CUDA_SAFE_CALL(cudaMalloc((void **) &I_GPU, sizeof (unsigned char) *IszX * IszY * Nfr));
+    CUDA_SAFE_CALL(cudaMalloc((void **) &objxy_GPU, sizeof (int) *2 * countOnes));
+    CUDA_SAFE_CALL(cudaMalloc((void **) &ind_GPU, sizeof (int) *countOnes * Nparticles));
+    CUDA_SAFE_CALL(cudaMalloc((void **) &seed_GPU, sizeof (int) *Nparticles));
+    CUDA_SAFE_CALL(cudaMalloc((void **) &partial_sums, sizeof (double) *Nparticles));
+
+
+    //Donnie - this loop is different because in this kernel, arrayX and arrayY
+    //  are set equal to xj before every iteration, so effectively, arrayX and 
+    //  arrayY will be set to xe and ye before the first iteration.
+    for (x = 0; x < Nparticles; x++) {
+
+        xj[x] = xe;
+        yj[x] = ye;
+
+    }
+
+    int k;
+    //start send
+    cudaEventRecord(start, 0);
+
+    CUDA_SAFE_CALL(cudaMemcpy(I_GPU, I, sizeof (unsigned char) *IszX * IszY*Nfr, cudaMemcpyHostToDevice));
+    CUDA_SAFE_CALL(cudaMemcpy(objxy_GPU, objxy, sizeof (int) *2 * countOnes, cudaMemcpyHostToDevice));
+    CUDA_SAFE_CALL(cudaMemcpy(weights_GPU, weights, sizeof (double) *Nparticles, cudaMemcpyHostToDevice));
+    CUDA_SAFE_CALL(cudaMemcpy(xj_GPU, xj, sizeof (double) *Nparticles, cudaMemcpyHostToDevice));
+    CUDA_SAFE_CALL(cudaMemcpy(yj_GPU, yj, sizeof (double) *Nparticles, cudaMemcpyHostToDevice));
+    CUDA_SAFE_CALL(cudaMemcpy(seed_GPU, seed, sizeof (int) *Nparticles, cudaMemcpyHostToDevice));
+    int num_blocks = ceil((double) Nparticles / (double) threads_per_block);
+    
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsedTime, start, stop);
+    transferTime += elapsedTime * 1.e-3;
+
+    // Init graph metadata
+    cudaStream_t streamForGraph;
+    cudaGraph_t graph;
+    cudaGraphNode_t likelihoodKernelNode, sumKernelNode, normalizeWeightsKernelNode, findIndexKernelNode;
+    
+    checkCudaErrors(cudaGraphCreate(&graph, 0));
+    checkCudaErrors(cudaStreamCreate(&streamForGraph));
+
+    // Set up first kernel node
+    cudaKernelNodeParams likelihoodKernelNodeParams = {0};
+    void *likelihoodKernelArgs[19] = {(void *)&arrayX_GPU, (void *)&arrayY_GPU,
+                                      (void *)&xj_GPU, (void *)&yj_GPU,
+                                      (void *)&CDF_GPU, (void *)&ind_GPU,
+                                      (void *)&objxy_GPU, (void *)&likelihood_GPU,
+                                      (void *)&I_GPU, (void *)&u_GPU,
+                                      (void *)&weights_GPU, &Nparticles,
+                                      &countOnes, &max_size, &k, &IszY,
+                                      &Nfr, (void *)&seed_GPU, (void *)&partial_sums};
+    likelihoodKernelNodeParams.func = (void *)likelihood_kernel;
+    likelihoodKernelNodeParams.gridDim = dim3(num_blocks, 1, 1);
+    likelihoodKernelNodeParams.blockDim = dim3(threads_per_block, 1, 1);
+    likelihoodKernelNodeParams.sharedMemBytes = 0;
+    likelihoodKernelNodeParams.kernelParams = (void **)likelihoodKernelArgs;
+    likelihoodKernelNodeParams.extra = NULL;
+
+    checkCudaErrors(cudaGraphAddKernelNode(&likelihoodKernelNode, graph, NULL, 0, &likelihoodKernelNodeParams));
+
+    // Set up the second kernel node
+    cudaKernelNodeParams sumKernelNodeParams = {0};
+    void *sumKernelArgs[2] = {(void *)&partial_sums, &Nparticles};
+    sumKernelNodeParams.func = (void *)sum_kernel;
+    sumKernelNodeParams.gridDim = dim3(num_blocks, 1, 1);
+    sumKernelNodeParams.blockDim = dim3(threads_per_block, 1, 1);
+    sumKernelNodeParams.sharedMemBytes = 0;
+    sumKernelNodeParams.kernelParams = (void **)sumKernelArgs;
+    sumKernelNodeParams.extra = NULL;
+
+    checkCudaErrors(cudaGraphAddKernelNode(&sumKernelNode, graph, NULL, 0, &sumKernelNodeParams));
+
+    // set up the third kernel node
+    cudaKernelNodeParams normalizeWeightsKernelNodeParams = {0};
+    void *normalizeWeightsKernelArgs[6] = {(void *)&weights_GPU, &Nparticles,
+                                           (void *)&partial_sums, (void *)&CDF_GPU,
+                                           (void *)&u_GPU, (void *)&seed_GPU};
+    normalizeWeightsKernelNodeParams.func = (void *)normalize_weights_kernel;
+    normalizeWeightsKernelNodeParams.gridDim = dim3(num_blocks, 1, 1);
+    normalizeWeightsKernelNodeParams.blockDim = dim3(threads_per_block, 1, 1);
+    normalizeWeightsKernelNodeParams.sharedMemBytes = 0;
+    normalizeWeightsKernelNodeParams.kernelParams = (void **)normalizeWeightsKernelArgs;
+    normalizeWeightsKernelNodeParams.extra = NULL;
+
+    checkCudaErrors(cudaGraphAddKernelNode(&normalizeWeightsKernelNode, graph, NULL, 0, &normalizeWeightsKernelNodeParams));
+
+    // set up the fourth kernel node
+    cudaKernelNodeParams findIndexKernelNodeParams = {0};
+    void *findIndexKernelArgs[8] = {(void *)&arrayX_GPU, (void *)&arrayY_GPU, (void *)&CDF_GPU,
+                                    (void *)&u_GPU, (void *)&xj_GPU,
+                                    (void *)&yj_GPU, (void *)&weights_GPU,
+                                    &Nparticles};
+    findIndexKernelNodeParams.func = (void *)find_index_kernel;
+    findIndexKernelNodeParams.gridDim = dim3(num_blocks, 1, 1);
+    findIndexKernelNodeParams.blockDim = dim3(threads_per_block, 1, 1);
+    findIndexKernelNodeParams.sharedMemBytes = 0;
+    findIndexKernelNodeParams.kernelParams = (void **)findIndexKernelArgs;
+    findIndexKernelNodeParams.extra = NULL;
+
+    checkCudaErrors(cudaGraphAddKernelNode(&findIndexKernelNode, graph, NULL, 0, &findIndexKernelNodeParams));
+
+    // Add dependencies between each kernels
+    checkCudaErrors(cudaGraphAddDependencies(graph, &likelihoodKernelNode, &sumKernelNode, 1));
+    checkCudaErrors(cudaGraphAddDependencies(graph, &sumKernelNode, &normalizeWeightsKernelNode, 1));
+    checkCudaErrors(cudaGraphAddDependencies(graph, &normalizeWeightsKernelNode, &findIndexKernelNode, 1));
+
+    // init the graph
+    cudaGraphExec_t graphExec;
+    checkCudaErrors(cudaGraphInstantiate(&graphExec, graph, NULL, NULL, 0));
+
+
+    double wall1 = get_wall_time();
+    for (k = 1; k < Nfr; k++) {
+       
+        checkCudaErrors(cudaEventRecord(start, 0));
+        checkCudaErrors(cudaGraphLaunch(graphExec, streamForGraph));
+        checkCudaErrors(cudaEventRecord(stop, 0));
+        checkCudaErrors(cudaEventSynchronize(stop));
+        checkCudaErrors(cudaEventElapsedTime(&elapsedTime, start, stop));
+        kernelTime += elapsedTime * 1.e-3;
+
+    }//end loop
+
+    //block till kernels are finished
+    checkCudaErrors(cudaStreamSynchronize(streamForGraph));
+    double wall2 = get_wall_time();
+
+    checkCudaErrors(cudaGraphExecDestroy(graphExec));
+    checkCudaErrors(cudaGraphDestroy(graph));
+    checkCudaErrors(cudaStreamDestroy(streamForGraph));
 
     cudaFree(xj_GPU);
     cudaFree(yj_GPU);
@@ -810,9 +1076,10 @@ void addBenchmarkSpecOptions(OptionParser &op) {
   op.addOption("dimy", OPT_INT, "0", "grid y dimension", 'y');
   op.addOption("framecount", OPT_INT, "0", "number of frames to track across", 'f');
   op.addOption("np", OPT_INT, "0", "number of particles to use");
+  op.addOption("graph", OPT_BOOL, "0", "use CUDA Graph implementation");
 }
 
-void particlefilter_float(ResultDatabase &resultDB, int args[]);
+void particlefilter_float(ResultDatabase &resultDB, int args[], bool useGraph);
 
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     printf("Running ParticleFilter (float)\n");
@@ -824,6 +1091,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     bool preset = false;
     verbose = op.getOptionBool("verbose");
     quiet = op.getOptionBool("quiet");
+    bool useGraph = op.getOptionBool("graph");
 
     for(int i = 0; i < 4; i++) {
         if(args[i] <= 0) {
@@ -851,14 +1119,14 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
         if(!quiet) {
             printf("Pass %d: ", i);
         }
-        particlefilter_float(resultDB, args);
+        particlefilter_float(resultDB, args, useGraph);
         if(!quiet) {
             printf("Done.\n");
         }
     }
 }
 
-void particlefilter_float(ResultDatabase &resultDB, int args[]) {
+void particlefilter_float(ResultDatabase &resultDB, int args[], bool useGraph) {
 
     int IszX, IszY, Nfr, Nparticles;
 	IszX = args[0];
@@ -876,7 +1144,8 @@ void particlefilter_float(ResultDatabase &resultDB, int args[]) {
     //call video sequence
     videoSequence(I, IszX, IszY, Nfr, seed);
     //call particle filter
-    particleFilter(I, IszX, IszY, Nfr, seed, Nparticles, resultDB);
+    if (useGraph) particleFilterGraph(I, IszX, IszY, Nfr, seed, Nparticles, resultDB);
+    else particleFilter(I, IszX, IszY, Nfr, seed, Nparticles, resultDB);
 
     free(seed);
     free(I);

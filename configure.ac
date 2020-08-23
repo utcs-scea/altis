@@ -166,9 +166,13 @@ AM_CONDITIONAL([BUILD_CUDA], [test "x$with_cuda" = "xyes"])
 check_cuda_version()
 {
     nvcc_version_string=$(nvcc --version | grep "Cuda compilation tools, release")    
-    if echo "$nvcc_version_string" | grep -q "10"
+    if echo "$nvcc_version_string" | grep -q "11"
+    then
+        return 11
+    elif echo "$nvcc_version_string" | grep -q "10"
     then
         return 10
+    
     elif echo "$nvcc_version_string" | grep -q "9"
     then
         return 9
