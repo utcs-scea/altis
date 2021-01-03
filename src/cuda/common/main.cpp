@@ -16,6 +16,7 @@
 #include "ResultDatabase.h"
 #include "OptionParser.h"
 #include "Utility.h"
+#include "cudacommon.h"
 
 using namespace std;
 
@@ -109,6 +110,52 @@ void EnumerateDevicesAndChoose(int chooseDevice, bool properties, bool quiet)
     }
 }
 
+void checkCudaFeatureAvailability(OptionParser &op) {
+    int device = 0;
+    checkCudaErrors(cudaGetDevice(&device));
+    cudaDeviceProp deviceProp;
+    checkCudaErrors(cudaGetDeviceProperties(&deviceProp, device));
+    
+    // Check UVM availability
+    if (op.getOptionBool("uvm") || op.getOptionBool("mem-advise") ||
+            op.getOptionBool("uvm-prefetch")) {
+        if (!deviceProp.unifiedAddressing) {
+            std::cerr << "device doesn't support unified addressing, exiting..." << std::endl;
+            safe_exit(-1);
+        }
+    }
+
+    // Check Cooperative Group availability
+    if (op.getOptionBool("coop")) {
+        if (!deviceProp.cooperativeLaunch) {
+            std::cerr << "device doesn't support cooperative kernels, exiting..." << std::endl;
+            safe_exit(-1);
+        }
+    }
+
+    // Check Dynamic Parallelism availability
+    if (op.getOptionBool("dyn")) {
+        int runtimeVersion = 0;
+        checkCudaErrors(cudaRuntimeGetVersion(&runtimeVersion));
+        if (runtimeVersion < 5000) {
+            std::cerr << "CUDA runtime version less than 5.0, doesn't support \
+                dynamic parallelism, exiting..." << std::endl;
+            safe_exit(-1);
+        }
+    }
+
+    // Check CUDA Graphs availability
+    if (op.getOptionBool("graph")) {
+        int runtimeVersion = 0;
+        checkCudaErrors(cudaRuntimeGetVersion(&runtimeVersion));
+        if (runtimeVersion < 10000) {
+            std::cerr << "CUDA runtime version less than 10.0, doesn't support \
+                CUDA Graph, exiting..." << std::endl;
+            safe_exit(-1);
+        }
+    }
+}
+
 // ****************************************************************************
 // Function: main
 //
@@ -139,7 +186,7 @@ int main(int argc, char *argv[])
         // Get args
         OptionParser op;
 
-        //Add shared options to the parser
+        // Add shared options to the parser
         op.addOption("properties", OPT_BOOL, "0",
                 "show properties for available platforms and devices", 'p');
         op.addOption("device", OPT_VECINT, "0",
@@ -152,6 +199,14 @@ int main(int argc, char *argv[])
         op.addOption("inputFile", OPT_STRING, "", "path of input file", 'i');
         op.addOption("outputFile", OPT_STRING, "", "path of output file", 'o');
         op.addOption("metricsFile", OPT_STRING, "", "path of file to write metrics to", 'm');
+
+        // Add options for turn on/off CUDA features
+        op.addOption("uvm", OPT_BOOL, "0", "enable CUDA Unified Virtual Memory");
+        op.addOption("mem-advise", OPT_BOOL, "0", "guide the driver about memory usage patterns");
+        op.addOption("uvm-prefetch", OPT_BOOL, "0", "prefetch memory the specified destination device");
+        op.addOption("coop", OPT_BOOL, "0", "enable CUDA Cooperative Groups");
+        op.addOption("dyn", OPT_BOOL, "0", "enable CUDA Dynamic Parallelism");
+        op.addOption("graph", OPT_BOOL, "0", "enable CUDA Graphs");
 
         addBenchmarkSpecOptions(op);
 
@@ -181,6 +236,10 @@ int main(int argc, char *argv[])
         {
             return 0;
         }
+
+        // Check CUDA feature availability
+        checkCudaFeatureAvailability(op);
+
         ResultDatabase resultDB;
 
         // Run the benchmark

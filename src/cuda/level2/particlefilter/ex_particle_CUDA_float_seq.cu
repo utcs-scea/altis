@@ -1076,7 +1076,6 @@ void addBenchmarkSpecOptions(OptionParser &op) {
   op.addOption("dimy", OPT_INT, "0", "grid y dimension", 'y');
   op.addOption("framecount", OPT_INT, "0", "number of frames to track across", 'f');
   op.addOption("np", OPT_INT, "0", "number of particles to use");
-  op.addOption("graph", OPT_BOOL, "0", "use CUDA Graph implementation");
 }
 
 void particlefilter_float(ResultDatabase &resultDB, int args[], bool useGraph);
