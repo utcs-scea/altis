@@ -67,6 +67,10 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     const bool quiet = op.getOptionBool("quiet");
     const bool pinned = op.getOptionBool("pinned");
 
+    const bool mem_advise = op.getOptionBool("mem-advise");
+    const bool uvm_prefetch = op.getOptionBool("uvm-prefetch");
+    const bool graph = op.getOptionBool("graph");
+
     // Sizes are in kb
     int nSizes = 21;
     int sizes[21] = {1,     2,     4,     8,      16,     32,    64,
@@ -76,50 +80,72 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 
     // Create some host memory pattern
     float *hostMem = NULL;
-    if (pinned) {
-        cudaMallocHost((void **)&hostMem, sizeof(float) * numMaxFloats);
+    if (mem_advise || uvm_prefetch) {
+        cudaMallocManaged((void **)&hostMem, sizeof(float) * numMaxFloats);
         while (cudaGetLastError() != cudaSuccess) {
-        // drop the size and try again
-        if (verbose && !quiet) {
-            cout << " - dropping size allocating pinned mem\n";
-        }
-        --nSizes;
-        if (nSizes < 1) {
-            cerr << "Error: Couldn't allocated any pinned buffer\n";
-            return;
-        }
-        numMaxFloats = 1024 * (sizes[nSizes - 1]) / 4;
-        cudaMallocHost((void **)&hostMem, sizeof(float) * numMaxFloats);
+            // drop the size and try again
+            if (verbose && !quiet) {
+                cout << " - dropping size allocating unified mem\n";
+            }
+            --nSizes;
+            if (nSizes < 1) {
+                cerr << "Error: Couldn't allocated any unified buffer\n";
+                return;
+            }
+            numMaxFloats = 1024 * (sizes[nSizes - 1]) / 4;
+            cudaMallocManaged((void **)&hostMem, sizeof(float) * numMaxFloats);
         }
     } else {
-        hostMem = new float[numMaxFloats];
+        if (pinned) {
+            cudaMallocHost((void **)&hostMem, sizeof(float) * numMaxFloats);
+            while (cudaGetLastError() != cudaSuccess) {
+                // drop the size and try again
+                if (verbose && !quiet) {
+                    cout << " - dropping size allocating pinned mem\n";
+                }
+                --nSizes;
+                if (nSizes < 1) {
+                    cerr << "Error: Couldn't allocated any pinned buffer\n";
+                    return;
+                }
+                numMaxFloats = 1024 * (sizes[nSizes - 1]) / 4;
+                cudaMallocHost((void **)&hostMem, sizeof(float) * numMaxFloats);
+            }
+        } else {
+            hostMem = new float[numMaxFloats];
+        }
     }
 
+    // Initialize host memory
     for (int i = 0; i < numMaxFloats; i++) {
         hostMem[i] = i % 77;
     }
 
     float *device = NULL;
-    cudaMalloc((void **)&device, sizeof(float) * numMaxFloats);
-    while (cudaGetLastError() != cudaSuccess) {
-        // drop the size and try again
-        if (verbose && !quiet) {
-        cout << " - dropping size allocating device mem\n";
-        }
-        --nSizes;
-        if (nSizes < 1) {
-        cerr << "Error: Couldn't allocated any device buffer\n";
-        return;
-        }
-        numMaxFloats = 1024 * (sizes[nSizes - 1]) / 4;
+    if (mem_advise || uvm_prefetch) {
+        device = hostMem;
+    } else {
         cudaMalloc((void **)&device, sizeof(float) * numMaxFloats);
+        while (cudaGetLastError() != cudaSuccess) {
+            // drop the size and try again
+            if (verbose && !quiet) {
+            cout << " - dropping size allocating device mem\n";
+            }
+            --nSizes;
+            if (nSizes < 1) {
+            cerr << "Error: Couldn't allocated any device buffer\n";
+            return;
+            }
+            numMaxFloats = 1024 * (sizes[nSizes - 1]) / 4;
+            cudaMalloc((void **)&device, sizeof(float) * numMaxFloats);
+        }
     }
 
     const unsigned int passes = op.getOptionInt("passes");
 
     cudaEvent_t start, stop;
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
+    checkCudaErrors(cudaEventCreate(&start));
+    checkCudaErrors(cudaEventCreate(&stop));
 
     // Three passes, forward and backward both
     for (int pass = 0; pass < passes; pass++) {
@@ -127,30 +153,30 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
         // float times[nSizes];
         // Step through sizes forward on even passes and backward on odd
         for (int i = 0; i < nSizes; i++) {
-        int sizeIndex;
-        if ((pass % 2) == 0)
-            sizeIndex = i;
-        else
-            sizeIndex = (nSizes - 1) - i;
+            int sizeIndex;
+            if ((pass % 2) == 0)
+                sizeIndex = i;
+            else
+                sizeIndex = (nSizes - 1) - i;
 
-        int nbytes = sizes[sizeIndex] * 1024;
+            int nbytes = sizes[sizeIndex] * 1024;
 
-        cudaEventRecord(start, 0);
-        CUDA_SAFE_CALL(cudaMemcpy(device, hostMem, nbytes, cudaMemcpyHostToDevice));
-        cudaEventRecord(stop, 0);
-        cudaEventSynchronize(stop);
-        float t = 0;
-        cudaEventElapsedTime(&t, start, stop);
-        // times[sizeIndex] = t;
+            cudaEventRecord(start, 0);
+            CUDA_SAFE_CALL(cudaMemcpy(device, hostMem, nbytes, cudaMemcpyHostToDevice));
+            cudaEventRecord(stop, 0);
+            cudaEventSynchronize(stop);
+            float t = 0;
+            cudaEventElapsedTime(&t, start, stop);
+            // times[sizeIndex] = t;
 
-        // Convert to GB/sec
-        if (verbose && !quiet) {
-            cout << "size " << sizes[sizeIndex] << "k took " << t << " ms\n";
-        }
+            // Convert to GB/sec
+            if (verbose && !quiet) {
+                cout << "size " << sizes[sizeIndex] << "k took " << t << " ms\n";
+            }
 
-        double speed = (double(sizes[sizeIndex]) * 1024. / (1000 * 1000)) / t;
-        resultDB.AddResult("DownloadSpeed", "---", "GB/sec", speed);
-        resultDB.AddOverall("DownloadSpeed", "GB/sec", speed);
+            double speed = (double(sizes[sizeIndex]) * 1024. / (1000 * 1000)) / t;
+            resultDB.AddResult("DownloadSpeed", "---", "GB/sec", speed);
+            resultDB.AddOverall("DownloadSpeed", "GB/sec", speed);
         }
     }
 
