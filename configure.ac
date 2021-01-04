@@ -123,7 +123,7 @@ AS_IF([test "x$with_cuda" != xno],
               AC_CHECK_LIB([cufft], [cufftPlan1d], [],
                   [NVCC=""]
                   )
-              AC_CHECK_LIB([cudnn], [cudnnGetRNNDescriptor], [],
+              AC_CHECK_LIB([cudnn], [cudnnCreate], [],
                   [NVCC=""]
                   )
 
