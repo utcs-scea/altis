@@ -188,7 +188,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
             resultDB.AddResult("DownloadSpeed", "---", "GB/sec", speed);
             resultDB.AddOverall("DownloadSpeed", "GB/sec", speed);
 
-            // Move data back to host if it's prefetched to device
+            // Move data back to host if it's already prefetched to device
             if (uvm_prefetch) {
                 checkCudaErrors(cudaMemPrefetchAsync(device, nbytes, cudaCpuDeviceId));
                 checkCudaErrors(cudaStreamSynchronize(0));
