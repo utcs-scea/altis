@@ -60,7 +60,7 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 //    Jeremy Meredith, Wed Dec  1 17:05:27 EST 2010
 //    Added calculation of latency estimate.
 //  
-//    Bodun Hu, Jan 3
+//    Bodun Hu (bodunhu@utexas.edu), Jan 3 2021
 //    Added UVM prefetch.
 //
 // ****************************************************************************
@@ -71,7 +71,6 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     const bool pinned = op.getOptionBool("pinned");
 
     const bool uvm_prefetch = op.getOptionBool("uvm-prefetch");
-    const bool graph = op.getOptionBool("graph");
 
     // Sizes are in kb
     int nSizes = 21;
