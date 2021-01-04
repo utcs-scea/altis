@@ -34,7 +34,7 @@ main.cpp
 optix_raytracing_LDADD = \
 $(OPTIX_FILES:.cu=.ptx_embedded.o) \
 raytracing_optix.o \
-$(CUDA_LIBS) $(LIBS) -lm
+$(CUDA_LIBS) -L$(OPTIX_INSTALL_PATH)/lib64 -loptix $(LIBS) -lm
 
 optix_raytracing_LDFLAGS = \
 -rdynamic
