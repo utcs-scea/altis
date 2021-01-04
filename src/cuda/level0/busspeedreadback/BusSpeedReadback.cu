@@ -37,7 +37,7 @@
 // ****************************************************************************
 
 void addBenchmarkSpecOptions(OptionParser &op) {
-    op.addOption("pinned", OPT_BOOL, "1", "use pinned (pagelocked) memory");
+    op.addOption("pinned", OPT_BOOL, "0", "use pinned (pagelocked) memory");
 }
 
 // ****************************************************************************
@@ -60,7 +60,11 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 //
 // Modifications:
 //    Jeremy Meredith, Wed Dec  1 17:05:27 EST 2010
-//    Added calculation of latency estimate.  //
+//    Added calculation of latency estimate.
+//    
+//    Bodun Hu (bodunhu@utexas.edu), Jan 3 2021
+//    Added UVM prefetch.
+//
 // ****************************************************************************
 
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
@@ -70,45 +74,66 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     const bool quiet = op.getOptionBool("quiet");
     const bool pinned = op.getOptionBool("pinned");
 
+    const bool uvm_prefetch = op.getOptionBool("uvm-prefetch");
+
     // Sizes are in kb
-    int nSizes = 20;
-    int sizes[20] = {1,     2,     4,     8,      16,     32,    64,
+    int nSizes = 21;
+    int sizes[21] = {1,     2,     4,     8,      16,     32,    64,
                     128,   256,   512,   1024,   2048,   4096,  8192,
-                    16384, 32768, 65536, 131072, 262144, 524288};
+                    16384, 32768, 65536, 131072, 262144, 524288, 1048576};
     long long numMaxFloats = 1024 * (sizes[nSizes - 1]) / 4;
 
     // Create some host memory pattern
     float *hostMem1 = NULL;
     float *hostMem2 = NULL;
-    if (pinned) {
-        cudaMallocHost((void **)&hostMem1, sizeof(float) * numMaxFloats);
-        cudaError_t err1 = cudaGetLastError();
-        cudaMallocHost((void **)&hostMem2, sizeof(float) * numMaxFloats);
-        cudaError_t err2 = cudaGetLastError();
-        while (err1 != cudaSuccess || err2 != cudaSuccess) {
-        // free the first buffer if only the second failed
-        if (err1 == cudaSuccess) {
-            CUDA_SAFE_CALL(cudaFreeHost((void *)hostMem1));
+    if (uvm_prefetch) {
+        cudaMallocManaged((void **)&hostMem1, sizeof(float) * numMaxFloats);
+        while (cudaGetLastError() != cudaSuccess) {
+            // free the first buffer if only the second failed
+            // drop the size and try again
+            if (verbose && !quiet) {
+                cout << " - dropping size allocating pinned mem\n";
+            }
+            --nSizes;
+            if (nSizes < 1) {
+                cerr << "Error: Couldn't allocated any pinned buffer\n";
+                return;
+            }
+            numMaxFloats = 1024 * (sizes[nSizes - 1]) / 4;
+            cudaMallocManaged((void **)&hostMem1, sizeof(float) * numMaxFloats);
         }
-
-        // drop the size and try again
-        if (verbose && !quiet) {
-            cout << " - dropping size allocating pinned mem\n";
-        }
-        --nSizes;
-        if (nSizes < 1) {
-            cerr << "Error: Couldn't allocated any pinned buffer\n";
-            return;
-        }
-        numMaxFloats = 1024 * (sizes[nSizes - 1]) / 4;
-        cudaMallocHost((void **)&hostMem1, sizeof(float) * numMaxFloats);
-        err1 = cudaGetLastError();
-        cudaMallocHost((void **)&hostMem2, sizeof(float) * numMaxFloats);
-        err2 = cudaGetLastError();
-        }
+        hostMem2 = hostMem1;
     } else {
-        hostMem1 = new float[numMaxFloats];
-        hostMem2 = new float[numMaxFloats];
+        if (pinned) {
+            cudaMallocHost((void **)&hostMem1, sizeof(float) * numMaxFloats);
+            cudaError_t err1 = cudaGetLastError();
+            cudaMallocHost((void **)&hostMem2, sizeof(float) * numMaxFloats);
+            cudaError_t err2 = cudaGetLastError();
+            while (err1 != cudaSuccess || err2 != cudaSuccess) {
+                // free the first buffer if only the second failed
+                if (err1 == cudaSuccess) {
+                    CUDA_SAFE_CALL(cudaFreeHost((void *)hostMem1));
+                }
+
+                // drop the size and try again
+                if (verbose && !quiet) {
+                    cout << " - dropping size allocating pinned mem\n";
+                }
+                --nSizes;
+                if (nSizes < 1) {
+                    cerr << "Error: Couldn't allocated any pinned buffer\n";
+                    return;
+                }
+                numMaxFloats = 1024 * (sizes[nSizes - 1]) / 4;
+                cudaMallocHost((void **)&hostMem1, sizeof(float) * numMaxFloats);
+                err1 = cudaGetLastError();
+                cudaMallocHost((void **)&hostMem2, sizeof(float) * numMaxFloats);
+                err2 = cudaGetLastError();
+            }
+        } else {
+            hostMem1 = new float[numMaxFloats];
+            hostMem2 = new float[numMaxFloats];
+        }
     }
 
     // fillup allocated region
@@ -116,30 +141,42 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
         hostMem1[i] = i % 77;
     }
 
-    float *device;
-    cudaMalloc((void **)&device, sizeof(float) * numMaxFloats);
-    while (cudaGetLastError() != cudaSuccess) {
-        // drop the size and try again
-        if (verbose && !quiet) {
-        cout << " - dropping size allocating device mem\n";
-        }
-        --nSizes;
-        if (nSizes < 1) {
-        cerr << "Error: Couldn't allocated any device buffer\n";
-        return;
-        }
-        numMaxFloats = 1024 * (sizes[nSizes - 1]) / 4;
+    float *device = NULL;
+    if (uvm_prefetch) {
+        device = hostMem1;
+    } else {
         cudaMalloc((void **)&device, sizeof(float) * numMaxFloats);
+        while (cudaGetLastError() != cudaSuccess) {
+            // drop the size and try again
+            if (verbose && !quiet) {
+                cout << " - dropping size allocating device mem\n";
+            }
+            --nSizes;
+            if (nSizes < 1) {
+                cerr << "Error: Couldn't allocated any device buffer\n";
+                return;
+            }
+            numMaxFloats = 1024 * (sizes[nSizes - 1]) / 4;
+            cudaMalloc((void **)&device, sizeof(float) * numMaxFloats);
+        }
     }
 
-    CUDA_SAFE_CALL(cudaMemcpy(device, hostMem1, numMaxFloats * sizeof(float),
-                cudaMemcpyHostToDevice));
-    CUDA_SAFE_CALL(cudaDeviceSynchronize());
+    int deviceID = 0;
+    checkCudaErrors(cudaGetDevice(&deviceID));
+    if (uvm_prefetch) {
+        checkCudaErrors(cudaMemPrefetchAsync(device, numMaxFloats * sizeof(float),
+                    deviceID));
+        checkCudaErrors(cudaStreamSynchronize(0));
+    } else {
+        checkCudaErrors(cudaMemcpy(device, hostMem1, numMaxFloats * sizeof(float),
+                    cudaMemcpyHostToDevice));
+        checkCudaErrors(cudaDeviceSynchronize());
+    }
     const unsigned int passes = op.getOptionInt("passes");
 
     cudaEvent_t start, stop;
-    CUDA_SAFE_CALL(cudaEventCreate(&start));
-    CUDA_SAFE_CALL(cudaEventCreate(&stop));
+    checkCudaErrors(cudaEventCreate(&start));
+    checkCudaErrors(cudaEventCreate(&stop));
 
     // Three passes, forward and backward both
     for (int pass = 0; pass < passes; pass++) {
@@ -147,42 +184,55 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
         // float times[nSizes];
         // Step through sizes forward on even passes and backward on odd
         for (int i = 0; i < nSizes; i++) {
-        int sizeIndex;
-        if ((pass % 2) == 0)
-            sizeIndex = i;
-        else
-            sizeIndex = (nSizes - 1) - i;
+            int sizeIndex;
+            if ((pass % 2) == 0)
+                sizeIndex = i;
+            else
+                sizeIndex = (nSizes - 1) - i;
 
-        int nbytes = sizes[sizeIndex] * 1024;
+            int nbytes = sizes[sizeIndex] * 1024;
 
-        CUDA_SAFE_CALL(cudaEventRecord(start, 0));
-        CUDA_SAFE_CALL(cudaMemcpy(hostMem2, device, nbytes, cudaMemcpyDeviceToHost));
-        CUDA_SAFE_CALL(cudaEventRecord(stop, 0));
-        CUDA_SAFE_CALL(cudaEventSynchronize(stop));
-        float t = 0;
-        CUDA_SAFE_CALL(cudaEventElapsedTime(&t, start, stop));
-        // times[sizeIndex] = t;
+            checkCudaErrors(cudaEventRecord(start, 0));
+            if (uvm_prefetch) {
+                checkCudaErrors(cudaMemPrefetchAsync(device, nbytes, cudaCpuDeviceId));
+                checkCudaErrors(cudaStreamSynchronize(0));
+            } else {
+                checkCudaErrors(cudaMemcpy(hostMem2, device, nbytes, cudaMemcpyDeviceToHost));
+            }
+            checkCudaErrors(cudaEventRecord(stop, 0));
+            checkCudaErrors(cudaEventSynchronize(stop));
+            float t = 0;
+            checkCudaErrors(cudaEventElapsedTime(&t, start, stop));
+            // times[sizeIndex] = t;
 
-        // Convert to GB/sec
-        if (verbose && !quiet) {
-            cout << "size " << sizes[sizeIndex] << "k took " << t << " ms\n";
-        }
+            // Convert to GB/sec
+            if (verbose && !quiet) {
+                cout << "size " << sizes[sizeIndex] << "k took " << t << " ms\n";
+            }
 
-        double speed = (double(sizes[sizeIndex]) * 1024. / (1000 * 1000)) / t;
-        resultDB.AddResult("ReadbackSpeed", "---", "GB/sec", speed);
-        resultDB.AddOverall("ReadbackSpeed", "GB/sec", speed);
+            double speed = (double(sizes[sizeIndex]) * 1024. / (1000 * 1000)) / t;
+            resultDB.AddResult("ReadbackSpeed", "---", "GB/sec", speed);
+            resultDB.AddOverall("ReadbackSpeed", "GB/sec", speed);
+
+            // Move data back to device if it's already prefetched to host
+            if (uvm_prefetch) {
+                checkCudaErrors(cudaMemPrefetchAsync(device, nbytes, deviceID));
+                checkCudaErrors(cudaStreamSynchronize(0));
+            }
         }
     }
 
     // Cleanup
-    CUDA_SAFE_CALL(cudaFree((void *)device));
-    if (pinned) {
-        CUDA_SAFE_CALL(cudaFreeHost((void *)hostMem1));
-        CUDA_SAFE_CALL(cudaFreeHost((void *)hostMem2));
-    } else {
-        delete[] hostMem1;
-        delete[] hostMem2;
-        CUDA_SAFE_CALL(cudaEventDestroy(start));
-        CUDA_SAFE_CALL(cudaEventDestroy(stop));
+    checkCudaErrors(cudaFree((void *)device));
+    if (!uvm_prefetch) {
+        if (pinned) {
+            checkCudaErrors(cudaFreeHost((void *)hostMem1));
+            checkCudaErrors(cudaFreeHost((void *)hostMem2));
+        } else {
+            delete[] hostMem1;
+            delete[] hostMem2;
+        }
     }
+    checkCudaErrors(cudaEventDestroy(start));
+    checkCudaErrors(cudaEventDestroy(stop));
 }
