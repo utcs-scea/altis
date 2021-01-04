@@ -8,5 +8,5 @@ USAGE:
         --pinned                 use pinned (pagelocked) memory via cudaMallocHost
     -p, --properties             show properties for available platforms and devices
     -q, --quiet                  enable concise output
-        --uvm-prefetch           use managed memory via cudaMallocManaged
+        --uvm-prefetch           use managed memory via cudaMallocManaged (this will automatically disable the --pinned flag)
     -v, --verbose                enable verbose output
