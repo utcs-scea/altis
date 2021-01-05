@@ -68,3 +68,25 @@ Note: Run benchmark with --help to see full list of options available for that s
 2. Run benchmark with ```-i $DATA_FILEPATH```
 
 Note: Not all benchmarks have a datagen
+
+## Cite Us
+
+Bibtex is shown below:  
+
+@INPROCEEDINGS{9238617,  
+  author={B. {Hu} and C. J. {Rossbach}},  
+  booktitle={2020 IEEE International Symposium on Performance Analysis of Systems and Software (ISPASS)},  
+  title={Altis: Modernizing GPGPU Benchmarks},  
+  year={2020},  
+  volume={},  
+  number={},  
+  pages={1-11},  
+  doi={10.1109/ISPASS48437.2020.00011}}  
+
+## Publication
+
+B. Hu and C. J. Rossbach, "Altis: Modernizing GPGPU Benchmarks," 2020 IEEE International Symposium on Performance Analysis of Systems and Software (ISPASS), Boston, MA, USA, 2020, pp. 1-11, doi: 10.1109/ISPASS48437.2020.00011.
+
+## Contact
+
+For any questions regarding this project, please send an email to [bodunhu@utexas.edu](mailto:bodunhu@utexas.edu) or [rossbach@cs.utexas.edu](mailto:rossbach@cs.utexas.edu)
