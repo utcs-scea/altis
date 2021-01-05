@@ -169,20 +169,24 @@ int main(int argc, char **argv) {
   }
   int deviceToQuerry = std::stoi(std::string(argv[2]));
 
-
   /* Starts writting file */
   std::fstream cudaHdrFile;
   cudaHdrFile.open(hdrPath, std::fstream::out | std::fstream::trunc);
 
   if (!cudaHdrFile) {
-      std::cerr << "Invalid file Path given" << std::endl;
-      exit(0);
+      std::cerr << "Invalid file Path given, exiting..." << std::endl;
+      exit(-1);
   }
 
   int dev, driverVersion = 0, runtimeVersion = 0;
 
+    /* Initialize device */
+    if (gpuDeviceInit(deviceToQuerry) < 0) {
+        std::cerr << "Invalid device query ID, exiting..." << std::endl;
+        exit(-1);
+    }
+
     dev = deviceToQuerry;
-    cudaSetDevice(dev);
     cudaDeviceProp deviceProp;
     cudaGetDeviceProperties(&deviceProp, dev);
 

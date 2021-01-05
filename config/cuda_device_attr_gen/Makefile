@@ -276,13 +276,14 @@ LIBRARIES :=
 
 ################################################################################
 
+TARGET_DEVICE = 0
 # Gencode arguments
 ifeq ($(TARGET_ARCH),$(filter $(TARGET_ARCH),armv7l aarch64))
 #SMS ?= 35 37 50 52 60 61 70 72 75 80 86
-SMS ?= 35 37 50 52 60 61 70 72 75
+SMS ?= $(shell ../get_cuda_sm.sh $(TARGET_DEVICE))
 else
 #SMS ?= 35 37 50 52 60 61 70 75 80 86
-SMS ?= 35 37 50 52 60 61 70 75
+SMS ?= $(shell ../get_cuda_sm.sh $(TARGET_DEVICE))
 endif
 
 ifeq ($(SMS),)
