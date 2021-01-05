@@ -4,7 +4,7 @@ Altis is a benchmark suite to test the performance and other aspects of systems 
 
 Documentaion regarding this project can be found at the [Wiki](https://github.com/utcs-scea/altis/wiki) page. The Wiki document contains information regarding Altis setup, installation, usage, and other information.
 
-> We are refactoring Altis codebase for better usability and making it more developer-friendly. We make sure the benchmark still compile properly during refactoring so you can still use it. The refactoring involves changing how each benchmark application is used and adding more benchmarks.
+> We are refactoring Altis codebase for better usability and making it more developer-friendly. We made sure the benchmark still compile properly during refactoring so you can still use it. The refactoring involves changing how each benchmark application is used and adding more benchmarks.
 
 ## How to Get Altis
 
@@ -25,6 +25,8 @@ After the environment is setup properly, go to the root directory of Altis, exec
 ```bash
 ./setup.sh
 ```
+
+For more information regarding building process, please refer to [Build](https://github.com/utcs-scea/altis/wiki/Build) for more information.
 
 
 <!--
