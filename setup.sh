@@ -7,27 +7,17 @@ function die(){
 
 # generate device-specific parameter header
 SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-cd $SCRIPTPATH
-
-cd $SCRIPTPATH/config
-if [[ ! -d "CUDA_Device_Attribute_Generation" ]]; then
-    git clone https://github.com/BDHU/CUDA_Device_Attribute_Generation.git
-fi
-
-cd CUDA_Device_Attribute_Generation/
+cd $SCRIPTPATH/config/cuda_device_attr_gen
 
 make 2>&1 >/dev/null || die "Failed to compile deviceQuery"
-
-# To see the usage gor deviceQuery, check out the repo
 ./deviceQuery ../../src/cuda/common/ 0 2>&1 >/dev/null || die "Failed to create cuda_device_attr.h"
-
-make clean 2>&1 >/dev/null || die "Strange, failed to make clean"
+make clean 2>&1 >/dev/null || die "Strange, failed to make clean for deviceQuery"
 cd ..
-rm -rf CUDA_Device_Attribute_Generation/ 2>&1 >/dev/null || die "Can't remove CUDA_Device_Attribute_Generation"
+#rm -rf cuda_device_attr_gen/ 2>&1 >/dev/null || die "Can't remove CUDA_Device_Attribute_Generation"
 
 cd $SCRIPTPATH/src/cuda/common
 if [[ ! -f "cuda_device_attr.h" ]]; then
-    exit 0
+    die "Didn't find cuda_device_attr.h, exiting..."
 fi
 
 
