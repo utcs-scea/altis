@@ -2,3 +2,4 @@ deviceQuery
 *.o
 *.swp
 .swo
+!Makefile
