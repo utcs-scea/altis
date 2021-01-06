@@ -1,34 +1,33 @@
-# Altis
+# Altis Benchmark Suite
 
-This benchmark assumes availability of CUDA, OptiX, and CUDNN. To install CUDA; follow the instruction on [NVIDIA CUDA Installation Guide for Linux](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html). To install OptiX, download it from [NVIDIA OptiX](https://developer.nvidia.com/designworks/optix/download). After OptiX is downloaded, add the intallation path as a shell environment variable by ```export OPTIX_INSTALL_PATH="Your OptiX installation path"```. To install CUDNN, follow the instruction from [Deep Learning SDK Documentation](https://docs.nvidia.com/deeplearning/sdk/cudnn-install/index.html). This benchmark is tested on a machine with Ubuntu 18.04.4 LTS, gcc 7.4, and CUDA 10.0. The CUDNN version we used is 7.6.5.
+Altis is a benchmark suite to test the performance and other aspects of systems with Graphics Processing Units (GPUs), developed in [SCEA](https://github.com/utcs-scea) lab at University of Texas at Austin. Altis consists of a collection of GPU applications with differnt performance implications. Altis focuses primarily on [Compute Unified Device Architecture](https://developer.nvidia.com/cuda-toolkit) (CUDA) computing platform.
 
-## To Use:
+Documentaion regarding this project can be found at the [Wiki](https://github.com/utcs-scea/altis/wiki) page. The Wiki document contains information regarding Altis setup, installation, usage, and other information.
 
-Simply run ```./setup.sh```,  
+> We are refactoring Altis codebase for better usability and making it more developer-friendly. We made sure the benchmark still compile properly during refactoring so you can still use it. The refactoring involves changing how each benchmark application is used and adding more benchmarks.
 
-Or run through each of the following steps:
+## How to Get Altis
 
-1. ```git clone https://github.com/utcs-scea/altis.git```
-2. ```cd altis```
-3. ```cd config```
-4. ```git clone https://github.com/BDHU/CUDA_Device_Attribute_generation.git```
-5. ```cd CUDA_Device_Attribute_generation/```
-6. ```make```
-7. ```./deviceQuery ../../src/cuda/common/ [device ID]```
-8. ```cd ../..```
-9. ```bash configure --prefix=$ALTIS_ROOT```
-10. ```make -j6```
+Simply execute the following command:
 
-Note: If the configure script fails to execute due to dependency issues in automake toolchain, run the following command before executing ```configure``` again:
-* ```libtoolize --force```
-* ```aclocal```
-* ```autoheader```
-* ```automake --force-missing --add-missing```
-* ```autoconf```
+```bash
+git clone https://github.com/utcs-scea/altis.git
+```
 
-The reason why we have to clone *CUDA_Device_Attribute_Generation* first before compiling is that it will geneate a file called ```cuda_device_attr.h```, which includes CUDA device-specific parameters required by many benchmark programs. Without the header file, the benchmark will fail to compile. To see how to use this tool, please refer to [CUDA_Device_Attribute_Generation](https://github.com/BDHU/CUDA_Device_Attribute_Generation) for additional instructions.  
+## Setup
 
-To change NVIDIA CUDA compute capabiltiy for target device, go to ```configure.ac``` and change the corresponding ```-gencode=``` parameters. Then execute ```autoconf``` to genereate a new ```configure``` script, after which run ```make``` again to compile.
+Altis relies on the avaialbility of CUDA, cuDNN, and OptiX (OptiX version 7 and beyond is not supported yet since it breaks bakcward compatibility with previous versions) and few other packages. Please refer to [Environment Setup](https://github.com/utcs-scea/altis/wiki/Environment-Setup) for how to set up Altis.
+
+## Build:
+
+After the environment is setup properly, go to the root directory of Altis, execute:
+
+```bash
+./setup.sh
+```
+
+For more information regarding building process, please refer to [Build](https://github.com/utcs-scea/altis/wiki/Build) for more information.
+
 
 <!--
 ## To Run Suite:
@@ -69,3 +68,25 @@ Note: Run benchmark with --help to see full list of options available for that s
 2. Run benchmark with ```-i $DATA_FILEPATH```
 
 Note: Not all benchmarks have a datagen
+
+## Cite Us
+
+Bibtex is shown below:  
+
+@INPROCEEDINGS{9238617,  
+  author={B. {Hu} and C. J. {Rossbach}},  
+  booktitle={2020 IEEE International Symposium on Performance Analysis of Systems and Software (ISPASS)},  
+  title={Altis: Modernizing GPGPU Benchmarks},  
+  year={2020},  
+  volume={},  
+  number={},  
+  pages={1-11},  
+  doi={10.1109/ISPASS48437.2020.00011}}  
+
+## Publication
+
+B. Hu and C. J. Rossbach, "Altis: Modernizing GPGPU Benchmarks," 2020 IEEE International Symposium on Performance Analysis of Systems and Software (ISPASS), Boston, MA, USA, 2020, pp. 1-11, doi: 10.1109/ISPASS48437.2020.00011.
+
+## Contact
+
+For any questions regarding this project, please send an email to [bodunhu@utexas.edu](mailto:bodunhu@utexas.edu) or [rossbach@cs.utexas.edu](mailto:rossbach@cs.utexas.edu)
