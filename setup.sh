@@ -5,7 +5,7 @@ DEVICE_ID=0
 helpFunction()
 {
    echo ""
-   echo "Usage: $0 -d device-id"
+   echo "Usage: $0 -d <device-id>"
    echo -e "\t-d Specify target CUDA device ID (default to 0)"
    exit 1 # Exit script after printing help
 }

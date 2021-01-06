@@ -45,7 +45,7 @@ then
     arch=$(uname -i)
     if [ "$arch" = "x86_64" ]
     then
-        cudalibs=`$NVCC -dryrun bogus.cu 2>&1 | tail -1 | sed "s#^.*-o \"a.out\"##" | sed 's#"[a-zA-Z0-9/_-]*\.o"##g' | sed 's/-Wl,--start-group//' | sed 's/-Wl,--end-group//'`
+        cudalibs=`$NVCC -dryrun bogus.cu 2>&1 | tail -1 | sed "s#^.*-o \"a.out\"##" | sed 's#"[a-zA-Z0-9./_-]*\.o"##g' | sed 's/-Wl,--start-group//' | sed 's/-Wl,--end-group//'`
         # this is a hotfix for newer CUDA because the a.out appearred at the beginning 
         # instead of the end. Temporery fix
         if [ *"$arch"* != "$cudalibs" ]

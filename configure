@@ -633,6 +633,7 @@ BUILD_CUDA_TRUE
 CUDA_CPPFLAGS
 CUDA_INCDIR
 NVCC
+DEVICE_ID
 LIBOBJS
 ALLOCA
 EGREP
@@ -764,7 +765,8 @@ CPPFLAGS
 CCC
 CC
 CFLAGS
-CXXCPP'
+CXXCPP
+DEVICE_ID'
 
 
 # Initialize some variables set by options.
@@ -1422,6 +1424,7 @@ Some influential environment variables:
   CC          C compiler command
   CFLAGS      C compiler flags
   CXXCPP      C++ preprocessor
+  DEVICE_ID   The target device ID to generated device-specific SM flag
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -5634,6 +5637,7 @@ fi
 
 
 USE_CUDA=no
+
 if test "x$with_cuda" != xno; then :
 
         # Check for the nvcc program
@@ -5898,9 +5902,9 @@ else
 
 fi
 
-              { $as_echo "$as_me:${as_lineno-$LINENO}: checking for cudnnGetRNNDescriptor in -lcudnn" >&5
-$as_echo_n "checking for cudnnGetRNNDescriptor in -lcudnn... " >&6; }
-if ${ac_cv_lib_cudnn_cudnnGetRNNDescriptor+:} false; then :
+              { $as_echo "$as_me:${as_lineno-$LINENO}: checking for cudnnCreate in -lcudnn" >&5
+$as_echo_n "checking for cudnnCreate in -lcudnn... " >&6; }
+if ${ac_cv_lib_cudnn_cudnnCreate+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
@@ -5914,27 +5918,27 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 #ifdef __cplusplus
 extern "C"
 #endif
-char cudnnGetRNNDescriptor ();
+char cudnnCreate ();
 int
 main ()
 {
-return cudnnGetRNNDescriptor ();
+return cudnnCreate ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_cxx_try_link "$LINENO"; then :
-  ac_cv_lib_cudnn_cudnnGetRNNDescriptor=yes
+  ac_cv_lib_cudnn_cudnnCreate=yes
 else
-  ac_cv_lib_cudnn_cudnnGetRNNDescriptor=no
+  ac_cv_lib_cudnn_cudnnCreate=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_cudnn_cudnnGetRNNDescriptor" >&5
-$as_echo "$ac_cv_lib_cudnn_cudnnGetRNNDescriptor" >&6; }
-if test "x$ac_cv_lib_cudnn_cudnnGetRNNDescriptor" = xyes; then :
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_cudnn_cudnnCreate" >&5
+$as_echo "$ac_cv_lib_cudnn_cudnnCreate" >&6; }
+if test "x$ac_cv_lib_cudnn_cudnnCreate" = xyes; then :
   cat >>confdefs.h <<_ACEOF
 #define HAVE_LIBCUDNN 1
 _ACEOF
@@ -5974,9 +5978,17 @@ $as_echo "$as_me: no usable CUDA installation found" >&6;}
 
 fi
 
+        if test "x$(./config/get_cuda_sm.sh $DEVICE_ID)" = x; then :
+  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "Invalid device ID passed in, check the device ID or CUDA driver installation, existing...
+See \`config.log' for more details" "$LINENO" 5; }
+
+fi
+
         if test "x$with_cuda" = xyes; then :
   if test "x$CUDA_CPPFLAGS" = x; then :
-                   CUDA_CPPFLAGS="-arch=sm_61 -gencode=arch=compute_61,code=sm_61, --cudart shared"
+                   CUDA_CPPFLAGS="-arch=sm_$(./config/get_cuda_sm.sh $DEVICE_ID) -gencode=arch=compute_$(./config/get_cuda_sm.sh $DEVICE_ID),code=sm_$(./config/get_cuda_sm.sh $DEVICE_ID), --cudart shared"
                  { $as_echo "$as_me:${as_lineno-$LINENO}: using CUDA_CPPFLAGS=$CUDA_CPPFLAGS" >&5
 $as_echo "$as_me: using CUDA_CPPFLAGS=$CUDA_CPPFLAGS" >&6;}
                  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: *** ALTIS programs may fail if these -gencode values do not apply to your GPU.  If they don't apply, or if you want to shorten ALTIS's compile time, determine the -gencode options that apply for your GPU and re-configure ALTIS explicitly specifying only those options in CUDA_CPPFLAGS during the configure. ***" >&5

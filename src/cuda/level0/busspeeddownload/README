@@ -1,5 +1,5 @@
 Notes:
-This benchmark was originally imeplemented in the SHOC Benchmark Suite (https://github.com/vetter/shoc). It is modified to support managed memory allocation.
+This benchmark was originally implemented in the SHOC Benchmark Suite (https://github.com/vetter/shoc). It is modified to support managed memory allocation.
 
 USAGE:
 ./busspeeddownload [options]
