@@ -43,7 +43,7 @@ void TestTextureMem(ResultDatabase &resultDB, OptionParser &op, double scalet);
 /// <param name="repeat">	The repeat times. </param>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-__global__ void readGlobalMemoryCoalesced(float *data, float *output, int globalWorkerSize, int size, int repeat);
+__global__ void readGlobalMemoryCoalesced(float *data, float *output, int globalWorkSize, int size, int repeat);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	Reads global memory unit by unit. </summary>
@@ -56,7 +56,7 @@ __global__ void readGlobalMemoryCoalesced(float *data, float *output, int global
 /// <param name="repeat">	The repeat times. </param>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-__global__ void readGlobalMemoryUnit(float *data, float *output, int size, int repeat);
+__global__ void readGlobalMemoryUnit(float *data, float *output, int maxGroupSize, int size, int repeat);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	Reads local memory. </summary>
@@ -81,7 +81,7 @@ __global__ void readLocalMemory(const float *data, float *output, int size, int 
 /// <param name="repeat">	The repeat times for specified operations. </param>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-__global__ void writeGlobalMemoryCoalesced(float *output, int size, int repeat);
+__global__ void writeGlobalMemoryCoalesced(float *output, int globalWorkSize, int size, int repeat);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	Writes to global memory unit by unit. </summary>
@@ -93,7 +93,7 @@ __global__ void writeGlobalMemoryCoalesced(float *output, int size, int repeat);
 /// <param name="repeat">	The repeat times of global write. </param>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-__global__ void writeGlobalMemoryUnit(float *output, int size, int repeat);
+__global__ void writeGlobalMemoryUnit(float *output, int maxGroupSize, int size, int repeat);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	Writes to local memory. </summary>
@@ -221,6 +221,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     bool quiet = op.getOptionBool("quiet");
     // Number of times to repeat each test
     const unsigned int passes = op.getOptionInt("passes");
+    const bool uvm = op.getOptionBool("uvm");
 
     // threads dim per block
     size_t minGroupSize = warp_size(op.getOptionInt("device"));
@@ -255,8 +256,13 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     float *d_mem1, *d_mem2;
     char sizeStr[128];
 
-    checkCudaErrors(cudaMalloc((void **)&d_mem1, sizeof(float) * (numWordsFloat)));
-    checkCudaErrors(cudaMalloc((void **)&d_mem2, sizeof(float) * (numWordsFloat)));
+    if (uvm) {
+        checkCudaErrors(cudaMallocManaged((void **)&d_mem1, sizeof(float) * (numWordsFloat)));
+        checkCudaErrors(cudaMallocManaged((void **)&d_mem2, sizeof(float) * (numWordsFloat)));
+    } else {
+        checkCudaErrors(cudaMalloc((void **)&d_mem1, sizeof(float) * (numWordsFloat)));
+        checkCudaErrors(cudaMalloc((void **)&d_mem2, sizeof(float) * (numWordsFloat)));
+    }
 
     cudaEvent_t start, stop;
     checkCudaErrors(cudaEventCreate(&start));
@@ -316,7 +322,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
             // Test 2
             checkCudaErrors(cudaEventRecord(start, 0));
 
-            readGlobalMemoryUnit<<<blocks, threads>>>(d_mem1, d_mem2, numWordsFloat, maxRepeatsUnit);
+            readGlobalMemoryUnit<<<blocks, threads>>>(d_mem1, d_mem2, maxGroupSize, numWordsFloat, maxRepeatsUnit);
 
             checkCudaErrors(cudaEventRecord(stop, 0));
             checkCudaErrors(cudaEventSynchronize(stop));
@@ -345,7 +351,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
             // Test 4
             checkCudaErrors(cudaEventRecord(start, 0));
 
-            writeGlobalMemoryCoalesced<<<blocks, threads>>>(d_mem2, numWordsFloat, maxRepeatsCoal);
+            writeGlobalMemoryCoalesced<<<blocks, threads>>>(d_mem2, globalWorkSize, numWordsFloat, maxRepeatsCoal);
 
             checkCudaErrors(cudaEventRecord(stop, 0));
             checkCudaErrors(cudaEventSynchronize(stop));
@@ -359,7 +365,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
             // Test 5
             checkCudaErrors(cudaEventRecord(start, 0));
 
-            writeGlobalMemoryUnit<<<blocks, threads>>>(d_mem2, numWordsFloat, maxRepeatsUnit);
+            writeGlobalMemoryUnit<<<blocks, threads>>>(d_mem2, maxGroupSize, numWordsFloat, maxRepeatsUnit);
 
             checkCudaErrors(cudaEventRecord(stop, 0));
             checkCudaErrors(cudaEventSynchronize(stop));
@@ -434,6 +440,7 @@ void TestTextureMem(ResultDatabase &resultDB, OptionParser &op, double scalet) {
     bool quiet = op.getOptionBool("quiet");
     // Number of times to repeat each test
     const unsigned int passes = op.getOptionInt("passes");
+    const bool uvm = op.getOptionBool("uvm");
     // Sizes of textures tested (in kb)
     const unsigned int nsizes = 5;
     const unsigned int sizes[] = {256, 512, 1024, 2048, 4096};
@@ -473,8 +480,12 @@ void TestTextureMem(ResultDatabase &resultDB, OptionParser &op, double scalet) {
 
         float *h_in = new float[numFloat];
         float *h_out = new float[numFloat4];
-        float *d_out;
-        checkCudaErrors(cudaMalloc((void **)&d_out, numFloat4 * sizeof(float)));
+        float *d_out = NULL;
+        if (uvm) {
+            checkCudaErrors(cudaMallocManaged((void **)&d_out, numFloat4 * sizeof(float)));
+        } else {
+            checkCudaErrors(cudaMalloc((void **)&d_out, numFloat4 * sizeof(float)));
+        }
 
         // Fill input data with some pattern
         for (unsigned int i = 0; i < numFloat; i++) {
@@ -592,30 +603,30 @@ void TestTextureMem(ResultDatabase &resultDB, OptionParser &op, double scalet) {
 /// <param name="repeat">	The repeat. </param>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-__global__ void readGlobalMemoryCoalesced(float *data, float *output, int globalWorkerSize, int size, int repeat) {
+__global__ void readGlobalMemoryCoalesced(float *data, float *output, int globalWorkSize, int size, int repeat) {
     int gid = threadIdx.x + (blockDim.x * blockIdx.x), j = 0;
     float sum = 0;
     int s = gid;
     for (j = 0; j < repeat; ++j) {
         float a0 = data[(s + 0) & (size - 1)];
-        float a1 = data[(s + globalWorkerSize) & (size - 1)];
-        float a2 = data[(s + globalWorkerSize * 2) & (size - 1)];
-        float a3 = data[(s + globalWorkerSize * 3) & (size - 1)];
-        float a4 = data[(s + globalWorkerSize * 4) & (size - 1)];
-        float a5 = data[(s + globalWorkerSize * 5) & (size - 1)];
-        float a6 = data[(s + globalWorkerSize * 6) & (size - 1)];
-        float a7 = data[(s + globalWorkerSize * 7) & (size - 1)];
-        float a8 = data[(s + globalWorkerSize * 8) & (size - 1)];
-        float a9 = data[(s + globalWorkerSize * 9) & (size - 1)];
-        float a10 = data[(s + globalWorkerSize * 10) & (size - 1)];
-        float a11 = data[(s + globalWorkerSize * 11) & (size - 1)];
-        float a12 = data[(s + globalWorkerSize * 12) & (size - 1)];
-        float a13 = data[(s + globalWorkerSize * 13) & (size - 1)];
-        float a14 = data[(s + globalWorkerSize * 14) & (size - 1)];
-        float a15 = data[(s + globalWorkerSize * 15) & (size - 1)];
+        float a1 = data[(s + globalWorkSize) & (size - 1)];
+        float a2 = data[(s + globalWorkSize * 2) & (size - 1)];
+        float a3 = data[(s + globalWorkSize * 3) & (size - 1)];
+        float a4 = data[(s + globalWorkSize * 4) & (size - 1)];
+        float a5 = data[(s + globalWorkSize * 5) & (size - 1)];
+        float a6 = data[(s + globalWorkSize * 6) & (size - 1)];
+        float a7 = data[(s + globalWorkSize * 7) & (size - 1)];
+        float a8 = data[(s + globalWorkSize * 8) & (size - 1)];
+        float a9 = data[(s + globalWorkSize * 9) & (size - 1)];
+        float a10 = data[(s + globalWorkSize * 10) & (size - 1)];
+        float a11 = data[(s + globalWorkSize * 11) & (size - 1)];
+        float a12 = data[(s + globalWorkSize * 12) & (size - 1)];
+        float a13 = data[(s + globalWorkSize * 13) & (size - 1)];
+        float a14 = data[(s + globalWorkSize * 14) & (size - 1)];
+        float a15 = data[(s + globalWorkSize * 15) & (size - 1)];
         sum += a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12 +
                      a13 + a14 + a15;
-        s = (s + globalWorkerSize * 16) & (size - 1);
+        s = (s + globalWorkSize * 16) & (size - 1);
     }
     output[gid] = sum;
 }
@@ -631,10 +642,10 @@ __global__ void readGlobalMemoryCoalesced(float *data, float *output, int global
 /// <param name="repeat">	The repeat. </param>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-__global__ void readGlobalMemoryUnit(float *data, float *output, int size, int repeat) {
+__global__ void readGlobalMemoryUnit(float *data, float *output, int maxGroupSize, int size, int repeat) {
     int gid = threadIdx.x + (blockDim.x * blockIdx.x), j = 0;
     float sum = 0;
-    int s = gid * 512;
+    int s = gid * maxGroupSize;
     for (j = 0; j < repeat; ++j) {
         float a0 = data[(s + 0) & (size - 1)];
         float a1 = data[(s + 1) & (size - 1)];
@@ -670,8 +681,7 @@ __global__ void readGlobalMemoryUnit(float *data, float *output, int size, int r
 /// <param name="repeat">	The repeat. </param>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-__global__ void readLocalMemory(const float *data, float *output, int size,
-                                                                int repeat) {
+__global__ void readLocalMemory(const float *data, float *output, int size, int repeat) {
     int gid = threadIdx.x + (blockDim.x * blockIdx.x), j = 0;
     float sum = 0;
     int tid = threadIdx.x, localSize = blockDim.x, grpid = blockIdx.x,
@@ -717,28 +727,27 @@ __global__ void readLocalMemory(const float *data, float *output, int size,
 /// <param name="repeat">	The repeat. </param>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-__global__ void writeGlobalMemoryCoalesced(float *output, int size,
-                                                                                     int repeat) {
+__global__ void writeGlobalMemoryCoalesced(float *output, int globalWorkSize, int size, int repeat) {
     int gid = threadIdx.x + (blockDim.x * blockIdx.x), j = 0;
     int s = gid;
     for (j = 0; j < repeat; ++j) {
         output[(s + 0) & (size - 1)] = gid;
-        output[(s + 32768) & (size - 1)] = gid;
-        output[(s + 65536) & (size - 1)] = gid;
-        output[(s + 98304) & (size - 1)] = gid;
-        output[(s + 131072) & (size - 1)] = gid;
-        output[(s + 163840) & (size - 1)] = gid;
-        output[(s + 196608) & (size - 1)] = gid;
-        output[(s + 229376) & (size - 1)] = gid;
-        output[(s + 262144) & (size - 1)] = gid;
-        output[(s + 294912) & (size - 1)] = gid;
-        output[(s + 327680) & (size - 1)] = gid;
-        output[(s + 360448) & (size - 1)] = gid;
-        output[(s + 393216) & (size - 1)] = gid;
-        output[(s + 425984) & (size - 1)] = gid;
-        output[(s + 458752) & (size - 1)] = gid;
-        output[(s + 491520) & (size - 1)] = gid;
-        s = (s + 524288) & (size - 1);
+        output[(s + globalWorkSize) & (size - 1)] = gid;
+        output[(s + globalWorkSize * 2) & (size - 1)] = gid;
+        output[(s + globalWorkSize * 3) & (size - 1)] = gid;
+        output[(s + globalWorkSize * 4) & (size - 1)] = gid;
+        output[(s + globalWorkSize * 5) & (size - 1)] = gid;
+        output[(s + globalWorkSize * 6) & (size - 1)] = gid;
+        output[(s + globalWorkSize * 7) & (size - 1)] = gid;
+        output[(s + globalWorkSize * 8) & (size - 1)] = gid;
+        output[(s + globalWorkSize * 9) & (size - 1)] = gid;
+        output[(s + globalWorkSize * 10) & (size - 1)] = gid;
+        output[(s + globalWorkSize * 11) & (size - 1)] = gid;
+        output[(s + globalWorkSize * 12) & (size - 1)] = gid;
+        output[(s + globalWorkSize * 13) & (size - 1)] = gid;
+        output[(s + globalWorkSize * 14) & (size - 1)] = gid;
+        output[(s + globalWorkSize * 15) & (size - 1)] = gid;
+        s = (s + globalWorkSize * 16) & (size - 1);
     }
 }
 
@@ -752,9 +761,9 @@ __global__ void writeGlobalMemoryCoalesced(float *output, int size,
 /// <param name="repeat">	The repeat times of writing op. </param>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-__global__ void writeGlobalMemoryUnit(float *output, int size, int repeat) {
+__global__ void writeGlobalMemoryUnit(float *output, int maxGroupSize, int size, int repeat) {
     int gid = threadIdx.x + (blockDim.x * blockIdx.x), j = 0;
-    int s = gid * 512;
+    int s = gid * maxGroupSize;
     for (j = 0; j < repeat; ++j) {
         output[(s + 0) & (size - 1)] = gid;
         output[(s + 1) & (size - 1)] = gid;
