@@ -201,9 +201,10 @@ int main(int argc, char *argv[])
         op.addOption("metricsFile", OPT_STRING, "", "path of file to write metrics to", 'm');
 
         // Add options for turn on/off CUDA features
-        op.addOption("uvm", OPT_BOOL, "0", "enable CUDA Unified Virtual Memory");
-        op.addOption("mem-advise", OPT_BOOL, "0", "guide the driver about memory usage patterns");
+        op.addOption("uvm", OPT_BOOL, "0", "enable CUDA Unified Virtual Memory, only demand paging");
+        op.addOption("uvm-advise", OPT_BOOL, "0", "guide the driver about memory usage patterns");
         op.addOption("uvm-prefetch", OPT_BOOL, "0", "prefetch memory the specified destination device");
+        op.addOption("uvm-prefetch-advise", OPT_BOOL, "0", "prefetch memory the specified destination device with memory guidance on");
         op.addOption("coop", OPT_BOOL, "0", "enable CUDA Cooperative Groups");
         op.addOption("dyn", OPT_BOOL, "0", "enable CUDA Dynamic Parallelism");
         op.addOption("graph", OPT_BOOL, "0", "enable CUDA Graphs");

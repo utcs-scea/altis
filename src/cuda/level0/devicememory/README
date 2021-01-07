@@ -12,5 +12,5 @@ USAGE:
     -n, --passes                 specify number of passes
     -p, --properties             show properties for available platforms and devices
     -q, --quiet                  enable concise output
-        --uvm                    use managed memory via cudaMallocManaged instead of cudaMalloc
+        --uvm                    use managed memory via cudaMallocManaged instead of cudaMalloc. Not compatible with other --uvm* flags
     -v, --verbose                enable verbose output

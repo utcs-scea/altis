@@ -1,0 +1,1 @@
+./bfs -s 6 --passes 30

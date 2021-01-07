@@ -200,12 +200,14 @@ template <class T>
 void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
   int passes = op.getOptionInt("passes");
   int device = op.getOptionInt("device");
+  const bool uvm = op.getOptionBool("uvm");
+  const bool uvm_prefetch = op.getOptionBool("uvm-prefetch");
   int kib;
 
   // Use preset problem size or read data from input file
   string filename = op.getOptionString("inputFile");
   if (filename == "") {
-    int probSizes[4] = {1, 3, 40, 60};
+    int probSizes[6] = {1, 3, 40, 60, 120, 240};
     kib = probSizes[op.getOptionInt("size") - 1];
   } else {
     std::ifstream mfs(filename.c_str());
@@ -226,65 +228,70 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
   }
 
   // Allocate GPU memory
-#ifdef UNIFIED_MEMORY
   T *dA, *dB, *dC;
-  CUDA_SAFE_CALL(cudaMallocManaged(&dA, N * N* sizeof(T)));
-  CUDA_SAFE_CALL(cudaMallocManaged(&dB, N * N* sizeof(T)));
-  CUDA_SAFE_CALL(cudaMallocManaged(&dC, N * N* sizeof(T)));
-
-  if (filename == "") {
-      fill<T>(dA, N * N, 31);
-      fill<T>(dB, N * N, 31);
-      fill<T>(dC, N * N, 31);
-  } else {
-      readMatrix(dA, dB, dC, N * N, filename);
-  }
-#else
-  T *dA, *dB, *dC;
-  CUDA_SAFE_CALL(cudaMalloc(&dA, N * N * sizeof(T)));
-  CUDA_SAFE_CALL(cudaMalloc(&dB, N * N * sizeof(T)));
-  CUDA_SAFE_CALL(cudaMalloc(&dC, N * N * sizeof(T)));
-
-  // Initialize host memory
   T *A;
   T *B;
   T *C;
+  if (uvm || uvm_prefetch) {
+      checkCudaErrors(cudaMallocManaged(&dA, N * N* sizeof(T)));
+      checkCudaErrors(cudaMallocManaged(&dB, N * N* sizeof(T)));
+      checkCudaErrors(cudaMallocManaged(&dC, N * N* sizeof(T)));
 
-  CUDA_SAFE_CALL(cudaMallocHost(&A, N * N * sizeof(T)));
-  CUDA_SAFE_CALL(cudaMallocHost(&B, N * N * sizeof(T)));
-  CUDA_SAFE_CALL(cudaMallocHost(&C, N * N * sizeof(T)));
-
-  // Fill matrix or read from input file
-  if (filename == "") {
-      fill<T>(A, N * N, 31);
-      fill<T>(B, N * N, 31);
-      fill<T>(C, N * N, 31);
-  } else {
-    readMatrix(A, B, C, N * N, filename);
+      if (filename == "") {
+          fill<T>(dA, N * N, 31);
+          fill<T>(dB, N * N, 31);
+          fill<T>(dC, N * N, 31);
+      } else {
+          readMatrix(dA, dB, dC, N * N, filename);
+      }
   }
-#endif
+  else {
+      checkCudaErrors(cudaMalloc(&dA, N * N * sizeof(T)));
+      checkCudaErrors(cudaMalloc(&dB, N * N * sizeof(T)));
+      checkCudaErrors(cudaMalloc(&dC, N * N * sizeof(T)));
+
+      checkCudaErrors(cudaMallocHost(&A, N * N * sizeof(T)));
+      checkCudaErrors(cudaMallocHost(&B, N * N * sizeof(T)));
+      checkCudaErrors(cudaMallocHost(&C, N * N * sizeof(T)));
+
+      // Fill matrix or read from input file
+      if (filename == "") {
+          fill<T>(A, N * N, 31);
+          fill<T>(B, N * N, 31);
+          fill<T>(C, N * N, 31);
+      } else {
+        readMatrix(A, B, C, N * N, filename);
+      }
+  }
 
   // Copy input to GPU
   cudaEvent_t start, stop;
-  cudaEventCreate(&start);
-  cudaEventCreate(&stop);
+  checkCudaErrors(cudaEventCreate(&start));
+  checkCudaErrors(cudaEventCreate(&stop));
   float elapsedTime;
 
   // Copy inputs to GPU
 
   double transferTime = 0;
-  cudaEventRecord(start, 0);
-#ifdef UNIFIED_MEMORY
-  // could ignore this to test demand paging performance affect
-  CUDA_SAFE_CALL(cudaMemPrefetchAsync(dA, N * N * sizeof(T), device));
-  CUDA_SAFE_CALL(cudaMemPrefetchAsync(dB, N * N * sizeof(T), device));
-#else
-  CUDA_SAFE_CALL(cudaMemcpy(dA, A, N * N * sizeof(T), cudaMemcpyHostToDevice));
-  CUDA_SAFE_CALL(cudaMemcpy(dB, B, N * N * sizeof(T), cudaMemcpyHostToDevice));
-#endif
+  checkCudaErrors(cudaEventRecord(start, 0));
 
-  cudaEventRecord(stop, 0);
-  cudaEventSynchronize(stop);
+  if (uvm_prefetch) {
+      // could ignore this to test demand paging performance affect
+      checkCudaErrors(cudaMemPrefetchAsync(dA, N * N * sizeof(T), device));
+      checkCudaErrors(cudaMemPrefetchAsync(dB, N * N * sizeof(T), device, (cudaStream_t)1));
+      checkCudaErrors(cudaStreamSynchronize(0));
+      checkCudaErrors(cudaStreamSynchronize((cudaStream_t)1));
+      // TODO Sync
+
+  } else if (uvm) {
+      // Do nothing for demand paging
+  } else {
+      checkCudaErrors(cudaMemcpy(dA, A, N * N * sizeof(T), cudaMemcpyHostToDevice));
+      checkCudaErrors(cudaMemcpy(dB, B, N * N * sizeof(T), cudaMemcpyHostToDevice));
+  }
+
+  checkCudaErrors(cudaEventRecord(stop, 0));
+  checkCudaErrors(cudaEventSynchronize(stop));
   cudaEventElapsedTime(&elapsedTime, start, stop);
   transferTime += elapsedTime * 1.e-3;
 
@@ -317,29 +324,33 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
       double cublasTime;
       float kernelTime = 0.0f;
       for (int ii = 0; ii < 4; ++ii) {
-        cudaEventRecord(start, 0);
-        devGEMM<T>(handle, transa, transb, m, n, k, &alpha, dA, lda, dB, ldb, &beta, dC,
-                   ldc);
-        cudaEventRecord(stop, 0);
-        cudaEventSynchronize(stop);
-        CHECK_CUDA_ERROR();
-        float currTime = 0.0f;
-        cudaEventElapsedTime(&currTime, start, stop);
-        kernelTime += currTime;
+          checkCudaErrors(cudaEventRecord(start, 0));
+          devGEMM<T>(handle, transa, transb, m, n, k, &alpha, dA, lda, dB, ldb, &beta, dC,
+                    ldc);
+          checkCudaErrors(cudaEventRecord(stop, 0));
+          cudaEventSynchronize(stop);
+          CHECK_CUDA_ERROR();
+          float currTime = 0.0f;
+          checkCudaErrors(cudaEventElapsedTime(&currTime, start, stop));
+          kernelTime += currTime;
       }
       cublasTime = (kernelTime / 4.0) * 1.e-3;
 
-      cudaEventRecord(start, 0);    // timing may be affected by async
-#ifdef UNIFIED_MEMORY
-      CUDA_SAFE_CALL(cudaMemPrefetchAsync(dC, N * N * sizeof(T), cudaCpuDeviceId));
-#else
-      CUDA_SAFE_CALL(
-          cudaMemcpy(C, dC, N * N * sizeof(T), cudaMemcpyDeviceToHost));
-#endif
-      cudaEventRecord(stop, 0);
-      cudaEventSynchronize(stop);
+      checkCudaErrors(cudaEventRecord(start, 0));    // timing may be affected by async
+
+      if (uvm_prefetch) {
+          checkCudaErrors(cudaMemPrefetchAsync(dC, N * N * sizeof(T), cudaCpuDeviceId));
+          checkCudaErrors(cudaStreamSynchronize(0));
+      } else if (uvm) {
+          // Do nothing
+      } else {
+          checkCudaErrors(cudaMemcpy(C, dC, N * N * sizeof(T), cudaMemcpyDeviceToHost));
+      }
+
+      checkCudaErrors(cudaEventRecord(stop, 0));
+      checkCudaErrors(cudaEventSynchronize(stop));
       float oTransferTime = 0.0f;
-      cudaEventElapsedTime(&oTransferTime, start, stop);
+      checkCudaErrors(cudaEventElapsedTime(&oTransferTime, start, stop));
       oTransferTime *= 1.e-3;
 
       // Add the PCIe transfer time to total transfer time only once
@@ -364,23 +375,17 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
 
   // Clean Up
 
-  CUDA_SAFE_CALL(cudaFree(dA));
+  checkCudaErrors(cudaFree(dA));
+  checkCudaErrors(cudaFree(dB));
+  checkCudaErrors(cudaFree(dC));
+  if (!uvm && !uvm_prefetch) {
+    checkCudaErrors(cudaFreeHost(A));
+    checkCudaErrors(cudaFreeHost(B));
+    checkCudaErrors(cudaFreeHost(C));
+  }
 
-  CUDA_SAFE_CALL(cudaFree(dB));
-
-  CUDA_SAFE_CALL(cudaFree(dC));
-#ifndef UNIFIED_MEMORY
-
-  CUDA_SAFE_CALL(cudaFreeHost(A));
-
-  CUDA_SAFE_CALL(cudaFreeHost(B));
-
-  CUDA_SAFE_CALL(cudaFreeHost(C));
-#endif
-
-  CUDA_SAFE_CALL(cudaEventDestroy(start));
-
-  CUDA_SAFE_CALL(cudaEventDestroy(stop));
+  checkCudaErrors(cudaEventDestroy(start));
+  checkCudaErrors(cudaEventDestroy(stop));
   cublasDestroy(handle);
 }
 
