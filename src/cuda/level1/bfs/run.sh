@@ -1,1 +1,1 @@
-./bfs -s 6 --passes 30
+./bfs -s 6 --passes 30 --uvm-prefetch-advise

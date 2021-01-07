@@ -117,8 +117,8 @@ void checkCudaFeatureAvailability(OptionParser &op) {
     checkCudaErrors(cudaGetDeviceProperties(&deviceProp, device));
     
     // Check UVM availability
-    if (op.getOptionBool("uvm") || op.getOptionBool("mem-advise") ||
-            op.getOptionBool("uvm-prefetch")) {
+    if (op.getOptionBool("uvm") || op.getOptionBool("uvm-advise") ||
+            op.getOptionBool("uvm-prefetch") || op.getOptionBool("uvm-prefetch-advise")) {
         if (!deviceProp.unifiedAddressing) {
             std::cerr << "device doesn't support unified addressing, exiting..." << std::endl;
             safe_exit(-1);

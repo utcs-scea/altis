@@ -202,6 +202,8 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
   int device = op.getOptionInt("device");
   const bool uvm = op.getOptionBool("uvm");
   const bool uvm_prefetch = op.getOptionBool("uvm-prefetch");
+  const bool uvm_advise = op.getOptionBool("uvm-advise");
+  const bool uvm_prefetch_advise = op.getOptionBool("uvm-prefetch-advise");
   int kib;
 
   // Use preset problem size or read data from input file

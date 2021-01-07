@@ -585,15 +585,15 @@ float BFSGraph(ResultDatabase &resultDB, OptionParser &op, int no_of_nodes, int 
 
 		k++;
 	}
-	while(stop);
+	while (stop);
 
-    if(verbose) {
+    if (verbose) {
 	    printf("Kernel Executed %d times\n",k);
     }
 
 	// copy result from device to host
     cudaEventRecord(tstart, 0);
-	cudaMemcpy( h_cost, d_cost, sizeof(int)*no_of_nodes, cudaMemcpyDeviceToHost) ;
+	cudaMemcpy(h_cost, d_cost, sizeof(int)*no_of_nodes, cudaMemcpyDeviceToHost);
     cudaEventRecord(tstop, 0);
     cudaEventSynchronize(tstop);
     cudaEventElapsedTime(&elapsedTime, tstart, tstop);
@@ -773,7 +773,21 @@ float BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, int no_o
 	for(int i=0;i<no_of_nodes;i++) {
 		cost[i]=-1;
     }
-	cost[source]=0;
+    cost[source]=0;
+    
+    if (uvm) {
+        // Do nothing, cost stays on CPU
+    } else if (uvm_advise) {
+        checkCudaErrors(cudaMemAdvise(cost, sizeof(int)*no_of_nodes, cudaMemAdviseSetPreferredLocation, device));
+    } else if (uvm_prefetch) {
+        checkCudaErrors(cudaMemPrefetchAsync(cost, sizeof(int)*no_of_nodes, device));
+    } else if (uvm_prefetch_advise) {
+        checkCudaErrors(cudaMemAdvise(cost, sizeof(int)*no_of_nodes, cudaMemAdviseSetPreferredLocation, device));
+        checkCudaErrors(cudaMemPrefetchAsync(cost, sizeof(int)*no_of_nodes, device));
+    } else {
+        std::cerr << "Unrecognized uvm option, exiting...";
+        exit(-1);
+    }
 
 	// bool if execution is over
     bool *over = NULL;
@@ -825,6 +839,36 @@ float BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, int no_o
     if (verbose && !quiet) {
         printf("Kernel Time: %f\n", kernelTime);
         printf("Kernel Executed %d times\n",k);
+    }
+
+    // copy result from device to host
+    checkCudaErrors(cudaEventRecord(tstart, 0));    
+    if (uvm) {
+        // Do nothing, cost stays on CPU
+    } else if (uvm_advise) {
+        checkCudaErrors(cudaMemAdvise(cost, sizeof(int)*no_of_nodes, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+    } else if (uvm_prefetch) {
+        checkCudaErrors(cudaMemPrefetchAsync(cost, sizeof(int)*no_of_nodes, cudaCpuDeviceId));
+    } else if (uvm_prefetch_advise) {
+        checkCudaErrors(cudaMemAdvise(cost, sizeof(int)*no_of_nodes, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+        checkCudaErrors(cudaMemPrefetchAsync(cost, sizeof(int)*no_of_nodes, cudaCpuDeviceId));
+    } else {
+        std::cerr << "Unrecognized uvm option, exiting..." << std::endl;
+        exit(-1);
+    }
+    checkCudaErrors(cudaEventRecord(tstop, 0));
+    checkCudaErrors(cudaEventSynchronize(tstop));
+    checkCudaErrors(cudaEventElapsedTime(&elapsedTime, tstart, tstop));
+    // transferTime += elapsedTime * 1.e-3; // convert to seconds
+
+	//Store the result into a file
+    string outfile = op.getOptionString("outputFile");
+    if(outfile != "") {
+        FILE *fpo = fopen(outfile.c_str(),"w");
+        for(int i=0;i<no_of_nodes;i++) {
+            fprintf(fpo,"%d) cost:%d\n",i,cost[i]);
+        }
+        fclose(fpo);
     }
 
     // cleanup memory
