@@ -209,7 +209,7 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
   // Use preset problem size or read data from input file
   string filename = op.getOptionString("inputFile");
   if (filename == "") {
-    int probSizes[6] = {1, 3, 40, 60, 120, 240};
+    int probSizes[5] = {1, 3, 20, 60, 120};
     kib = probSizes[op.getOptionInt("size") - 1];
   } else {
     std::ifstream mfs(filename.c_str());
@@ -234,7 +234,7 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
   T *A;
   T *B;
   T *C;
-  if (uvm || uvm_prefetch) {
+  if (uvm || uvm_prefetch || uvm_advise || uvm_prefetch_advise) {
       checkCudaErrors(cudaMallocManaged(&dA, N * N* sizeof(T)));
       checkCudaErrors(cudaMallocManaged(&dB, N * N* sizeof(T)));
       checkCudaErrors(cudaMallocManaged(&dC, N * N* sizeof(T)));
@@ -277,16 +277,23 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
   double transferTime = 0;
   checkCudaErrors(cudaEventRecord(start, 0));
 
-  if (uvm_prefetch) {
+  if (uvm) {
+      // Do nothing
+  } else if (uvm_prefetch) {
       // could ignore this to test demand paging performance affect
       checkCudaErrors(cudaMemPrefetchAsync(dA, N * N * sizeof(T), device));
       checkCudaErrors(cudaMemPrefetchAsync(dB, N * N * sizeof(T), device, (cudaStream_t)1));
-      checkCudaErrors(cudaStreamSynchronize(0));
-      checkCudaErrors(cudaStreamSynchronize((cudaStream_t)1));
-      // TODO Sync
-
-  } else if (uvm) {
+      // checkCudaErrors(cudaStreamSynchronize(0));
+      // checkCudaErrors(cudaStreamSynchronize((cudaStream_t)1));
+  } else if (uvm_advise) {
       // Do nothing for demand paging
+      checkCudaErrors(cudaMemAdvise(dA, N * N * sizeof(T), cudaMemAdviseSetPreferredLocation, device));
+      checkCudaErrors(cudaMemAdvise(dB, N * N * sizeof(T), cudaMemAdviseSetPreferredLocation, device));
+  } else if (uvm_prefetch_advise) {
+      checkCudaErrors(cudaMemAdvise(dA, N * N * sizeof(T), cudaMemAdviseSetPreferredLocation, device));
+      checkCudaErrors(cudaMemAdvise(dB, N * N * sizeof(T), cudaMemAdviseSetPreferredLocation, device));
+      checkCudaErrors(cudaMemPrefetchAsync(dA, N * N * sizeof(T), device));
+      checkCudaErrors(cudaMemPrefetchAsync(dB, N * N * sizeof(T), device, (cudaStream_t)1));
   } else {
       checkCudaErrors(cudaMemcpy(dA, A, N * N * sizeof(T), cudaMemcpyHostToDevice));
       checkCudaErrors(cudaMemcpy(dB, B, N * N * sizeof(T), cudaMemcpyHostToDevice));
@@ -330,7 +337,7 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
           devGEMM<T>(handle, transa, transb, m, n, k, &alpha, dA, lda, dB, ldb, &beta, dC,
                     ldc);
           checkCudaErrors(cudaEventRecord(stop, 0));
-          cudaEventSynchronize(stop);
+          checkCudaErrors(cudaEventSynchronize(stop));
           CHECK_CUDA_ERROR();
           float currTime = 0.0f;
           checkCudaErrors(cudaEventElapsedTime(&currTime, start, stop));
@@ -340,11 +347,18 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
 
       checkCudaErrors(cudaEventRecord(start, 0));    // timing may be affected by async
 
-      if (uvm_prefetch) {
+      if (uvm) {
+        // Do nothing
+      } else if (uvm_prefetch) {
           checkCudaErrors(cudaMemPrefetchAsync(dC, N * N * sizeof(T), cudaCpuDeviceId));
-          checkCudaErrors(cudaStreamSynchronize(0));
-      } else if (uvm) {
-          // Do nothing
+          // checkCudaErrors(cudaStreamSynchronize(0));
+      } else if (uvm_advise) {
+          checkCudaErrors(cudaMemAdvise(dC, N * N * sizeof(T), cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+          checkCudaErrors(cudaMemAdvise(dC, N * N * sizeof(T), cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+      } else if (uvm_prefetch_advise) {
+          checkCudaErrors(cudaMemAdvise(dC, N * N * sizeof(T), cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+          checkCudaErrors(cudaMemAdvise(dC, N * N * sizeof(T), cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+          checkCudaErrors(cudaMemPrefetchAsync(dC, N * N * sizeof(T), cudaCpuDeviceId));
       } else {
           checkCudaErrors(cudaMemcpy(C, dC, N * N * sizeof(T), cudaMemcpyDeviceToHost));
       }
@@ -380,7 +394,7 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
   checkCudaErrors(cudaFree(dA));
   checkCudaErrors(cudaFree(dB));
   checkCudaErrors(cudaFree(dC));
-  if (!uvm && !uvm_prefetch) {
+  if (!uvm && !uvm_prefetch && !uvm_advise && !uvm_prefetch_advise) {
     checkCudaErrors(cudaFreeHost(A));
     checkCudaErrors(cudaFreeHost(B));
     checkCudaErrors(cudaFreeHost(C));

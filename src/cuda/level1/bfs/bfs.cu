@@ -132,7 +132,6 @@ void initGraph(OptionParser &op, int &no_of_nodes, int &edge_list_size, int &sou
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 float BFSGraph(ResultDatabase &resultDB, OptionParser &op, int no_of_nodes, int edge_list_size, int source, Node* &h_graph_nodes, int* &h_graph_edges);
-#ifdef UNIFIED_MEMORY
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	BFS graph using unified memory. </summary>
@@ -151,7 +150,6 @@ float BFSGraph(ResultDatabase &resultDB, OptionParser &op, int no_of_nodes, int 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 float BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, int no_of_nodes, int edge_list_size, int source, Node* &h_graph_nodes, int* &h_graph_edges);
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -281,7 +279,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     const bool uvm = op.getOptionBool("uvm");
     const bool uvm_advise = op.getOptionBool("uvm-advise");
     const bool uvm_prefetch = op.getOptionBool("uvm-prefetch");
-    const bool uvm_prefetch_advise = op.getOptionBool("uvm_prefetch_advise");
+    const bool uvm_prefetch_advise = op.getOptionBool("uvm-prefetch-advise");
 
     for (int i = 0; i < passes; i++) {
         if (!quiet) {
@@ -378,12 +376,13 @@ void initGraph(OptionParser &op, int &no_of_nodes, int &edge_list_size, int &sou
 	    int n = fscanf(fp,"%d",&no_of_nodes);
         assert(n == 1);
     } else {
-        int problemSizes[6] = {10, 50, 200, 400, 800, 1600};
+        int problemSizes[5] = {10, 50, 200, 400, 600};
         no_of_nodes = problemSizes[op.getOptionInt("size") - 1] * 1024 * 1024;
     }
 
 	// initalize the nodes & number of edges
-	h_graph_nodes = (Node*) malloc(sizeof(Node)*no_of_nodes);
+    h_graph_nodes = (Node*) malloc(sizeof(Node)*no_of_nodes);
+    assert(h_graph_nodes);
 	int start;
     int edgeno;
     for (int i = 0; i < no_of_nodes; i++) {
@@ -418,7 +417,8 @@ void initGraph(OptionParser &op, int &no_of_nodes, int &edge_list_size, int &sou
     // initialize the edges
 	int id;
     int cost;
-	h_graph_edges = (int*) malloc(sizeof(int)*edge_list_size);
+    h_graph_edges = (int*) malloc(sizeof(int)*edge_list_size);
+    assert(h_graph_edges);
 	for (int i=0; i < edge_list_size ; i++) {
         if (fp) {
             int n = fscanf(fp,"%d %d",&id, &cost);
@@ -473,9 +473,12 @@ float BFSGraph(ResultDatabase &resultDB, OptionParser &op, int no_of_nodes, int 
 	}
 
 	// allocate host memory
-	bool *h_graph_mask = (bool*) malloc(sizeof(bool)*no_of_nodes);
-	bool *h_updating_graph_mask = (bool*) malloc(sizeof(bool)*no_of_nodes);
-	bool *h_graph_visited = (bool*) malloc(sizeof(bool)*no_of_nodes);
+    bool *h_graph_mask = (bool*) malloc(sizeof(bool)*no_of_nodes);
+    assert(h_graph_mask);
+    bool *h_updating_graph_mask = (bool*) malloc(sizeof(bool)*no_of_nodes);
+    assert(h_updating_graph_mask);
+    bool *h_graph_visited = (bool*) malloc(sizeof(bool)*no_of_nodes);
+    assert(h_graph_visited);
 
 	// initalize the memory
     for (int i = 0; i < no_of_nodes; i++) 
@@ -490,7 +493,8 @@ float BFSGraph(ResultDatabase &resultDB, OptionParser &op, int no_of_nodes, int 
 	h_graph_visited[source]=true;
 
 	// allocate mem for the result on host side
-	int* h_cost = (int*) malloc( sizeof(int)*no_of_nodes);
+    int *h_cost = (int*) malloc( sizeof(int)*no_of_nodes);
+    assert(h_cost);
 	for (int i=0;i<no_of_nodes;i++) {
 		h_cost[i]=-1;
     }
@@ -847,10 +851,12 @@ float BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, int no_o
         // Do nothing, cost stays on CPU
     } else if (uvm_advise) {
         checkCudaErrors(cudaMemAdvise(cost, sizeof(int)*no_of_nodes, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+        checkCudaErrors(cudaMemAdvise(cost, sizeof(int)*no_of_nodes, cudaMemAdviseSetReadMostly, cudaCpuDeviceId));
     } else if (uvm_prefetch) {
         checkCudaErrors(cudaMemPrefetchAsync(cost, sizeof(int)*no_of_nodes, cudaCpuDeviceId));
     } else if (uvm_prefetch_advise) {
         checkCudaErrors(cudaMemAdvise(cost, sizeof(int)*no_of_nodes, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+        checkCudaErrors(cudaMemAdvise(cost, sizeof(int)*no_of_nodes, cudaMemAdviseSetReadMostly, cudaCpuDeviceId));
         checkCudaErrors(cudaMemPrefetchAsync(cost, sizeof(int)*no_of_nodes, cudaCpuDeviceId));
     } else {
         std::cerr << "Unrecognized uvm option, exiting..." << std::endl;

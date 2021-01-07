@@ -1,0 +1,20 @@
+Notes:
+This benchmark was originally implemented in SHOC (https://github.com/vetter/shoc). It is modified to support managed memory allocation.
+
+Measures performance for device versions of the SGEMM BLAS routine, on a square matrix.
+
+USAGE:
+./busspeedreadback [options]
+
+    -d, --device                 specify device(s) to run on
+    -h, --help                   print this usage
+    -m, --metricsFile            path of file to write metrics to
+    -n, --passes                 specify number of passes
+        --pinned                 use pinned (pagelocked) memory via cudaMallocHost
+    -p, --properties             show properties for available platforms and devices
+    -q, --quiet                  enable concise output
+        --uvm                    use managed memory with pure demand paging. Not compatible with other --uvm* flags
+        --uvm-advise             use managed memory with memory usage hint. Not compatible with other --uvm* flags
+        --uvm-prefetch           use managed memory with prefetch. Not compatible with other --uvm* flags
+        --uvm-prefetch-advise    use managed memory with prefetch and memory usage hint. Not compatible with other --uvm* flags
+    -v, --verbose                enable verbose output
