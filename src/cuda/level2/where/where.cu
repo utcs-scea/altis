@@ -120,21 +120,28 @@ void seedArr(int *arr, int size) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	Wheres. </summary>
 ///
-/// <remarks>	Edward Hu (bodunhu@utexas.edu)ward Hu (bodunhu@utexas.edu), 5/20/2020. </remarks>
+/// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/20/2020. </remarks>
 ///
 /// <param name="resultDB">	[in,out] The result database. </param>
 /// <param name="size">	   	The size. </param>
 /// <param name="coverage">	The coverage. </param>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void where(ResultDatabase &resultDB, int size, int coverage) {
+void where(ResultDatabase &resultDB, OptionParser &op, int size, int coverage) {
+    const bool uvm = op.getOptionBool("uvm");
+    const bool uvm_advise = op.getOptionBool("uvm-advise");
+    const bool uvm_prefetch = op.getOptionBool("uvm-prefetch");
+    const bool uvm_prefetch_advise = op.getOptionBool("uvm-prefetch-advise");
+    int device = 0;
+    checkCudaErrors(cudaGetDevice(&device));
 
-#ifdef UNIFIED_MEMORY
     int *arr = NULL;
-    CUDA_SAFE_CALL(cudaMallocManaged(&arr, sizeof(int) * size));
-#else
-    int *arr = (int*)malloc(sizeof(int) * size);
-#endif
+    if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+        checkCudaErrors(cudaMallocManaged(&arr, sizeof(int) * size));
+    } else {
+        arr = (int*)malloc(sizeof(int) * size);
+        assert(arr);
+    }
     int *final;
     seedArr(arr, size);
 
@@ -143,98 +150,118 @@ void where(ResultDatabase &resultDB, int size, int coverage) {
     int *d_prefix;
     int *d_final;
     
-#ifdef UNIFIED_MEMORY
-    CUDA_SAFE_CALL(cudaMallocManaged( (void**) &d_results, sizeof(int) * size));
-    CUDA_SAFE_CALL(cudaMallocManaged( (void**) &d_prefix, sizeof(int) * size));
-#else
-    CUDA_SAFE_CALL(cudaMalloc( (void**) &d_arr, sizeof(int) * size));
-    CUDA_SAFE_CALL(cudaMalloc( (void**) &d_results, sizeof(int) * size));
-    CUDA_SAFE_CALL(cudaMalloc( (void**) &d_prefix, sizeof(int) * size));
-#endif
+    if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+        d_arr = arr;
+        checkCudaErrors(cudaMallocManaged( (void**) &d_results, sizeof(int) * size));
+        checkCudaErrors(cudaMallocManaged( (void**) &d_prefix, sizeof(int) * size));
+    } else {
+        checkCudaErrors(cudaMalloc( (void**) &d_arr, sizeof(int) * size));
+        checkCudaErrors(cudaMalloc( (void**) &d_results, sizeof(int) * size));
+        checkCudaErrors(cudaMalloc( (void**) &d_prefix, sizeof(int) * size));
+    }
 
-    cudaEventRecord(start, 0);
-#ifdef UNIFIED_MEMORY
-    d_arr = arr;
-#else
-    cudaMemcpy(d_arr, arr, sizeof(int) * size, cudaMemcpyHostToDevice);
-#endif
-    cudaEventRecord(stop, 0);
-    cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&elapsedTime, start, stop);
+    checkCudaErrors(cudaEventRecord(start, 0));
+    if (uvm) {
+        // do nothing
+    } else if (uvm_advise) {
+        checkCudaErrors(cudaMemAdvise(d_arr, sizeof(int) * size, cudaMemAdviseSetReadMostly, device));
+        checkCudaErrors(cudaMemAdvise(d_arr, sizeof(int) * size, cudaMemAdviseSetPreferredLocation, device));
+    } else if (uvm_prefetch) {
+        checkCudaErrors(cudaMemPrefetchAsync(d_arr, sizeof(int) * size, device));
+    } else if (uvm_prefetch_advise) {
+        checkCudaErrors(cudaMemAdvise(d_arr, sizeof(int) * size, cudaMemAdviseSetReadMostly, device));
+        checkCudaErrors(cudaMemAdvise(d_arr, sizeof(int) * size, cudaMemAdviseSetPreferredLocation, device));
+        checkCudaErrors(cudaMemPrefetchAsync(d_arr, sizeof(int) * size, device));
+    } else {
+        checkCudaErrors(cudaMemcpy(d_arr, arr, sizeof(int) * size, cudaMemcpyHostToDevice));
+    }
+    checkCudaErrors(cudaEventRecord(stop, 0));
+    checkCudaErrors(cudaEventSynchronize(stop));
+    checkCudaErrors(cudaEventElapsedTime(&elapsedTime, start, stop));
     transferTime += elapsedTime * 1.e-3;
 
     dim3 grid(size / 1024 + 1, 1, 1);
     dim3 threads(1024, 1, 1);
-    cudaEventRecord(start, 0);
+    checkCudaErrors(cudaEventRecord(start, 0));
     markMatches<<<grid, threads>>>(d_arr, d_results, size, coverage);
-    cudaEventRecord(stop, 0);
-    cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&elapsedTime, start, stop);
+    checkCudaErrors(cudaEventRecord(stop, 0));
+    checkCudaErrors(cudaEventSynchronize(stop));
+    checkCudaErrors(cudaEventElapsedTime(&elapsedTime, start, stop));
     kernelTime += elapsedTime * 1.e-3;
     CHECK_CUDA_ERROR();
 
-    cudaEventRecord(start, 0);
+    checkCudaErrors(cudaEventRecord(start, 0));
     thrust::exclusive_scan(thrust::device, d_results, d_results + size, d_prefix);
-    cudaEventRecord(stop, 0);
-    cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&elapsedTime, start, stop);
+    checkCudaErrors(cudaEventRecord(stop, 0));
+    checkCudaErrors(cudaEventSynchronize(stop));
+    checkCudaErrors(cudaEventElapsedTime(&elapsedTime, start, stop));
     kernelTime += elapsedTime * 1.e-3;
     CHECK_CUDA_ERROR();
 
     int matchSize;
-    cudaEventRecord(start, 0);
-#ifdef UNIFIED_MEMORY
-    matchSize = (int)*(d_prefix + size - 1);
-#else
-    cudaMemcpy(&matchSize, d_prefix + size - 1, sizeof(int), cudaMemcpyDeviceToHost);
-#endif
-    cudaEventRecord(stop, 0);
-    cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&elapsedTime, start, stop);
+    checkCudaErrors(cudaEventRecord(start, 0));
+    if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+        matchSize = (int)*(d_prefix + size - 1);
+    } else {
+        checkCudaErrors(cudaMemcpy(&matchSize, d_prefix + size - 1, sizeof(int), cudaMemcpyDeviceToHost));
+    }
+    checkCudaErrors(cudaEventRecord(stop, 0));
+    checkCudaErrors(cudaEventSynchronize(stop));
+    checkCudaErrors(cudaEventElapsedTime(&elapsedTime, start, stop));
     transferTime += elapsedTime * 1.e-3;
     matchSize++;
 
-#ifdef UNIFIED_MEMORY
-    CUDA_SAFE_CALL(cudaMallocManaged( (void**) &d_final, sizeof(int) * matchSize));
-    final = d_final;
-#else
-    CUDA_SAFE_CALL(cudaMalloc( (void**) &d_final, sizeof(int) * matchSize));
-    final = (int*)malloc(sizeof(int) * matchSize);
-#endif
+    if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+        checkCudaErrors(cudaMallocManaged( (void**) &d_final, sizeof(int) * matchSize));
+        final = d_final;
+    } else {
+        checkCudaErrors(cudaMalloc( (void**) &d_final, sizeof(int) * matchSize));
+        final = (int*)malloc(sizeof(int) * matchSize);
+        assert(final);
+    }
 
-    cudaEventRecord(start, 0);
+    checkCudaErrors(cudaEventRecord(start, 0));
     mapMatches<<<grid, threads>>>(d_arr, d_results, d_prefix, d_final, size);
-    cudaEventRecord(stop, 0);
-    cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&elapsedTime, start, stop);
+    checkCudaErrors(cudaEventRecord(stop, 0));
+    checkCudaErrors(cudaEventSynchronize(stop));
+    checkCudaErrors(cudaEventElapsedTime(&elapsedTime, start, stop));
     kernelTime += elapsedTime * 1.e-3;
     CHECK_CUDA_ERROR();
 
-    cudaEventRecord(start, 0);
-#ifdef UNIFIED_MEMORY
+    checkCudaErrors(cudaEventRecord(start, 0));
     // No cpy just demand paging
-#else
-    cudaMemcpy(final, d_final, sizeof(int) * matchSize, cudaMemcpyDeviceToHost);
-#endif
-    cudaEventRecord(stop, 0);
-    cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&elapsedTime, start, stop);
+    if (uvm) {
+        // Do nothing
+    } else if (uvm_advise) {
+        checkCudaErrors(cudaMemAdvise(final, sizeof(int) * matchSize, cudaMemAdviseSetReadMostly, device));
+        checkCudaErrors(cudaMemAdvise(final, sizeof(int) * matchSize, cudaMemAdviseSetPreferredLocation, device));
+    } else if (uvm_prefetch) {
+        checkCudaErrors(cudaMemPrefetchAsync(final, sizeof(int) * matchSize, cudaCpuDeviceId));
+    } else if (uvm_prefetch_advise) {
+        checkCudaErrors(cudaMemAdvise(final, sizeof(int) * matchSize, cudaMemAdviseSetReadMostly, device));
+        checkCudaErrors(cudaMemAdvise(final, sizeof(int) * matchSize, cudaMemAdviseSetPreferredLocation, device));
+        checkCudaErrors(cudaMemPrefetchAsync(final, sizeof(int) * matchSize, cudaCpuDeviceId));
+    } else {
+        checkCudaErrors(cudaMemcpy(final, d_final, sizeof(int) * matchSize, cudaMemcpyDeviceToHost));
+    }
+    checkCudaErrors(cudaEventRecord(stop, 0));
+    checkCudaErrors(cudaEventSynchronize(stop));
+    checkCudaErrors(cudaEventElapsedTime(&elapsedTime, start, stop));
     transferTime += elapsedTime * 1.e-3;
 
-#ifdef UNIFIED_MEMORY
-    CUDA_SAFE_CALL(cudaFree(d_arr));
-    CUDA_SAFE_CALL(cudaFree(d_results));
-    CUDA_SAFE_CALL(cudaFree(d_prefix));
-    CUDA_SAFE_CALL(cudaFree(d_final));
-
-#else
-    free(arr);
-    free(final);
-    CUDA_SAFE_CALL(cudaFree(d_arr));
-    CUDA_SAFE_CALL(cudaFree(d_results));
-    CUDA_SAFE_CALL(cudaFree(d_prefix));
-    CUDA_SAFE_CALL(cudaFree(d_final));
-#endif
+    if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+        checkCudaErrors(cudaFree(d_arr));
+        checkCudaErrors(cudaFree(d_results));
+        checkCudaErrors(cudaFree(d_prefix));
+        checkCudaErrors(cudaFree(d_final));
+    } else {
+        free(arr);
+        free(final);
+        checkCudaErrors(cudaFree(d_arr));
+        checkCudaErrors(cudaFree(d_results));
+        checkCudaErrors(cudaFree(d_prefix));
+        checkCudaErrors(cudaFree(d_final));
+    }
     
     char atts[1024];
     sprintf(atts, "size:%d, coverage:%d", size, coverage);
@@ -275,28 +302,28 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     bool quiet = op.getOptionBool("quiet");
     int size = op.getOptionInt("length");
     int coverage = op.getOptionInt("coverage");
-    if(size == 0 || coverage == -1) {
-        int sizes[4] = {1000, 10000, 500000000, 1000000000};
-        int coverages[4] = {20, 30, 40, 80};
+    if (size == 0 || coverage == -1) {
+        int sizes[5] = {1000, 10000, 500000000, 1000000000, 1000000000};
+        int coverages[5] = {20, 30, 40, 80, 100};
         size = sizes[op.getOptionInt("size") - 1];
         coverage = coverages[op.getOptionInt("size") - 1];
     }
 
-    if(!quiet) {
+    if (!quiet) {
         printf("Using size=%d, coverage=%d\n", size, coverage);
     }
 
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
+    checkCudaErrors(cudaEventCreate(&start));
+    checkCudaErrors(cudaEventCreate(&stop));
 
     int passes = op.getOptionInt("passes");
-    for(int i = 0; i < passes; i++) {
+    for (int i = 0; i < passes; i++) {
         kernelTime = 0.0f;
         transferTime = 0.0f;
         if(!quiet) {
             printf("Pass %d: ", i);
         }
-        where(resultDB, size, coverage);
+        where(resultDB, op, size, coverage);
         if(!quiet) {
             printf("Done.\n");
         }
