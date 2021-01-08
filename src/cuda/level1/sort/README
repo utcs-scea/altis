@@ -1,10 +1,10 @@
 Notes:
 This benchmark was originally implemented in SHOC (https://github.com/vetter/shoc). It is modified to support managed memory allocation.
 
-Measures performance for device versions of the SGEMM BLAS routine, on a square matrix.
+It measures performance for a radix sort on unsigned integer key-value pairs
 
 USAGE:
-./gemm [options]
+./sort [options]
 
     -d, --device                 specify device(s) to run on
     -h, --help                   print this usage

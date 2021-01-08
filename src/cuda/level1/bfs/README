@@ -2,7 +2,7 @@ Notes:
 This benchmark was originally implemented in Rodinia (http://rodinia.cs.virginia.edu/doku.php). It is modified to support managed memory allocation.
 
 USAGE:
-./busspeedreadback [options]
+./bfs [options]
 
     -d, --device                 specify device(s) to run on
     -h, --help                   print this usage

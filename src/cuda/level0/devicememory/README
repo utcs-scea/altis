@@ -4,7 +4,7 @@ This benchmark was originally implemented in the SHOC Benchmark Suite (https://g
 The benchnmark measures device memory bandwidth, including global, constant, and local (shared) memory.
 
 USAGE:
-./busspeeddownload [options]
+./devicememory [options]
 
     -d, --device                 specify device(s) to run on
     -h, --help                   print this usage

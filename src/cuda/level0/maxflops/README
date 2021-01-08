@@ -4,7 +4,7 @@ This benchmark was originally implemented in the SHOC Benchmark Suite (https://g
 The benchnmark measures maximum achievable FLOPS by executing synthetic kernels composed of different combinations of floating-point arithmetic operations.
 
 USAGE:
-./busspeeddownload [options]
+./maxflops [options]
 
     -d, --device                 specify device(s) to run on
     -h, --help                   print this usage

@@ -68,6 +68,12 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     cout << "Running Sort" << endl;
   srand(SEED);
   bool quiet = op.getOptionBool("quiet");
+  const bool uvm = op.getOptionBool("uvm");
+  const bool uvm_prefetch = op.getOptionBool("uvm-prefetch");
+  const bool uvm_advise = op.getOptionBool("uvm-advise");
+  const bool uvm_prefetch_advise = op.getOptionBool("uvm-prefetch-advise");
+  int device = 0;
+  checkCudaErrors(cudaGetDevice(&device));
 
   // Determine size of the array to sort
   int size;
@@ -78,7 +84,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     if(!quiet) {
         printf("Using problem size %d\n", (int)op.getOptionInt("size"));
     }
-    int probSizes[4] = {32, 64, 256, 512};
+    int probSizes[5] = {32, 64, 256, 512, 1024};
     size = probSizes[op.getOptionInt("size") - 1] * 1024 * 1024;
   } else {
     inputFile >> size;
@@ -97,10 +103,8 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   }
 
   // create input data on CPU
-  uint *hKeys;
-  uint *hVals;
-
-#ifdef UNIFIED_MEMORY
+  uint *hKeys = NULL;
+  uint *hVals = NULL;
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   /// <summary>	allocate using UVM API. </summary>
@@ -109,12 +113,13 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   ///
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  CUDA_SAFE_CALL(cudaMallocManaged(&hKeys, bytes));
-  CUDA_SAFE_CALL(cudaMallocManaged(&hVals, bytes));
-#else
-  cudaMallocHost((void **)&hKeys, bytes);
-  cudaMallocHost((void **)&hVals, bytes);
-#endif
+  if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+      checkCudaErrors(cudaMallocManaged(&hKeys, bytes));
+      checkCudaErrors(cudaMallocManaged(&hVals, bytes));
+  } else {
+      checkCudaErrors(cudaMallocHost((void **)&hKeys, bytes));
+      checkCudaErrors(cudaMallocHost((void **)&hVals, bytes));
+  }
 
   // Allocate space for block sums in the scan kernel.
   uint numLevelsAllocated = 0;
@@ -131,13 +136,14 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     numScanElts = numBlocks;
   } while (numScanElts > 1);
 
-#ifdef UNIFIED_MEMORY
   uint **scanBlockSums = NULL;
-  CUDA_SAFE_CALL(cudaMallocManaged(&scanBlockSums, (level+1) * sizeof(uint *)));
-#else
-  uint **scanBlockSums = (uint **)malloc((level + 1) * sizeof(uint *));
-  assert(scanBlockSums != NULL);
-#endif
+  if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+      checkCudaErrors(cudaMallocManaged(&scanBlockSums, (level+1) * sizeof(uint *)));
+  } else {
+      scanBlockSums = (uint **)malloc((level + 1) * sizeof(uint *));
+      assert(scanBlockSums);
+  }
+
   numLevelsAllocated = level + 1;
   numScanElts = maxNumScanElements;
   level = 0;
@@ -147,63 +153,64 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
         max(1, (int)ceil((float)numScanElts / (4 * SCAN_BLOCK_SIZE)));
     if (numBlocks > 1) {
       // Malloc device mem for block sums
-#ifdef UNIFIED_MEMORY
-      CUDA_SAFE_CALL(cudaMallocManaged((void **)&(scanBlockSums[level]),
-                                numBlocks * sizeof(uint)));
-#else
-      CUDA_SAFE_CALL(cudaMalloc((void **)&(scanBlockSums[level]),
-                                numBlocks * sizeof(uint)));
-#endif
+      if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+          checkCudaErrors(cudaMallocManaged((void **)&(scanBlockSums[level]),
+                                      numBlocks * sizeof(uint)));
+      } else {
+          checkCudaErrors(cudaMalloc((void **)&(scanBlockSums[level]),
+                                      numBlocks * sizeof(uint)));
+      }
       level++;
     }
     numScanElts = numBlocks;
   } while (numScanElts > 1);
 
-#ifdef UNIFIED_MEMORY
-  CUDA_SAFE_CALL(cudaMallocManaged((void **)&(scanBlockSums[level]), sizeof(uint)));
-#else
-  CUDA_SAFE_CALL(cudaMalloc((void **)&(scanBlockSums[level]), sizeof(uint)));
-#endif
+  if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+    checkCudaErrors(cudaMallocManaged((void **)&(scanBlockSums[level]), sizeof(uint)));
+  } else {
+    checkCudaErrors(cudaMalloc((void **)&(scanBlockSums[level]), sizeof(uint)));
+  }
 
   // Allocate device mem for sorting kernels
   uint *dKeys, *dVals, *dTempKeys, *dTempVals;
 
-#ifdef UNIFIED_MEMORY
-  dKeys = hKeys;
-  dVals = hVals;
-  CUDA_SAFE_CALL(cudaMallocManaged((void **)&dTempKeys, bytes));
-  CUDA_SAFE_CALL(cudaMallocManaged((void **)&dTempVals, bytes));
-#else
-  CUDA_SAFE_CALL(cudaMalloc((void **)&dKeys, bytes));
-  CUDA_SAFE_CALL(cudaMalloc((void **)&dVals, bytes));
-  CUDA_SAFE_CALL(cudaMalloc((void **)&dTempKeys, bytes));
-  CUDA_SAFE_CALL(cudaMalloc((void **)&dTempVals, bytes));
-#endif
+  if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+    dKeys = hKeys;
+    dVals = hVals;
+    checkCudaErrors(cudaMallocManaged((void **)&dTempKeys, bytes));
+    checkCudaErrors(cudaMallocManaged((void **)&dTempVals, bytes));
+  } else {
+    checkCudaErrors(cudaMalloc((void **)&dKeys, bytes));
+    checkCudaErrors(cudaMalloc((void **)&dVals, bytes));
+    checkCudaErrors(cudaMalloc((void **)&dTempKeys, bytes));
+    checkCudaErrors(cudaMalloc((void **)&dTempVals, bytes));
+  }
 
   // Each thread in the sort kernel handles 4 elements
   size_t numSortGroups = size / (4 * SORT_BLOCK_SIZE);
 
   uint *dCounters, *dCounterSums, *dBlockOffsets;
-#ifdef UNIFIED_MEMORY
-  CUDA_SAFE_CALL(cudaMallocManaged((void **)&dCounters,
-                            WARP_SIZE * numSortGroups * sizeof(uint)));
-  CUDA_SAFE_CALL(cudaMallocManaged((void **)&dCounterSums,
-                            WARP_SIZE * numSortGroups * sizeof(uint)));
-  CUDA_SAFE_CALL(cudaMallocManaged((void **)&dBlockOffsets,
-                            WARP_SIZE * numSortGroups * sizeof(uint)));
-#else
-  CUDA_SAFE_CALL(cudaMalloc((void **)&dCounters,
-                            WARP_SIZE * numSortGroups * sizeof(uint)));
-  CUDA_SAFE_CALL(cudaMalloc((void **)&dCounterSums,
-                            WARP_SIZE * numSortGroups * sizeof(uint)));
-  CUDA_SAFE_CALL(cudaMalloc((void **)&dBlockOffsets,
-                            WARP_SIZE * numSortGroups * sizeof(uint)));
-#endif
+  if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+    checkCudaErrors(cudaMallocManaged((void **)&dCounters,
+                              WARP_SIZE * numSortGroups * sizeof(uint)));
+    checkCudaErrors(cudaMallocManaged((void **)&dCounterSums,
+                              WARP_SIZE * numSortGroups * sizeof(uint)));
+    checkCudaErrors(cudaMallocManaged((void **)&dBlockOffsets,
+                              WARP_SIZE * numSortGroups * sizeof(uint)));
+  }
+  else {
+    checkCudaErrors(cudaMalloc((void **)&dCounters,
+                              WARP_SIZE * numSortGroups * sizeof(uint)));
+    checkCudaErrors(cudaMalloc((void **)&dCounterSums,
+                              WARP_SIZE * numSortGroups * sizeof(uint)));
+    checkCudaErrors(cudaMalloc((void **)&dBlockOffsets,
+                              WARP_SIZE * numSortGroups * sizeof(uint)));
+  }
 
   int iterations = op.getOptionInt("passes");
   cudaEvent_t start, stop;
-  cudaEventCreate(&start);
-  cudaEventCreate(&stop);
+  checkCudaErrors(cudaEventCreate(&start));
+  checkCudaErrors(cudaEventCreate(&stop));
 
   for (int it = 0; it < iterations; it++) {
     if(!quiet) {
@@ -221,42 +228,66 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 
     // Copy inputs to GPU
     double transferTime = 0.;
-    cudaEventRecord(start, 0);
-#ifdef UNIFIED_MEMORY
-    // Prefectch or just demand paging
-#else
-    CUDA_SAFE_CALL(cudaMemcpy(dKeys, hKeys, bytes, cudaMemcpyHostToDevice));
-    CUDA_SAFE_CALL(cudaMemcpy(dVals, hVals, bytes, cudaMemcpyHostToDevice));
-#endif
-    cudaEventRecord(stop, 0);
-    CUDA_SAFE_CALL(cudaEventSynchronize(stop));
+    checkCudaErrors(cudaEventRecord(start, 0));
+    if (uvm) {
+      // do nothing
+    } else if (uvm_advise) {
+      checkCudaErrors(cudaMemAdvise(dKeys, bytes, cudaMemAdviseSetPreferredLocation, device));
+      checkCudaErrors(cudaMemAdvise(dVals, bytes, cudaMemAdviseSetPreferredLocation, device));
+    } else if (uvm_prefetch) {
+      checkCudaErrors(cudaMemPrefetchAsync(dKeys, bytes, device));
+      checkCudaErrors(cudaMemPrefetchAsync(dVals, bytes, device, (cudaStream_t)1));
+    } else if (uvm_prefetch_advise) {
+      checkCudaErrors(cudaMemAdvise(dKeys, bytes, cudaMemAdviseSetPreferredLocation, device));
+      checkCudaErrors(cudaMemAdvise(dVals, bytes, cudaMemAdviseSetPreferredLocation, device));
+      checkCudaErrors(cudaMemPrefetchAsync(dKeys, bytes, device));
+      checkCudaErrors(cudaMemPrefetchAsync(dVals, bytes, device, (cudaStream_t)1));
+    } else {
+        checkCudaErrors(cudaMemcpy(dKeys, hKeys, bytes, cudaMemcpyHostToDevice));
+        checkCudaErrors(cudaMemcpy(dVals, hVals, bytes, cudaMemcpyHostToDevice));
+    }
+    checkCudaErrors(cudaEventRecord(stop, 0));
+    checkCudaErrors(cudaEventSynchronize(stop));
     float elapsedTime;
-    cudaEventElapsedTime(&elapsedTime, start, stop);
+    checkCudaErrors(cudaEventElapsedTime(&elapsedTime, start, stop));
     transferTime += elapsedTime * 1.e-3; // convert to seconds
 
-    cudaEventRecord(start, 0);
+    checkCudaErrors(cudaEventRecord(start, 0));
     // Perform Radix Sort (4 bits at a time)
     for (int i = 0; i < SORT_BITS; i += 4) {
       radixSortStep(4, i, (uint4 *)dKeys, (uint4 *)dVals, (uint4 *)dTempKeys,
                     (uint4 *)dTempVals, dCounters, dCounterSums, dBlockOffsets,
                     scanBlockSums, size);
     }
-    cudaEventRecord(stop, 0);
-    CUDA_SAFE_CALL(cudaEventSynchronize(stop));
-    cudaEventElapsedTime(&elapsedTime, start, stop);
+    checkCudaErrors(cudaEventRecord(stop, 0));
+    checkCudaErrors(cudaEventSynchronize(stop));
+    checkCudaErrors(cudaEventElapsedTime(&elapsedTime, start, stop));
     double kernelTime = elapsedTime * 1.e-3;
-
     // Readback data from device
-    cudaEventRecord(start, 0);
-#ifdef UNIFIED_MEMORY
+    checkCudaErrors(cudaEventRecord(start, 0));
+
     // prefetch or demand paging
-#else
-    CUDA_SAFE_CALL(cudaMemcpy(hKeys, dKeys, bytes, cudaMemcpyDeviceToHost));
-    CUDA_SAFE_CALL(cudaMemcpy(hVals, dVals, bytes, cudaMemcpyDeviceToHost));
-#endif
-    cudaEventRecord(stop, 0);
-    CUDA_SAFE_CALL(cudaEventSynchronize(stop));
-    cudaEventElapsedTime(&elapsedTime, start, stop);
+    if (uvm) {
+      // do nothing
+    } else if (uvm_advise) {
+      checkCudaErrors(cudaMemAdvise(dKeys, bytes, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+      checkCudaErrors(cudaMemAdvise(dVals, bytes, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+    } else if (uvm_prefetch) {
+      checkCudaErrors(cudaMemPrefetchAsync(dKeys, bytes, cudaCpuDeviceId));
+      checkCudaErrors(cudaMemPrefetchAsync(dVals, bytes, cudaCpuDeviceId, (cudaStream_t)1));
+    } else if (uvm_prefetch_advise) {
+      checkCudaErrors(cudaMemAdvise(dKeys, bytes, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+      checkCudaErrors(cudaMemAdvise(dVals, bytes, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+      checkCudaErrors(cudaMemPrefetchAsync(dKeys, bytes, cudaCpuDeviceId));
+      checkCudaErrors(cudaMemPrefetchAsync(dVals, bytes, cudaCpuDeviceId, (cudaStream_t)1));
+    } else {
+      checkCudaErrors(cudaMemcpy(hKeys, dKeys, bytes, cudaMemcpyDeviceToHost));
+      checkCudaErrors(cudaMemcpy(hVals, dVals, bytes, cudaMemcpyDeviceToHost));
+    }
+
+    checkCudaErrors(cudaEventRecord(stop, 0));
+    checkCudaErrors(cudaEventSynchronize(stop));
+    checkCudaErrors(cudaEventElapsedTime(&elapsedTime, start, stop));
     transferTime += elapsedTime * 1.e-3;
 
     // Test to make sure data was sorted properly, if not, return
@@ -279,25 +310,25 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   }
   // Clean up
   for (int i = 0; i < numLevelsAllocated; i++) {
-    CUDA_SAFE_CALL(cudaFree(scanBlockSums[i]));
+    checkCudaErrors(cudaFree(scanBlockSums[i]));
   }
-  CUDA_SAFE_CALL(cudaFree(dKeys));
-  CUDA_SAFE_CALL(cudaFree(dVals));
-  CUDA_SAFE_CALL(cudaFree(dTempKeys));
-  CUDA_SAFE_CALL(cudaFree(dTempVals));
-  CUDA_SAFE_CALL(cudaFree(dCounters));
-  CUDA_SAFE_CALL(cudaFree(dCounterSums));
-  CUDA_SAFE_CALL(cudaFree(dBlockOffsets));
-  CUDA_SAFE_CALL(cudaEventDestroy(start));
-  CUDA_SAFE_CALL(cudaEventDestroy(stop));
+  checkCudaErrors(cudaFree(dKeys));
+  checkCudaErrors(cudaFree(dVals));
+  checkCudaErrors(cudaFree(dTempKeys));
+  checkCudaErrors(cudaFree(dTempVals));
+  checkCudaErrors(cudaFree(dCounters));
+  checkCudaErrors(cudaFree(dCounterSums));
+  checkCudaErrors(cudaFree(dBlockOffsets));
+  checkCudaErrors(cudaEventDestroy(start));
+  checkCudaErrors(cudaEventDestroy(stop));
 
-#ifdef UNIFIED_MEMORY
-  CUDA_SAFE_CALL(cudaFree(scanBlockSums));
-#else
-  free(scanBlockSums);
-  CUDA_SAFE_CALL(cudaFreeHost(hKeys));
-  CUDA_SAFE_CALL(cudaFreeHost(hVals));
-#endif
+  if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+    checkCudaErrors(cudaFree(scanBlockSums));
+  } else {
+    free(scanBlockSums);
+    checkCudaErrors(cudaFreeHost(hKeys));
+    checkCudaErrors(cudaFreeHost(hVals));
+  }
   free(sourceInput);
 }
 
@@ -430,7 +461,7 @@ bool verifySort(uint *keys, uint *vals, const size_t size, bool verbose, bool qu
       }
     }
   }
-  if(!quiet) {
+  if (!quiet) {
       cout << "Test ";
       if (passed) {
           cout << "Passed" << endl;

@@ -90,9 +90,9 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 
   if (rowLen == 0 || colLen == 0 || pyramidHeight == 0) {
     printf("Using preset problem size %d\n", (int)op.getOptionInt("size"));
-    int rowSizes[4] = {8, 16, 32, 40};
-    int colSizes[4] = {8, 16, 32, 40};
-    int pyramidSizes[4] = {4, 8, 16, 32};
+    int rowSizes[5] = {8, 16, 32, 40, 48};
+    int colSizes[5] = {8, 16, 32, 40, 48};
+    int pyramidSizes[5] = {4, 8, 16, 32, 36};
     rows = rowSizes[op.getOptionInt("size") - 1] * 1024;
     cols = colSizes[op.getOptionInt("size") - 1] * 1024;
     pyramid_height = pyramidSizes[op.getOptionInt("size") - 1];
@@ -141,19 +141,22 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void init(OptionParser &op) {
-#ifdef UNIFIED_MEMORY
-    CUDA_SAFE_CALL(cudaMallocManaged(&data, sizeof(int) * rows * cols));
-    CUDA_SAFE_CALL(cudaMallocManaged(&wall, sizeof(int *) * rows));
+  const bool uvm = op.getOptionBool("uvm");
+  const bool uvm_advise = op.getOptionBool("uvm-advise");
+  const bool uvm_prefetch = op.getOptionBool("uvm-prefetch");
+  const bool uvm_prefetch_advise = op.getOptionBool("uvm-prefetch-advise");
+
+  if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+    checkCudaErrors(cudaMallocManaged(&data, sizeof(int) * rows * cols));
+    checkCudaErrors(cudaMallocManaged(&wall, sizeof(int *) * rows));
     for (int n = 0; n < rows; n++) wall[n] = data + (int)cols * n;
-    CUDA_SAFE_CALL(cudaMallocManaged(&result, sizeof(int) * cols));
-
-#else
-
-  data = new int[rows * cols];
-  wall = new int *[rows];
-  for (int n = 0; n < rows; n++) wall[n] = data + (int)cols * n;
-  result = new int[cols];
-#endif
+    // checkCudaErrors(cudaMallocManaged(&result, sizeof(int) * cols));
+  } else {
+    data = new int[rows * cols];
+    wall = new int *[rows];
+    for (int n = 0; n < rows; n++) wall[n] = data + (int)cols * n;
+    result = new int[cols];
+  }
 
   srand(SEED);
 
@@ -198,7 +201,7 @@ void init(OptionParser &op) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	Dynproc kernel. </summary>
 ///
-/// <remarks>	Ed, 5/20/2020. </remarks>
+/// <remarks>	Bodun Hu (bodunhu@utexas.edu), 1/7/2021. </remarks>
 ///
 /// <param name="iteration"> 	The iteration. </param>
 /// <param name="gpuWall">   	[in,out] If non-null, the GPU wall. </param>
@@ -378,47 +381,62 @@ void run(int borderCols, int smallBlockCol, int blockCols,
          ResultDatabase &resultDB, OptionParser &op) {
   // initialize data
   init(op);
+  const bool uvm = op.getOptionBool("uvm");
+  const bool uvm_advise = op.getOptionBool("uvm-advise");
+  const bool uvm_prefetch = op.getOptionBool("uvm-prefetch");
+  const bool uvm_prefetch_advise = op.getOptionBool("uvm-prefetch-advise");
 
   int *gpuWall, *gpuResult[2];
   int size = rows * cols;
-#ifndef UNIFIED_MEMORY
-  CUDA_SAFE_CALL(cudaMalloc((void **)&gpuResult[0], sizeof(int) * cols));
-  CUDA_SAFE_CALL(cudaMalloc((void **)&gpuResult[1], sizeof(int) * cols));
-  CUDA_SAFE_CALL(cudaMalloc((void **)&gpuWall, sizeof(int) * (size - cols)));
-#endif
+
+  if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+    gpuResult[0] = data;
+    checkCudaErrors(cudaMallocManaged((void **)&gpuResult[1], sizeof(int) * cols));
+    checkCudaErrors(cudaMallocManaged((void **)&gpuWall, sizeof(int) * (size - cols)));
+    // gpuWall = data + cols;
+  } else {
+    checkCudaErrors(cudaMalloc((void **)&gpuResult[0], sizeof(int) * cols));
+    checkCudaErrors(cudaMalloc((void **)&gpuResult[1], sizeof(int) * cols));
+    checkCudaErrors(cudaMalloc((void **)&gpuWall, sizeof(int) * (size - cols)));
+  }
+
   // Cuda events and times
   cudaEvent_t start, stop;
-  cudaEventCreate(&start);
-  cudaEventCreate(&stop);
+  checkCudaErrors(cudaEventCreate(&start));
+  checkCudaErrors(cudaEventCreate(&stop));
   float elapsedTime;
   double transferTime = 0.;
   double kernelTime = 0;
 
-  cudaEventRecord(start, 0);
+  checkCudaErrors(cudaEventRecord(start, 0));
 
-
-
-#ifdef UNIFIED_MEMORY
-  CUDA_SAFE_CALL(cudaMallocManaged((void **)&gpuResult[1], sizeof(int) * cols));
-  CUDA_SAFE_CALL(cudaMallocManaged((void **)&gpuWall, sizeof(int) * (size - cols)));
-  gpuResult[0] = data;
-  CUDA_SAFE_CALL(cudaMemPrefetchAsync(gpuResult[0], sizeof(int) * cols, device_id));
-  CUDA_SAFE_CALL(cudaMemAdvise(gpuWall, sizeof(int) * (size - cols), cudaMemAdviseSetReadMostly, device_id));
-  CUDA_SAFE_CALL(cudaMemcpy(gpuWall, data + cols,
-                            sizeof(int) * (size - cols),
-                            cudaMemcpyDefault));
-#else
-
-  CUDA_SAFE_CALL(cudaMemcpy(gpuResult[0], data, sizeof(int) * cols,
+  if (uvm) {
+    // do nothing
+  } else if (uvm_advise) {
+    checkCudaErrors(cudaMemAdvise(gpuResult[0], sizeof(int) * cols, cudaMemAdviseSetPreferredLocation, device_id));
+    checkCudaErrors(cudaMemAdvise(gpuWall, sizeof(int) * (size - cols), cudaMemAdviseSetPreferredLocation, device_id));
+    checkCudaErrors(cudaMemAdvise(gpuWall, sizeof(int) * (size - cols), cudaMemAdviseSetReadMostly, device_id));
+  } else if (uvm_prefetch) {
+    checkCudaErrors(cudaMemPrefetchAsync(gpuResult[0], sizeof(int) * cols, device_id));
+    checkCudaErrors(cudaMemPrefetchAsync(gpuWall, sizeof(int) * (size - cols), device_id, (cudaStream_t) 1));
+  } else if (uvm_prefetch_advise) {
+    checkCudaErrors(cudaMemAdvise(gpuResult[0], sizeof(int) * cols, cudaMemAdviseSetPreferredLocation, device_id));
+    checkCudaErrors(cudaMemAdvise(gpuWall, sizeof(int) * (size - cols), cudaMemAdviseSetPreferredLocation, device_id));
+    checkCudaErrors(cudaMemAdvise(gpuWall, sizeof(int) * (size - cols), cudaMemAdviseSetReadMostly, device_id));
+    checkCudaErrors(cudaMemPrefetchAsync(gpuResult[0], sizeof(int) * cols, device_id));
+    checkCudaErrors(cudaMemPrefetchAsync(gpuWall, sizeof(int) * (size - cols), device_id, (cudaStream_t) 1));
+  } else {
+    checkCudaErrors(cudaMemcpy(gpuResult[0], data, sizeof(int) * cols,
                             cudaMemcpyHostToDevice));
   
-  CUDA_SAFE_CALL(cudaMemcpy(gpuWall, data + cols,
+    checkCudaErrors(cudaMemcpy(gpuWall, data + cols,
                             sizeof(int) * (size - cols),
                             cudaMemcpyHostToDevice));
-#endif
-  cudaEventRecord(stop, 0);
-  cudaEventSynchronize(stop);
-  cudaEventElapsedTime(&elapsedTime, start, stop);
+  }
+
+  checkCudaErrors(cudaEventRecord(stop, 0));
+  checkCudaErrors(cudaEventSynchronize(stop));
+  checkCudaErrors(cudaEventElapsedTime(&elapsedTime, start, stop));
   transferTime += elapsedTime * 1.e-3;  // convert to seconds
 
   int instances = op.getOptionInt("instances");
@@ -433,18 +451,30 @@ void run(int borderCols, int smallBlockCol, int blockCols,
                 borderCols, kernelTime, false, instances);
 #endif
 
-  cudaEventRecord(start, 0);
+  checkCudaErrors(cudaEventRecord(start, 0));
 
-#ifdef UNIFIED_MEMORY
-  result = gpuResult[final_ret];
-  CUDA_SAFE_CALL(cudaMemPrefetchAsync(result, sizeof(int) * cols, cudaCpuDeviceId));
-#else
-  CUDA_SAFE_CALL(cudaMemcpy(result, gpuResult[final_ret],
-                            sizeof(int) * cols, cudaMemcpyDeviceToHost));
-#endif
-  cudaEventRecord(stop, 0);
-  cudaEventSynchronize(stop);
-  cudaEventElapsedTime(&elapsedTime, start, stop);
+  if (uvm) {
+    result = gpuResult[final_ret];
+  } else if (uvm_advise) {
+    result = gpuResult[final_ret];
+    checkCudaErrors(cudaMemAdvise(gpuResult[final_ret], sizeof(int) * cols, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+    checkCudaErrors(cudaMemAdvise(gpuResult[final_ret], sizeof(int) * cols, cudaMemAdviseSetReadMostly, cudaCpuDeviceId));
+  } else if (uvm_prefetch) {
+    result = gpuResult[final_ret];
+    checkCudaErrors(cudaMemPrefetchAsync(result, sizeof(int) * cols, cudaCpuDeviceId));
+  } else if (uvm_prefetch_advise) {
+    result = gpuResult[final_ret];
+    checkCudaErrors(cudaMemAdvise(gpuResult[final_ret], sizeof(int) * cols, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+    checkCudaErrors(cudaMemAdvise(gpuResult[final_ret], sizeof(int) * cols, cudaMemAdviseSetReadMostly, cudaCpuDeviceId));
+    checkCudaErrors(cudaMemPrefetchAsync(result, sizeof(int) * cols, cudaCpuDeviceId));
+  } else {
+    checkCudaErrors(cudaMemcpy(result, gpuResult[final_ret],
+                    sizeof(int) * cols, cudaMemcpyDeviceToHost));
+  }
+
+  checkCudaErrors(cudaEventRecord(stop, 0));
+  checkCudaErrors(cudaEventSynchronize(stop));
+  checkCudaErrors(cudaEventElapsedTime(&elapsedTime, start, stop));
   transferTime += elapsedTime * 1.e-3;  // convert to seconds
 
   /// <summary>	Output the results to a file. </summary>
@@ -471,15 +501,15 @@ void run(int borderCols, int smallBlockCol, int blockCols,
   ///
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  cudaFree(gpuWall);
+  // cudaFree(gpuWall);
   cudaFree(gpuResult[0]);
   cudaFree(gpuResult[1]);
 
-#ifndef UNIFIED_MEMORY
+if (!uvm && !uvm_advise && !uvm_prefetch && !uvm_prefetch_advise) {
   delete[] data;
   delete[] wall;
   delete[] result;
-#endif
+}
 
   string atts = toString(rows) + "x" + toString(cols);
 #ifdef HYPERQ

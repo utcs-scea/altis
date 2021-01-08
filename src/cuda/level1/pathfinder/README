@@ -1,10 +1,8 @@
 Notes:
-This benchmark was originally implemented in SHOC (https://github.com/vetter/shoc). It is modified to support managed memory allocation.
-
-Measures performance for device versions of the SGEMM BLAS routine, on a square matrix.
+This benchmark was originally implemented in Rodinia (http://rodinia.cs.virginia.edu/doku.php). It is modified to support managed memory allocation and HyperQ.
 
 USAGE:
-./gemm [options]
+./pathfinder [options]
 
     -d, --device                 specify device(s) to run on
     -h, --help                   print this usage
