@@ -116,7 +116,7 @@
 /// <remarks>	Edward Hu (bodunhu@utexas.edu), 5/20/2020. </remarks>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define DEFAULT_LOGN 26 //20
+#define DEFAULT_LOGN 20
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	A macro that defines Polygon. </summary>
@@ -303,7 +303,7 @@ starts()
     temp = (temp << 1) ^ ((int64_t) temp < 0 ? POLY : 0);
     temp = (temp << 1) ^ ((int64_t) temp < 0 ? POLY : 0);
   }
-  cudaMemcpyToSymbol(c_m2, m2, sizeof(m2));
+  checkCudaErrors(cudaMemcpyToSymbol(c_m2, m2, sizeof(m2)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -334,9 +334,13 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
   std::cout << "Running GUPS" << std::endl;
   size_t n = 0;
+  const int passes = op.getOptionInt("passes");
+  const bool uvm = op.getOptionBool("uvm");
+  int device = 0;
+  checkCudaErrors(cudaGetDevice(&device));
 
   // Specify table size
-  int problemSizes[4] = {20, 22, 24, 26};
+  int problemSizes[5] = {20, 22, 24, 26, 32}; // size 5 might be extremely long!
   int toShifts = problemSizes[op.getOptionInt("size") - 1];
 
   int logn = op.getOptionInt("shifts");
@@ -352,25 +356,24 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
   starts();
 
   int ndev;
-  cudaGetDeviceCount(&ndev);
+  checkCudaErrors(cudaGetDeviceCount(&ndev));
   int dev = op.getOptionInt("device");
 
   cudaDeviceProp prop;
-  cudaGetDeviceProperties(&prop, DEFAULT_GPU);
-  cudaSetDevice(dev);
+  checkCudaErrors(cudaGetDeviceProperties(&prop, device));
+  checkCudaErrors(cudaSetDevice(dev));
   printf("Using GPU %d of %d GPUs.\n", dev, ndev);
   printf("Warp size = %d.\n", prop.warpSize);
   printf("Multi-processor count = %d.\n", prop.multiProcessorCount);
   printf("Max threads per multi-processor = %d.\n",
          prop.maxThreadsPerMultiProcessor);
 
-  benchtype *d_t;
-#ifdef UNIFIED_MEMORY
-  CUDA_SAFE_CALL(cudaMallocManaged((void **)&d_t, n * sizeof(benchtype))); 
-  // no prefetch or advise
-#else
-  CUDA_SAFE_CALL(cudaMalloc((void **)&d_t, n * sizeof(benchtype))); 
-#endif
+  benchtype *d_t = NULL;
+  if (uvm) {
+    checkCudaErrors(cudaMallocManaged((void **)&d_t, n * sizeof(benchtype)));
+  } else {
+    checkCudaErrors(cudaMalloc((void **)&d_t, n * sizeof(benchtype)));
+  }
 
   // max warp size
   dim3 grid(prop.multiProcessorCount *
@@ -378,31 +381,64 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
   // # as if scheduling warps instead of blocks
   dim3 thread(prop.warpSize);
   cudaEvent_t begin, end;
-  cudaEventCreate(&begin);
-  cudaEventCreate(&end);
-  d_init<<<grid, thread>>>(n, d_t);
-  cudaEventRecord(begin);
-  cudaEventSynchronize(begin);
-  d_bench<ATOMICTYPE_CAS><<<grid, thread>>>(n, d_t);
-  cudaEventRecord(end);
-  cudaEventSynchronize(end);
-
-  float ms;
-  cudaEventElapsedTime(&ms, begin, end);
-  cudaEventDestroy(end);
-  cudaEventDestroy(begin);
-  double time = ms * 1.0e-3;
-  printf("Elapsed time = %.6f seconds.\n", time);
-  double gups = 4 * n / (double) ms * 1.0e-6;
-  printf("Giga Updates per second = %.6f GUP/s.\n", gups);
-  d_bench<ATOMICTYPE_CAS><<<grid, thread>>>(n, d_t);
+  checkCudaErrors(cudaEventCreate(&begin));
+  checkCudaErrors(cudaEventCreate(&end));
   void *p_error;
-  cudaGetSymbolAddress(&p_error, d_error);
-  cudaMemset(d_error, 0, sizeof(uint32_t));
-  d_check<<<grid, thread>>>(n, d_t);
-  uint32_t h_error;
-  cudaMemcpy(&h_error, p_error, sizeof(uint32_t), cudaMemcpyDeviceToHost);
-  printf("Verification: Found %u errors.\n", h_error);
+  checkCudaErrors(cudaGetSymbolAddress(&p_error, d_error));
 
-  cudaFree(d_t);
+  string atts = "ATOMICTYPE_CAS";
+  for (int i = 0; i < passes; i++) {
+    d_init<<<grid, thread>>>(n, d_t);
+    checkCudaErrors(cudaEventRecord(begin));
+    d_bench<ATOMICTYPE_CAS><<<grid, thread>>>(n, d_t);
+    checkCudaErrors(cudaEventRecord(end));
+    checkCudaErrors(cudaEventSynchronize(end));
+
+    float ms;
+    checkCudaErrors(cudaEventElapsedTime(&ms, begin, end));
+
+    double time = ms * 1.0e-3;
+    DB.AddResult("Elapsed time", atts, "seconds", time);
+    double gups = 4 * n / (double) ms * 1.0e-6;
+    DB.AddResult("Giga Updates per second", atts, "GUP/s", gups);
+
+    cudaMemset(d_error, 0, sizeof(uint32_t));
+    d_check<<<grid, thread>>>(n, d_t);
+    uint32_t h_error;
+    checkCudaErrors(cudaMemcpy(&h_error, p_error, sizeof(uint32_t), cudaMemcpyDeviceToHost));
+    if (op.getOptionBool("verbose")) {
+      printf("Verification (ATOMICTYPE_CAS): Found %u errors.\n", h_error);
+    }
+  }
+
+  atts = "ATOMICTYPE_XOR";
+  for (int i = 0; i < passes; i++) {
+    d_init<<<grid, thread>>>(n, d_t);
+    checkCudaErrors(cudaEventRecord(begin));
+    d_bench<ATOMICTYPE_XOR><<<grid, thread>>>(n, d_t);
+    checkCudaErrors(cudaEventRecord(end));
+    checkCudaErrors(cudaEventSynchronize(end));
+
+    float ms;
+    checkCudaErrors(cudaEventElapsedTime(&ms, begin, end));
+
+    double time = ms * 1.0e-3;
+    DB.AddResult("Elapsed time", atts, "seconds", time);
+    double gups = 4 * n / (double) ms * 1.0e-6;
+    DB.AddResult("Giga Updates per second", atts, "GUP/s", gups);
+    // d_bench<ATOMICTYPE_XOR><<<grid, thread>>>(n, d_t);
+    // void *p_error;
+    // checkCudaErrors(cudaGetSymbolAddress(&p_error, d_error));
+    cudaMemset(d_error, 0, sizeof(uint32_t));
+    d_check<<<grid, thread>>>(n, d_t);
+    uint32_t h_error;
+    checkCudaErrors(cudaMemcpy(&h_error, p_error, sizeof(uint32_t), cudaMemcpyDeviceToHost));
+    if (op.getOptionBool("verbose")) {
+      printf("Verification (ATOMICTYPE_XOR): Found %u errors.\n", h_error);
+    }
+  }
+
+  checkCudaErrors(cudaEventDestroy(end));
+  checkCudaErrors(cudaEventDestroy(begin));
+  checkCudaErrors(cudaFree(d_t));
 }

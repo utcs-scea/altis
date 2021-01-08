@@ -1,8 +1,12 @@
-Notes:
-This benchmark was originally implemented in Rodinia (http://rodinia.cs.virginia.edu/doku.php). It is modified to support managed memory allocation.
+Note: This code has been contributed by the DARPA HPCS program.
+Contact David Koester <dkoester@mitre.org> or Bob Lucas <rflucas@isi.edu>
+if you have questions.
+
+GUPS (Giga UPdates per Second) is a measurement that profiles the memory
+architecture of a system and is a measure of performance similar to MFLOPS.
 
 USAGE:
-./bfs [options]
+./gups [options]
 
     -d, --device                 specify device(s) to run on
     -h, --help                   print this usage
@@ -11,7 +15,4 @@ USAGE:
     -p, --properties             show properties for available platforms and devices
     -q, --quiet                  enable concise output
         --uvm                    use managed memory with pure demand paging. Not compatible with other --uvm* flags
-        --uvm-advise             use managed memory with memory usage hint. Not compatible with other --uvm* flags
-        --uvm-prefetch           use managed memory with prefetch. Not compatible with other --uvm* flags
-        --uvm-prefetch-advise    use managed memory with prefetch and memory usage hint. Not compatible with other --uvm* flags
     -v, --verbose                enable verbose output
