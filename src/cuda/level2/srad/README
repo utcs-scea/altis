@@ -1,0 +1,18 @@
+Notes:
+This benchmark was originally implemented in Rodinia (http://rodinia.cs.virginia.edu/doku.php). It is modified to support managed memory allocation and Cooperative Groups.
+
+USAGE:
+./pathfinder [options]
+
+    -d, --device                 specify device(s) to run on
+    -h, --help                   print this usage
+    -m, --metricsFile            path of file to write metrics to
+    -n, --passes                 specify number of passes
+    -p, --properties             show properties for available platforms and devices
+    -q, --quiet                  enable concise output
+        --uvm                    use managed memory with pure demand paging. Not compatible with other --uvm* flags
+        --uvm-advise             use managed memory with memory usage hint. Not compatible with other --uvm* flags
+        --uvm-prefetch           use managed memory with prefetch. Not compatible with other --uvm* flags
+        --uvm-prefetch-advise    use managed memory with prefetch and memory usage hint. Not compatible with other --uvm* flags
+        --coop                   use Cooperative Group's gridsync feature. Using large data input will cause the program to fail
+    -v, --verbose                enable verbose output

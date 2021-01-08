@@ -132,26 +132,32 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 
   srand(SEED);
   bool quiet = op.getOptionBool("quiet");
+  const bool uvm = op.getOptionBool("uvm");
+  const bool uvm_advise = op.getOptionBool("uvm-advice");
+  const bool uvm_prefetch = op.getOptionBool("uvm-prefetch");
+  const bool uvm_prefetch_advise = op.getOptionBool("uvm-prefetch-advise");
+  const bool coop = op.getOptionBool("coop");
+  int device = 0;
+  checkCudaErrors(cudaGetDevice(&device));
 
   // set parameters
   int imageSize = op.getOptionInt("imageSize");
   int speckleSize = op.getOptionInt("speckleSize");
   int iters = op.getOptionInt("iterations");
   if (imageSize == 0 || speckleSize == 0 || iters == 0) {
-    //int imageSizes[4] = {128, 512, 4096, 2 << 13};
-    int imageSizes[4] = {128, 512, 4096, 2 << 13};
-    int iterSizes[4] = {5, 1, 15, 20};
+    int imageSizes[5] = {128, 512, 4096, 8192, 16384};
+    int iterSizes[5] = {5, 1, 15, 20, 40};
     imageSize = imageSizes[op.getOptionInt("size") - 1];
     speckleSize = imageSize / 2;
     iters = iterSizes[op.getOptionInt("size") - 1];
   }
 
   // create timing events
-  cudaEventCreate(&start);
-  cudaEventCreate(&stop);
+  checkCudaErrors(cudaEventCreate(&start));
+  checkCudaErrors(cudaEventCreate(&stop));
 
-  if(!quiet) {
-    printf("WG size of kernel = %d X %d\n", BLOCK_SIZE, BLOCK_SIZE);
+  if (!quiet) {
+      printf("WG size of kernel = %d X %d\n", BLOCK_SIZE, BLOCK_SIZE);
       printf("Image Size: %d x %d\n", imageSize, imageSize);
       printf("Speckle size: %d x %d\n", speckleSize, speckleSize);
       printf("Num Iterations: %d\n\n", iters);
@@ -160,41 +166,42 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
   // run workload
   int passes = op.getOptionInt("passes");
   for (int i = 0; i < passes; i++) {
-#ifdef UNIFIED_MEMORY
     float *matrix = NULL;
-    CUDA_SAFE_CALL(cudaMallocManaged(&matrix, imageSize * imageSize * sizeof(float)));
-#else
-    float *matrix = (float*)malloc(imageSize * imageSize * sizeof(float));
-#endif
+    if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+        checkCudaErrors(cudaMallocManaged(&matrix, imageSize * imageSize * sizeof(float)));
+    } else {
+        matrix = (float*)malloc(imageSize * imageSize * sizeof(float));
+        assert(matrix);
+    }
     random_matrix(matrix, imageSize, imageSize);
-    if(!quiet) {
+    if (!quiet) {
         printf("Pass %d:\n", i);
     }
     float time = srad(resultDB, op, matrix, imageSize, speckleSize, iters);
-    if(!quiet) {
+    if (!quiet) {
         printf("Running SRAD...Done.\n");
     }
-#ifdef GRID_SYNC
-    // if using cooperative groups, add result to compare the 2 times
-    char atts[1024];
-    sprintf(atts, "img:%d,speckle:%d,iter:%d", imageSize, speckleSize, iters);
-    float time_gridsync = srad_gridsync(resultDB, op, matrix, imageSize, speckleSize, iters);
-    if(!quiet) {
+    if (coop) {
+        // if using cooperative groups, add result to compare the 2 times
+        char atts[1024];
+        sprintf(atts, "img:%d,speckle:%d,iter:%d", imageSize, speckleSize, iters);
+        float time_gridsync = srad_gridsync(resultDB, op, matrix, imageSize, speckleSize, iters);
+        if(!quiet) {
+            if(time_gridsync == FLT_MAX) {
+                printf("Running SRAD with cooperative groups...Failed.\n");
+            } else {
+                printf("Running SRAD with cooperative groups...Done.\n");
+            }
+        }
         if(time_gridsync == FLT_MAX) {
-            printf("Running SRAD with cooperative groups...Failed.\n");
-        } else {
-            printf("Running SRAD with cooperative groups...Done.\n");
+            resultDB.AddResult("srad_gridsync_speedup", atts, "N", time/time_gridsync);
         }
     }
-    if(time_gridsync == FLT_MAX) {
-        resultDB.AddResult("srad_gridsync_speedup", atts, "N", time/time_gridsync);
+    if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+        checkCudaErrors(cudaFree(matrix));
+    } else {
+        free(matrix);
     }
-#endif
-#ifdef UNIFIED_MEMORY
-      CUDA_SAFE_CALL(cudaFree(matrix));
-#else
-      free(matrix);
-#endif
   }
 }
 
@@ -215,6 +222,15 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 
 float srad(ResultDatabase &resultDB, OptionParser &op, float* matrix, int imageSize,
           int speckleSize, int iters) {
+    const bool uvm = op.getOptionBool("uvm");
+    const bool uvm_advise = op.getOptionBool("uvm-advise");
+    const bool uvm_prefetch = op.getOptionBool("uvm-prefetch");
+    const bool uvm_prefetch_advise = op.getOptionBool("uvm-prefetch-advise");
+    const bool coop = op.getOptionBool("coop");
+    int device = 0;
+    checkCudaErrors(cudaGetDevice(&device));
+
+
     kernelTime = 0.0f;
     transferTime = 0.0f;
     int rows, cols, size_I, size_R, niter, iter;
@@ -243,36 +259,41 @@ float srad(ResultDatabase &resultDB, OptionParser &op, float* matrix, int imageS
   size_I = cols * rows;
   size_R = (r2 - r1 + 1) * (c2 - c1 + 1);
 
-#ifdef UNIFIED_MEMORY
-  CUDA_SAFE_CALL(cudaMallocManaged(&J, sizeof(float) * size_I));
-  CUDA_SAFE_CALL(cudaMallocManaged(&c, sizeof(float) * size_I));
-#else
-  I = (float *)malloc(size_I * sizeof(float));
-  J = (float *)malloc(size_I * sizeof(float));
-  c = (float *)malloc(sizeof(float) * size_I);
-#endif
+  if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+    checkCudaErrors(cudaMallocManaged(&J, sizeof(float) * size_I));
+    checkCudaErrors(cudaMallocManaged(&c, sizeof(float) * size_I));
+  } else {
+    I = (float *)malloc(size_I * sizeof(float));
+    assert(I);
+    J = (float *)malloc(size_I * sizeof(float));
+    assert(J);
+    c = (float *)malloc(sizeof(float) * size_I);
+    assert(c);
+  }
 
   // Allocate device memory
-#ifdef UNIFIED_MEMORY
-  CUDA_SAFE_CALL(cudaMalloc((void **)&E_C, sizeof(float) * size_I));
-  CUDA_SAFE_CALL(cudaMalloc((void **)&W_C, sizeof(float) * size_I));
-  CUDA_SAFE_CALL(cudaMalloc((void **)&S_C, sizeof(float) * size_I));
-  CUDA_SAFE_CALL(cudaMalloc((void **)&N_C, sizeof(float) * size_I));
-#else
-  CUDA_SAFE_CALL(cudaMalloc((void **)&J_cuda, sizeof(float) * size_I));
-  CUDA_SAFE_CALL(cudaMalloc((void **)&C_cuda, sizeof(float) * size_I));
-  CUDA_SAFE_CALL(cudaMalloc((void **)&E_C, sizeof(float) * size_I));
-  CUDA_SAFE_CALL(cudaMalloc((void **)&W_C, sizeof(float) * size_I));
-  CUDA_SAFE_CALL(cudaMalloc((void **)&S_C, sizeof(float) * size_I));
-  CUDA_SAFE_CALL(cudaMalloc((void **)&N_C, sizeof(float) * size_I));
-#endif
+  if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+    J_cuda = J;
+    C_cuda = c;
+    checkCudaErrors(cudaMallocManaged((void **)&E_C, sizeof(float) * size_I));
+    checkCudaErrors(cudaMallocManaged((void **)&W_C, sizeof(float) * size_I));
+    checkCudaErrors(cudaMallocManaged((void **)&S_C, sizeof(float) * size_I));
+    checkCudaErrors(cudaMallocManaged((void **)&N_C, sizeof(float) * size_I));
+  } else {
+    checkCudaErrors(cudaMalloc((void **)&J_cuda, sizeof(float) * size_I));
+    checkCudaErrors(cudaMalloc((void **)&C_cuda, sizeof(float) * size_I));
+    checkCudaErrors(cudaMalloc((void **)&E_C, sizeof(float) * size_I));
+    checkCudaErrors(cudaMalloc((void **)&W_C, sizeof(float) * size_I));
+    checkCudaErrors(cudaMalloc((void **)&S_C, sizeof(float) * size_I));
+    checkCudaErrors(cudaMalloc((void **)&N_C, sizeof(float) * size_I));
+  }
 
   // copy random matrix
-#ifdef UNIFIED_MEMORY
-  I = matrix;
-#else
-  memcpy(I, matrix, rows*cols*sizeof(float));
-#endif
+  if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+    I = matrix;
+  } else {
+    memcpy(I, matrix, rows*cols*sizeof(float));
+  }
 
   for (int k = 0; k < size_I; k++) {
     J[k] = (float)exp(I[k]);
@@ -299,51 +320,62 @@ float srad(ResultDatabase &resultDB, OptionParser &op, float* matrix, int imageS
     dim3 dimGrid(block_x, block_y);
 
     // Copy data from main memory to device memory
-    cudaEventRecord(start, 0);
-#ifdef UNIFIED_MEMORY
-    J_cuda = J;
-    C_cuda = c;
-#else
-    CUDA_SAFE_CALL(
-        cudaMemcpy(J_cuda, J, sizeof(float) * size_I, cudaMemcpyHostToDevice));
-#endif
-    cudaEventRecord(stop, 0);
-    cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&elapsed, start, stop);
+    checkCudaErrors(cudaEventRecord(start, 0));
+    if (uvm) {
+        // do nothing
+    } else if (uvm_advise) {
+      checkCudaErrors(cudaMemAdvise(J_cuda, sizeof(float) * size_I, cudaMemAdviseSetPreferredLocation, device));
+    } else if (uvm_prefetch) {
+      checkCudaErrors(cudaMemPrefetchAsync(J_cuda, sizeof(float) * size_I, device));
+    } else if (uvm_prefetch_advise) {
+      checkCudaErrors(cudaMemAdvise(J_cuda, sizeof(float) * size_I, cudaMemAdviseSetPreferredLocation, device));
+      checkCudaErrors(cudaMemPrefetchAsync(J_cuda, sizeof(float) * size_I, device));
+    } else {
+      checkCudaErrors(cudaMemcpy(J_cuda, J, sizeof(float) * size_I, cudaMemcpyHostToDevice));
+    }
+    checkCudaErrors(cudaEventRecord(stop, 0));
+    checkCudaErrors(cudaEventSynchronize(stop));
+    checkCudaErrors(cudaEventElapsedTime(&elapsed, start, stop));
     transferTime += elapsed * 1.e-3;
 
     // Run kernels
-    cudaEventRecord(start, 0);
-    /*
+    checkCudaErrors(cudaEventRecord(start, 0));
     srad_cuda_1<<<dimGrid, dimBlock>>>(E_C, W_C, N_C, S_C, J_cuda, C_cuda, cols,
                                        rows, q0sqr);
-                                       */
-    cudaEventRecord(stop, 0);
-    cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&elapsed, start, stop);
+    checkCudaErrors(cudaEventRecord(stop, 0));
+    checkCudaErrors(cudaEventSynchronize(stop));
+    checkCudaErrors(cudaEventElapsedTime(&elapsed, start, stop));
     kernelTime += elapsed * 1.e-3;
     CHECK_CUDA_ERROR();
 
-    cudaEventRecord(start, 0);
-    /*
+    checkCudaErrors(cudaEventRecord(start, 0));
     srad_cuda_2<<<dimGrid, dimBlock>>>(E_C, W_C, N_C, S_C, J_cuda, C_cuda, cols,
                                        rows, lambda, q0sqr);
-                                       */
-    cudaEventRecord(stop, 0);
-    cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&elapsed, start, stop);
+    checkCudaErrors(cudaEventRecord(stop, 0));
+    checkCudaErrors(cudaEventSynchronize(stop));
+    checkCudaErrors(cudaEventElapsedTime(&elapsed, start, stop));
     kernelTime += elapsed * 1.e-3;
     CHECK_CUDA_ERROR();
 
     // Copy data from device memory to main memory
-    cudaEventRecord(start, 0);
-#ifndef UNIFIED_MEMORY
-    CUDA_SAFE_CALL(
-        cudaMemcpy(J, J_cuda, sizeof(float) * size_I, cudaMemcpyDeviceToHost));
-#endif
-    cudaEventRecord(stop, 0);
-    cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&elapsed, start, stop);
+    checkCudaErrors(cudaEventRecord(start, 0));
+
+    if (uvm) {
+      // do nothing
+    } else if (uvm_advise) {
+      checkCudaErrors(cudaMemAdvise(J_cuda, sizeof(float) * size_I, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+    } else if (uvm_prefetch) {
+      checkCudaErrors(cudaMemPrefetchAsync(J_cuda, sizeof(float) * size_I, cudaCpuDeviceId));
+    } else if (uvm_prefetch_advise) {
+      checkCudaErrors(cudaMemAdvise(J_cuda, sizeof(float) * size_I, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+      checkCudaErrors(cudaMemAdvise(J_cuda, sizeof(float) * size_I, cudaMemAdviseSetReadMostly, cudaCpuDeviceId));
+      checkCudaErrors(cudaMemPrefetchAsync(J_cuda, sizeof(float) * size_I, cudaCpuDeviceId));
+    } else {
+      checkCudaErrors(cudaMemcpy(J, J_cuda, sizeof(float) * size_I, cudaMemcpyDeviceToHost));
+    }
+    checkCudaErrors(cudaEventRecord(stop, 0));
+    checkCudaErrors(cudaEventSynchronize(stop));
+    checkCudaErrors(cudaEventElapsedTime(&elapsed, start, stop));
     transferTime += elapsed * 1.e-3;
   }
 
@@ -356,14 +388,14 @@ float srad(ResultDatabase &resultDB, OptionParser &op, float* matrix, int imageS
     resultDB.AddOverall("Time", "sec", kernelTime+transferTime);
 
   string outfile = op.getOptionString("outputFile");
-  if(!outfile.empty()) {
+  if (!outfile.empty()) {
       // Printing output
-      if(!op.getOptionBool("quiet")) {
+      if (!op.getOptionBool("quiet")) {
         printf("Writing output to %s\n", outfile.c_str());
       }
       FILE *fp = NULL;
       fp = fopen(outfile.c_str(), "w");
-      if(!fp) {
+      if (!fp) {
           printf("Error: Unable to write to file %s\n", outfile.c_str());
       } else {
           for (int i = 0; i < rows; i++) {
@@ -377,31 +409,32 @@ float srad(ResultDatabase &resultDB, OptionParser &op, float* matrix, int imageS
   }
   // write results to validate with srad_gridsync
   check = (float*) malloc(sizeof(float) * size_I);
+  assert(check);
   for (int i = 0; i < rows; i++) {
       for (int j = 0; j < cols; j++) {
           check[i*cols+j] = J[i*cols+j];
       }
   }
 
-#ifdef UNIFIED_MEMORY
-  CUDA_SAFE_CALL(cudaFree(C_cuda));
-  CUDA_SAFE_CALL(cudaFree(J_cuda));
-  CUDA_SAFE_CALL(cudaFree(E_C));
-  CUDA_SAFE_CALL(cudaFree(W_C));
-  CUDA_SAFE_CALL(cudaFree(N_C));
-  CUDA_SAFE_CALL(cudaFree(S_C));
-#else
-  free(I);
-  free(J);
-  free(c);
-  CUDA_SAFE_CALL(cudaFree(C_cuda));
-  CUDA_SAFE_CALL(cudaFree(J_cuda));
-  CUDA_SAFE_CALL(cudaFree(E_C));
-  CUDA_SAFE_CALL(cudaFree(W_C));
-  CUDA_SAFE_CALL(cudaFree(N_C));
-  CUDA_SAFE_CALL(cudaFree(S_C));
-#endif
-    return kernelTime;
+  if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+    checkCudaErrors(cudaFree(C_cuda));
+    checkCudaErrors(cudaFree(J_cuda));
+    checkCudaErrors(cudaFree(E_C));
+    checkCudaErrors(cudaFree(W_C));
+    checkCudaErrors(cudaFree(N_C));
+    checkCudaErrors(cudaFree(S_C));
+  } else {
+    free(I);
+    free(J);
+    free(c);
+    checkCudaErrors(cudaFree(C_cuda));
+    checkCudaErrors(cudaFree(J_cuda));
+    checkCudaErrors(cudaFree(E_C));
+    checkCudaErrors(cudaFree(W_C));
+    checkCudaErrors(cudaFree(N_C));
+    checkCudaErrors(cudaFree(S_C));
+  }
+  return kernelTime;
 }
 
 #ifdef GRID_SYNC
@@ -422,6 +455,14 @@ float srad(ResultDatabase &resultDB, OptionParser &op, float* matrix, int imageS
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 float srad_gridsync(ResultDatabase &resultDB, OptionParser &op, float* matrix, int imageSize, int speckleSize, int iters) {
+    const bool uvm = op.getOptionBool("uvm");
+    const bool uvm_advise = op.getOptionBool("uvm-advise");
+    const bool uvm_prefetch = op.getOptionBool("uvm-prefetch");
+    const bool uvm_prefetch_advise = op.getOptionBool("uvm-prefetch-advise");
+    const bool coop = op.getOptionBool("coop");
+    int device = 0;
+    checkCudaErrors(cudaGetDevice(&device));
+    
     kernelTime = 0.0f;
     transferTime = 0.0f;
     int rows, cols, size_I, size_R, niter, iter;
@@ -450,36 +491,41 @@ float srad_gridsync(ResultDatabase &resultDB, OptionParser &op, float* matrix, i
   size_I = cols * rows;
   size_R = (r2 - r1 + 1) * (c2 - c1 + 1);
 
-#ifdef UNIFIED_MEMORY
-  CUDA_SAFE_CALL(cudaMallocManaged((void **)&J, sizeof(float) * size_I));
-  CUDA_SAFE_CALL(cudaMallocManaged((void **)&c, sizeof(float) * size_I));
-#else
-  I = (float *)malloc(size_I * sizeof(float));
-  J = (float *)malloc(size_I * sizeof(float));
-  c = (float *)malloc(sizeof(float) * size_I);
-#endif
+  if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+    checkCudaErrors(cudaMallocManaged((void **)&J, sizeof(float) * size_I));
+    checkCudaErrors(cudaMallocManaged((void **)&c, sizeof(float) * size_I));
+  } else {
+    I = (float *)malloc(size_I * sizeof(float));
+    assert(I);
+    J = (float *)malloc(size_I * sizeof(float));
+    assert(J);
+    c = (float *)malloc(sizeof(float) * size_I);
+    assert(c);
+  }
 
   // Allocate device memory
-#ifdef UNIFIED_MEMORY
-  CUDA_SAFE_CALL(cudaMallocManaged((void **)&E_C, sizeof(float) * size_I));
-  CUDA_SAFE_CALL(cudaMallocManaged((void **)&W_C, sizeof(float) * size_I));
-  CUDA_SAFE_CALL(cudaMallocManaged((void **)&S_C, sizeof(float) * size_I));
-  CUDA_SAFE_CALL(cudaMallocManaged((void **)&N_C, sizeof(float) * size_I));
-#else
-  CUDA_SAFE_CALL(cudaMalloc((void **)&J_cuda, sizeof(float) * size_I));
-  CUDA_SAFE_CALL(cudaMalloc((void **)&C_cuda, sizeof(float) * size_I));
-  CUDA_SAFE_CALL(cudaMalloc((void **)&E_C, sizeof(float) * size_I));
-  CUDA_SAFE_CALL(cudaMalloc((void **)&W_C, sizeof(float) * size_I));
-  CUDA_SAFE_CALL(cudaMalloc((void **)&S_C, sizeof(float) * size_I));
-  CUDA_SAFE_CALL(cudaMalloc((void **)&N_C, sizeof(float) * size_I));
-#endif
+  if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+    J_cuda = J;
+    C_cuda = c;
+    checkCudaErrors(cudaMallocManaged((void **)&E_C, sizeof(float) * size_I));
+    checkCudaErrors(cudaMallocManaged((void **)&W_C, sizeof(float) * size_I));
+    checkCudaErrors(cudaMallocManaged((void **)&S_C, sizeof(float) * size_I));
+    checkCudaErrors(cudaMallocManaged((void **)&N_C, sizeof(float) * size_I));
+  } else {
+    checkCudaErrors(cudaMalloc((void **)&J_cuda, sizeof(float) * size_I));
+    checkCudaErrors(cudaMalloc((void **)&C_cuda, sizeof(float) * size_I));
+    checkCudaErrors(cudaMalloc((void **)&E_C, sizeof(float) * size_I));
+    checkCudaErrors(cudaMalloc((void **)&W_C, sizeof(float) * size_I));
+    checkCudaErrors(cudaMalloc((void **)&S_C, sizeof(float) * size_I));
+    checkCudaErrors(cudaMalloc((void **)&N_C, sizeof(float) * size_I));
+  }
 
   // Generate a random matrix
-#ifdef UNIFIED_MEMORY
-  I = matrix;
-#else
-  memcpy(I, matrix, rows*cols*sizeof(float));
-#endif
+  if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+    I = matrix;
+  } else {
+    memcpy(I, matrix, rows*cols*sizeof(float));
+  }
 
   for (int k = 0; k < size_I; k++) {
     J[k] = (float)exp(I[k]);
@@ -506,18 +552,25 @@ float srad_gridsync(ResultDatabase &resultDB, OptionParser &op, float* matrix, i
     dim3 dimGrid(block_x, block_y);
 
     // Copy data from main memory to device memory
-    cudaEventRecord(start, 0);
-#ifdef UNIFIED_MEMORY
+    checkCudaErrors(cudaEventRecord(start, 0));
     // timing incorrect for page fault
-    J_cuda = J;
-    C_cuda = c;
-#else
-    CUDA_SAFE_CALL(
-        cudaMemcpy(J_cuda, J, sizeof(float) * size_I, cudaMemcpyHostToDevice));
-#endif
-    cudaEventRecord(stop, 0);
-    cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&elapsed, start, stop);
+    // J_cuda = J;
+    // C_cuda = c;
+    if (uvm) {
+      // do nothing
+    } else if (uvm_advise) {
+      checkCudaErrors(cudaMemAdvise(J_cuda, sizeof(float) * size_I, cudaMemAdviseSetPreferredLocation, device));
+    } else if (uvm_prefetch) {
+      checkCudaErrors(cudaMemPrefetchAsync(J_cuda, sizeof(float) * size_I, device));
+    } else if (uvm_prefetch_advise) {
+      checkCudaErrors(cudaMemAdvise(J_cuda, sizeof(float) * size_I, cudaMemAdviseSetPreferredLocation, device));
+      checkCudaErrors(cudaMemPrefetchAsync(J_cuda, sizeof(float) * size_I, device));
+    } else {
+      checkCudaErrors(cudaMemcpy(J_cuda, J, sizeof(float) * size_I, cudaMemcpyHostToDevice));
+    }
+    checkCudaErrors(cudaEventRecord(stop, 0));
+    checkCudaErrors(cudaEventSynchronize(stop));
+    checkCudaErrors(cudaEventElapsedTime(&elapsed, start, stop));
     transferTime += elapsed * 1.e-3;
 
     // Create srad_params struct
@@ -535,51 +588,61 @@ float srad_gridsync(ResultDatabase &resultDB, OptionParser &op, float* matrix, i
     void* p_params = {&params};
 
     // Run kernels
-    cudaEventRecord(start, 0);
-    cudaLaunchCooperativeKernel((void*)srad_cuda_3, dimGrid, dimBlock, &p_params);
+    checkCudaErrors(cudaEventRecord(start, 0));
+    checkCudaErrors(cudaLaunchCooperativeKernel((void*)srad_cuda_3, dimGrid, dimBlock, &p_params));
     //srad_cuda_3<<<dimGrid, dimBlock>>>(E_C, W_C, N_C, S_C, J_cuda, C_cuda, cols,
                                        //rows, lambda, q0sqr);
-    cudaEventRecord(stop, 0);
-    cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&elapsed, start, stop);
+    checkCudaErrors(cudaEventRecord(stop, 0));
+    checkCudaErrors(cudaEventSynchronize(stop));
+    checkCudaErrors(cudaEventElapsedTime(&elapsed, start, stop));
     kernelTime += elapsed * 1.e-3;
     cudaError_t err = cudaGetLastError();                                     
     if (err != cudaSuccess)                                                   
     {                                                                         
-        printf("error=%d name=%s at "                                         
+      printf("error=%d name=%s at "                                         
                "ln: %d\n  ",err,cudaGetErrorString(err),__LINE__);            
-#ifdef UNIFIED_MEMORY
-        CUDA_SAFE_CALL(cudaFree(C_cuda));
-        CUDA_SAFE_CALL(cudaFree(J_cuda));
-        CUDA_SAFE_CALL(cudaFree(E_C));
-        CUDA_SAFE_CALL(cudaFree(W_C));
-        CUDA_SAFE_CALL(cudaFree(N_C));
-        CUDA_SAFE_CALL(cudaFree(S_C));
-#else
-        CUDA_SAFE_CALL(cudaFree(C_cuda));
-        CUDA_SAFE_CALL(cudaFree(J_cuda));
-        CUDA_SAFE_CALL(cudaFree(E_C));
-        CUDA_SAFE_CALL(cudaFree(W_C));
-        CUDA_SAFE_CALL(cudaFree(N_C));
-        CUDA_SAFE_CALL(cudaFree(S_C));
+      if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+        checkCudaErrors(cudaFree(C_cuda));
+        checkCudaErrors(cudaFree(J_cuda));
+        checkCudaErrors(cudaFree(E_C));
+        checkCudaErrors(cudaFree(W_C));
+        checkCudaErrors(cudaFree(N_C));
+        checkCudaErrors(cudaFree(S_C));
+      }
+      else {
+        checkCudaErrors(cudaFree(C_cuda));
+        checkCudaErrors(cudaFree(J_cuda));
+        checkCudaErrors(cudaFree(E_C));
+        checkCudaErrors(cudaFree(W_C));
+        checkCudaErrors(cudaFree(N_C));
+        checkCudaErrors(cudaFree(S_C));
 
         free(I);
         free(J);
         free(c);
-#endif
-        return FLT_MAX;
-    }                                                                         
+      }
+    return FLT_MAX;
+    }                                                                     
 
     // Copy data from device memory to main memory
-    cudaEventRecord(start, 0);
-#ifndef UNIFIED_MEMORY
-    // Do nothing
-    CUDA_SAFE_CALL(
-        cudaMemcpy(J, J_cuda, sizeof(float) * size_I, cudaMemcpyDeviceToHost));
-#endif
-    cudaEventRecord(stop, 0);
-    cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&elapsed, start, stop);
+    checkCudaErrors(cudaEventRecord(start, 0));
+    if (uvm) {
+      // do nothing
+    } else if (uvm_advise) {
+      checkCudaErrors(cudaMemAdvise(J, sizeof(float) * size_I, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+      checkCudaErrors(cudaMemAdvise(J, sizeof(float) * size_I, cudaMemAdviseSetReadMostly, cudaCpuDeviceId));
+    } else if (uvm_prefetch) {
+      checkCudaErrors(cudaMemPrefetchAsync(J, sizeof(float) * size_I, cudaCpuDeviceId));
+    } else if (uvm_prefetch_advise) {
+      checkCudaErrors(cudaMemAdvise(J, sizeof(float) * size_I, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+      checkCudaErrors(cudaMemAdvise(J, sizeof(float) * size_I, cudaMemAdviseSetReadMostly, cudaCpuDeviceId));
+      checkCudaErrors(cudaMemPrefetchAsync(J, sizeof(float) * size_I, cudaCpuDeviceId));
+    } else {
+      checkCudaErrors(cudaMemcpy(J, J_cuda, sizeof(float) * size_I, cudaMemcpyDeviceToHost));
+    }
+    checkCudaErrors(cudaEventRecord(stop, 0));
+    checkCudaErrors(cudaEventSynchronize(stop));
+    checkCudaErrors(cudaEventElapsedTime(&elapsed, start, stop));
     transferTime += elapsed * 1.e-3;
   }
 
@@ -600,25 +663,24 @@ float srad_gridsync(ResultDatabase &resultDB, OptionParser &op, float* matrix, i
           }
       }
   }
-#ifdef UNIFIED_MEMORY
-  CUDA_SAFE_CALL(cudaFree(C_cuda));
-  CUDA_SAFE_CALL(cudaFree(J_cuda));
-  CUDA_SAFE_CALL(cudaFree(E_C));
-  CUDA_SAFE_CALL(cudaFree(W_C));
-  CUDA_SAFE_CALL(cudaFree(N_C));
-  CUDA_SAFE_CALL(cudaFree(S_C));
-
-#else
-  free(I);
-  free(J);
-  free(c);
-  CUDA_SAFE_CALL(cudaFree(C_cuda));
-  CUDA_SAFE_CALL(cudaFree(J_cuda));
-  CUDA_SAFE_CALL(cudaFree(E_C));
-  CUDA_SAFE_CALL(cudaFree(W_C));
-  CUDA_SAFE_CALL(cudaFree(N_C));
-  CUDA_SAFE_CALL(cudaFree(S_C));
-#endif
+  if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+    CUDA_SAFE_CALL(cudaFree(C_cuda));
+    CUDA_SAFE_CALL(cudaFree(J_cuda));
+    CUDA_SAFE_CALL(cudaFree(E_C));
+    CUDA_SAFE_CALL(cudaFree(W_C));
+    CUDA_SAFE_CALL(cudaFree(N_C));
+    CUDA_SAFE_CALL(cudaFree(S_C));
+  } else {
+    free(I);
+    free(J);
+    free(c);
+    CUDA_SAFE_CALL(cudaFree(C_cuda));
+    CUDA_SAFE_CALL(cudaFree(J_cuda));
+    CUDA_SAFE_CALL(cudaFree(E_C));
+    CUDA_SAFE_CALL(cudaFree(W_C));
+    CUDA_SAFE_CALL(cudaFree(N_C));
+    CUDA_SAFE_CALL(cudaFree(S_C));
+  }
   return kernelTime;
 }
 

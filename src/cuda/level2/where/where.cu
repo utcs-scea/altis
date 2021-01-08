@@ -303,8 +303,8 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     int size = op.getOptionInt("length");
     int coverage = op.getOptionInt("coverage");
     if (size == 0 || coverage == -1) {
-        int sizes[5] = {1000, 10000, 500000000, 1000000000, 1000000000};
-        int coverages[5] = {20, 30, 40, 80, 100};
+        int sizes[5] = {1000, 10000, 500000000, 1000000000, 1050000000};
+        int coverages[5] = {20, 30, 40, 80, 240};
         size = sizes[op.getOptionInt("size") - 1];
         coverage = coverages[op.getOptionInt("size") - 1];
     }
