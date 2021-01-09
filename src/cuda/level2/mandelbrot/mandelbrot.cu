@@ -542,46 +542,66 @@ __global__ void mandelbrot_block_k
 /// @param 	MAX_DWELL	The maximum dwell. 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void mandelbrot(int size, int MAX_DWELL) {
+void mandelbrot(ResultDatabase &resultDB, OptionParser &op, int size, int MAX_DWELL) {
+	const bool uvm = op.getOptionBool("uvm");
+	const bool uvm_advise = op.getOptionBool("uvm-advise");
+	const bool uvm_prefetch = op.getOptionBool("uvm-prefetch");
+	const bool uvm_prefetch_advise = op.getOptionBool("uvm-prefetch-advise");
+	int device = 0;
+	checkCudaErrors(cudaGetDevice(&device));
+
 	// allocate memory
 	int w = size, h = size;
 	size_t dwell_sz = w * h * sizeof(int);
 	int *h_dwells, *d_dwells;
-#ifdef UNIFIED_MEMORY
-	CUDA_SAFE_CALL(cudaMallocManaged((void**)&d_dwells, dwell_sz));
-#else
-	CUDA_SAFE_CALL(cudaMalloc((void**)&d_dwells, dwell_sz));
-	h_dwells = (int*)malloc(dwell_sz);
-#endif
+	if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+		checkCudaErrors(cudaMallocManaged((void**)&d_dwells, dwell_sz));
+	} else {
+		checkCudaErrors(cudaMalloc((void**)&d_dwells, dwell_sz));
+		h_dwells = (int *)malloc(dwell_sz);
+		assert(h_dwells);
+	}
 
 	// compute the dwells, copy them back
 	dim3 bs(64, 4), grid(divup(w, bs.x), divup(h, bs.y));
-    cudaEventRecord(start, 0);
+    checkCudaErrors(cudaEventRecord(start, 0));
 	mandelbrot_k<<<grid, bs>>>
 		(d_dwells, w, h, complex(-1.5, -1), complex(0.5, 1), MAX_DWELL);
-    cudaEventRecord(stop, 0);
-    cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&elapsed, start, stop);
+	checkCudaErrors(cudaEventRecord(stop, 0));
+	checkCudaErrors(cudaEventSynchronize(stop));
+    checkCudaErrors(cudaEventElapsedTime(&elapsed, start, stop));
     kernelTime += elapsed * 1.e-3;
 
     CHECK_CUDA_ERROR();
-	CUDA_SAFE_CALL(cudaDeviceSynchronize());
-    cudaEventRecord(start, 0);
-#ifdef UNIFIED_MEMORY
-    h_dwells = d_dwells;
-#else
-	CUDA_SAFE_CALL(cudaMemcpy(h_dwells, d_dwells, dwell_sz, cudaMemcpyDeviceToHost));
-#endif
-    cudaEventRecord(stop, 0);
-    cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&elapsed, start, stop);
+	checkCudaErrors(cudaDeviceSynchronize());
+    checkCudaErrors(cudaEventRecord(start, 0));
+	if (uvm) {
+		h_dwells = d_dwells;
+	} else if (uvm_advise) {
+		h_dwells = d_dwells;
+		checkCudaErrors(cudaMemAdvise(h_dwells, dwell_sz, cudaMemAdviseSetReadMostly, cudaCpuDeviceId));
+		checkCudaErrors(cudaMemAdvise(h_dwells, dwell_sz, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+	} else if (uvm_prefetch) {
+		h_dwells = d_dwells;
+		checkCudaErrors(cudaMemPrefetchAsync(h_dwells, dwell_sz, device));
+	} else if (uvm_prefetch_advise) {
+		h_dwells = d_dwells;
+		checkCudaErrors(cudaMemAdvise(h_dwells, dwell_sz, cudaMemAdviseSetReadMostly, cudaCpuDeviceId));
+		checkCudaErrors(cudaMemAdvise(h_dwells, dwell_sz, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+		checkCudaErrors(cudaMemPrefetchAsync(h_dwells, dwell_sz, device));
+	} else {
+		checkCudaErrors(cudaMemcpy(h_dwells, d_dwells, dwell_sz, cudaMemcpyDeviceToHost));
+	}
+    checkCudaErrors(cudaEventRecord(stop, 0));
+    checkCudaErrors(cudaEventSynchronize(stop));
+    checkCudaErrors(cudaEventElapsedTime(&elapsed, start, stop));
     transferTime += elapsed * 1.e-3;
 
 	// free data
-	cudaFree(d_dwells);
-#ifndef UNIFIED_MEMORY
-	free(h_dwells);
-#endif
+	checkCudaErrors(cudaFree(d_dwells));
+	if (!uvm && !uvm_prefetch && !uvm_advise && !uvm_prefetch_advise) {
+		free(h_dwells);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -596,47 +616,68 @@ void mandelbrot(int size, int MAX_DWELL) {
 /// @param 	MAX_DWELL	The maximum dwell. 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void mandelbrot_dyn(int size, int MAX_DWELL) {
+void mandelbrot_dyn(ResultDatabase &resultDB, OptionParser &op, int size, int MAX_DWELL) {
+	const bool uvm = op.getOptionBool("uvm");
+	const bool uvm_advise = op.getOptionBool("uvm-advise");
+	const bool uvm_prefetch = op.getOptionBool("uvm-prefetch");
+	const bool uvm_prefetch_advise = op.getOptionBool("uvm-prefetch-advise");
+	int device = 0;
+	checkCudaErrors(cudaGetDevice(&device));
+
 	// allocate memory
 	int w = size, h = size;
 	size_t dwell_sz = w * h * sizeof(int);
 	int *h_dwells, *d_dwells;
-#ifdef UNIFIED_MEMORY
-	CUDA_SAFE_CALL(cudaMallocManaged((void**)&d_dwells, dwell_sz));
-#else
-	CUDA_SAFE_CALL(cudaMalloc((void**)&d_dwells, dwell_sz));
-	h_dwells = (int*)malloc(dwell_sz);
-#endif
+	if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+		checkCudaErrors(cudaMallocManaged((void**)&d_dwells, dwell_sz));
+	} else {
+		checkCudaErrors(cudaMalloc((void**)&d_dwells, dwell_sz));
+		h_dwells = (int *)malloc(dwell_sz);
+		assert(h_dwells);
+	}
 
 	// compute the dwells, copy them back
 	dim3 bs(BSX, BSY), grid(INIT_SUBDIV, INIT_SUBDIV);
-    cudaEventRecord(start, 0);
+    checkCudaErrors(cudaEventRecord(start, 0));
 	mandelbrot_block_k<<<grid, bs>>>
 		(d_dwells, w, h, complex(-1.5, -1), complex(0.5, 1), 0, 0, w / INIT_SUBDIV, 1, MAX_DWELL);
-    cudaEventRecord(stop, 0);
-    cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&elapsed, start, stop);
+	checkCudaErrors(cudaEventRecord(stop, 0));
+    checkCudaErrors(cudaEventSynchronize(stop));
+    checkCudaErrors(cudaEventElapsedTime(&elapsed, start, stop));
     kernelTime += elapsed * 1.e-3;
 
     CHECK_CUDA_ERROR();
-	CUDA_SAFE_CALL(cudaDeviceSynchronize());
-    cudaEventRecord(start, 0);
-#ifdef UNIFIED_MEMORY
-    // Prefetch can be used
-    h_dwells = d_dwells;
-#else
-	CUDA_SAFE_CALL(cudaMemcpy(h_dwells, d_dwells, dwell_sz, cudaMemcpyDeviceToHost));
-#endif
-    cudaEventRecord(stop, 0);
-    cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&elapsed, start, stop);
+	checkCudaErrors(cudaDeviceSynchronize());
+    checkCudaErrors(cudaEventRecord(start, 0));
+
+	if (uvm) {
+		h_dwells = d_dwells;
+	} else if (uvm_advise) {
+		h_dwells = d_dwells;
+		checkCudaErrors(cudaMemAdvise(h_dwells, dwell_sz, cudaMemAdviseSetReadMostly, cudaCpuDeviceId));
+		checkCudaErrors(cudaMemAdvise(h_dwells, dwell_sz, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+	} else if (uvm_prefetch) {
+		h_dwells = d_dwells;
+		checkCudaErrors(cudaMemPrefetchAsync(h_dwells, dwell_sz, device));
+	} else if (uvm_prefetch_advise) {
+		h_dwells = d_dwells;
+		checkCudaErrors(cudaMemAdvise(h_dwells, dwell_sz, cudaMemAdviseSetReadMostly, cudaCpuDeviceId));
+		checkCudaErrors(cudaMemAdvise(h_dwells, dwell_sz, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+		checkCudaErrors(cudaMemPrefetchAsync(h_dwells, dwell_sz, device));
+	} else {
+		checkCudaErrors(cudaMemcpy(h_dwells, d_dwells, dwell_sz, cudaMemcpyDeviceToHost));
+	}
+
+    checkCudaErrors(cudaEventRecord(stop, 0));
+    checkCudaErrors(cudaEventSynchronize(stop));
+    checkCudaErrors(cudaEventElapsedTime(&elapsed, start, stop));
     transferTime += elapsed * 1.e-3;
 
 	// free data
-	cudaFree(d_dwells);
-#ifndef UNIFIED_MEMORY
-	free(h_dwells);
-#endif
+	checkCudaErrors(cudaFree(d_dwells));
+	if (!uvm && !uvm_prefetch && !uvm_advise && !uvm_prefetch_advise) {
+		free(h_dwells);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -670,20 +711,20 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     printf("Running Mandelbrot\n");
 
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
+    checkCudaErrors(cudaEventCreate(&start));
+    checkCudaErrors(cudaEventCreate(&stop));
 
     bool quiet = op.getOptionBool("quiet");
     int imageSize = op.getOptionInt("imageSize");
     int iters = op.getOptionInt("iterations");
-    if(imageSize == 0 || iters == 0) {
-        int imageSizes[4] = {2 << 11, 2 << 12, 2 << 13, 2 << 14};
-        int iterSizes[4] = {32, 128, 512, 1024};
+    if (imageSize == 0 || iters == 0) {
+        int imageSizes[5] = {2 << 11, 2 << 12, 2 << 13, 2 << 14, 2 << 14};
+        int iterSizes[5] = {32, 128, 512, 1024, 8192*16};
         imageSize = imageSizes[op.getOptionInt("size") - 1];
         iters = iterSizes[op.getOptionInt("size") - 1];
     }
     
-    if(!quiet) {
+    if (!quiet) {
         printf("Image Size: %d by %d\n", imageSize, imageSize);
         printf("Num Iterations: %d\n", iters);
 #ifdef DYNAMIC_PARALLELISM
@@ -697,14 +738,14 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     sprintf(atts, "img:%d,iter:%d", imageSize, iters);
 
     int passes = op.getOptionInt("passes");
-    for(int i = 0; i < passes; i++) {
-        if(!quiet) {
+    for (int i = 0; i < passes; i++) {
+        if (!quiet) {
             printf("Pass %d:\n", i);
         }
 
         kernelTime = 0.0f;
         transferTime = 0.0f;
-        mandelbrot(imageSize, iters);
+        mandelbrot(resultDB, op, imageSize, iters);
         resultDB.AddResult("mandelbrot_kernel_time", atts, "sec", kernelTime);
         resultDB.AddResult("mandelbrot_transfer_time", atts, "sec", transferTime);
         resultDB.AddResult("mandelbrot_total_time", atts, "sec", transferTime + kernelTime);
@@ -714,7 +755,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
         float totalTime = kernelTime;
         kernelTime = 0.0f;
         transferTime = 0.0f;
-        mandelbrot_dyn(imageSize, iters);
+        mandelbrot_dyn(resultDB, op, imageSize, iters);
         resultDB.AddResult("mandelbrot_dynpar_kernel_time", atts, "sec", kernelTime);
         resultDB.AddResult("mandelbrot_dynpar_transfer_time", atts, "sec", transferTime);
         resultDB.AddResult("mandelbrot_dynpar_total_time", atts, "sec", transferTime + kernelTime);
