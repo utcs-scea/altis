@@ -237,6 +237,13 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
+    const bool uvm = op.getOptionBool("uvm");
+    const bool uvm_advise = op.getOptionBool("uvm-advise");
+    const bool uvm_prefetch = op.getOptionBool("uvm-prefetch");
+    const bool uvm_prefetch_advise = op.getOptionBool("uvm-prefetch-advise");
+    int device = 0;
+    checkCudaErrors(cudaGetDevice(&device));
+
     cudaEvent_t total_start, total_stop;
     cudaEvent_t start, stop;
     checkCudaErrors(cudaEventCreate(&start));
@@ -247,8 +254,8 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
     checkCudaErrors(cudaEventRecord(total_start, 0));
 
     // Predefined image resolutions
-    int xDim[4] = {400, 1200, 4096, 15360};
-    int yDim[4] = {300, 800, 2160, 8640};
+    int xDim[5] = {400, 1200, 4096, 15360, 20480};
+    int yDim[5] = {300, 800, 2160, 8640, 17280};
     int size = op.getOptionInt("size") - 1;
     int nx = xDim[size];
     int ny = yDim[size];
@@ -273,11 +280,19 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
     checkCudaErrors(cudaMallocManaged((void **)&fb, fb_size));
 
     // allocate random state
-    curandState *d_rand_state;
-    ALTIS_CUDA_MALLOC(d_rand_state, num_pixels*sizeof(curandState));
+    curandState *d_rand_state = NULL;
+    if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+        checkCudaErrors(cudaMallocManaged((void **)&d_rand_state, num_pixels*sizeof(curandState)));
+    } else {
+        checkCudaErrors(cudaMalloc((void **)&d_rand_state, num_pixels*sizeof(curandState)));
+    }
 
-    curandState *d_rand_state2;
-    ALTIS_CUDA_MALLOC(d_rand_state2, 1*sizeof(curandState));
+    curandState *d_rand_state2 = NULL;
+    if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+        checkCudaErrors(cudaMallocManaged((void **)&d_rand_state2, num_pixels*sizeof(curandState)));
+    } else {
+        checkCudaErrors(cudaMalloc((void **)&d_rand_state2, num_pixels*sizeof(curandState)));
+    }
 
     // we need that 2nd random state to be initialized for the world creation
     rand_init<<<1,1>>>(d_rand_state2);
@@ -287,13 +302,26 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
     // make our world of hitables & the camera
     hitable **d_list;
     int num_hitables = 22*22+1+3;
-    ALTIS_CUDA_MALLOC(d_list, num_hitables*sizeof(hitable *));
+
+    if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+        checkCudaErrors(cudaMallocManaged(&d_list, num_hitables*sizeof(hitable *)));
+    } else {
+        checkCudaErrors(cudaMalloc(&d_list, num_hitables*sizeof(hitable *)));
+    }
     
     hitable **d_world;
-    ALTIS_CUDA_MALLOC(d_world, sizeof(hitable *));
+    if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+        checkCudaErrors(cudaMallocManaged(&d_world, num_hitables*sizeof(hitable *)));
+    } else {
+        checkCudaErrors(cudaMalloc(&d_world, num_hitables*sizeof(hitable *)));
+    }
 
     camera **d_camera;
-    ALTIS_CUDA_MALLOC(d_camera, sizeof(camera *));
+    if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+        checkCudaErrors(cudaMallocManaged(&d_camera, num_hitables*sizeof(hitable *)));
+    } else {
+        checkCudaErrors(cudaMalloc(&d_camera, num_hitables*sizeof(hitable *)));
+    }
     
     create_world<<<1,1>>>(d_list, d_world, d_camera, nx, ny, d_rand_state2);
     checkCudaErrors(cudaGetLastError());
