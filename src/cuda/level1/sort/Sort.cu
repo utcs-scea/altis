@@ -236,12 +236,18 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
       checkCudaErrors(cudaMemAdvise(dVals, bytes, cudaMemAdviseSetPreferredLocation, device));
     } else if (uvm_prefetch) {
       checkCudaErrors(cudaMemPrefetchAsync(dKeys, bytes, device));
-      checkCudaErrors(cudaMemPrefetchAsync(dVals, bytes, device, (cudaStream_t)1));
+      cudaStream_t s1;
+      checkCudaErrors(cudaStreamCreate(&s1));
+      checkCudaErrors(cudaMemPrefetchAsync(dVals, bytes, device, s1));
+      checkCudaErrors(cudaStreamDestroy(s1));
     } else if (uvm_prefetch_advise) {
       checkCudaErrors(cudaMemAdvise(dKeys, bytes, cudaMemAdviseSetPreferredLocation, device));
       checkCudaErrors(cudaMemAdvise(dVals, bytes, cudaMemAdviseSetPreferredLocation, device));
       checkCudaErrors(cudaMemPrefetchAsync(dKeys, bytes, device));
+      cudaStream_t s1;
+      checkCudaErrors(cudaStreamCreate(&s1));
       checkCudaErrors(cudaMemPrefetchAsync(dVals, bytes, device, (cudaStream_t)1));
+      checkCudaErrors(cudaStreamDestroy(s1));
     } else {
         checkCudaErrors(cudaMemcpy(dKeys, hKeys, bytes, cudaMemcpyHostToDevice));
         checkCudaErrors(cudaMemcpy(dVals, hVals, bytes, cudaMemcpyHostToDevice));

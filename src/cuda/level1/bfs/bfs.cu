@@ -746,15 +746,25 @@ float BFSGraphUnifiedMemory(ResultDatabase &resultDB, OptionParser &op, int no_o
         checkCudaErrors(cudaMemAdvise(graph_visited, sizeof(bool)*no_of_nodes, cudaMemAdviseSetPreferredLocation, device));
     } else if (uvm_prefetch) {
         checkCudaErrors(cudaMemPrefetchAsync(graph_mask, sizeof(bool)*no_of_nodes, device));
-        checkCudaErrors(cudaMemPrefetchAsync(updating_graph_mask, sizeof(bool)*no_of_nodes, device, (cudaStream_t)1));
-        checkCudaErrors(cudaMemPrefetchAsync(graph_visited, sizeof(bool)*no_of_nodes, device, (cudaStream_t)2));
+        cudaStream_t s1, s2;
+        checkCudaErrors(cudaStreamCreate(&s1));
+        checkCudaErrors(cudaStreamCreate(&s2));
+        checkCudaErrors(cudaMemPrefetchAsync(updating_graph_mask, sizeof(bool)*no_of_nodes, device, s1));
+        checkCudaErrors(cudaMemPrefetchAsync(graph_visited, sizeof(bool)*no_of_nodes, device, s2));
+        checkCudaErrors(cudaStreamDestroy(s1));
+        checkCudaErrors(cudaStreamDestroy(s2));
     } else if (uvm_prefetch_advise) {
         checkCudaErrors(cudaMemAdvise(graph_mask, sizeof(bool)*no_of_nodes, cudaMemAdviseSetPreferredLocation, device));
         checkCudaErrors(cudaMemAdvise(updating_graph_mask, sizeof(bool)*no_of_nodes, cudaMemAdviseSetPreferredLocation, device));
         checkCudaErrors(cudaMemAdvise(graph_visited, sizeof(bool)*no_of_nodes, cudaMemAdviseSetPreferredLocation, device));
         checkCudaErrors(cudaMemPrefetchAsync(graph_mask, sizeof(bool)*no_of_nodes, device));
-        checkCudaErrors(cudaMemPrefetchAsync(updating_graph_mask, sizeof(bool)*no_of_nodes, device, (cudaStream_t)1));
-        checkCudaErrors(cudaMemPrefetchAsync(graph_visited, sizeof(bool)*no_of_nodes, device, (cudaStream_t)2));
+        cudaStream_t s1, s2;
+        checkCudaErrors(cudaStreamCreate(&s1));
+        checkCudaErrors(cudaStreamCreate(&s2));
+        checkCudaErrors(cudaMemPrefetchAsync(updating_graph_mask, sizeof(bool)*no_of_nodes, device, s1));
+        checkCudaErrors(cudaMemPrefetchAsync(graph_visited, sizeof(bool)*no_of_nodes, device, s2));
+        checkCudaErrors(cudaStreamDestroy(s1));
+        checkCudaErrors(cudaStreamDestroy(s2));
     }
 
     cudaError_t err = cudaGetLastError();

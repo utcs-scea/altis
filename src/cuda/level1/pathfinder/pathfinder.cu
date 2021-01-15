@@ -418,13 +418,19 @@ void run(int borderCols, int smallBlockCol, int blockCols,
     checkCudaErrors(cudaMemAdvise(gpuWall, sizeof(int) * (size - cols), cudaMemAdviseSetReadMostly, device_id));
   } else if (uvm_prefetch) {
     checkCudaErrors(cudaMemPrefetchAsync(gpuResult[0], sizeof(int) * cols, device_id));
-    checkCudaErrors(cudaMemPrefetchAsync(gpuWall, sizeof(int) * (size - cols), device_id, (cudaStream_t) 1));
+    cudaStream_t s1;
+    checkCudaErrors(cudaStreamCreate(&s1));
+    checkCudaErrors(cudaMemPrefetchAsync(gpuWall, sizeof(int) * (size - cols), device_id, s1));
+    checkCudaErrors(cudaStreamDestroy(s1));
   } else if (uvm_prefetch_advise) {
     checkCudaErrors(cudaMemAdvise(gpuResult[0], sizeof(int) * cols, cudaMemAdviseSetPreferredLocation, device_id));
     checkCudaErrors(cudaMemAdvise(gpuWall, sizeof(int) * (size - cols), cudaMemAdviseSetPreferredLocation, device_id));
     checkCudaErrors(cudaMemAdvise(gpuWall, sizeof(int) * (size - cols), cudaMemAdviseSetReadMostly, device_id));
     checkCudaErrors(cudaMemPrefetchAsync(gpuResult[0], sizeof(int) * cols, device_id));
-    checkCudaErrors(cudaMemPrefetchAsync(gpuWall, sizeof(int) * (size - cols), device_id, (cudaStream_t) 1));
+    cudaStream_t s1;
+    checkCudaErrors(cudaStreamCreate(&s1));
+    checkCudaErrors(cudaMemPrefetchAsync(gpuWall, sizeof(int) * (size - cols), device_id, s1));
+    checkCudaErrors(cudaStreamDestroy(s1));
   } else {
     checkCudaErrors(cudaMemcpy(gpuResult[0], data, sizeof(int) * cols,
                             cudaMemcpyHostToDevice));

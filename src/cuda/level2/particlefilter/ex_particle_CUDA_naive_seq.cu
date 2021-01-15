@@ -169,7 +169,7 @@ __device__ int findIndexBin(double * CDF, int beginIndex, int endIndex, double v
 /// @param 		   	Nparticles	The nparticles. 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-__global__ void kernel(double * arrayX, double * arrayY, double * CDF, double * u, double * xj, double * yj, int Nparticles){
+__global__ void kernel(double * arrayX, double * arrayY, double * CDF, double * u, double * xj, double * yj, int Nparticles) {
 	int block_id = blockIdx.x;// + gridDim.x * blockIdx.y;
 	int i = blockDim.x * block_id + threadIdx.x;
 	
@@ -470,7 +470,14 @@ void getneighbors(int * se, int numOnes, double * neighbors, int radius){
 /// @param [in,out]	seed	The seed array used for number generation. 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void videoSequence(int * I, int IszX, int IszY, int Nfr, int * seed){
+void videoSequence(OptionParser &op, int * I, int IszX, int IszY, int Nfr, int * seed) {
+	const bool uvm = op.getOptionBool("uvm");
+    const bool uvm_advise = op.getOptionBool("uvm-advise");
+    const bool uvm_prefetch = op.getOptionBool("uvm-prefetch");
+    const bool uvm_prefetch_advise = op.getOptionBool("uvm-prefetch-advise");
+    int device = 0;
+	checkCudaErrors(cudaGetDevice(&device));
+	
 	int k;
 	int max_size = IszX*IszY*Nfr;
 	/*get object centers*/
@@ -490,12 +497,14 @@ void videoSequence(int * I, int IszX, int IszY, int Nfr, int * seed){
 	}
 	
 	/*dilate matrix*/
-#ifdef UNIFIED_MEMORY
-    int *newMatrix = NULL;
-    CUDA_SAFE_CALL(cudaMallocManaged(&newMatrix, sizeof(int) * IszX * IszY * Nfr));
-#else
-	int * newMatrix = (int *)malloc(sizeof(int)*IszX*IszY*Nfr);
-#endif
+	int *newMatrix = NULL;
+	if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+		checkCudaErrors(cudaMallocManaged(&newMatrix, sizeof(int) * IszX * IszY * Nfr));
+	}
+	else {
+		newMatrix = (int *)malloc(sizeof(int)*IszX*IszY*Nfr);
+		assert(newMatrix);
+	}
 	imdilate_disk(I, IszX, IszY, Nfr, 5, newMatrix);
 	int x, y;
 	for(x = 0; x < IszX; x++){
@@ -505,11 +514,12 @@ void videoSequence(int * I, int IszX, int IszY, int Nfr, int * seed){
 			}
 		}
 	}
-#ifdef UNIFIED_MEMORY
-    CUDA_SAFE_CALL(cudaFree(newMatrix));
-#else
-	free(newMatrix);
-#endif
+	if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+		checkCudaErrors(cudaFree(newMatrix));
+	}
+	else {
+		free(newMatrix);
+	}
 	
 	/*define background, add noise*/
 	setIf(0, 100, I, &IszX, &IszY, &Nfr);
@@ -596,13 +606,19 @@ int findIndex(double * CDF, int lengthCDF, double value){
 /// 	and y arrays as arguments and returns the likelihoods
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparticles, ResultDatabase &resultDB) {
+void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparticles, OptionParser &op, ResultDatabase &resultDB) {
+	const bool uvm = op.getOptionBool("uvm");
+    const bool uvm_advise = op.getOptionBool("uvm-advise");
+    const bool uvm_prefetch = op.getOptionBool("uvm-prefetch");
+    const bool uvm_prefetch_advise = op.getOptionBool("uvm-prefetch-advise");
+    int device = 0;
+	checkCudaErrors(cudaGetDevice(&device));
 
     float kernelTime = 0.0f;
     float transferTime = 0.0f;
     cudaEvent_t start, stop;
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
+    checkCudaErrors(cudaEventCreate(&start));
+    checkCudaErrors(cudaEventCreate(&stop));
     float elapsedTime;
 
 	int max_size = IszX*IszY*Nfr;
@@ -613,12 +629,13 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 	//expected object locations, compared to center
 	int radius = 5;
 	int diameter = radius*2 - 1;
-#ifdef UNIFIED_MEMORY
-    int *disk = NULL;
-    CUDA_SAFE_CALL(cudaMallocManaged(&disk, diameter * diameter * sizeof(int)));
-#else
-	int * disk = (int *)malloc(diameter*diameter*sizeof(int));
-#endif
+	int *disk = NULL;
+	if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+		checkCudaErrors(cudaMallocManaged(&disk, diameter * diameter * sizeof(int)));
+	} else {
+		disk = (int *)malloc(diameter*diameter*sizeof(int));
+		assert(disk);
+	}
 	strelDisk(disk, radius);
 	int countOnes = 0;
 	int x, y;
@@ -628,81 +645,91 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 				countOnes++;
 		}
 	}
-#ifdef UNIFIED_MEMORY
-    double *objxy = NULL;
-    CUDA_SAFE_CALL(cudaMallocManaged(&objxy, countOnes*2*sizeof(double)));
-#else
-	double * objxy = (double *)malloc(countOnes*2*sizeof(double));
-#endif
+	double *objxy = NULL;
+	if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+		checkCudaErrors(cudaMallocManaged(&objxy, countOnes*2*sizeof(double)));
+	} else {
+		objxy = (double *)malloc(countOnes*2*sizeof(double));
+		assert(objxy);
+	}
 	getneighbors(disk, countOnes, objxy, radius);
 	
 	//initial weights are all equal (1/Nparticles)
-#ifdef UNIFIED_MEMORY
-    double *weights = NULL;
-    CUDA_SAFE_CALL(cudaMallocManaged(&weights, sizeof(double) * Nparticles));
-#else
-	double * weights = (double *)malloc(sizeof(double)*Nparticles);
-#endif
+	double *weights = NULL;
+	if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+		checkCudaErrors(cudaMallocManaged(&weights, sizeof(double) * Nparticles));
+	} else {
+		weights = (double *)malloc(sizeof(double)*Nparticles);
+		assert(weights);
+	}
 	for(x = 0; x < Nparticles; x++){
 		weights[x] = 1/((double)(Nparticles));
 	}
 	//initial likelihood to 0.0
-#ifdef UNIFIED_MEMORY
-    double *likelihood = NULL;
-    CUDA_SAFE_CALL(cudaMallocManaged(&likelihood, sizeof(double) * Nparticles));
-    double *arrayX = NULL;
-    CUDA_SAFE_CALL(cudaMallocManaged(&arrayX, sizeof(double) * Nparticles));
-    double *arrayY = NULL;
-    CUDA_SAFE_CALL(cudaMallocManaged(&arrayY, sizeof(double) * Nparticles));
-    double *xj = NULL;
-    CUDA_SAFE_CALL(cudaMallocManaged(&xj, sizeof(double) * Nparticles));
-    double *yj = NULL;
-    CUDA_SAFE_CALL(cudaMallocManaged(&yj, sizeof(double) * Nparticles));
-    double *CDF = NULL;
-    CUDA_SAFE_CALL(cudaMallocManaged(&CDF, sizeof(double) * Nparticles));
-#else
-	double * likelihood = (double *)malloc(sizeof(double)*Nparticles);
-	double * arrayX = (double *)malloc(sizeof(double)*Nparticles);
-	double * arrayY = (double *)malloc(sizeof(double)*Nparticles);
-	double * xj = (double *)malloc(sizeof(double)*Nparticles);
-	double * yj = (double *)malloc(sizeof(double)*Nparticles);
-	double * CDF = (double *)malloc(sizeof(double)*Nparticles);
-#endif
+	double *likelihood = NULL;
+	double *arrayX = NULL;
+	double *arrayY = NULL;
+	double *xj = NULL;
+	double *yj = NULL;
+	double *CDF = NULL;
+	if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+		checkCudaErrors(cudaMallocManaged(&likelihood, sizeof(double) * Nparticles));
+		checkCudaErrors(cudaMallocManaged(&arrayX, sizeof(double) * Nparticles));
+		checkCudaErrors(cudaMallocManaged(&arrayY, sizeof(double) * Nparticles));
+		checkCudaErrors(cudaMallocManaged(&xj, sizeof(double) * Nparticles));
+		checkCudaErrors(cudaMallocManaged(&yj, sizeof(double) * Nparticles));
+		checkCudaErrors(cudaMallocManaged(&CDF, sizeof(double) * Nparticles));
+	} else {
+		likelihood = (double *)malloc(sizeof(double)*Nparticles);
+		assert(likelihood);
+		arrayX = (double *)malloc(sizeof(double)*Nparticles);
+		assert(arrayX);
+		arrayY = (double *)malloc(sizeof(double)*Nparticles);
+		assert(arrayY);
+		xj = (double *)malloc(sizeof(double)*Nparticles);
+		assert(xj);
+		yj = (double *)malloc(sizeof(double)*Nparticles);
+		assert(yj);
+		CDF = (double *)malloc(sizeof(double)*Nparticles);
+		assert(CDF);
+	}
 	
 	//GPU copies of arrays
+	int *ind = NULL;
+	double *u = NULL;
+	if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+		checkCudaErrors(cudaMallocManaged(&ind, sizeof(int) * countOnes));
+		checkCudaErrors(cudaMallocManaged(&u, sizeof(double) * Nparticles));
+	} else {
+		ind = (int*)malloc(sizeof(int)*countOnes);
+		assert(ind);
+		u = (double *)malloc(sizeof(double)*Nparticles);
+		assert(u);
+	}
+
 	double * arrayX_GPU;
 	double * arrayY_GPU;
 	double * xj_GPU;
 	double * yj_GPU;
 	double * CDF_GPU;
-	
-#ifdef UNIFIED_MEMORY
-    int *ind = NULL;
-    CUDA_SAFE_CALL(cudaMallocManaged(&ind, sizeof(int) * countOnes));
-    double *u = NULL;
-    CUDA_SAFE_CALL(cudaMallocManaged(&u, sizeof(double) * Nparticles));
-#else
-	int * ind = (int*)malloc(sizeof(int)*countOnes);
-	double * u = (double *)malloc(sizeof(double)*Nparticles);
-#endif
 	double * u_GPU;
 	
 	//CUDA memory allocation
-#ifdef UNIFIED_MEMORY
-    arrayX_GPU = arrayX;
-    arrayY_GPU = arrayY;
-    xj_GPU = xj;
-    yj_GPU = yj;
-    CDF_GPU = CDF;
-    u_GPU = u;
-#else
-	CUDA_SAFE_CALL(cudaMalloc((void **) &arrayX_GPU, sizeof(double)*Nparticles));
-	CUDA_SAFE_CALL(cudaMalloc((void **) &arrayY_GPU, sizeof(double)*Nparticles));
-	CUDA_SAFE_CALL(cudaMalloc((void **) &xj_GPU, sizeof(double)*Nparticles));
-	CUDA_SAFE_CALL(cudaMalloc((void **) &yj_GPU, sizeof(double)*Nparticles));
-	CUDA_SAFE_CALL(cudaMalloc((void **) &CDF_GPU, sizeof(double)*Nparticles));
-	CUDA_SAFE_CALL(cudaMalloc((void **) &u_GPU, sizeof(double)*Nparticles));
-#endif
+	if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+		arrayX_GPU = arrayX;
+		arrayY_GPU = arrayY;
+		xj_GPU = xj;
+		yj_GPU = yj;
+		CDF_GPU = CDF;
+		u_GPU = u;
+	} else {
+		checkCudaErrors(cudaMalloc((void **) &arrayX_GPU, sizeof(double)*Nparticles));
+		checkCudaErrors(cudaMalloc((void **) &arrayY_GPU, sizeof(double)*Nparticles));
+		checkCudaErrors(cudaMalloc((void **) &xj_GPU, sizeof(double)*Nparticles));
+		checkCudaErrors(cudaMalloc((void **) &yj_GPU, sizeof(double)*Nparticles));
+		checkCudaErrors(cudaMalloc((void **) &CDF_GPU, sizeof(double)*Nparticles));
+		checkCudaErrors(cudaMalloc((void **) &u_GPU, sizeof(double)*Nparticles));
+	}
 	
 	for(x = 0; x < Nparticles; x++){
 		arrayX[x] = xe;
@@ -779,50 +806,138 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 			u[x] = u1 + x/((double)(Nparticles));
 		}
 		//CUDA memory copying from CPU memory to GPU memory
-        cudaEventRecord(start, 0);
+        checkCudaErrors(cudaEventRecord(start, 0));
+		// Use demand paging, or hyperq async cpy
+		if (uvm) {
 
-#ifdef UNIFIED_MEMORY
-        // Use demand paging, or hyperq async cpy
-#else
-		cudaMemcpy(arrayX_GPU, arrayX, sizeof(double)*Nparticles, cudaMemcpyHostToDevice);
-		cudaMemcpy(arrayY_GPU, arrayY, sizeof(double)*Nparticles, cudaMemcpyHostToDevice);
-		cudaMemcpy(xj_GPU, xj, sizeof(double)*Nparticles, cudaMemcpyHostToDevice);
-		cudaMemcpy(yj_GPU, yj, sizeof(double)*Nparticles, cudaMemcpyHostToDevice);
-		cudaMemcpy(CDF_GPU, CDF, sizeof(double)*Nparticles, cudaMemcpyHostToDevice);
-		cudaMemcpy(u_GPU, u, sizeof(double)*Nparticles, cudaMemcpyHostToDevice);
-#endif
+		} else if (uvm_advise) {
+			checkCudaErrors(cudaMemAdvise(arrayX_GPU, sizeof(double)*Nparticles, cudaMemAdviseSetPreferredLocation, device));
+			checkCudaErrors(cudaMemAdvise(arrayX_GPU, sizeof(double)*Nparticles, cudaMemAdviseSetReadMostly, device));
+			checkCudaErrors(cudaMemAdvise(arrayY_GPU, sizeof(double)*Nparticles, cudaMemAdviseSetPreferredLocation, device));
+			checkCudaErrors(cudaMemAdvise(arrayY_GPU, sizeof(double)*Nparticles, cudaMemAdviseSetReadMostly, device));
+			checkCudaErrors(cudaMemAdvise(xj_GPU, sizeof(double)*Nparticles, cudaMemAdviseSetPreferredLocation, device));
+			checkCudaErrors(cudaMemAdvise(yj_GPU, sizeof(double)*Nparticles, cudaMemAdviseSetPreferredLocation, device));
+			checkCudaErrors(cudaMemAdvise(CDF_GPU, sizeof(double)*Nparticles, cudaMemAdviseSetPreferredLocation, device));
+			checkCudaErrors(cudaMemAdvise(CDF_GPU, sizeof(double)*Nparticles, cudaMemAdviseSetReadMostly, device));
+			checkCudaErrors(cudaMemAdvise(u_GPU, sizeof(double)*Nparticles, cudaMemAdviseSetPreferredLocation, device));
+			checkCudaErrors(cudaMemAdvise(u_GPU, sizeof(double)*Nparticles, cudaMemAdviseSetReadMostly, device));
+		} else if (uvm_prefetch) {
+			checkCudaErrors(cudaMemPrefetchAsync(arrayX_GPU, sizeof(double)*Nparticles, device));
+			cudaStream_t s1;
+			checkCudaErrors(cudaStreamCreate(&s1));
+			checkCudaErrors(cudaMemPrefetchAsync(arrayY_GPU, sizeof(double)*Nparticles, device, s1));
+			cudaStream_t s2;
+			checkCudaErrors(cudaStreamCreate(&s2));
+			checkCudaErrors(cudaMemPrefetchAsync(xj_GPU, sizeof(double)*Nparticles, device, s2));
+			cudaStream_t s3;
+			checkCudaErrors(cudaStreamCreate(&s3));
+			checkCudaErrors(cudaMemPrefetchAsync(yj_GPU, sizeof(double)*Nparticles, device, s3));
+			cudaStream_t s4;
+			checkCudaErrors(cudaStreamCreate(&s4));
+			checkCudaErrors(cudaMemPrefetchAsync(CDF, sizeof(double)*Nparticles, device, s4));
+			cudaStream_t s5;
+			checkCudaErrors(cudaStreamCreate(&s5));
+			checkCudaErrors(cudaMemPrefetchAsync(u_GPU, sizeof(double)*Nparticles, device, s5));
+			checkCudaErrors(cudaStreamDestroy(s1));
+			checkCudaErrors(cudaStreamDestroy(s2));
+			checkCudaErrors(cudaStreamDestroy(s3));
+			checkCudaErrors(cudaStreamDestroy(s4));
+			checkCudaErrors(cudaStreamDestroy(s5));
+		} else if (uvm_prefetch_advise) {
+			checkCudaErrors(cudaMemAdvise(arrayX_GPU, sizeof(double)*Nparticles, cudaMemAdviseSetPreferredLocation, device));
+			checkCudaErrors(cudaMemAdvise(arrayX_GPU, sizeof(double)*Nparticles, cudaMemAdviseSetReadMostly, device));
+			checkCudaErrors(cudaMemAdvise(arrayY_GPU, sizeof(double)*Nparticles, cudaMemAdviseSetPreferredLocation, device));
+			checkCudaErrors(cudaMemAdvise(arrayY_GPU, sizeof(double)*Nparticles, cudaMemAdviseSetReadMostly, device));
+			checkCudaErrors(cudaMemAdvise(xj_GPU, sizeof(double)*Nparticles, cudaMemAdviseSetPreferredLocation, device));
+			checkCudaErrors(cudaMemAdvise(yj_GPU, sizeof(double)*Nparticles, cudaMemAdviseSetPreferredLocation, device));
+			checkCudaErrors(cudaMemAdvise(CDF_GPU, sizeof(double)*Nparticles, cudaMemAdviseSetPreferredLocation, device));
+			checkCudaErrors(cudaMemAdvise(CDF_GPU, sizeof(double)*Nparticles, cudaMemAdviseSetReadMostly, device));
+			checkCudaErrors(cudaMemAdvise(u_GPU, sizeof(double)*Nparticles, cudaMemAdviseSetPreferredLocation, device));
+			checkCudaErrors(cudaMemAdvise(u_GPU, sizeof(double)*Nparticles, cudaMemAdviseSetReadMostly, device));
+			
+			checkCudaErrors(cudaMemPrefetchAsync(arrayX_GPU, sizeof(double)*Nparticles, device));
+			cudaStream_t s1;
+			checkCudaErrors(cudaStreamCreate(&s1));
+			checkCudaErrors(cudaMemPrefetchAsync(arrayY_GPU, sizeof(double)*Nparticles, device, s1));
+			cudaStream_t s2;
+			checkCudaErrors(cudaStreamCreate(&s2));
+			checkCudaErrors(cudaMemPrefetchAsync(xj_GPU, sizeof(double)*Nparticles, device, s2));
+			cudaStream_t s3;
+			checkCudaErrors(cudaStreamCreate(&s3));
+			checkCudaErrors(cudaMemPrefetchAsync(yj_GPU, sizeof(double)*Nparticles, device, s3));
+			cudaStream_t s4;
+			checkCudaErrors(cudaStreamCreate(&s4));
+			checkCudaErrors(cudaMemPrefetchAsync(CDF, sizeof(double)*Nparticles, device, s4));
+			cudaStream_t s5;
+			checkCudaErrors(cudaStreamCreate(&s5));
+			checkCudaErrors(cudaMemPrefetchAsync(u_GPU, sizeof(double)*Nparticles, device, s5));
+			checkCudaErrors(cudaStreamDestroy(s1));
+			checkCudaErrors(cudaStreamDestroy(s2));
+			checkCudaErrors(cudaStreamDestroy(s3));
+			checkCudaErrors(cudaStreamDestroy(s4));
+			checkCudaErrors(cudaStreamDestroy(s5));
+		} else {
+			checkCudaErrors(cudaMemcpy(arrayX_GPU, arrayX, sizeof(double)*Nparticles, cudaMemcpyHostToDevice));
+			checkCudaErrors(cudaMemcpy(arrayY_GPU, arrayY, sizeof(double)*Nparticles, cudaMemcpyHostToDevice));
+			checkCudaErrors(cudaMemcpy(xj_GPU, xj, sizeof(double)*Nparticles, cudaMemcpyHostToDevice));
+			checkCudaErrors(cudaMemcpy(yj_GPU, yj, sizeof(double)*Nparticles, cudaMemcpyHostToDevice));
+			checkCudaErrors(cudaMemcpy(CDF_GPU, CDF, sizeof(double)*Nparticles, cudaMemcpyHostToDevice));
+			checkCudaErrors(cudaMemcpy(u_GPU, u, sizeof(double)*Nparticles, cudaMemcpyHostToDevice));
+		}
 
-        cudaEventRecord(stop, 0);
-        cudaEventSynchronize(stop);
-        cudaEventElapsedTime(&elapsedTime, start, stop);
+		checkCudaErrors(cudaEventRecord(stop, 0));
+        checkCudaErrors(cudaEventSynchronize(stop));
+        checkCudaErrors(cudaEventElapsedTime(&elapsedTime, start, stop));
         transferTime += elapsedTime * 1.e-3;
 		//Set number of threads
 		int num_blocks = ceil((double) Nparticles/(double) threads_per_block);
 		
 		//KERNEL FUNCTION CALL
-        cudaEventRecord(start, 0);
+        checkCudaErrors(cudaEventRecord(start, 0));
 		kernel <<< num_blocks, threads_per_block >>> (arrayX_GPU, arrayY_GPU, CDF_GPU, u_GPU, xj_GPU, yj_GPU, Nparticles);
-        cudaEventRecord(stop, 0);
-        cudaEventSynchronize(stop);
-        cudaEventElapsedTime(&elapsedTime, start, stop);
+        checkCudaErrors(cudaEventRecord(stop, 0));
+        checkCudaErrors(cudaEventSynchronize(stop));
+        checkCudaErrors(cudaEventElapsedTime(&elapsedTime, start, stop));
         kernelTime += elapsedTime * 1.e-3;
         CHECK_CUDA_ERROR();
         
-        cudaDeviceSynchronize();
+        checkCudaErrors(cudaDeviceSynchronize());
 		//CUDA memory copying back from GPU to CPU memory
-        cudaEventRecord(start, 0);
-#ifdef UNIFIED_MEMORY
-        // no need for copy right now, could use demand paging or async stream
-#else
-		cudaMemcpy(yj, yj_GPU, sizeof(double)*Nparticles, cudaMemcpyDeviceToHost);
-		cudaMemcpy(xj, xj_GPU, sizeof(double)*Nparticles, cudaMemcpyDeviceToHost);
-#endif
-        cudaEventRecord(stop, 0);
-        cudaEventSynchronize(stop);
-        cudaEventElapsedTime(&elapsedTime, start, stop);
+        checkCudaErrors(cudaEventRecord(start, 0));
+		if (uvm) {
+
+		} else if (uvm_advise) {
+			checkCudaErrors(cudaMemAdvise(yj, sizeof(double)*Nparticles, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+			checkCudaErrors(cudaMemAdvise(yj, sizeof(double)*Nparticles, cudaMemAdviseSetReadMostly, cudaCpuDeviceId));
+			checkCudaErrors(cudaMemAdvise(xj, sizeof(double)*Nparticles, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+			checkCudaErrors(cudaMemAdvise(xj, sizeof(double)*Nparticles, cudaMemAdviseSetReadMostly, cudaCpuDeviceId));
+		} else if (uvm_prefetch) {
+			checkCudaErrors(cudaMemPrefetchAsync(yj, sizeof(double)*Nparticles, cudaCpuDeviceId));
+			cudaStream_t s1;
+			checkCudaErrors(cudaStreamCreate(&s1));
+			checkCudaErrors(cudaMemPrefetchAsync(xj, sizeof(double)*Nparticles, cudaCpuDeviceId, (cudaStream_t)1));
+			checkCudaErrors(cudaStreamDestroy(s1));
+		} else if (uvm_prefetch_advise) {
+			checkCudaErrors(cudaMemAdvise(yj, sizeof(double)*Nparticles, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+			checkCudaErrors(cudaMemAdvise(yj, sizeof(double)*Nparticles, cudaMemAdviseSetReadMostly, cudaCpuDeviceId));
+			checkCudaErrors(cudaMemAdvise(xj, sizeof(double)*Nparticles, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+			checkCudaErrors(cudaMemAdvise(xj, sizeof(double)*Nparticles, cudaMemAdviseSetReadMostly, cudaCpuDeviceId));
+			
+			checkCudaErrors(cudaMemPrefetchAsync(yj, sizeof(double)*Nparticles, cudaCpuDeviceId));
+			cudaStream_t s1;
+			checkCudaErrors(cudaStreamCreate(&s1));
+			checkCudaErrors(cudaMemPrefetchAsync(xj, sizeof(double)*Nparticles, cudaCpuDeviceId, (cudaStream_t)1));
+			checkCudaErrors(cudaStreamDestroy(s1));
+		} else {
+			checkCudaErrors(cudaMemcpy(yj, yj_GPU, sizeof(double)*Nparticles, cudaMemcpyDeviceToHost));
+			checkCudaErrors(cudaMemcpy(xj, xj_GPU, sizeof(double)*Nparticles, cudaMemcpyDeviceToHost));
+		}
+		checkCudaErrors(cudaEventRecord(stop, 0));
+        checkCudaErrors(cudaEventSynchronize(stop));
+        checkCudaErrors(cudaEventElapsedTime(&elapsedTime, start, stop));
         transferTime += elapsedTime * 1.e-3;
 		
-		for(x = 0; x < Nparticles; x++){
+		for (x = 0; x < Nparticles; x++){
 			//reassign arrayX and arrayY
 			arrayX[x] = xj[x];
 			arrayY[x] = yj[x];
@@ -839,41 +954,41 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
     resultDB.AddOverall("Time", "sec", kernelTime+transferTime);
 	
 	//CUDA freeing of memory
-#ifndef UNIFIED_MEMORY
-	cudaFree(u_GPU);
-	cudaFree(CDF_GPU);
-	cudaFree(yj_GPU);
-	cudaFree(xj_GPU);
-	cudaFree(arrayY_GPU);
-	cudaFree(arrayX_GPU);
-#endif
+	if (!uvm && !uvm_advise && !uvm_prefetch && !uvm_prefetch_advise) {
+		checkCudaErrors(cudaFree(u_GPU));
+		checkCudaErrors(cudaFree(CDF_GPU));
+		checkCudaErrors(cudaFree(yj_GPU));
+		checkCudaErrors(cudaFree(xj_GPU));
+		checkCudaErrors(cudaFree(arrayY_GPU));
+		checkCudaErrors(cudaFree(arrayX_GPU));
+	}
 	
 	//free memory
-#ifdef UNIFIED_MEMORY
-    CUDA_SAFE_CALL(cudaFree(disk));
-    CUDA_SAFE_CALL(cudaFree(objxy));
-    CUDA_SAFE_CALL(cudaFree(weights));
-    CUDA_SAFE_CALL(cudaFree(likelihood));
-    CUDA_SAFE_CALL(cudaFree(arrayX));
-    CUDA_SAFE_CALL(cudaFree(arrayY));
-    CUDA_SAFE_CALL(cudaFree(xj));
-    CUDA_SAFE_CALL(cudaFree(yj));
-    CUDA_SAFE_CALL(cudaFree(CDF));
-    CUDA_SAFE_CALL(cudaFree(u));
-    CUDA_SAFE_CALL(cudaFree(ind));
-#else
-	free(disk);
-	free(objxy);
-	free(weights);
-	free(likelihood);
-	free(arrayX);
-	free(arrayY);
-	free(xj);
-	free(yj);
-	free(CDF);
-	free(u);
-	free(ind);
-#endif
+	if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+		checkCudaErrors(cudaFree(disk));
+		checkCudaErrors(cudaFree(objxy));
+		checkCudaErrors(cudaFree(weights));
+		checkCudaErrors(cudaFree(likelihood));
+		checkCudaErrors(cudaFree(arrayX));
+		checkCudaErrors(cudaFree(arrayY));
+		checkCudaErrors(cudaFree(xj));
+		checkCudaErrors(cudaFree(yj));
+		checkCudaErrors(cudaFree(CDF));
+		checkCudaErrors(cudaFree(u));
+		checkCudaErrors(cudaFree(ind));
+	} else {
+		free(disk);
+		free(objxy);
+		free(weights);
+		free(likelihood);
+		free(arrayX);
+		free(arrayY);
+		free(xj);
+		free(yj);
+		free(CDF);
+		free(u);
+		free(ind);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -906,7 +1021,7 @@ void addBenchmarkSpecOptions(OptionParser &op) {
 /// @param 		   	args		The arguments. 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void particlefilter_naive(ResultDatabase &resultDB, int args[]);
+void particlefilter_naive(ResultDatabase &resultDB, OptionParser &op, int args[]);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// @fn	void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
@@ -957,7 +1072,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
         if(!quiet) {
             printf("Pass %d: ", i);
         }
-        particlefilter_naive(resultDB, args);
+        particlefilter_naive(resultDB, op, args);
         if(!quiet) {
             printf("Done.\n");
         }
@@ -976,8 +1091,14 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 /// @param 		   	args		The arguments. 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void particlefilter_naive(ResultDatabase &resultDB, int args[]){
-	
+void particlefilter_naive(ResultDatabase &resultDB, OptionParser &op, int args[]){
+	const bool uvm = op.getOptionBool("uvm");
+    const bool uvm_advise = op.getOptionBool("uvm-advise");
+    const bool uvm_prefetch = op.getOptionBool("uvm-prefetch");
+    const bool uvm_prefetch_advise = op.getOptionBool("uvm-prefetch-advise");
+    int device = 0;
+    checkCudaErrors(cudaGetDevice(&device));
+
 	int IszX, IszY, Nfr, Nparticles;
 	IszX = args[0];
 	IszY = args[1];
@@ -985,32 +1106,34 @@ void particlefilter_naive(ResultDatabase &resultDB, int args[]){
     Nparticles = args[3];
 
 	//establish seed
-#ifdef UNIFIED_MEMORY
-    int *seed = NULL;
-    CUDA_SAFE_CALL(cudaMallocManaged(&seed, sizeof(int) * Nparticles));
-#else
-	int * seed = (int *)malloc(sizeof(int)*Nparticles);
-#endif
+	int *seed = NULL;
+	if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+		checkCudaErrors(cudaMallocManaged(&seed, sizeof(int) * Nparticles));
+	} else {
+		seed = (int *)malloc(sizeof(int)*Nparticles);
+		assert(seed);
+	}
 	int i;
 	for(i = 0; i < Nparticles; i++)
 		seed[i] = time(0)*i;
 	//malloc matrix
-#ifdef UNIFIED_MEMORY
-    int *I = NULL;
-    CUDA_SAFE_CALL(cudaMallocManaged(&I, sizeof(int) * IszX * IszY * Nfr));
-#else
-	int * I = (int *)malloc(sizeof(int)*IszX*IszY*Nfr);
-#endif
+	int *I = NULL;
+	if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+		checkCudaErrors(cudaMallocManaged(&I, sizeof(int) * IszX * IszY * Nfr));
+	} else {
+		I = (int *)malloc(sizeof(int)*IszX*IszY*Nfr);
+		assert(I);
+	}
 	//call video sequence
-	videoSequence(I, IszX, IszY, Nfr, seed);
+	videoSequence(op, I, IszX, IszY, Nfr, seed);
 	//call particle filter
-	particleFilter(I, IszX, IszY, Nfr, seed, Nparticles, resultDB);
+	particleFilter(I, IszX, IszY, Nfr, seed, Nparticles, op, resultDB);
 	
-#ifdef UNIFIED_MEMORY
-    CUDA_SAFE_CALL(cudaFree(seed));
-    CUDA_SAFE_CALL(cudaFree(I));
-#else
-	free(seed);
-	free(I);
-#endif
+	if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
+		checkCudaErrors(cudaFree(seed));
+		checkCudaErrors(cudaFree(I));
+	} else {
+		free(seed);
+		free(I);
+	}
 }

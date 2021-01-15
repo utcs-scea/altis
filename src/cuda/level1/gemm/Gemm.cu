@@ -282,7 +282,10 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
   } else if (uvm_prefetch) {
       // could ignore this to test demand paging performance affect
       checkCudaErrors(cudaMemPrefetchAsync(dA, N * N * sizeof(T), device));
-      checkCudaErrors(cudaMemPrefetchAsync(dB, N * N * sizeof(T), device, (cudaStream_t)1));
+      cudaStream_t s1;
+      checkCudaErrors(cudaStreamCreate(&s1));
+      checkCudaErrors(cudaMemPrefetchAsync(dB, N * N * sizeof(T), device, s1));
+      checkCudaErrors(cudaStreamDestroy(s1));
       // checkCudaErrors(cudaStreamSynchronize(0));
       // checkCudaErrors(cudaStreamSynchronize((cudaStream_t)1));
   } else if (uvm_advise) {
@@ -293,7 +296,10 @@ void RunTest(string testName, ResultDatabase &resultDB, OptionParser &op) {
       checkCudaErrors(cudaMemAdvise(dA, N * N * sizeof(T), cudaMemAdviseSetPreferredLocation, device));
       checkCudaErrors(cudaMemAdvise(dB, N * N * sizeof(T), cudaMemAdviseSetPreferredLocation, device));
       checkCudaErrors(cudaMemPrefetchAsync(dA, N * N * sizeof(T), device));
-      checkCudaErrors(cudaMemPrefetchAsync(dB, N * N * sizeof(T), device, (cudaStream_t)1));
+      cudaStream_t s1;
+      checkCudaErrors(cudaStreamCreate(&s1));
+      checkCudaErrors(cudaMemPrefetchAsync(dB, N * N * sizeof(T), device, s1));
+      checkCudaErrors(cudaStreamDestroy(s1));
   } else {
       checkCudaErrors(cudaMemcpy(dA, A, N * N * sizeof(T), cudaMemcpyHostToDevice));
       checkCudaErrors(cudaMemcpy(dB, B, N * N * sizeof(T), cudaMemcpyHostToDevice));
