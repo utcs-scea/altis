@@ -70,7 +70,7 @@ int g_nSteps = DEFAULTSTEPS;
 LPFNKMEANS g_lpfnKMeans = NULL;
 LPFNBNC g_lpfnBnc = NULL;
 /* Change the input addr to whatever you want */
-char *g_lpszDefaultInput = "/home/ed/Desktop/altis/src/cuda/level2/km/inputs/random-n1000000-d128-c128.txt";
+char *g_lpszDefaultInput = "./inputs/random-n1000000-d128-c128.txt";
 char g_vInputFile[FILE_STR_BUFF_LEN];
 char g_vKMeansVersion[FILE_STR_BUFF_LEN];
 int g_nRank;
