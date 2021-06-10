@@ -50,7 +50,7 @@ then
         # instead of the end. Temporery fix
         if [ *"$arch"* != "$cudalibs" ]
         then
-            cudalibs=`$NVCC -dryrun bogus.cu 2>&1 | tail -1 | sed 's#"[a-zA-Z0-9/_-]*\.o"##g' | sed 's/#$ g++ -m64 -Wl,--start-group//' | sed 's/-Wl,--end-group//' | sed "s#-o \"a.out\"##"`
+            cudalibs=`$NVCC -dryrun bogus.cu 2>&1 | tail -1 | sed 's#"[a-zA-Z0-9/_-]*\.o"##g' | sed 's#-o "a.out"##g' | sed 's/#$ g++ -m64  -Wl,--start-group//g' | sed 's/-Wl,--end-group//'`
         fi
     elif [ "$arch" = "ppc64le" ]
     then
