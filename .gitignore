@@ -69,3 +69,6 @@ src/cuda/level2/dwt2d/input.bmp.dwt.r
 
 /.vs
 /Project1
+build-aux
+configure
+*m4
