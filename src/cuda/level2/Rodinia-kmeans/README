@@ -1,3 +1,0 @@
-This KMeans implementation is adopted from Rodinia and deprecated. The default KMeans is inside the kmeans/ directory.
-
-To compile the files in this directory, please modify the Makefile.am inside level2/ directory to add this folder and the configure.ac insides altis/ to include the path to this directory.
