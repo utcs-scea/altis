@@ -83,7 +83,7 @@ inline void devGEMM(cublasHandle_t handle,
 template <class T> void fill(T *A, int n, int maxi) {
   for (int j = 0; j < n; j++) {
       if constexpr (std::is_same<T, float>::value || std::is_same<T, double>::value)
-          A[j] = T((rand() % (maxi * 2 + 1)) - maxi) / (maxi + 1.);
+          A[j] = T((rand() % (maxi * 2 + 1)) - maxi) / T(maxi + 1.);
       else if constexpr (std::is_same<T, half>::value)
           A[j] = __float2half(float((rand() % (maxi * 2 + 1)) - maxi) / (maxi + 1.));
       else
