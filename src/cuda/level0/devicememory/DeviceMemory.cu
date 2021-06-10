@@ -8,7 +8,7 @@
 
 #include "OptionParser.h"
 #include "ResultDatabase.h"
-#include "Timer.h"
+// #include "Timer.h"
 #include "Utility.h"
 #include "cudacommon.h"
 #include "support.h"
