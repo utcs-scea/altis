@@ -1,37 +1,78 @@
-## Welcome to GitHub Pages
+## Altis Benchmark Suite
 
-You can use the [editor on GitHub](https://github.com/utcs-scea/altis/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+Altis is a benchmark suite to test the performance and other aspects of systems with Graphics Processing Units (GPUs), developed in [SCEA](https://github.com/utcs-scea) lab at University of Texas at Austin. Altis consists of a collection of GPU applications with differnt performance implications. Altis focuses primarily on [Compute Unified Device Architecture](https://developer.nvidia.com/cuda-toolkit) (CUDA) computing platform.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+Documentaion regarding this project can be found at the [Wiki](https://github.com/utcs-scea/altis/wiki) page. The Wiki document contains information regarding Altis setup, installation, usage, and other information.
 
-### Markdown
+> We are refactoring Altis codebase for better usability and making it more developer-friendly. We made sure the benchmark still compile properly during refactoring so you can still use it. The refactoring involves changing how each benchmark application is used and adding more benchmarks.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+## How to Get Altis
 
-```markdown
-Syntax highlighted code block
+Simply execute the following command:
 
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
+```bash
+git clone https://github.com/utcs-scea/altis.git
 ```
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+## Setup
 
-### Jekyll Themes
+Altis relies on the avaialbility of CUDA. Please refer to [Environment Setup](https://github.com/utcs-scea/altis/wiki/Environment-Setup) for how to set up Altis.
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/utcs-scea/altis/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+## Build:
 
-### Support or Contact
+After the environment is setup properly, go to the root directory of Altis, execute:
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+```bash
+./setup.sh
+```
+
+For more information regarding building process, please refer to [Build](https://github.com/utcs-scea/altis/wiki/Build) for more information.
+
+
+<!--
+## To Run Suite:
+``` python driver.py [options]```
+```
+Options:
+  -h, --help                    show help message and exit
+  -p, --prefix=PREFIX           location of Altis root, defaults to current working directory
+  -e, --exec_prefix=EXEC_PREFIX location of executables
+  -d, --device=DEVICE           device to run the benchmarks on
+  -s, --size=SIZE               problem size
+  -b, --benchmark=BENCHMARKS    comma-separated list of benchmarks to run, or 'all' to run entire suite, defaults to 'all'
+  -v, --verbose                 enable verbose output
+```
+Note: Results are written to ```$ALTIS_ROOT/results/$BENCHMARK```
+-->
+
+## To Run a Single Benchmark:
+1. ```cd build/bin/$BENCHMARK_LEVEL```
+2. ``` ./$BENCHMARK [options]```
+```
+General Options: 
+    -c, --configFile             specify configuration file
+    -d, --device                 specify device to run on
+    -i, --inputFile              path of input file
+    -o, --outputFile             path of output file
+    -m, --metricsFile            path of file to write metrics to
+    -n, --passes                 specify number of passes
+    -p, --properties             show properties for available platforms and devices (exits afterwards)
+    -q, --quiet                  enable minimal output
+    -s, --size                   specify problem size
+    -v, --verbose                enable verbose output
+```
+Note: Run benchmark with --help to see full list of options available for that specific benchmark
+
+## Cite Us
+
+Bibtex is shown below:  
+
+@INPROCEEDINGS{9238617,  
+  author={B. {Hu} and C. J. {Rossbach}},  
+  booktitle={2020 IEEE International Symposium on Performance Analysis of Systems and Software (ISPASS)},  
+  title={Altis: Modernizing GPGPU Benchmarks},  
+  year={2020},  
+  volume={},  
+  number={},  
+  pages={1-11},  
+  doi={10.1109/ISPASS48437.2020.00011}}  
