@@ -1,20 +1,20 @@
-/* This header file is used for GeForce GTX 1080. */
+/* This header file is used for Tesla P100-SXM2-16GB. */
 #ifndef __CUDA_DEVICE_ATTR_H__
 #define __CUDA_DEVICE_ATTR_H__
 
-#define CUDA_DEVICE_NUM    1
+#define CUDA_DEVICE_NUM    4
 #define CUDA_DEVICE_ID    0
-#define CUDA_DEVICE_NAME    "GeForce GTX 1080"
-#define CUDA_MAJOR_VERSION    11
-#define CUDA_MINOR_VERSION    2
+#define CUDA_DEVICE_NAME    "Tesla P100-SXM2-16GB"
+#define CUDA_MAJOR_VERSION    10
+#define CUDA_MINOR_VERSION    1
 #define CUDA_MAJOR_CAPABILITY    6
-#define CUDA_MINOR_CAPABILITY    1
-#define GLOBAL_MEM    8510701568
-#define SM_COUNT    20
-#define CUDA_CORES_PER_SM    128
-#define CUDA_CORES    2560
-#define MEM_BUS_WIDTH    256
-#define L2_CACHE_SIZE    2097152
+#define CUDA_MINOR_CAPABILITY    0
+#define GLOBAL_MEM    17071734784
+#define SM_COUNT    56
+#define CUDA_CORES_PER_SM    64
+#define CUDA_CORES    3584
+#define MEM_BUS_WIDTH    4096
+#define L2_CACHE_SIZE    4194304
 #define MAX_TEXTURE_1D_DIM    131072
 #define MAX_TEXTURE_2D_X    131072
 #define MAX_TEXTURE_2D_Y    65536
@@ -28,7 +28,7 @@
 #define MAX_TEXTURE_2D_TEXTURE_LAYERS    2048
 #define CONST_MEM    65536
 #define SHARED_MEM_PER_BLOCK    49152
-#define SHARED_MEM_PER_SM    98304
+#define SHARED_MEM_PER_SM    65536
 #define SHARED_MEMORY_BANKS    32
 #define SHARED_MEMORY_BANK_BANDWIDTH    4 // Each bank has a bandwidth of 32 bits per clock cycle
 #define REGS_PER_BLOCK    65536

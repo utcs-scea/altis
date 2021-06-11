@@ -42,5 +42,5 @@ fi
 cd $SCRIPTPATH
 mkdir build
 cd build
-cmake ..
+cmake -DCMAKE_CUDA_ARCHITECTURES=$($SCRIPTPATH/config/get_cuda_sm.sh) ..
 make -j6

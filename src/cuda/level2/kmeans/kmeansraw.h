@@ -1058,7 +1058,7 @@ public:
 
         checkCudaErrors(cudaEventRecord(start, 0));
 
-        pKMeans->execute(bVCpuAccum);
+        (*pKMeans).execute(bVCpuAccum);
 	    checkCudaErrors( cudaDeviceSynchronize() );
 
         checkCudaErrors(cudaEventRecord(stop, 0));
