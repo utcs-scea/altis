@@ -1,1 +1,6 @@
 theme: jekyll-theme-modernist
+title: Altis Benchmark Suite
+description: "Altis is a benchmark suite to test the performance and other aspects of systems with Graphics Processing Units (GPUs), developed in the SCEA lab at University of Texas at Austin"
+plugins:
+  - jekyll-sitemap
+  - jekyll-seo-tag
