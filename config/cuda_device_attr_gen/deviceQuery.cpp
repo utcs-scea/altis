@@ -28,6 +28,11 @@
 /* This sample queries the properties of the CUDA devices present in the system
  * via CUDA Runtime API. */
 
+/*
+ * Modification: Bodun Hu. 06/11/2021
+ * Generate C/C++ header file with device-specific parameters.
+ */
+
 // std::system includes
 
 #include <cuda_runtime.h>
@@ -190,38 +195,38 @@ int main(int argc, char **argv) {
     cudaDeviceProp deviceProp;
     cudaGetDeviceProperties(&deviceProp, dev);
 
-  /* write comment */
-  cudaHdrFile << "/* This header file is used for " << deviceProp.name << ". */" << std::endl;
+    /* write comment */
+    cudaHdrFile << "/* This header file is used for " << deviceProp.name << ". */" << std::endl;
 
-  /* Write header guards */
-  cudaHdrFile << "#ifndef __CUDA_DEVICE_ATTR_H__" << std::endl;
-  cudaHdrFile << "#define __CUDA_DEVICE_ATTR_H__" << std::endl << std::endl;
+    /* Write header guards */
+    cudaHdrFile << "#ifndef __CUDA_DEVICE_ATTR_H__" << std::endl;
+    cudaHdrFile << "#define __CUDA_DEVICE_ATTR_H__" << std::endl << std::endl;
 
 
-  printf(
+    printf(
       " CUDA Device Query (Runtime API) version (CUDART static linking)\n\n");
 
-  int deviceCount = 0;
-  cudaError_t error_id = cudaGetDeviceCount(&deviceCount);
+    int deviceCount = 0;
+    cudaError_t error_id = cudaGetDeviceCount(&deviceCount);
 
-  if (error_id != cudaSuccess) {
-    printf("cudaGetDeviceCount returned %d\n-> %s\n",
+    if (error_id != cudaSuccess) {
+        printf("cudaGetDeviceCount returned %d\n-> %s\n",
            static_cast<int>(error_id), cudaGetErrorString(error_id));
-    printf("Result = FAIL\n");
-    exit(EXIT_FAILURE);
-  }
+        printf("Result = FAIL\n");
+        exit(EXIT_FAILURE);
+    }
 
-  // This function call returns 0 if there are no CUDA capable devices.
-  if (deviceCount == 0) {
-    printf("There are no available device(s) that support CUDA\n");
-  } else {
-    printf("Detected %d CUDA Capable device(s)\n", deviceCount);
+    // This function call returns 0 if there are no CUDA capable devices.
+    if (deviceCount == 0) {
+        printf("There are no available device(s) that support CUDA\n");
+    } else {
+        printf("Detected %d CUDA Capable device(s)\n", deviceCount);
 
-    /* define number of cuda capable devices */
-    cudaHdrFile << "#define CUDA_DEVICE_NUM    " << deviceCount << std::endl;
-  }
+        /* define number of cuda capable devices */
+        cudaHdrFile << "#define CUDA_DEVICE_NUM    " << deviceCount << std::endl;
+    }
 
-      printf("\nDevice %d: \"%s\"\n", dev, deviceProp.name);
+    printf("\nDevice %d: \"%s\"\n", dev, deviceProp.name);
 
     /* write device ID and its name */
     cudaHdrFile << "#define CUDA_DEVICE_ID    " << dev << std::endl;
