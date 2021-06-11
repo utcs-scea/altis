@@ -2,6 +2,9 @@ theme: jekyll-theme-modernist
 title: Altis Benchmark Suite
 description: "Altis is a benchmark suite to test the performance and other aspects of systems with GPUs."
 show_downloads: true
+github:
+  zip_url: https://github.com/utcs-scea/altis/archive/refs/heads/master.zip
+  tar_url: https://github.com/utcs-scea/altis/archive/refs/heads/master.tar.gz
 plugins:
   - jekyll-sitemap
   - jekyll-seo-tag
