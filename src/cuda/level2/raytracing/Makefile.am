@@ -1,1 +1,0 @@
-SUBDIRS=raytracing_cuda raytracing_optix

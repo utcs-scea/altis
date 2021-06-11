@@ -1,8 +1,0 @@
-test	atts	units	median	mean	stddev	min	max	
-pathfinder_kernel_time	8192x8192	sec	225.967	226.937	1.89204	225.131	230.931	
-pathfinder_parity	8192x8192	N	0.000133247	0.00024485	0.000315	0.000130513	0.00118856	
-pathfinder_total_time	8192x8192	sec	225.997	226.993	1.91381	225.162	230.961	
-pathfinder_transfer_time	8192x8192	sec	0.0300935	0.0557332	0.0720189	0.030019	0.271473	
-
-Note: results marked with (*) had missing values such as
-might occur with a mixture of architectural capabilities.

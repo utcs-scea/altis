@@ -8,6 +8,7 @@ add_subdirectory(lavamd)
 add_subdirectory(mandelbrot)
 add_subdirectory(nw)
 add_subdirectory(particlefilter)
+add_subdirectory(raytracing)
 add_subdirectory(srad)
 add_subdirectory(where)
 
@@ -97,6 +98,15 @@ set_target_properties(particlefilter_naive
 add_executable(particlefilter_float ${exe_files})
 target_link_libraries(particlefilter_float AltisCommon particlefilterfloatLib)
 set_target_properties(particlefilter_float
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/level2"
+)
+
+add_executable(raytracing ${exe_files})
+target_link_libraries(raytracing AltisCommon raytracingLib)
+set_target_properties(raytracing
     PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"

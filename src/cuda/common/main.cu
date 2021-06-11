@@ -179,7 +179,6 @@ void checkCudaFeatureAvailability(OptionParser &op) {
 int main(int argc, char *argv[])
 {
     int ret = 0;
-    bool noprompt = false;
 
     try
     {
