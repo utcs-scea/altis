@@ -717,6 +717,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     bool quiet = op.getOptionBool("quiet");
     int imageSize = op.getOptionInt("imageSize");
     int iters = op.getOptionInt("iterations");
+	bool dyn = op.getOptionBool("dyn");
     if (imageSize == 0 || iters == 0) {
         int imageSizes[5] = {2 << 11, 2 << 12, 2 << 13, 2 << 14, 2 << 14};
         int iterSizes[5] = {32, 128, 512, 1024, 8192*16};
@@ -727,11 +728,8 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
     if (!quiet) {
         printf("Image Size: %d by %d\n", imageSize, imageSize);
         printf("Num Iterations: %d\n", iters);
-#ifdef DYNAMIC_PARALLELISM
-        printf("Using dynamic parallelism\n");
-#else
-        printf("Not using dynamic parallelism\n");
-#endif
+		if (dyn) printf("Using dynamic parallelism\n");
+        else printf("Not using dynamic parallelism\n");
     }
     
     char atts[1024];
@@ -751,17 +749,17 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
         resultDB.AddResult("mandelbrot_total_time", atts, "sec", transferTime + kernelTime);
         resultDB.AddResult("mandelbrot_parity", atts, "N", transferTime / kernelTime);
         resultDB.AddOverall("Time", "sec", kernelTime+transferTime);
-#ifdef DYNAMIC_PARALLELISM
-        float totalTime = kernelTime;
-        kernelTime = 0.0f;
-        transferTime = 0.0f;
-        mandelbrot_dyn(resultDB, op, imageSize, iters);
-        resultDB.AddResult("mandelbrot_dynpar_kernel_time", atts, "sec", kernelTime);
-        resultDB.AddResult("mandelbrot_dynpar_transfer_time", atts, "sec", transferTime);
-        resultDB.AddResult("mandelbrot_dynpar_total_time", atts, "sec", transferTime + kernelTime);
-        resultDB.AddResult("mandelbrot_dynpar_parity", atts, "N", transferTime / kernelTime);
-        resultDB.AddResult("mandelbrot_dynpar_speedup", atts, "N", totalTime/kernelTime);
-#endif
+		if (dyn) {
+			float totalTime = kernelTime;
+			kernelTime = 0.0f;
+			transferTime = 0.0f;
+			mandelbrot_dyn(resultDB, op, imageSize, iters);
+			resultDB.AddResult("mandelbrot_dynpar_kernel_time", atts, "sec", kernelTime);
+			resultDB.AddResult("mandelbrot_dynpar_transfer_time", atts, "sec", transferTime);
+			resultDB.AddResult("mandelbrot_dynpar_total_time", atts, "sec", transferTime + kernelTime);
+			resultDB.AddResult("mandelbrot_dynpar_parity", atts, "N", transferTime / kernelTime);
+			resultDB.AddResult("mandelbrot_dynpar_speedup", atts, "N", totalTime/kernelTime);
+		}
 
         if(!quiet) {
             printf("Done.\n");

@@ -5,6 +5,11 @@ add_subdirectory(dwt2d)
 add_subdirectory(gups)
 add_subdirectory(kmeans)
 add_subdirectory(lavamd)
+add_subdirectory(mandelbrot)
+add_subdirectory(nw)
+add_subdirectory(particlefilter)
+add_subdirectory(srad)
+add_subdirectory(where)
 
 add_executable(cfd ${exe_files})
 target_link_libraries(cfd AltisCommon cfdLib)
@@ -56,6 +61,62 @@ add_executable(lavamd ${exe_files} lavamd/util/timer/timer.c)
 target_include_directories(lavamd PRIVATE lavamd/util)
 target_link_libraries(lavamd AltisCommon lavamdLib)
 set_target_properties(lavamd
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/level2"
+)
+
+add_executable(mandelbrot ${exe_files})
+target_link_libraries(mandelbrot AltisCommon mandelbrotLib)
+set_target_properties(mandelbrot
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/level2"
+)
+
+add_executable(nw ${exe_files})
+target_link_libraries(nw AltisCommon nwLib)
+set_target_properties(nw
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/level2"
+)
+
+add_executable(particlefilter_naive ${exe_files})
+target_link_libraries(particlefilter_naive AltisCommon particlefilterLib)
+set_target_properties(particlefilter_naive
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/level2"
+)
+
+add_executable(particlefilter_float ${exe_files})
+target_link_libraries(particlefilter_float AltisCommon particlefilterfloatLib)
+set_target_properties(particlefilter_float
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/level2"
+)
+
+add_executable(srad ${exe_files})
+set_property(TARGET srad
+             PROPERTY CUDA_SEPARABLE_COMPILATION ON)
+target_link_libraries(srad AltisCommon sradLib)
+set_target_properties(srad
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/level2"
+)
+
+add_executable(where ${exe_files})
+target_link_libraries(where AltisCommon whereLib)
+set_target_properties(where
     PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
