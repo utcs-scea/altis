@@ -946,8 +946,8 @@ public:
         size_t  uiPointsBytes = nP * R * sizeof(float);
         float * pInput = reinterpret_cast<float*>(pP);
         if(pTxP == NULL) {
-            // pTxP = (float*)malloc(uiPointsBytes);
-            ALTIS_MALLOC(pTxP, uiPointsBytes);
+            pTxP = (float*)malloc(uiPointsBytes);
+            /* ALTIS_MALLOC((void *)pTxP, uiPointsBytes); */
         }
         for(int i=0; i<nP; i++) {
             for(int j=0; j<R; j++) { 
@@ -968,8 +968,8 @@ public:
         size_t  uiPointsBytes = nP * R * sizeof(float);
         float * pInput = reinterpret_cast<float*>(pP);
         if(pTxP == NULL) {
-            // pTxP = (float*)malloc(uiPointsBytes);
-            ALTIS_MALLOC(pTxP, uiPointsBytes);
+            pTxP = (float*)malloc(uiPointsBytes);
+            /* ALTIS_MALLOC((void *)pTxP, uiPointsBytes); */
         }
         for(int i=0; i<nP; i++) {
             for(int j=0; j<R; j++) { 
@@ -1237,11 +1237,11 @@ public:
 
 		if (!bTooBig) {
 
-			// pt<R> *h_Points = (pt<R>*)malloc(uiPointsBytes);
-            ALTIS_MALLOC(h_Points, uiPointsBytes);
-			// pt<R> *h_Centers = (pt<R>*)malloc(uiCentersBytes);
-            ALTIS_MALLOC(h_Centers, uiCentersBytes);
-			// int * h_ClusterIds = (int*)malloc(uiClusterIdsBytes);
+			pt<R> *h_Points = (pt<R>*)malloc(uiPointsBytes);
+            /* ALTIS_MALLOC(h_Points, uiPointsBytes); */
+			pt<R> *h_Centers = (pt<R>*)malloc(uiCentersBytes);
+            /* ALTIS_MALLOC(h_Centers, uiCentersBytes); */
+			int * h_ClusterIds = (int*)malloc(uiClusterIdsBytes);
             // ALTIS_MALLOC(h_ClusterIds, uiClusterIdsBytes);
 			// memset(h_ClusterIds, 0, uiClusterIdsBytes);
 
