@@ -16,7 +16,6 @@ typedef double (*LPFNKMEANS)(ResultDatabase &DB,
                              void * h_Centers,
 	                         const int nPoints,
                              const int nCenters,
-                             bool bVCpuAccum,
 	                         bool bVerify,
 	                         bool bVerbose);
 
@@ -25,7 +24,6 @@ typedef void (*LPFNBNC)(ResultDatabase &DB,
                         LPFNKMEANS lpfn, 
                         int nSteps,
                         int nSeed,
-                        bool bVCpuAccum,
                         bool bVerify,
                         bool bVerbose);
 
@@ -62,7 +60,6 @@ int gVerbose = 0;
 
 bool g_bVerbose = false;
 bool g_bVerify = false;
-bool g_bCpu = false;
 #define DEFAULTSTEPS 1000
 int g_nSteps = DEFAULTSTEPS;
 
@@ -124,7 +121,7 @@ void addBenchmarkSpecOptions(OptionParser &op) {
     op.addOption("steps", OPT_INT, "1000", "An integer-valued number of steps");
     op.addOption("type", OPT_STRING, "raw", "A valid version of kmeans");
     op.addOption("seed", OPT_INT, "0", "seed for rand gen");
-    op.addOption("cpu", OPT_BOOL, "0", "perform accumulation on CPU instead");
+    // op.addOption("cpu", OPT_BOOL, "0", "perform accumulation on CPU instead");
 }
 
 void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
@@ -135,7 +132,7 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
     g_nSteps = op.getOptionInt("steps");
     g_nSeed = op.getOptionInt("seed");
     g_bVerify = op.getOptionBool("verify");
-    g_bCpu = op.getOptionBool("cpu");
+    // g_bCpu = op.getOptionBool("cpu");
     strcpy(g_vKMeansVersion, op.getOptionString("type").c_str());
     if (g_nSeed == 0) {
         struct timespec ts;
@@ -175,10 +172,8 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
                  g_lpfnKMeans,
                  g_nSteps,
                  g_nSeed,
-                 g_bCpu,
                  g_bVerify,
                  g_bVerbose);
     
     cudaDeviceReset();
 }
-

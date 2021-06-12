@@ -29,7 +29,6 @@ typedef double (*LPFNKMEANS)(ResultDatabase &DB,
     void* h_Centers,
     const int nPoints,
     const int nCenters,
-    bool bVCpuAccum,
     bool bVerify,
     bool bVerbose);
 
@@ -38,7 +37,6 @@ typedef void (*LPFNBNC)(ResultDatabase &DB,
     LPFNKMEANS lpfn,
     int nSteps,
     int nSeed,
-    bool bVCpuAccum,
     bool bVerify,
     bool bVerbose);
 
@@ -205,43 +203,6 @@ public:
             finalizeCentersColumnMajor<R,C><<<nAccums, THREADBLOCK_SIZE>>>(pC, pCC);
         }
     }
-
-    static void finalizeCPU(float *deviceCenters, int *deviceCentersCounts) {
-        float *hstCenters = NULL;
-        int *hstCentersCounts = NULL;
-
-#ifdef UNIFIED_MEMORY
-        hstCenters = deviceCenters;
-        hstCentersCounts = deviceCentersCounts;
-
-        if (ROWMAJ) {
-            for (int i = 0; i < C; i++) {
-                int center_len = hstCentersCounts[i];
-                for (int j = 0; j < R; j++) {
-                    int index = i * R + j;
-                    if (center_len == 0) {
-                        hstCenters[index] = 0.0f;
-                    } else {
-                        hstCenters[index] /= center_len;
-                    }
-                }
-            }
-        } else {
-            for (int i = 0; i < C; i++) {
-                int center_len = hstCentersCounts[i];
-                for (int j = 0; j < R; j++) {
-                    int index = j * C + i;
-                    if (center_len == 0) {
-                        hstCenters[index] = 0.0f;
-                    } else {
-                        hstCenters[index] /= center_len;
-                    }
-                }
-            }
-        }
-#else
-#endif
-    }
 };
 
 template <int R, int C, bool ROWMAJ=true> 
@@ -260,11 +221,6 @@ public:
     static void finalize(float * pC, int * pCC) {
         accumulatorGM<R,C,ROWMAJ>::finalize(pC, pCC);
     }
-
-    static void finalizeCPU(float *pC, int *pCC) {
-        accumulatorGM<R,C,ROWMAJ>::finalizeCPU(pC, pCC);
-    }
-
 };
 
 template<int R, int C> __global__
@@ -373,7 +329,6 @@ class accumulatorSM {
 public:
     static void reset(float * pC, int * pCC) { accumulatorGM<R,C,ROWMAJ>::reset(pC, pCC); }
     static void finalize(float * pC, int * pCC) { accumulatorGMMS<R,C,ROWMAJ>::finalize(pC, pCC); }
-    static void finalizeCPU(float * pC, int * pCC) { accumulatorGMMS<R,C,ROWMAJ>::finalizeCPU(pC, pCC); }
 
     static void
     accumulate(float * pP, float * pC, int * pCC, int * pCI, int nP) { 
@@ -436,8 +391,6 @@ public:
             finalizeCentersColumnMajorShmap<R,C><<<iDivUp(R*C, THREADBLOCK_SIZE), THREADBLOCK_SIZE>>>(pC, pCC); 
         }
     }
-    static void finalizeCPU(float * pC, int * pCC) { accumulatorSM<R,C,ROWMAJ>::finalizeCPU(pC, pCC); }
-
 };
 
 
@@ -528,11 +481,11 @@ mapPointsToCentersColumnMajor(float * pP, float * pC, int * pCI, int nP) {
 
 template<int R, 
          int C, 
-         typename CM, 
+         typename CM,
          typename SM,
          bool ROWMAJ=true> 
 class kmeansraw {
-public:    
+public:
 
     kmeansraw(
 	    int     nSteps, 
@@ -550,7 +503,7 @@ public:
                                  m_nCenters(nCenters),
                                  m_centers(d_Centers) {}
 
-    bool execute(bool accumOnCpu) {
+    bool execute() {
         assert(m_nCenters == C);
         const uint nCentersBlocks = iDivUp(m_nCenters, THREADBLOCK_SIZE);
         const uint nPointsBlocks = iDivUp(m_nPoints, THREADBLOCK_SIZE);
@@ -559,11 +512,7 @@ public:
 		    _V(mapCenters(m_dPoints, m_dClusterIds, m_nPoints));
 		    _V(resetAccumulators(m_dCenters, m_dClusterCounts));
 		    _V(accumulate(m_dPoints, m_dCenters, m_dClusterCounts, m_dClusterIds, m_nPoints));
-            if (!accumOnCpu) {    // GPU accum
-		        _V(finalizeAccumulators(m_dCenters, m_dClusterCounts));
-            } else {    // CPU accum
-                finalizeAccumulatorsCPU(m_dCenters, m_dClusterCounts);
-            }
+		    _V(finalizeAccumulators(m_dCenters, m_dClusterCounts));
 	    }
         return true;
     }
@@ -586,10 +535,6 @@ protected:
     void resetAccumulators(float * pC, int * pCC) { m_accumulator.reset(pC, pCC); }
     void accumulate(float * pP, float * pC, int * pCC, int * pCI, int nP) { m_accumulator.accumulate(pP, pC, pCC, pCI, nP); }
     void finalizeAccumulators(float * pC, int * pCI) { m_accumulator.finalize(pC, pCI); }
-    void finalizeAccumulatorsCPU(float * pC, int * pCI) {
-        checkCudaErrors(cudaDeviceSynchronize());
-        m_accumulator.finalizeCPU(pC, pCI);
-    }
     float * centers() { return m_centers.data(); }
 
     void mapCenters(float * pP, int * pCI, int nP) {
@@ -946,8 +891,8 @@ public:
         size_t  uiPointsBytes = nP * R * sizeof(float);
         float * pInput = reinterpret_cast<float*>(pP);
         if(pTxP == NULL) {
-            // pTxP = (float*)malloc(uiPointsBytes);
-            ALTIS_MALLOC(pTxP, uiPointsBytes);
+            pTxP = (float*)malloc(uiPointsBytes);
+            /* ALTIS_MALLOC((void *)pTxP, uiPointsBytes); */
         }
         for(int i=0; i<nP; i++) {
             for(int j=0; j<R; j++) { 
@@ -968,8 +913,8 @@ public:
         size_t  uiPointsBytes = nP * R * sizeof(float);
         float * pInput = reinterpret_cast<float*>(pP);
         if(pTxP == NULL) {
-            // pTxP = (float*)malloc(uiPointsBytes);
-            ALTIS_MALLOC(pTxP, uiPointsBytes);
+            pTxP = (float*)malloc(uiPointsBytes);
+            /* ALTIS_MALLOC((void *)pTxP, uiPointsBytes); */
         }
         for(int i=0; i<nP; i++) {
             for(int j=0; j<R; j++) { 
@@ -994,7 +939,6 @@ public:
 	    void * lpvCenters,
 	    const int nPoints,
 	    const int nCenters,
-        bool bVCpuAccum,
 	    bool bVerify,
 	    bool bVerbose
 	    )
@@ -1058,7 +1002,7 @@ public:
 
         checkCudaErrors(cudaEventRecord(start, 0));
 
-        pKMeans->execute(bVCpuAccum);
+        (*pKMeans).execute();
 	    checkCudaErrors( cudaDeviceSynchronize() );
 
         checkCudaErrors(cudaEventRecord(stop, 0));
@@ -1185,7 +1129,6 @@ public:
         LPFNKMEANS lpfnKMeans,
         int nSteps,
         int nSeed,
-        bool bVCpuAccum,
         bool bVerify,
         bool bVerbose
         )
@@ -1237,11 +1180,11 @@ public:
 
 		if (!bTooBig) {
 
-			// pt<R> *h_Points = (pt<R>*)malloc(uiPointsBytes);
-            ALTIS_MALLOC(h_Points, uiPointsBytes);
-			// pt<R> *h_Centers = (pt<R>*)malloc(uiCentersBytes);
-            ALTIS_MALLOC(h_Centers, uiCentersBytes);
-			// int * h_ClusterIds = (int*)malloc(uiClusterIdsBytes);
+			pt<R> *h_Points = (pt<R>*)malloc(uiPointsBytes);
+            /* ALTIS_MALLOC(h_Points, uiPointsBytes); */
+			pt<R> *h_Centers = (pt<R>*)malloc(uiCentersBytes);
+            /* ALTIS_MALLOC(h_Centers, uiCentersBytes); */
+			int * h_ClusterIds = (int*)malloc(uiClusterIdsBytes);
             // ALTIS_MALLOC(h_ClusterIds, uiClusterIdsBytes);
 			// memset(h_ClusterIds, 0, uiClusterIdsBytes);
 
@@ -1263,7 +1206,6 @@ public:
 									 h_Centers, 
 									 nPoints, 
 									 nCenters, 
-                                     bVCpuAccum,
 									 bVerify,
 									 bVerbose);
 		}

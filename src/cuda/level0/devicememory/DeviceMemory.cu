@@ -8,7 +8,7 @@
 
 #include "OptionParser.h"
 #include "ResultDatabase.h"
-#include "Timer.h"
+// #include "Timer.h"
 #include "Utility.h"
 #include "cudacommon.h"
 #include "support.h"
@@ -178,7 +178,9 @@ texture<float4, 2, cudaReadModeElementType> texA;
 //
 // ****************************************************************************
 
-void addBenchmarkSpecOptions(OptionParser &op) { ; }
+void addBenchmarkSpecOptions(OptionParser &op) {
+    op.addOption("uvm", OPT_BOOL, "0", "enable CUDA Unified Virtual Memory, only use demand paging");
+}
 
 // ****************************************************************************
 // Function: runBenchmark (From SHOC)

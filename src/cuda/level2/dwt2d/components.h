@@ -35,6 +35,8 @@
 #ifndef _COMPONENTS_H
 #define _COMPONENTS_H
 
+#include "OptionParser.h"
+
 /* Separate compoents of source 8bit RGB image */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -52,7 +54,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-void rgbToComponents(T *d_r, T *d_g, T *d_b, unsigned char * src, int width, int height, float &transferTime, float &kernelTime);
+void rgbToComponents(T *d_r, T *d_g, T *d_b, unsigned char * src, int width, int height, float &transferTime, float &kernelTime, OptionParser &op);
 
 /* Copy a 8bit source image data into a color compoment of type T */
 

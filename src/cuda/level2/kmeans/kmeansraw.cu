@@ -24,7 +24,6 @@ typedef double (*LPFNKMEANS)(ResultDatabase &DB,
                              void * h_Centers,
 	                         const int nPoints,
                              const int nCenters,
-                             bool bVCpuAccum,
 	                         bool bVerify,
 	                         bool bVerbose);
 
@@ -33,7 +32,6 @@ typedef void (*LPFNBNC)(ResultDatabase &DB,
                         LPFNKMEANS lpfn, 
                         int nSteps,
                         int nSeed,
-                        bool bVCpuAccum,
                         bool bVerify,
                         bool bVerbose);
 

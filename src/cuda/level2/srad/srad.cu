@@ -437,8 +437,6 @@ float srad(ResultDatabase &resultDB, OptionParser &op, float* matrix, int imageS
   return kernelTime;
 }
 
-#ifdef GRID_SYNC
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	Srad gridsync with UVM and gridsync. </summary>
 ///
@@ -683,8 +681,6 @@ float srad_gridsync(ResultDatabase &resultDB, OptionParser &op, float* matrix, i
   }
   return kernelTime;
 }
-
-#endif //GRID_SYNC
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	Random matrix. </summary>

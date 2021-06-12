@@ -40,10 +40,7 @@ fi
 
 
 cd $SCRIPTPATH
-libtoolize --force
-aclocal
-autoheader
-automake --force-missing --add-missing  # generate automake.in
-autoconf    # generate configure
-bash configure DEVICE_ID=$DEVICE_ID --prefix=$ALTIS_ROOT || die "./configure is terminated, please check the error messages, exiting..."
+mkdir build
+cd build
+cmake -DCMAKE_CUDA_ARCHITECTURES=$($SCRIPTPATH/config/get_cuda_sm.sh) ..
 make -j6

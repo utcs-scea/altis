@@ -81,148 +81,150 @@ int getImg(char * srcFilename, unsigned char *srcImg, int inputSize, bool quiet)
 }
 
 template <typename T>
-void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &resultDB, bool verbose, bool quiet, bool lastPass)
+void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &resultDB, OptionParser &op, bool lastPass)
 {
     // times
     float transferTime = 0;
     float kernelTime = 0;
+    bool verbose = op.getOptionBool("verbose");
+    bool quiet = op.getOptionBool("quiet");
+    bool uvm = op.getOptionBool("uvm");
 
     int componentSize = d->pixWidth*d->pixHeight*sizeof(T); T *c_r_out, *backup ;
-#ifdef UNIFIED_MEMORY
-    CUDA_SAFE_CALL(cudaMallocManaged((void**)&c_r_out, componentSize));
-#else
-    CUDA_SAFE_CALL(cudaMalloc((void**)&c_r_out, componentSize));
-#endif
-    CUDA_SAFE_CALL(cudaMemset(c_r_out, 0, componentSize));
+    if (uvm) {
+        checkCudaErrors(cudaMallocManaged((void**)&c_r_out, componentSize));
+    } else {
+        checkCudaErrors(cudaMalloc((void**)&c_r_out, componentSize));
+    }
+    checkCudaErrors(cudaMemset(c_r_out, 0, componentSize));
     
 
 #ifdef HYPERQ
         cudaStream_t streams[3];
 /// <summary>	. </summary>
         for (int s = 0; s < 3; s++) {
-            CUDA_SAFE_CALL(cudaStreamCreate(&streams[s]));
+            checkCudaErrors(cudaStreamCreate(&streams[s]));
         }
 #endif
 
-#ifdef UNIFIED_MEMORY
+    if (uvm) {
 #ifdef HYPERQ
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>	Gets the backup 3. </summary>
-    ///
-    /// <value>	The backup 3. </value>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>	Gets the backup 3. </summary>
+        ///
+        /// <value>	The backup 3. </value>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    T *backup2, *backup3;
+        T *backup2, *backup3;
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>	Constructor. </summary>
-    ///
-    /// <remarks>	Ed, 5/20/2020. </remarks>
-    ///
-    /// <param name="backup,componentSize">	[in,out] [in,out] If non-null, size of the backup,
-    /// 									component. </param>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>	Constructor. </summary>
+        ///
+        /// <remarks>	Ed, 5/20/2020. </remarks>
+        ///
+        /// <param name="backup,componentSize">	[in,out] [in,out] If non-null, size of the backup,
+        /// 									component. </param>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    CUDA_SAFE_CALL(cudaMallocManaged((void**)&backup, componentSize));
+        checkCudaErrors(cudaMallocManaged((void**)&backup, componentSize));
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>	Constructor. </summary>
-    ///
-    /// <remarks>	Ed, 5/20/2020. </remarks>
-    ///
-    /// <param name="backup2,componentSize">	[in,out] [in,out] If non-null, size of the backup 2,
-    /// 										component. </param>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>	Constructor. </summary>
+        ///
+        /// <remarks>	Ed, 5/20/2020. </remarks>
+        ///
+        /// <param name="backup2,componentSize">	[in,out] [in,out] If non-null, size of the backup 2,
+        /// 										component. </param>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    CUDA_SAFE_CALL(cudaMallocManaged((void**)&backup2, componentSize));
+        checkCudaErrors(cudaMallocManaged((void**)&backup2, componentSize));
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>	Constructor. </summary>
-    ///
-    /// <remarks>	Ed, 5/20/2020. </remarks>
-    ///
-    /// <param name="backup3,componentSize">	[in,out] [in,out] If non-null, size of the backup 3,
-    /// 										component. </param>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>	Constructor. </summary>
+        ///
+        /// <remarks>	Ed, 5/20/2020. </remarks>
+        ///
+        /// <param name="backup3,componentSize">	[in,out] [in,out] If non-null, size of the backup 3,
+        /// 										component. </param>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    CUDA_SAFE_CALL(cudaMallocManaged((void**)&backup3, componentSize));
+        checkCudaErrors(cudaMallocManaged((void**)&backup3, componentSize));
 
-    // prefetch to increase performance
-    //CUDA_SAFE_CALL(cudaMemPrefetchAsync(backup, componentSize, 0, streams[0]));
-    //CUDA_SAFE_CALL(cudaMemPrefetchAsync(backup2, componentSize, 0, streams[1]));
-    //CUDA_SAFE_CALL(cudaMemPrefetchAsync(backup3, componentSize, 0, streams[2]));
+        // prefetch to increase performance
+        //checkCudaErrors(cudaMemPrefetchAsync(backup, componentSize, 0, streams[0]));
+        //checkCudaErrors(cudaMemPrefetchAsync(backup2, componentSize, 0, streams[1]));
+        //checkCudaErrors(cudaMemPrefetchAsync(backup3, componentSize, 0, streams[2]));
 #else
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>	Constructor. </summary>
-    ///
-    /// <remarks>	Ed, 5/20/2020. </remarks>
-    ///
-    /// <param name="backup,componentSize">	[in,out] [in,out] If non-null, size of the backup,
-    /// 									component. </param>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>	Constructor. </summary>
+        ///
+        /// <remarks>	Ed, 5/20/2020. </remarks>
+        ///
+        /// <param name="backup,componentSize">	[in,out] [in,out] If non-null, size of the backup,
+        /// 									component. </param>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    CUDA_SAFE_CALL(cudaMallocManaged((void**)&backup, componentSize));
+        checkCudaErrors(cudaMallocManaged((void**)&backup, componentSize));
 #endif
-
-#else
+    } else {
 #ifdef HYPERQ
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>	Gets the backup 3. </summary>
-    ///
-    /// <value>	The backup 3. </value>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>	Gets the backup 3. </summary>
+        ///
+        /// <value>	The backup 3. </value>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    T *backup2, *backup3;
+        T *backup2, *backup3;
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>	Constructor. </summary>
-    ///
-    /// <remarks>	Ed, 5/20/2020. </remarks>
-    ///
-    /// <param name="backup,componentSize">	[in,out] [in,out] If non-null, size of the backup,
-    /// 									component. </param>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>	Constructor. </summary>
+        ///
+        /// <remarks>	Ed, 5/20/2020. </remarks>
+        ///
+        /// <param name="backup,componentSize">	[in,out] [in,out] If non-null, size of the backup,
+        /// 									component. </param>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    CUDA_SAFE_CALL(cudaMalloc((void**)&backup, componentSize));
+        checkCudaErrors(cudaMalloc((void**)&backup, componentSize));
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>	Constructor. </summary>
-    ///
-    /// <remarks>	Ed, 5/20/2020. </remarks>
-    ///
-    /// <param name="backup2,componentSize">	[in,out] [in,out] If non-null, size of the backup 2,
-    /// 										component. </param>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>	Constructor. </summary>
+        ///
+        /// <remarks>	Ed, 5/20/2020. </remarks>
+        ///
+        /// <param name="backup2,componentSize">	[in,out] [in,out] If non-null, size of the backup 2,
+        /// 										component. </param>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    CUDA_SAFE_CALL(cudaMalloc((void**)&backup2, componentSize));
+        checkCudaErrors(cudaMalloc((void**)&backup2, componentSize));
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>	Constructor. </summary>
-    ///
-    /// <remarks>	Ed, 5/20/2020. </remarks>
-    ///
-    /// <param name="backup3,componentSize">	[in,out] [in,out] If non-null, size of the backup 3,
-    /// 										component. </param>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>	Constructor. </summary>
+        ///
+        /// <remarks>	Ed, 5/20/2020. </remarks>
+        ///
+        /// <param name="backup3,componentSize">	[in,out] [in,out] If non-null, size of the backup 3,
+        /// 										component. </param>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    CUDA_SAFE_CALL(cudaMalloc((void**)&backup3, componentSize));
+        checkCudaErrors(cudaMalloc((void**)&backup3, componentSize));
 #else
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>	Constructor. </summary>
-    ///
-    /// <remarks>	Ed, 5/20/2020. </remarks>
-    ///
-    /// <param name="backup,componentSize">	[in,out] [in,out] If non-null, size of the backup,
-    /// 									component. </param>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>	Constructor. </summary>
+        ///
+        /// <remarks>	Ed, 5/20/2020. </remarks>
+        ///
+        /// <param name="backup,componentSize">	[in,out] [in,out] If non-null, size of the backup,
+        /// 									component. </param>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    CUDA_SAFE_CALL(cudaMalloc((void**)&backup, componentSize));
+        checkCudaErrors(cudaMalloc((void**)&backup, componentSize));
 #endif
-#endif
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>	Constructor. </summary>
@@ -232,54 +234,56 @@ void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &res
     /// <param name="parameter1">	The first parameter. </param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    CUDA_SAFE_CALL(cudaMemset(backup, 0, componentSize));
+    checkCudaErrors(cudaMemset(backup, 0, componentSize));
 	
     if (d->components == 3) {
 
 
         /* Alloc two more buffers for G and B */
         T *c_g_out, *c_b_out;
-#ifdef UNIFIED_MEMORY
-        CUDA_SAFE_CALL(cudaMallocManaged((void**)&c_g_out, componentSize));
-#else
-        CUDA_SAFE_CALL(cudaMalloc((void**)&c_g_out, componentSize));
-#endif
-        CUDA_SAFE_CALL(cudaMemset(c_g_out, 0, componentSize));
+        if (uvm) {
+            checkCudaErrors(cudaMallocManaged((void**)&c_g_out, componentSize));
+        } else {
+            checkCudaErrors(cudaMalloc((void**)&c_g_out, componentSize));
+        }
+        checkCudaErrors(cudaMemset(c_g_out, 0, componentSize));
         
-#ifdef UNIFIED_MEMORY
-        CUDA_SAFE_CALL(cudaMallocManaged((void**)&c_b_out, componentSize));
-#else
-        CUDA_SAFE_CALL(cudaMalloc((void**)&c_b_out, componentSize));
-#endif
-        CUDA_SAFE_CALL(cudaMemset(c_b_out, 0, componentSize));
+        if (uvm) {
+            checkCudaErrors(cudaMallocManaged((void**)&c_b_out, componentSize));
+        } else {
+            checkCudaErrors(cudaMalloc((void**)&c_b_out, componentSize));
+        }
+
+        checkCudaErrors(cudaMemset(c_b_out, 0, componentSize));
         
         /* Load components */
         T *c_r, *c_g, *c_b;
         // R, aligned component size
-#ifdef UNIFIED_MEMORY
-        CUDA_SAFE_CALL(cudaMallocManaged((void**)&c_r, componentSize)); 
-#else
-        CUDA_SAFE_CALL(cudaMalloc((void**)&c_r, componentSize)); 
-#endif
-        CUDA_SAFE_CALL(cudaMemset(c_r, 0, componentSize));
+        if (uvm) {
+            checkCudaErrors(cudaMallocManaged((void**)&c_r, componentSize));
+        } else {
+            checkCudaErrors(cudaMalloc((void**)&c_r, componentSize));
+        }
+
+        checkCudaErrors(cudaMemset(c_r, 0, componentSize));
         // G, aligned component size
 
-#ifdef UNIFIED_MEMORY
-        CUDA_SAFE_CALL(cudaMallocManaged((void**)&c_g, componentSize)); 
-#else
-        CUDA_SAFE_CALL(cudaMalloc((void**)&c_g, componentSize)); 
-#endif
-        CUDA_SAFE_CALL(cudaMemset(c_g, 0, componentSize));
+        if (uvm) {
+            checkCudaErrors(cudaMallocManaged((void**)&c_g, componentSize));
+        } else {
+            checkCudaErrors(cudaMalloc((void**)&c_g, componentSize));
+        }
+        checkCudaErrors(cudaMemset(c_g, 0, componentSize));
         // B, aligned component size
 
-#ifdef UNIFIED_MEMORY
-        CUDA_SAFE_CALL(cudaMallocManaged((void**)&c_b, componentSize));
-#else
-        CUDA_SAFE_CALL(cudaMalloc((void**)&c_b, componentSize));
-#endif
-        CUDA_SAFE_CALL(cudaMemset(c_b, 0, componentSize));
+        if (uvm) {
+            checkCudaErrors(cudaMallocManaged((void**)&c_b, componentSize));
+        } else {
+            checkCudaErrors(cudaMalloc((void**)&c_b, componentSize));
+        }
+        checkCudaErrors(cudaMemset(c_b, 0, componentSize));
 
-        rgbToComponents(c_r, c_g, c_b, d->srcImg, d->pixWidth, d->pixHeight, transferTime, kernelTime);
+        rgbToComponents(c_r, c_g, c_b, d->srcImg, d->pixWidth, d->pixHeight, transferTime, kernelTime, op);
         /* Compute DWT and always store into file */
 float time;
 cudaEvent_t start, stop;
@@ -333,7 +337,7 @@ printf("Time to generate:  %3.1f ms \n", time);
         }
 #ifdef HYPERQ
         for (int s = 0; s < 3; s++) {
-            CUDA_SAFE_CALL(cudaStreamDestroy(streams[s]));
+            checkCudaErrors(cudaStreamDestroy(streams[s]));
         }
 #endif
  
@@ -350,8 +354,8 @@ printf("Time to generate:  %3.1f ms \n", time);
         //Load component
         T *c_r;
         // R, aligned component size
-        CUDA_SAFE_CALL(cudaMalloc((void**)&(c_r), componentSize)); 
-        CUDA_SAFE_CALL(cudaMemset(c_r, 0, componentSize));
+        checkCudaErrors(cudaMalloc((void**)&(c_r), componentSize)); 
+        checkCudaErrors(cudaMemset(c_r, 0, componentSize));
 
         bwToComponent(c_r, d->srcImg, d->pixWidth, d->pixHeight, transferTime, kernelTime);
 
@@ -429,6 +433,7 @@ printf("Time to generate:  %3.1f ms \n", time);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void addBenchmarkSpecOptions(OptionParser &op) {
+    op.addOption("uvm", OPT_BOOL, "0", "enable CUDA Unified Virtual Memory, only use demand paging");
     op.addOption("pixWidth", OPT_INT, "1", "real pixel width");
     op.addOption("pixHeight", OPT_INT, "1", "real pixel height");
     op.addOption("compCount", OPT_INT, "3", "number of components (3 for RGB/YUV, 4 for RGBA");
@@ -462,6 +467,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
     bool dwt97       = !op.getOptionBool("53"); //1=dwt9/7, 0=dwt5/3 transform
     bool writeVisual = op.getOptionBool("writeVisual"); //write output (subbands) in visual (tiled) order instead of linear
     string inputFile = op.getOptionString("inputFile");
+    bool uvm = op.getOptionBool("uvm");
     if (inputFile.empty()) {
         int probSizes[4] = {48, 192, 8192, 2<<13};
         int pix = probSizes[op.getOptionInt("size")-1];
@@ -510,16 +516,16 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
     int inputSize = pixWidth*pixHeight*compCount; //<amount of data (in bytes) to proccess
 
     //load img source image
-#ifdef UNIFIED_MEMORY
-    CUDA_SAFE_CALL(cudaMallocManaged((void **)&d->srcImg, inputSize));
-#else
-    CUDA_SAFE_CALL(cudaMallocHost((void **)&d->srcImg, inputSize));
-#endif
+    if (uvm) {
+        checkCudaErrors(cudaMallocManaged((void **)&d->srcImg, inputSize));
+    } else {
+        checkCudaErrors(cudaMallocHost((void **)&d->srcImg, inputSize));
+    }
     if (getImg(d->srcFilename, d->srcImg, inputSize, quiet) == -1) 
         return;
 
     int passes = op.getOptionInt("passes");
-    for(int i = 0; i < passes; i++) {
+    for (int i = 0; i < passes; i++) {
         bool lastPass = i+1 == passes;
         if(!quiet) {
             printf("Pass %d:\n", i);
@@ -527,16 +533,16 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
         /* DWT */
         if (forward == 1) {
             if(dwt97 == 1 ) {
-                processDWT<float>(d, forward, writeVisual, resultDB, verbose, quiet, lastPass);
+                processDWT<float>(d, forward, writeVisual, resultDB, op, lastPass);
             } else { // 5/3
-                processDWT<int>(d, forward, writeVisual, resultDB, verbose, quiet, lastPass);
+                processDWT<int>(d, forward, writeVisual, resultDB, op, lastPass);
             }
         }
         else { // reverse
             if(dwt97 == 1 ) {
-                processDWT<float>(d, forward, writeVisual, resultDB, verbose, quiet, lastPass);
+                processDWT<float>(d, forward, writeVisual, resultDB, op, lastPass);
             } else { // 5/3
-                processDWT<int>(d, forward, writeVisual, resultDB, verbose, quiet, lastPass);
+                processDWT<int>(d, forward, writeVisual, resultDB, op, lastPass);
             }
         }
         if(!quiet) {
@@ -548,9 +554,9 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
     //writeComponent(g_wave_cuda, 512000, ".g");
     //writeComponent(g_cuda, componentSize, ".g");
     //writeComponent(b_wave_cuda, componentSize, ".b");
-#ifdef UNIFIED_MEMORY
-    CUDA_SAFE_CALL(cudaFree(d->srcImg));
-#else
-    CUDA_SAFE_CALL(cudaFreeHost(d->srcImg));
-#endif
+    if (uvm) {
+        checkCudaErrors(cudaFree(d->srcImg));
+    } else {
+        checkCudaErrors(cudaFreeHost(d->srcImg));
+    }
 }
