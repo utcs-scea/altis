@@ -234,19 +234,20 @@ __global__ void c_CopySrcToComponent(T *d_c, unsigned char * d_src, int pixels)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-void rgbToComponents(T *d_r, T *d_g, T *d_b, unsigned char * src, int width, int height, float &transferTime, float &kernelTime)
+void rgbToComponents(T *d_r, T *d_g, T *d_b, unsigned char * src, int width, int height, float &transferTime, float &kernelTime, OptionParser &op)
 {
+    bool uvm = op.getOptionBool("uvm");
     unsigned char * d_src;
     int pixels      = width*height;
     int alignedSize =  DIVANDRND(width*height, THREADS) * THREADS * 3; //aligned to thread block size -- THREADS
 
     /* Alloc d_src buffer */
-#ifdef UNIFIED_MEMORY
-    // do nothing
-#else
-    CUDA_SAFE_CALL(cudaMalloc((void **)&d_src, alignedSize));
-    CUDA_SAFE_CALL(cudaMemset(d_src, 0, alignedSize));
-#endif
+    if (uvm) {
+        // do nothing
+    } else {
+        checkCudaErrors(cudaMalloc((void **)&d_src, alignedSize));
+        checkCudaErrors(cudaMemset(d_src, 0, alignedSize));
+    }
     /* timing events */
     cudaEvent_t start, stop;
     cudaEventCreate(&start);
@@ -255,11 +256,12 @@ void rgbToComponents(T *d_r, T *d_g, T *d_b, unsigned char * src, int width, int
 
     /* Copy data to device */
     cudaEventRecord(start, 0);
-#ifdef UNIFIED_MEMORY
-    d_src = src;
-#else
-    cudaMemcpy(d_src, src, pixels*3, cudaMemcpyHostToDevice);
-#endif
+    if (uvm) {
+        d_src = src;
+    } else {
+        checkCudaErrors(cudaMemcpy(d_src, src, pixels*3, cudaMemcpyHostToDevice));
+    }
+
     // TODO time needs to be change
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
@@ -280,9 +282,11 @@ void rgbToComponents(T *d_r, T *d_g, T *d_b, unsigned char * src, int width, int
     CHECK_CUDA_ERROR();
 
     /* Free Memory */
-#ifndef UNIFIED_MEMORY
-    cudaFree(d_src);
-#endif
+    if (uvm) {
+        // do nothing
+    } else {
+        checkCudaErrors(cudaFree(d_src));
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -299,7 +303,7 @@ void rgbToComponents(T *d_r, T *d_g, T *d_b, unsigned char * src, int width, int
 /// <param name="kernelTime">  	[in,out] The kernel time. </param>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template void rgbToComponents<float>(float *d_r, float *d_g, float *d_b, unsigned char * src, int width, int height, float &transferTime, float &kernelTime);
+template void rgbToComponents<float>(float *d_r, float *d_g, float *d_b, unsigned char * src, int width, int height, float &transferTime, float &kernelTime, OptionParser &op);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	RGB to components. </summary>
@@ -315,7 +319,7 @@ template void rgbToComponents<float>(float *d_r, float *d_g, float *d_b, unsigne
 /// <param name="kernelTime">  	[in,out] The kernel time. </param>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template void rgbToComponents<int>(int *d_r, int *d_g, int *d_b, unsigned char * src, int width, int height, float &transferTime, float &kernelTime);
+template void rgbToComponents<int>(int *d_r, int *d_g, int *d_b, unsigned char * src, int width, int height, float &transferTime, float &kernelTime, OptionParser &op);
 
 
 /* Copy a 8bit source image data into a color compoment of type T */
@@ -340,8 +344,8 @@ void bwToComponent(T *d_c, unsigned char * src, int width, int height, float &tr
     int alignedSize =  DIVANDRND(pixels, THREADS) * THREADS; //aligned to thread block size -- THREADS
 
     /* Alloc d_src buffer */
-    CUDA_SAFE_CALL(cudaMalloc((void **)&d_src, alignedSize));
-    CUDA_SAFE_CALL(cudaMemset(d_src, 0, alignedSize));
+    checkCudaErrors(cudaMalloc((void **)&d_src, alignedSize));
+    checkCudaErrors(cudaMemset(d_src, 0, alignedSize));
 
     /* timing events */
     cudaEvent_t start, stop;

@@ -1245,7 +1245,7 @@ void cfd(ResultDatabase &resultDB, OptionParser &op)
 	checkCudaErrors(cudaEventDestroy(exec_event));
 	checkCudaErrors(cudaEventDestroy(copy_event));
 
-	cudaDeviceSynchronize();
+	checkCudaErrors(cudaDeviceSynchronize());
 
     if (op.getOptionBool("verbose")) {
 	    dump(variables, nel, nelr);
