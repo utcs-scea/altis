@@ -1,5 +1,3 @@
-## Altis Benchmark Suite
-
 Altis is a benchmark suite to test the performance and other aspects of systems with Graphics Processing Units (GPUs), developed in [SCEA](https://github.com/utcs-scea) lab at University of Texas at Austin. Altis consists of a collection of GPU applications with differnt performance implications. Altis focuses primarily on [Compute Unified Device Architecture](https://developer.nvidia.com/cuda-toolkit) (CUDA) computing platform.
 
 Documentaion regarding this project can be found at the [Wiki](https://github.com/utcs-scea/altis/wiki) page. The Wiki document contains information regarding Altis setup, installation, usage, and other information.
@@ -14,13 +12,13 @@ Simply execute the following command:
 git clone https://github.com/utcs-scea/altis.git
 ```
 
-## Setup
+## Prerequisite
 
-Altis relies on the avaialbility of CUDA. Please refer to [Environment Setup](https://github.com/utcs-scea/altis/wiki/Environment-Setup) for how to set up Altis.
+Altis relies on the avaialbility of CUDA and CMake (>= 3.8). Please refer to [Environment Setup](https://github.com/utcs-scea/altis/wiki/Environment-Setup) for how to set up Altis.
 
 ## Build:
 
-After the environment is setup properly, go to the root directory of Altis, execute:
+After the environment is setup properly, go to the root directory of Altis, simply execute:
 
 ```bash
 ./setup.sh
@@ -48,6 +46,7 @@ Note: Results are written to ```$ALTIS_ROOT/results/$BENCHMARK```
 ## To Run a Single Benchmark:
 1. ```cd build/bin/$BENCHMARK_LEVEL```
 2. ``` ./$BENCHMARK [options]```
+
 ```
 General Options: 
     -c, --configFile             specify configuration file
@@ -61,18 +60,33 @@ General Options:
     -s, --size                   specify problem size
     -v, --verbose                enable verbose output
 ```
+
 Note: Run benchmark with --help to see full list of options available for that specific benchmark
+
+## Contributing to Altis
+
+Everyone can contribute to Altis, and we value everyone’s contributions. For bugs or proposals, use the [issue](https://github.com/utcs-scea/altis/issues) page. You may also make a [pull request](https://github.com/utcs-scea/altis/pulls) directly.
+
+## Contact
+
+For any questions regarding this project, please send an email to [bodunhu@utexas.edu](mailto:bodunhu@utexas.edu) or [rossbach@cs.utexas.edu](mailto:rossbach@cs.utexas.edu)
 
 ## Cite Us
 
+If your use of Altos results in a publication, please site: 
+
+[1] B. Hu and C. J. Rossbach, "Altis: Modernizing GPGPU Benchmarks," 2020 IEEE International Symposium on Performance Analysis of Systems and Software (ISPASS), 2020, pp. 1-11, doi: 10.1109/ISPASS48437.2020.00011.
+
 Bibtex is shown below:  
 
-@INPROCEEDINGS{9238617,  
-  author={B. {Hu} and C. J. {Rossbach}},  
-  booktitle={2020 IEEE International Symposium on Performance Analysis of Systems and Software (ISPASS)},  
-  title={Altis: Modernizing GPGPU Benchmarks},  
-  year={2020},  
-  volume={},  
-  number={},  
-  pages={1-11},  
-  doi={10.1109/ISPASS48437.2020.00011}}  
+@INPROCEEDINGS{9238617,
+  author={Hu, Bodun and Rossbach, Christopher J.},
+  booktitle={2020 IEEE International Symposium on Performance Analysis of Systems and Software (ISPASS)}, 
+  title={Altis: Modernizing GPGPU Benchmarks}, 
+  year={2020},
+  volume={},
+  number={},
+  pages={1-11},
+  doi={10.1109/ISPASS48437.2020.00011}}
+ 
+This work is supported by NSF grants CNS-1618563 and CNS-1846169.
