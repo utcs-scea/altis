@@ -89,18 +89,18 @@ void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &res
 
     int componentSize = d->pixWidth*d->pixHeight*sizeof(T); T *c_r_out, *backup ;
 #ifdef UNIFIED_MEMORY
-    CUDA_SAFE_CALL(cudaMallocManaged((void**)&c_r_out, componentSize));
+    checkCudaErrors(cudaMallocManaged((void**)&c_r_out, componentSize));
 #else
-    CUDA_SAFE_CALL(cudaMalloc((void**)&c_r_out, componentSize));
+    checkCudaErrors(cudaMalloc((void**)&c_r_out, componentSize));
 #endif
-    CUDA_SAFE_CALL(cudaMemset(c_r_out, 0, componentSize));
+    checkCudaErrors(cudaMemset(c_r_out, 0, componentSize));
     
 
 #ifdef HYPERQ
         cudaStream_t streams[3];
 /// <summary>	. </summary>
         for (int s = 0; s < 3; s++) {
-            CUDA_SAFE_CALL(cudaStreamCreate(&streams[s]));
+            checkCudaErrors(cudaStreamCreate(&streams[s]));
         }
 #endif
 
@@ -124,7 +124,7 @@ void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &res
     /// 									component. </param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    CUDA_SAFE_CALL(cudaMallocManaged((void**)&backup, componentSize));
+    checkCudaErrors(cudaMallocManaged((void**)&backup, componentSize));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>	Constructor. </summary>
@@ -135,7 +135,7 @@ void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &res
     /// 										component. </param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    CUDA_SAFE_CALL(cudaMallocManaged((void**)&backup2, componentSize));
+    checkCudaErrors(cudaMallocManaged((void**)&backup2, componentSize));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>	Constructor. </summary>
@@ -146,12 +146,12 @@ void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &res
     /// 										component. </param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    CUDA_SAFE_CALL(cudaMallocManaged((void**)&backup3, componentSize));
+    checkCudaErrors(cudaMallocManaged((void**)&backup3, componentSize));
 
     // prefetch to increase performance
-    //CUDA_SAFE_CALL(cudaMemPrefetchAsync(backup, componentSize, 0, streams[0]));
-    //CUDA_SAFE_CALL(cudaMemPrefetchAsync(backup2, componentSize, 0, streams[1]));
-    //CUDA_SAFE_CALL(cudaMemPrefetchAsync(backup3, componentSize, 0, streams[2]));
+    //checkCudaErrors(cudaMemPrefetchAsync(backup, componentSize, 0, streams[0]));
+    //checkCudaErrors(cudaMemPrefetchAsync(backup2, componentSize, 0, streams[1]));
+    //checkCudaErrors(cudaMemPrefetchAsync(backup3, componentSize, 0, streams[2]));
 #else
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -163,7 +163,7 @@ void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &res
     /// 									component. </param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    CUDA_SAFE_CALL(cudaMallocManaged((void**)&backup, componentSize));
+    checkCudaErrors(cudaMallocManaged((void**)&backup, componentSize));
 #endif
 
 #else
@@ -186,7 +186,7 @@ void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &res
     /// 									component. </param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    CUDA_SAFE_CALL(cudaMalloc((void**)&backup, componentSize));
+    checkCudaErrors(cudaMalloc((void**)&backup, componentSize));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>	Constructor. </summary>
@@ -197,7 +197,7 @@ void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &res
     /// 										component. </param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    CUDA_SAFE_CALL(cudaMalloc((void**)&backup2, componentSize));
+    checkCudaErrors(cudaMalloc((void**)&backup2, componentSize));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>	Constructor. </summary>
@@ -208,7 +208,7 @@ void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &res
     /// 										component. </param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    CUDA_SAFE_CALL(cudaMalloc((void**)&backup3, componentSize));
+    checkCudaErrors(cudaMalloc((void**)&backup3, componentSize));
 #else
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -220,7 +220,7 @@ void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &res
     /// 									component. </param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    CUDA_SAFE_CALL(cudaMalloc((void**)&backup, componentSize));
+    checkCudaErrors(cudaMalloc((void**)&backup, componentSize));
 #endif
 #endif
 
@@ -232,7 +232,7 @@ void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &res
     /// <param name="parameter1">	The first parameter. </param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    CUDA_SAFE_CALL(cudaMemset(backup, 0, componentSize));
+    checkCudaErrors(cudaMemset(backup, 0, componentSize));
 	
     if (d->components == 3) {
 
@@ -240,44 +240,44 @@ void processDWT(struct dwt *d, int forward, int writeVisual, ResultDatabase &res
         /* Alloc two more buffers for G and B */
         T *c_g_out, *c_b_out;
 #ifdef UNIFIED_MEMORY
-        CUDA_SAFE_CALL(cudaMallocManaged((void**)&c_g_out, componentSize));
+        checkCudaErrors(cudaMallocManaged((void**)&c_g_out, componentSize));
 #else
-        CUDA_SAFE_CALL(cudaMalloc((void**)&c_g_out, componentSize));
+        checkCudaErrors(cudaMalloc((void**)&c_g_out, componentSize));
 #endif
-        CUDA_SAFE_CALL(cudaMemset(c_g_out, 0, componentSize));
+        checkCudaErrors(cudaMemset(c_g_out, 0, componentSize));
         
 #ifdef UNIFIED_MEMORY
-        CUDA_SAFE_CALL(cudaMallocManaged((void**)&c_b_out, componentSize));
+        checkCudaErrors(cudaMallocManaged((void**)&c_b_out, componentSize));
 #else
-        CUDA_SAFE_CALL(cudaMalloc((void**)&c_b_out, componentSize));
+        checkCudaErrors(cudaMalloc((void**)&c_b_out, componentSize));
 #endif
-        CUDA_SAFE_CALL(cudaMemset(c_b_out, 0, componentSize));
+        checkCudaErrors(cudaMemset(c_b_out, 0, componentSize));
         
         /* Load components */
         T *c_r, *c_g, *c_b;
         // R, aligned component size
 #ifdef UNIFIED_MEMORY
-        CUDA_SAFE_CALL(cudaMallocManaged((void**)&c_r, componentSize)); 
+        checkCudaErrors(cudaMallocManaged((void**)&c_r, componentSize)); 
 #else
-        CUDA_SAFE_CALL(cudaMalloc((void**)&c_r, componentSize)); 
+        checkCudaErrors(cudaMalloc((void**)&c_r, componentSize)); 
 #endif
-        CUDA_SAFE_CALL(cudaMemset(c_r, 0, componentSize));
+        checkCudaErrors(cudaMemset(c_r, 0, componentSize));
         // G, aligned component size
 
 #ifdef UNIFIED_MEMORY
-        CUDA_SAFE_CALL(cudaMallocManaged((void**)&c_g, componentSize)); 
+        checkCudaErrors(cudaMallocManaged((void**)&c_g, componentSize)); 
 #else
-        CUDA_SAFE_CALL(cudaMalloc((void**)&c_g, componentSize)); 
+        checkCudaErrors(cudaMalloc((void**)&c_g, componentSize)); 
 #endif
-        CUDA_SAFE_CALL(cudaMemset(c_g, 0, componentSize));
+        checkCudaErrors(cudaMemset(c_g, 0, componentSize));
         // B, aligned component size
 
 #ifdef UNIFIED_MEMORY
-        CUDA_SAFE_CALL(cudaMallocManaged((void**)&c_b, componentSize));
+        checkCudaErrors(cudaMallocManaged((void**)&c_b, componentSize));
 #else
-        CUDA_SAFE_CALL(cudaMalloc((void**)&c_b, componentSize));
+        checkCudaErrors(cudaMalloc((void**)&c_b, componentSize));
 #endif
-        CUDA_SAFE_CALL(cudaMemset(c_b, 0, componentSize));
+        checkCudaErrors(cudaMemset(c_b, 0, componentSize));
 
         rgbToComponents(c_r, c_g, c_b, d->srcImg, d->pixWidth, d->pixHeight, transferTime, kernelTime);
         /* Compute DWT and always store into file */
@@ -333,7 +333,7 @@ printf("Time to generate:  %3.1f ms \n", time);
         }
 #ifdef HYPERQ
         for (int s = 0; s < 3; s++) {
-            CUDA_SAFE_CALL(cudaStreamDestroy(streams[s]));
+            checkCudaErrors(cudaStreamDestroy(streams[s]));
         }
 #endif
  
@@ -350,8 +350,8 @@ printf("Time to generate:  %3.1f ms \n", time);
         //Load component
         T *c_r;
         // R, aligned component size
-        CUDA_SAFE_CALL(cudaMalloc((void**)&(c_r), componentSize)); 
-        CUDA_SAFE_CALL(cudaMemset(c_r, 0, componentSize));
+        checkCudaErrors(cudaMalloc((void**)&(c_r), componentSize)); 
+        checkCudaErrors(cudaMemset(c_r, 0, componentSize));
 
         bwToComponent(c_r, d->srcImg, d->pixWidth, d->pixHeight, transferTime, kernelTime);
 
@@ -511,9 +511,9 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
 
     //load img source image
 #ifdef UNIFIED_MEMORY
-    CUDA_SAFE_CALL(cudaMallocManaged((void **)&d->srcImg, inputSize));
+    checkCudaErrors(cudaMallocManaged((void **)&d->srcImg, inputSize));
 #else
-    CUDA_SAFE_CALL(cudaMallocHost((void **)&d->srcImg, inputSize));
+    checkCudaErrors(cudaMallocHost((void **)&d->srcImg, inputSize));
 #endif
     if (getImg(d->srcFilename, d->srcImg, inputSize, quiet) == -1) 
         return;
@@ -549,8 +549,8 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op)
     //writeComponent(g_cuda, componentSize, ".g");
     //writeComponent(b_wave_cuda, componentSize, ".b");
 #ifdef UNIFIED_MEMORY
-    CUDA_SAFE_CALL(cudaFree(d->srcImg));
+    checkCudaErrors(cudaFree(d->srcImg));
 #else
-    CUDA_SAFE_CALL(cudaFreeHost(d->srcImg));
+    checkCudaErrors(cudaFreeHost(d->srcImg));
 #endif
 }

@@ -89,6 +89,7 @@ int blosum62[24][24] = {{4,  -1, -2, -2, 0, -1, -1, 0, -2, -1, -1, -1,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void addBenchmarkSpecOptions(OptionParser &op) {
+  op.addOption("uvm", OPT_BOOL, "0", "enable CUDA Unified Virtual Memory, only demand paging");
   op.addOption("dimensions", OPT_INT, "0", "dimensions");
   op.addOption("penalty", OPT_INT, "10", "penalty");
   op.addOption("resultsfile", OPT_STRING, "", "file to write results to");
@@ -168,6 +169,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void runTest(ResultDatabase &resultDB, OptionParser &op) {
+  bool uvm = op.getOptionBool("uvm");
   bool quiet = op.getOptionBool("quiet");
   int *input_itemsets, *output_itemsets, *referrence;
   int *matrix_cuda, *referrence_cuda;
@@ -175,14 +177,18 @@ void runTest(ResultDatabase &resultDB, OptionParser &op) {
 
   max_rows = max_rows + 1;
   max_cols = max_cols + 1;
-#ifdef UNIFIED_MEMORY
-  CUDA_SAFE_CALL(cudaMallocManaged(&referrence, max_rows * max_cols * sizeof(int)));
-  CUDA_SAFE_CALL(cudaMallocManaged(&input_itemsets, max_rows * max_cols * sizeof(int)));
-#else
-  referrence = (int *)malloc(max_rows * max_cols * sizeof(int));
-  input_itemsets = (int *)malloc(max_rows * max_cols * sizeof(int));
-  output_itemsets = (int *)malloc(max_rows * max_cols * sizeof(int));
-#endif
+  
+  if (uvm) {
+    checkCudaErrors(cudaMallocManaged(&referrence, max_rows * max_cols * sizeof(int)));
+    checkCudaErrors(cudaMallocManaged(&input_itemsets, max_rows * max_cols * sizeof(int)));
+  } else {
+    referrence = (int *)malloc(max_rows * max_cols * sizeof(int));
+    assert(referrence);
+    input_itemsets = (int *)malloc(max_rows * max_cols * sizeof(int));
+    assert(input_itemsets);
+    output_itemsets = (int *)malloc(max_rows * max_cols * sizeof(int));
+    assert(output_itemsets);
+  }
 
   if (!input_itemsets) {
       fprintf(stderr, "Error: Can not allocate memory\n");
@@ -215,10 +221,12 @@ void runTest(ResultDatabase &resultDB, OptionParser &op) {
 
   size = max_cols * max_rows;
 
-#ifndef UNIFIED_MEMORY
-  CUDA_SAFE_CALL(cudaMalloc((void **)&referrence_cuda, sizeof(int) * size));
-  CUDA_SAFE_CALL(cudaMalloc((void **)&matrix_cuda, sizeof(int) * size));
-#endif
+  if (uvm) {
+    // Do nothing
+  } else {
+    checkCudaErrors(cudaMalloc((void **)&referrence_cuda, sizeof(int) * size));
+    checkCudaErrors(cudaMalloc((void **)&matrix_cuda, sizeof(int) * size));
+  }
 
   cudaEvent_t start, stop;
   cudaEventCreate(&start);
@@ -228,16 +236,16 @@ void runTest(ResultDatabase &resultDB, OptionParser &op) {
   double kernelTime = 0;
 
   cudaEventRecord(start, 0);
-#ifdef UNIFIED_MEMORY
   // Notice that here we used demand paging so no cpy time included, could also use HyperQ
-  referrence_cuda = referrence;
-  matrix_cuda = input_itemsets;
-#else
-  CUDA_SAFE_CALL(cudaMemcpy(referrence_cuda, referrence, sizeof(int) * size,
-          cudaMemcpyHostToDevice));
-  CUDA_SAFE_CALL(cudaMemcpy(matrix_cuda, input_itemsets, sizeof(int) * size,
-          cudaMemcpyHostToDevice));
-#endif
+  if (uvm) {
+    referrence_cuda = referrence;
+    matrix_cuda = input_itemsets;
+  } else {
+    checkCudaErrors(cudaMemcpy(referrence_cuda, referrence, sizeof(int) * size,
+            cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(matrix_cuda, input_itemsets, sizeof(int) * size,
+            cudaMemcpyHostToDevice));
+  }
   cudaEventRecord(stop, 0);
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&elapsedTime, start, stop);
@@ -275,20 +283,21 @@ void runTest(ResultDatabase &resultDB, OptionParser &op) {
   }
 
   cudaEventRecord(start, 0);
-#ifdef UNIFIED_MEMORY
-  // demand paging will not happen here
-  output_itemsets = matrix_cuda; 
-#else
-  cudaMemcpy(output_itemsets, matrix_cuda, sizeof(int) * size,
-          cudaMemcpyDeviceToHost);
-#endif
+  if (uvm) {
+    output_itemsets = matrix_cuda;
+    checkCudaErrors(cudaMemPrefetchAsync(output_itemsets, sizeof(int) * size, cudaCpuDeviceId));
+    checkCudaErrors(cudaStreamSynchronize(0));
+  } else {
+    checkCudaErrors(cudaMemcpy(output_itemsets, matrix_cuda, sizeof(int) * size,
+            cudaMemcpyDeviceToHost));
+  }
   cudaEventRecord(stop, 0);
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&elapsedTime, start, stop);
   transferTime += elapsedTime * 1.e-3; // convert to seconds
 
   string outfile = op.getOptionString("outputFile");
-  if(outfile != "") {
+  if (outfile != "") {
       FILE *fpo = fopen(outfile.c_str(), "w");
       if(!quiet) {
         fprintf(fpo, "Print traceback value GPU to %s:\n", outfile.c_str());
@@ -351,16 +360,16 @@ void runTest(ResultDatabase &resultDB, OptionParser &op) {
   }
 
   // Cleanup memory
-#ifdef UNIFIED_MEMORY
-  CUDA_SAFE_CALL(cudaFree(referrence_cuda));
-  CUDA_SAFE_CALL(cudaFree(matrix_cuda));
-#else
-  cudaFree(referrence_cuda);
-  cudaFree(matrix_cuda);
-  free(referrence);
-  free(input_itemsets);
-  free(output_itemsets);
-#endif
+  if (uvm) {
+    checkCudaErrors(cudaFree(referrence_cuda));
+    checkCudaErrors(cudaFree(matrix_cuda));
+  } else {
+    checkCudaErrors(cudaFree(referrence_cuda));
+    checkCudaErrors(cudaFree(matrix_cuda));
+    free(referrence);
+    free(input_itemsets);
+    free(output_itemsets);
+  }
 
   char tmp[32];
   sprintf(tmp, "%ditems", size);

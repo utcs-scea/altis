@@ -108,6 +108,7 @@ void runTest(ResultDatabase &resultDB, OptionParser &op, int boxes1d) {
     }
     else {
         box_cpu = (box_str *)malloc(dim_cpu.box_mem);
+        assert(box_cpu);
     }
 
     // initialize number of home boxes
@@ -172,6 +173,7 @@ void runTest(ResultDatabase &resultDB, OptionParser &op, int boxes1d) {
     }
     else {
         rv_cpu = (FOUR_VECTOR*)malloc(dim_cpu.space_mem);
+        assert(rv_cpu);
     }
 
     for (i=0; i<dim_cpu.space_elem; i=i+1) {
