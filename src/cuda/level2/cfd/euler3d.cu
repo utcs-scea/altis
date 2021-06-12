@@ -356,7 +356,7 @@ template <typename T>
 T* alloc(int N)
 {
 	T* t;
-	CUDA_SAFE_CALL(cudaMalloc((void**)&t, sizeof(T)*N));
+	checkCudaErrors(cudaMalloc((void**)&t, sizeof(T)*N));
 	return t;
 }
 
@@ -370,32 +370,8 @@ T* alloc(int N)
 template <typename T>
 void dealloc(T* array)
 {
-	CUDA_SAFE_CALL(cudaFree((void*)array));
+	checkCudaErrors(cudaFree((void*)array));
 }
-
-#ifdef HYPERQ
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/// <summary>	Copies this.  </summary>
-///
-/// <typeparam name="T">	Generic type parameter. </typeparam>
-/// <param name="dst">   	[in,out] If non-null, destination for the. </param>
-/// <param name="src">   	[in,out] If non-null, source for the. </param>
-/// <param name="N">	 	An int to process. </param>
-/// <param name="stream">	[in,out] If non-null, the stream. </param>
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename T>
-void copy(T* dst, T* src, int N, cudaStream_t *stream)
-{
-    cudaEventRecord(start, 0);
-	CUDA_SAFE_CALL(cudaMemcpyAsync((void*)dst, (void*)src, N*sizeof(T), cudaMemcpyDeviceToDevice, stream[1]));
-    cudaEventRecord(stop, 0);
-    cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&elapsed, start, stop);
-    transferTime += elapsed * 1.e-3;
-}
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>	Copies this.  </summary>
@@ -407,10 +383,10 @@ void copy(T* dst, T* src, int N, cudaStream_t *stream)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename T>
-void copy(T* dst, T* src, int N)
+void copy(T* dst, T* src, int N, cudaStream_t *stream)
 {
     cudaEventRecord(start, 0);
-	CUDA_SAFE_CALL(cudaMemcpy((void*)dst, (void*)src, N*sizeof(T), cudaMemcpyDeviceToDevice));
+	checkCudaErrors(cudaMemcpyAsync((void*)dst, (void*)src, N*sizeof(T), cudaMemcpyDeviceToDevice, *stream));
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&elapsed, start, stop);
@@ -430,7 +406,7 @@ template <typename T>
 void upload(T* dst, T* src, int N)
 {
     cudaEventRecord(start, 0);
-	CUDA_SAFE_CALL(cudaMemcpy((void*)dst, (void*)src, N*sizeof(T), cudaMemcpyHostToDevice));
+	checkCudaErrors(cudaMemcpy((void*)dst, (void*)src, N*sizeof(T), cudaMemcpyHostToDevice));
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&elapsed, start, stop);
@@ -450,7 +426,7 @@ template <typename T>
 void download(T* dst, T* src, int N)
 {
     cudaEventRecord(start, 0);
-	CUDA_SAFE_CALL(cudaMemcpy((void*)dst, (void*)src, N*sizeof(T), cudaMemcpyDeviceToHost));
+	checkCudaErrors(cudaMemcpy((void*)dst, (void*)src, N*sizeof(T), cudaMemcpyDeviceToHost));
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&elapsed, start, stop);
@@ -731,7 +707,7 @@ void compute_step_factor(int nelr, float* variables, float* areas, float* step_f
 {
 	dim3 Dg(nelr / BLOCK_SIZE_2), Db(BLOCK_SIZE_2);
     cudaEventRecord(start, 0);
-	cuda_compute_step_factor<<<Dg, Db, 0, stream[0]>>>(nelr, variables, areas, step_factors);		
+	cuda_compute_step_factor<<<Dg, Db, 0, *stream>>>(nelr, variables, areas, step_factors);		
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&elapsed, start, stop);
@@ -751,11 +727,11 @@ void compute_step_factor(int nelr, float* variables, float* areas, float* step_f
 /// <param name="step_factors">	[in,out] If non-null, the step factors. </param>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void compute_step_factor(int nelr, float* variables, float* areas, float* step_factors)
+void compute_step_factor(int nelr, float* variables, float* areas, float* step_factors, cudaStream_t *stream)
 {
 	dim3 Dg(nelr / BLOCK_SIZE_2), Db(BLOCK_SIZE_2);
     cudaEventRecord(start, 0);
-	cuda_compute_step_factor<<<Dg, Db>>>(nelr, variables, areas, step_factors);		
+	cuda_compute_step_factor<<<Dg, Db, 0, *stream>>>(nelr, variables, areas, step_factors);		
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&elapsed, start, stop);
@@ -921,11 +897,11 @@ __global__ void cuda_compute_flux(int nelr, int* elements_surrounding_elements, 
 /// <param name="fluxes">							[in,out] If non-null, the fluxes. </param>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void compute_flux(int nelr, int* elements_surrounding_elements, float* normals, float* variables, float* fluxes)
+void compute_flux(int nelr, int* elements_surrounding_elements, float* normals, float* variables, float* fluxes, cudaStream_t *stream)
 {
 	dim3 Dg(nelr / BLOCK_SIZE_3), Db(BLOCK_SIZE_3);
     cudaEventRecord(start, 0);
-	cuda_compute_flux<<<Dg,Db>>>(nelr, elements_surrounding_elements, normals, variables, fluxes);
+	cuda_compute_flux<<<Dg,Db,0, *stream>>>(nelr, elements_surrounding_elements, normals, variables, fluxes);
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&elapsed, start, stop);
@@ -972,11 +948,11 @@ __global__ void cuda_time_step(int j, int nelr, float* old_variables, float* var
 /// <param name="fluxes">			[in,out] If non-null, the fluxes. </param>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void time_step(int j, int nelr, float* old_variables, float* variables, float* step_factors, float* fluxes)
+void time_step(int j, int nelr, float* old_variables, float* variables, float* step_factors, float* fluxes, cudaStream_t *stream)
 {
 	dim3 Dg(nelr / BLOCK_SIZE_4), Db(BLOCK_SIZE_4);
     cudaEventRecord(start, 0);
-	cuda_time_step<<<Dg,Db>>>(j, nelr, old_variables, variables, step_factors, fluxes);
+	cuda_time_step<<<Dg,Db,0,*stream>>>(j, nelr, old_variables, variables, step_factors, fluxes);
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&elapsed, start, stop);
@@ -1085,17 +1061,19 @@ void cfd(ResultDatabase &resultDB, OptionParser &op)
 		// copy far field conditions to the gpu
         cudaEventRecord(start, 0);
 
-		CUDA_SAFE_CALL( cudaMemcpyToSymbol(ff_variable,          h_ff_variable,          NVAR*sizeof(float)) );
-		CUDA_SAFE_CALL( cudaMemcpyToSymbol(ff_flux_contribution_momentum_x, &h_ff_flux_contribution_momentum_x, sizeof(float3)) );
-		CUDA_SAFE_CALL( cudaMemcpyToSymbol(ff_flux_contribution_momentum_y, &h_ff_flux_contribution_momentum_y, sizeof(float3)) );
-		CUDA_SAFE_CALL( cudaMemcpyToSymbol(ff_flux_contribution_momentum_z, &h_ff_flux_contribution_momentum_z, sizeof(float3)) );
-		CUDA_SAFE_CALL( cudaMemcpyToSymbol(ff_flux_contribution_density_energy, &h_ff_flux_contribution_density_energy, sizeof(float3)) );		
+		checkCudaErrors( cudaMemcpyToSymbol(ff_variable,          h_ff_variable,          NVAR*sizeof(float)) );
+		checkCudaErrors( cudaMemcpyToSymbol(ff_flux_contribution_momentum_x, &h_ff_flux_contribution_momentum_x, sizeof(float3)) );
+		checkCudaErrors( cudaMemcpyToSymbol(ff_flux_contribution_momentum_y, &h_ff_flux_contribution_momentum_y, sizeof(float3)) );
+		checkCudaErrors( cudaMemcpyToSymbol(ff_flux_contribution_momentum_z, &h_ff_flux_contribution_momentum_z, sizeof(float3)) );
+		checkCudaErrors( cudaMemcpyToSymbol(ff_flux_contribution_density_energy, &h_ff_flux_contribution_density_energy, sizeof(float3)) );		
 
         cudaEventRecord(stop, 0);
         cudaEventSynchronize(stop);
         cudaEventElapsedTime(&elapsed, start, stop);
         transferTime += elapsed * 1.e-3;
 	}
+
+	bool uvm = op.getOptionBool("uvm");
 	int nel;
 	int nelr;
 	
@@ -1115,21 +1093,22 @@ void cfd(ResultDatabase &resultDB, OptionParser &op)
         }
 		nelr = BLOCK_SIZE_0*((nel / BLOCK_SIZE_0 )+ std::min(1, nel % BLOCK_SIZE_0));
 
-#ifdef UNIFIED_MEMORY
-        // could use prefetch and advise
-        float *h_areas = NULL;
-        CUDA_SAFE_CALL(cudaMallocManaged(&h_areas, nelr * sizeof(float)));
-        int *h_elements_surrounding_elements = NULL;
-        CUDA_SAFE_CALL(cudaMallocManaged(&h_elements_surrounding_elements,
-                                nelr * NNB * sizeof(int)));
-        float *h_normals = NULL;
-        CUDA_SAFE_CALL(cudaMallocManaged(&h_normals, nelr * NDIM * NNB * sizeof(float)));
-#else
-		float* h_areas = new float[nelr];
-		int* h_elements_surrounding_elements = new int[nelr*NNB];
-		float* h_normals = new float[nelr*NDIM*NNB];
-#endif
-        srand(SEED);
+		float *h_areas = NULL;
+		int *h_elements_surrounding_elements = NULL;
+		float *h_normals = NULL;
+		if (uvm) {
+			// could use prefetch and advise
+			checkCudaErrors(cudaMallocManaged(&h_areas, nelr * sizeof(float)));
+			checkCudaErrors(cudaMallocManaged(&h_elements_surrounding_elements,
+									nelr * NNB * sizeof(int)));
+			checkCudaErrors(cudaMallocManaged(&h_normals, nelr * NDIM * NNB * sizeof(float)));
+		} else {
+			h_areas = new float[nelr];
+			h_elements_surrounding_elements = new int[nelr*NNB];
+			h_normals = new float[nelr*NDIM*NNB];
+		}
+
+		srand(SEED);
 				
 		// read in data
 		for(int i = 0; i < nel; i++)
@@ -1175,53 +1154,55 @@ void cfd(ResultDatabase &resultDB, OptionParser &op)
 			}
 		}
 		
-#ifdef UNIFIED_MEMORY
-        areas = h_areas;
-        elements_surrounding_elements = h_elements_surrounding_elements;
-        normals = h_normals;
-#else
-		areas = alloc<float>(nelr);
-		upload<float>(areas, h_areas, nelr);
+		if (uvm) {
+			areas = h_areas;
+			elements_surrounding_elements = h_elements_surrounding_elements;
+			normals = h_normals;
+		} else {
+			areas = alloc<float>(nelr);
+			upload<float>(areas, h_areas, nelr);
 
-		elements_surrounding_elements = alloc<int>(nelr*NNB);
-		upload<int>(elements_surrounding_elements, h_elements_surrounding_elements, nelr*NNB);
+			elements_surrounding_elements = alloc<int>(nelr*NNB);
+			upload<int>(elements_surrounding_elements, h_elements_surrounding_elements, nelr*NNB);
 
-		normals = alloc<float>(nelr*NDIM*NNB);
-		upload<float>(normals, h_normals, nelr*NDIM*NNB);
-				
-		delete[] h_areas;
-		delete[] h_elements_surrounding_elements;
-		delete[] h_normals;
-#endif
+			normals = alloc<float>(nelr*NDIM*NNB);
+			upload<float>(normals, h_normals, nelr*NDIM*NNB);
+					
+			delete[] h_areas;
+			delete[] h_elements_surrounding_elements;
+			delete[] h_normals;
+		}
 	}
 
 	// Create arrays and set initial conditions
-#ifdef UNIFIED_MEMORY
-    float *variables = NULL;
-    CUDA_SAFE_CALL(cudaMallocManaged(&variables, nelr*NVAR*sizeof(float)));
-#else
-	float* variables = alloc<float>(nelr*NVAR);
-#endif
+	float *variables = NULL;
+	if (uvm) {
+		checkCudaErrors(cudaMallocManaged(&variables, nelr*NVAR*sizeof(float)));
+	} else {
+		variables = alloc<float>(nelr*NVAR);
+	}
+
 	initialize_variables(nelr, variables);
 
-#ifdef UNIFIED_MEMORY
-    float *old_variables = NULL;
-    CUDA_SAFE_CALL(cudaMallocManaged(&old_variables, nelr*NVAR*sizeof(float)));
-    float *fluxes = NULL;
-    CUDA_SAFE_CALL(cudaMallocManaged(&fluxes, nelr*NVAR*sizeof(float)));
-    float *step_factors = NULL;
-    CUDA_SAFE_CALL(cudaMallocManaged(&step_factors, nelr*sizeof(float)));
-#else
-	float* old_variables = alloc<float>(nelr*NVAR);   	
-	float* fluxes = alloc<float>(nelr*NVAR);
-	float* step_factors = alloc<float>(nelr); 
-#endif
+	float *old_variables = NULL;
+	float *fluxes = NULL;
+	float *step_factors = NULL;
+	if (uvm) {
+		checkCudaErrors(cudaMallocManaged(&old_variables, nelr*NVAR*sizeof(float)));
+		checkCudaErrors(cudaMallocManaged(&fluxes, nelr*NVAR*sizeof(float)));
+		checkCudaErrors(cudaMallocManaged(&step_factors, nelr*sizeof(float)));
+	} else {
+		old_variables = alloc<float>(nelr*NVAR);   	
+		fluxes = alloc<float>(nelr*NVAR);
+		step_factors = alloc<float>(nelr);
+	}
+
 	// make sure all memory is floatly allocated before we start timing
 	initialize_variables(nelr, old_variables);
 	initialize_variables(nelr, fluxes);
-	cudaMemset( (void*) step_factors, 0, sizeof(float)*nelr );
+	checkCudaErrors(cudaMemset( (void*) step_factors, 0, sizeof(float)*nelr ));
 	// make sure CUDA isn't still doing something before we start timing
-	cudaDeviceSynchronize();
+	checkCudaErrors(cudaDeviceSynchronize());
 
 	// these need to be computed the first time in order to compute time step
 
@@ -1230,71 +1211,70 @@ void cfd(ResultDatabase &resultDB, OptionParser &op)
 	// CUT_SAFE_CALL( cutCreateTimer( &timer));
 	// CUT_SAFE_CALL( cutStartTimer( timer));
 	// Begin iterations
-#ifdef HYPERQ
-    // Only 2 here, may change later
+
+	// Only 2 streams here, may change later
     cudaStream_t streams[NUM_STREAMS];
     for (int s = 0; s < NUM_STREAMS; s++) {
-        CUDA_SAFE_CALL(cudaStreamCreate(&streams[s]));
+        checkCudaErrors(cudaStreamCreate(&streams[s]));
     }
-#endif
 
-	for(int i = 0; i < iterations; i++)
-	{
+	cudaEvent_t copy_event, exec_event;
+	checkCudaErrors(cudaEventCreate(&copy_event));
+	checkCudaErrors(cudaEventCreate(&exec_event));
+	checkCudaErrors(cudaEventRecord(exec_event, streams[0]));
+	for (int i = 0; i < iterations; i++) {
         // Time will need to be recomputed, more aggressive optimization TODO
-#ifdef HYPERQ
-        copy<float>(old_variables, variables, nelr*NVAR, streams);
-		compute_step_factor(nelr, variables, areas, step_factors, streams);
-#else
-		copy<float>(old_variables, variables, nelr*NVAR);
+		checkCudaErrors(cudaStreamWaitEvent(streams[1], exec_event));
+		copy<float>(old_variables, variables, nelr*NVAR, &streams[1]);
+		checkCudaErrors(cudaEventRecord(copy_event, streams[1]));
 	
 		// for the first iteration we compute the time step
-		compute_step_factor(nelr, variables, areas, step_factors);
-#endif
+		compute_step_factor(nelr, variables, areas, step_factors, &streams[0]);
         CHECK_CUDA_ERROR();
+		checkCudaErrors(cudaStreamWaitEvent(streams[0], copy_event));
 		
 		for(int j = 0; j < RK; j++)
 		{
-			compute_flux(nelr, elements_surrounding_elements, normals, variables, fluxes);
-            CHECK_CUDA_ERROR();
-			time_step(j, nelr, old_variables, variables, step_factors, fluxes);
+			compute_flux(nelr, elements_surrounding_elements, normals, variables, fluxes, &streams[0]);
+            CHECK_CUDA_ERROR(); 
+			time_step(j, nelr, old_variables, variables, step_factors, fluxes, &streams[0]);
             CHECK_CUDA_ERROR();
 		}
+		checkCudaErrors(cudaEventRecord(exec_event, streams[0]));
 	}
+	checkCudaErrors(cudaEventDestroy(exec_event));
+	checkCudaErrors(cudaEventDestroy(copy_event));
 
 	cudaDeviceSynchronize();
-	//	CUT_SAFE_CALL( cutStopTimer(timer) );  
 
-    if(op.getOptionBool("verbose")) {
+    if (op.getOptionBool("verbose")) {
 	    dump(variables, nel, nelr);
     }
 
-#ifdef HYPERQ
-    // Only 2 here, may change later
-    for (int s = 0; s < NUM_STREAMS; s++) {
-        CUDA_SAFE_CALL(cudaStreamDestroy(streams[s]));
-    }
-#endif
-
-
-#ifdef UNIFIED_MEMORY
-    CUDA_SAFE_CALL(cudaFree(areas));
-    CUDA_SAFE_CALL(cudaFree(elements_surrounding_elements));
-    CUDA_SAFE_CALL(cudaFree(normals));
-    CUDA_SAFE_CALL(cudaFree(variables));
-    CUDA_SAFE_CALL(cudaFree(old_variables));
-    CUDA_SAFE_CALL(cudaFree(fluxes));
-    CUDA_SAFE_CALL(cudaFree(step_factors));
-#else
-	dealloc<float>(areas);
-	dealloc<int>(elements_surrounding_elements);
-	dealloc<float>(normals);
+	if (uvm) {
+		checkCudaErrors(cudaFree(areas));
+		checkCudaErrors(cudaFree(elements_surrounding_elements));
+		checkCudaErrors(cudaFree(normals));
+		checkCudaErrors(cudaFree(variables));
+		checkCudaErrors(cudaFree(old_variables));
+		checkCudaErrors(cudaFree(fluxes));
+		checkCudaErrors(cudaFree(step_factors));
+	} else {
+		dealloc<float>(areas);
+		dealloc<int>(elements_surrounding_elements);
+		dealloc<float>(normals);
+		
+		dealloc<float>(variables);
+		dealloc<float>(old_variables);
+		dealloc<float>(fluxes);
+		dealloc<float>(step_factors);
+	}
 	
-	dealloc<float>(variables);
-	dealloc<float>(old_variables);
-	dealloc<float>(fluxes);
-	dealloc<float>(step_factors);
-#endif
-    char atts[1024];
+	for (int s = 0; s < NUM_STREAMS; s++) {
+        checkCudaErrors(cudaStreamDestroy(streams[s]));
+    }
+
+	char atts[1024];
     sprintf(atts, "numelements:%d", nel);
     resultDB.AddResult("cfd_kernel_time", atts, "sec", kernelTime);
     resultDB.AddResult("cfd_transfer_time", atts, "sec", transferTime);
