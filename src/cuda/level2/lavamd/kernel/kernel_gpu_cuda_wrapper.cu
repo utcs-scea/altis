@@ -39,14 +39,16 @@ kernel_gpu_cuda_wrapper(par_str par_cpu,
 						FOUR_VECTOR* rv_cpu,
 						fp* qv_cpu,
 						FOUR_VECTOR* fv_cpu,
-                        ResultDatabase &resultDB)
+                        ResultDatabase &resultDB,
+						OptionParser &op)
 {
+	bool uvm = op.getOptionBool("uvm");
 
     float kernelTime = 0.0f;
     float transferTime = 0.0f;
     cudaEvent_t start, stop;
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
+    checkCudaErrors(cudaEventCreate(&start));
+    checkCudaErrors(cudaEventCreate(&stop));
     float elapsedTime;
 
 	//======================================================================================================================================================150
@@ -61,7 +63,7 @@ kernel_gpu_cuda_wrapper(par_str par_cpu,
 	//	INITIAL DRIVER OVERHEAD
 	//====================================================================================================100
 
-	cudaDeviceSynchronize();
+	checkCudaErrors(cudaDeviceSynchronize());
 
 	//====================================================================================================100
 	//	VARIABLES
@@ -96,22 +98,34 @@ kernel_gpu_cuda_wrapper(par_str par_cpu,
 	//	boxes
 	//==================================================50
 
-	CUDA_SAFE_CALL(cudaMalloc(	(void **)&d_box_gpu, 
-				dim_cpu.box_mem));
+	if (uvm) {
+		d_box_gpu = box_cpu;
+	} else {
+		checkCudaErrors(cudaMalloc(	(void **)&d_box_gpu,
+					dim_cpu.box_mem));
+	}
 
 	//==================================================50
 	//	rv
 	//==================================================50
 
-	CUDA_SAFE_CALL(cudaMalloc(	(void **)&d_rv_gpu, 
-				dim_cpu.space_mem));
+	if (uvm) {
+		d_rv_gpu = rv_cpu;
+	} else {
+		checkCudaErrors(cudaMalloc(	(void **)&d_rv_gpu, 
+					dim_cpu.space_mem));
+	}
 
 	//==================================================50
 	//	qv
 	//==================================================50
 
-	CUDA_SAFE_CALL(cudaMalloc(	(void **)&d_qv_gpu, 
-				dim_cpu.space_mem2));
+	if (uvm) {
+		d_qv_gpu = qv_cpu;
+	} else {
+		checkCudaErrors(cudaMalloc(	(void **)&d_qv_gpu,
+					dim_cpu.space_mem2));
+	}
 
 	//====================================================================================================100
 	//	GPU MEMORY				(MALLOC) COPY
@@ -121,8 +135,12 @@ kernel_gpu_cuda_wrapper(par_str par_cpu,
 	//	fv
 	//==================================================50
 
-	CUDA_SAFE_CALL(cudaMalloc(	(void **)&d_fv_gpu, 
-				dim_cpu.space_mem));
+	if (uvm) {
+		d_fv_gpu = fv_cpu;
+	} else {
+		checkCudaErrors(cudaMalloc(	(void **)&d_fv_gpu, 
+					dim_cpu.space_mem));
+	}
 
 	//======================================================================================================================================================150
 	//	GPU MEMORY			COPY
@@ -136,30 +154,42 @@ kernel_gpu_cuda_wrapper(par_str par_cpu,
 	//	boxes
 	//==================================================50
 
-    cudaEventRecord(start, 0);
+    checkCudaErrors(cudaEventRecord(start, 0));
 
-	cudaMemcpy(	d_box_gpu, 
-				box_cpu,
-				dim_cpu.box_mem, 
-				cudaMemcpyHostToDevice);
+	if (uvm) {
+		// Demand paging
+	} else {
+		checkCudaErrors(cudaMemcpy(	d_box_gpu, 
+					box_cpu,
+					dim_cpu.box_mem, 
+					cudaMemcpyHostToDevice));
+	}
 
 	//==================================================50
 	//	rv
 	//==================================================50
-
-	cudaMemcpy(	d_rv_gpu,
-				rv_cpu,
-				dim_cpu.space_mem,
-				cudaMemcpyHostToDevice);
+	
+	if (uvm) {
+		// Demand paging
+	} else {
+		checkCudaErrors(cudaMemcpy(	d_rv_gpu,
+					rv_cpu,
+					dim_cpu.space_mem,
+					cudaMemcpyHostToDevice));
+	}
 
 	//==================================================50
 	//	qv
 	//==================================================50
 
-	cudaMemcpy(	d_qv_gpu,
-				qv_cpu,
-				dim_cpu.space_mem2,
-				cudaMemcpyHostToDevice);
+	if (uvm) {
+		// Demand paging
+	} else {
+		checkCudaErrors(cudaMemcpy(	d_qv_gpu,
+					qv_cpu,
+					dim_cpu.space_mem2,
+					cudaMemcpyHostToDevice));
+	}
 
 	//====================================================================================================100
 	//	GPU MEMORY				(MALLOC) COPY
@@ -169,14 +199,18 @@ kernel_gpu_cuda_wrapper(par_str par_cpu,
 	//	fv
 	//==================================================50
 
-	cudaMemcpy(	d_fv_gpu, 
-				fv_cpu, 
-				dim_cpu.space_mem, 
-				cudaMemcpyHostToDevice);
+	if (uvm) {
+		// Demand paging
+	} else {
+		checkCudaErrors(cudaMemcpy(	d_fv_gpu, 
+					fv_cpu, 
+					dim_cpu.space_mem, 
+					cudaMemcpyHostToDevice));
+	}
 
-    cudaEventRecord(stop, 0);
-    cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&elapsedTime, start, stop);
+	checkCudaErrors(cudaEventRecord(stop, 0));
+    checkCudaErrors(cudaEventSynchronize(stop));
+    checkCudaErrors(cudaEventElapsedTime(&elapsedTime, start, stop));
     transferTime += elapsedTime * 1.e-3;
 
 	//======================================================================================================================================================150
@@ -184,35 +218,40 @@ kernel_gpu_cuda_wrapper(par_str par_cpu,
 	//======================================================================================================================================================150
 
 	// launch kernel - all boxes
-    cudaEventRecord(start, 0);
+    checkCudaErrors(cudaEventRecord(start, 0));
 	kernel_gpu_cuda<<<blocks, threads>>>(	par_cpu,
 											dim_cpu,
 											d_box_gpu,
 											d_rv_gpu,
 											d_qv_gpu,
 											d_fv_gpu);
-    cudaEventRecord(stop, 0);
-    cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&elapsedTime, start, stop);
+	checkCudaErrors(cudaEventRecord(stop, 0));
+    checkCudaErrors(cudaEventSynchronize(stop));
+    checkCudaErrors(cudaEventElapsedTime(&elapsedTime, start, stop));
     kernelTime += elapsedTime * 1.e-3;
 
     CHECK_CUDA_ERROR();
-	cudaDeviceSynchronize();
+	checkCudaErrors(cudaDeviceSynchronize());
 
 	//======================================================================================================================================================150
 	//	GPU MEMORY			COPY (CONTD.)kernel
 	//======================================================================================================================================================150
 
-    cudaEventRecord(start, 0);
+    checkCudaErrors(cudaEventRecord(start, 0));
 
-	cudaMemcpy(	fv_cpu, 
-				d_fv_gpu, 
-				dim_cpu.space_mem, 
-				cudaMemcpyDeviceToHost);
+	if (uvm) {
+		checkCudaErrors(cudaMemPrefetchAsync(d_fv_gpu, dim_cpu.space_mem, cudaCpuDeviceId));
+        checkCudaErrors(cudaStreamSynchronize(0));
+	} else {
+		checkCudaErrors(cudaMemcpy(	fv_cpu, 
+					d_fv_gpu,
+					dim_cpu.space_mem, 
+					cudaMemcpyDeviceToHost));
+	}
 
-    cudaEventRecord(stop, 0);
-    cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&elapsedTime, start, stop);
+	checkCudaErrors(cudaEventRecord(stop, 0));
+    checkCudaErrors(cudaEventSynchronize(stop));
+    checkCudaErrors(cudaEventElapsedTime(&elapsedTime, start, stop));
     transferTime += elapsedTime * 1.e-3;
 
     char atts[1024];
@@ -225,9 +264,12 @@ kernel_gpu_cuda_wrapper(par_str par_cpu,
 	//	GPU MEMORY DEALLOCATION
 	//======================================================================================================================================================150
 
-	cudaFree(d_rv_gpu);
-	cudaFree(d_qv_gpu);
-	cudaFree(d_fv_gpu);
-	cudaFree(d_box_gpu);
-
+	if (uvm) {
+		// Demand paging, no need to free
+	} else {
+		checkCudaErrors(cudaFree(d_rv_gpu));
+		checkCudaErrors(cudaFree(d_qv_gpu));
+		checkCudaErrors(cudaFree(d_fv_gpu));
+		checkCudaErrors(cudaFree(d_box_gpu));
+	}
 }

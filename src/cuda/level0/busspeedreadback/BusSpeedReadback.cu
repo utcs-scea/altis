@@ -37,6 +37,7 @@
 // ****************************************************************************
 
 void addBenchmarkSpecOptions(OptionParser &op) {
+    op.addOption("uvm-prefetch", OPT_BOOL, "0", "prefetch memory the specified destination device");
     op.addOption("pinned", OPT_BOOL, "0", "use pinned (pagelocked) memory");
 }
 

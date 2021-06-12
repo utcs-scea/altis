@@ -22,6 +22,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void addBenchmarkSpecOptions(OptionParser &op) {
+    op.addOption("uvm", OPT_BOOL, "0", "enable CUDA Unified Virtual Memory, only use demand paging");
     op.addOption("boxes1d", OPT_INT, "0",
             "specify number of boxes in single dimension, total box number is that^3");
 }
@@ -42,21 +43,21 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 
     // get boxes1d arg value
     int boxes1d = op.getOptionInt("boxes1d");
-    if(boxes1d == 0) {
+    if (boxes1d == 0) {
         int probSizes[4] = {1, 8, 64, 64};
         boxes1d = probSizes[op.getOptionInt("size") - 1];
     }
 
-    if(!quiet) {
+    if (!quiet) {
         printf("Thread block size of kernel = %d \n", NUMBER_THREADS);
         printf("Configuration used: boxes1d = %d\n", boxes1d);
     }
 
     int passes = op.getOptionInt("passes");
-    for(int i = 0; i < passes; i++) {
-        if(!quiet) { printf("Pass %d: ", i); }
+    for (int i = 0; i < passes; i++) {
+        if (!quiet) { printf("Pass %d: ", i); }
         runTest(resultDB, op, boxes1d);
-        if(!quiet) { printf("Done.\n"); }
+        if (!quiet) { printf("Done.\n"); }
     }
 }
 
@@ -71,6 +72,7 @@ void RunBenchmark(ResultDatabase &resultDB, OptionParser &op) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void runTest(ResultDatabase &resultDB, OptionParser &op, int boxes1d) {
+    bool uvm = op.getOptionBool("uvm");
     // random generator seed set to random value - time in this case
     srand(SEED);
 
@@ -101,21 +103,22 @@ void runTest(ResultDatabase &resultDB, OptionParser &op, int boxes1d) {
     dim_cpu.box_mem = dim_cpu.number_boxes * sizeof(box_str);
 
     // allocate boxes
-#ifdef UNIFIED_MEMORY
-    CUDA_SAFE_CALL(cudaMallocManaged(&box_cpu, dim_cpu.box_mem));
-#else
-    box_cpu = (box_str*)malloc(dim_cpu.box_mem);
-#endif
+    if (uvm) {
+        checkCudaErrors(cudaMallocManaged(&box_cpu, dim_cpu.box_mem));
+    }
+    else {
+        box_cpu = (box_str *)malloc(dim_cpu.box_mem);
+    }
 
     // initialize number of home boxes
     nh = 0;
 
     // home boxes in z direction
-    for(i=0; i<dim_cpu.boxes1d_arg; i++){
+    for (i=0; i<dim_cpu.boxes1d_arg; i++) {
         // home boxes in y direction
-        for(j=0; j<dim_cpu.boxes1d_arg; j++){
+        for (j=0; j<dim_cpu.boxes1d_arg; j++) {
             // home boxes in x direction
-            for(k=0; k<dim_cpu.boxes1d_arg; k++){
+            for (k=0; k<dim_cpu.boxes1d_arg; k++) {
 
                 // current home box
                 box_cpu[nh].x = k;
@@ -164,12 +167,14 @@ void runTest(ResultDatabase &resultDB, OptionParser &op, int boxes1d) {
     } // home boxes in z direction
 
     // input (distances)
-#ifdef UNIFIED_MEMORY
-    CUDA_SAFE_CALL(cudaMallocManaged(&rv_cpu, dim_cpu.space_mem));
-#else
-    rv_cpu = (FOUR_VECTOR*)malloc(dim_cpu.space_mem);
-#endif
-    for(i=0; i<dim_cpu.space_elem; i=i+1){
+    if (uvm) {
+        checkCudaErrors(cudaMallocManaged(&rv_cpu, dim_cpu.space_mem));
+    }
+    else {
+        rv_cpu = (FOUR_VECTOR*)malloc(dim_cpu.space_mem);
+    }
+
+    for (i=0; i<dim_cpu.space_elem; i=i+1) {
         rv_cpu[i].v = (rand()%10 + 1) / 10.0;			// get a number in the range 0.1 - 1.0
         rv_cpu[i].x = (rand()%10 + 1) / 10.0;			// get a number in the range 0.1 - 1.0
         rv_cpu[i].y = (rand()%10 + 1) / 10.0;			// get a number in the range 0.1 - 1.0
@@ -177,22 +182,27 @@ void runTest(ResultDatabase &resultDB, OptionParser &op, int boxes1d) {
     }
 
     // input (charge)
-#ifdef UNIFIED_MEMORY
-    CUDA_SAFE_CALL(cudaMallocManaged(&qv_cpu, dim_cpu.space_mem2));
-#else
-    qv_cpu = (fp*)malloc(dim_cpu.space_mem2);
-#endif
+    if (uvm) {
+        checkCudaErrors(cudaMallocManaged(&qv_cpu, dim_cpu.space_mem2));
+    }
+    else {
+        qv_cpu = (fp*)malloc(dim_cpu.space_mem2);
+        assert(qv_cpu);
+    }
+
     for(i=0; i<dim_cpu.space_elem; i=i+1){
         qv_cpu[i] = (rand()%10 + 1) / 10.0;			// get a number in the range 0.1 - 1.0
     }
 
     // output (forces)
-#ifdef UNIFIED_MEMORY
-    CUDA_SAFE_CALL(cudaMallocManaged(&fv_cpu, dim_cpu.space_mem));
-#else
-    fv_cpu = (FOUR_VECTOR*)malloc(dim_cpu.space_mem);
-#endif
-    for(i=0; i<dim_cpu.space_elem; i=i+1){
+    if (uvm) {
+        checkCudaErrors(cudaMallocManaged(&fv_cpu, dim_cpu.space_mem));
+    } else {
+        fv_cpu = (FOUR_VECTOR*)malloc(dim_cpu.space_mem);
+        assert(fv_cpu);
+    }
+
+    for (i=0; i<dim_cpu.space_elem; i=i+1) {
         fv_cpu[i].v = 0;								// set to 0, because kernels keeps adding to initial value
         fv_cpu[i].x = 0;								// set to 0, because kernels keeps adding to initial value
         fv_cpu[i].y = 0;								// set to 0, because kernels keeps adding to initial value
@@ -205,7 +215,8 @@ void runTest(ResultDatabase &resultDB, OptionParser &op, int boxes1d) {
             rv_cpu,
             qv_cpu,
             fv_cpu,
-            resultDB);
+            resultDB,
+            op);
 
     string outfile = op.getOptionString("outputFile");
     if (outfile != "") {
@@ -217,15 +228,15 @@ void runTest(ResultDatabase &resultDB, OptionParser &op, int boxes1d) {
         fclose(fptr);
     }
 
-#ifdef UNIFIED_MEMORY
-    CUDA_SAFE_CALL(cudaFree(rv_cpu));
-    CUDA_SAFE_CALL(cudaFree(qv_cpu));
-    CUDA_SAFE_CALL(cudaFree(fv_cpu));
-    CUDA_SAFE_CALL(cudaFree(box_cpu));
-#else
-    free(rv_cpu);
-    free(qv_cpu);
-    free(fv_cpu);
-    free(box_cpu);
-#endif
+    if (uvm) {
+        checkCudaErrors(cudaFree(rv_cpu));
+        checkCudaErrors(cudaFree(qv_cpu));
+        checkCudaErrors(cudaFree(fv_cpu));
+        checkCudaErrors(cudaFree(box_cpu));
+    } else {
+        free(rv_cpu);
+        free(qv_cpu);
+        free(fv_cpu);
+        free(box_cpu);
+    }
 }
