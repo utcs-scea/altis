@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.8)
 
 add_subdirectory(cfd)
 add_subdirectory(dwt2d)
+add_subdirectory(fdtd2d)
 add_subdirectory(kmeans)
 add_subdirectory(lavamd)
 add_subdirectory(mandelbrot)
@@ -33,6 +34,15 @@ add_executable(dwt2d ${exe_files} dwt2d/data/bmp.cpp)
 target_include_directories(dwt2d PRIVATE dwt2d/data)
 target_link_libraries(dwt2d AltisCommon dwt2dLib)
 set_target_properties(dwt2d
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/level2"
+)
+
+add_executable(fdtd2d ${exe_files})
+target_link_libraries(fdtd2d AltisCommon fdtd2dLib)
+set_target_properties(fdtd2d
     PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
