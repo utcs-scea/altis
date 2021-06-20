@@ -166,6 +166,7 @@ void fdtdCuda(size_t NX, size_t NY, size_t tmax, DATA_TYPE* _fict_, DATA_TYPE* e
     const bool uvm_advise = op.getOptionBool("uvm-advise");
     const bool uvm_prefetch = op.getOptionBool("uvm-prefetch");
     const bool uvm_prefetch_advise = op.getOptionBool("uvm-prefetch-advise");
+    const bool compare = op.getOptionBool("compare");
     int device = 0;
     checkCudaErrors(cudaGetDevice(&device));
 
@@ -176,20 +177,64 @@ void fdtdCuda(size_t NX, size_t NY, size_t tmax, DATA_TYPE* _fict_, DATA_TYPE* e
     DATA_TYPE *ey_gpu;
     DATA_TYPE *hz_gpu;
 
-    if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise)
+
+    checkCudaErrors(cudaMalloc((void **)&_fict_gpu, sizeof(DATA_TYPE) * tmax));
+    checkCudaErrors(cudaMalloc((void **)&ex_gpu, sizeof(DATA_TYPE) * NX * (NY + 1)));
+    checkCudaErrors(cudaMalloc((void **)&ey_gpu, sizeof(DATA_TYPE) * (NX + 1) * NY));
+    checkCudaErrors(cudaMalloc((void **)&hz_gpu, sizeof(DATA_TYPE) * NX * NY));
+
+    checkCudaErrors(cudaMemcpy(_fict_gpu, _fict_, sizeof(DATA_TYPE) * tmax, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(ex_gpu, ex, sizeof(DATA_TYPE) * NX * (NY + 1), cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(ey_gpu, ey, sizeof(DATA_TYPE) * (NX + 1) * NY, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(hz_gpu, hz, sizeof(DATA_TYPE) * NX * NY, cudaMemcpyHostToDevice));
+
+    dim3 block(DIM_THREAD_BLOCK_X, DIM_THREAD_BLOCK_Y);
+    dim3 grid( (size_t)ceil(((float)NY) / ((float)block.x)), (size_t)ceil(((float)NX) / ((float)block.y)));
+
+    t_start = rtclock();
+
+    for (int t = 0; t < tmax; t++)
     {
-        _fict_gpu = _fict_;
-        ex_gpu = ex;
-        ey_gpu = ey;
-        hz_gpu = hz;
+        fdtd_step1_kernel<<<grid,block>>>(NX, NY, _fict_gpu, ex_gpu, ey_gpu, hz_gpu, t);
+        checkCudaErrors(cudaThreadSynchronize());
+        fdtd_step2_kernel<<<grid,block>>>(NX, NY, ex_gpu, ey_gpu, hz_gpu, t);
+        checkCudaErrors(cudaThreadSynchronize());
+        fdtd_step3_kernel<<<grid,block>>>(NX, NY, ex_gpu, ey_gpu, hz_gpu, t);
+        checkCudaErrors(cudaThreadSynchronize());
     }
-    else
-    {
-        checkCudaErrors(cudaMalloc((void **)&_fict_gpu, sizeof(DATA_TYPE) * tmax));
-        checkCudaErrors(cudaMalloc((void **)&ex_gpu, sizeof(DATA_TYPE) * NX * (NY + 1)));
-        checkCudaErrors(cudaMalloc((void **)&ey_gpu, sizeof(DATA_TYPE) * (NX + 1) * NY));
-        checkCudaErrors(cudaMalloc((void **)&hz_gpu, sizeof(DATA_TYPE) * NX * NY));
-    }
+    
+    t_end = rtclock();
+        fprintf(stdout, "GPU Runtime: %0.6lfs\n", t_end - t_start);
+
+    checkCudaErrors(cudaMemcpy(hz_outputFromGpu, hz_gpu, sizeof(DATA_TYPE) * NX * NY, cudaMemcpyDeviceToHost));
+
+    checkCudaErrors(cudaFree(_fict_gpu));
+    checkCudaErrors(cudaFree(ex_gpu));
+    checkCudaErrors(cudaFree(ey_gpu));
+    checkCudaErrors(cudaFree(hz_gpu));
+}
+
+void fdtdCudaUnifiedMemory(size_t NX, size_t NY, size_t tmax, DATA_TYPE* _fict_, DATA_TYPE* ex, DATA_TYPE* ey, DATA_TYPE* hz,
+    ResultDatabase &DB, OptionParser &op)
+{
+    const bool uvm = op.getOptionBool("uvm");
+    const bool uvm_advise = op.getOptionBool("uvm-advise");
+    const bool uvm_prefetch = op.getOptionBool("uvm-prefetch");
+    const bool uvm_prefetch_advise = op.getOptionBool("uvm-prefetch-advise");
+    int device = 0;
+    checkCudaErrors(cudaGetDevice(&device));
+
+    double t_start, t_end;
+
+    DATA_TYPE *_fict_gpu;
+    DATA_TYPE *ex_gpu;
+    DATA_TYPE *ey_gpu;
+    DATA_TYPE *hz_gpu;
+
+    _fict_gpu = _fict_;
+    ex_gpu = ex;
+    ey_gpu = ey;
+    hz_gpu = hz;
 
     if (uvm)
     {
@@ -239,10 +284,8 @@ void fdtdCuda(size_t NX, size_t NY, size_t tmax, DATA_TYPE* _fict_, DATA_TYPE* e
     }
     else
     {
-        checkCudaErrors(cudaMemcpy(_fict_gpu, _fict_, sizeof(DATA_TYPE) * tmax, cudaMemcpyHostToDevice));
-        checkCudaErrors(cudaMemcpy(ex_gpu, ex, sizeof(DATA_TYPE) * NX * (NY + 1), cudaMemcpyHostToDevice));
-        checkCudaErrors(cudaMemcpy(ey_gpu, ey, sizeof(DATA_TYPE) * (NX + 1) * NY, cudaMemcpyHostToDevice));
-        checkCudaErrors(cudaMemcpy(hz_gpu, hz, sizeof(DATA_TYPE) * NX * NY, cudaMemcpyHostToDevice));
+        std::cerr << "unrecognized uvm flag, exiting..." << std::endl;
+        exit(-1);
     }
 
     dim3 block(DIM_THREAD_BLOCK_X, DIM_THREAD_BLOCK_Y);
@@ -259,39 +302,22 @@ void fdtdCuda(size_t NX, size_t NY, size_t tmax, DATA_TYPE* _fict_, DATA_TYPE* e
         fdtd_step3_kernel<<<grid,block>>>(NX, NY, ex_gpu, ey_gpu, hz_gpu, t);
         checkCudaErrors(cudaThreadSynchronize());
     }
-    
+
     t_end = rtclock();
-        fprintf(stdout, "GPU Runtime: %0.6lfs\n", t_end - t_start);
-
+    fprintf(stdout, "GPU Runtime: %0.6lfs\n", t_end - t_start);
 
     if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise)
     {
-        hz_outputFromGpu = hz_gpu;
-    }
-    else
-    {
-        checkCudaErrors(cudaMemcpy(hz_outputFromGpu, hz_gpu, sizeof(DATA_TYPE) * NX * NY, cudaMemcpyDeviceToHost));
-    }
-        
-    if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise)
-    {
-        // Do nothing
-    }
-    else
-    {
-        checkCudaErrors(cudaFree(_fict_gpu));
-        checkCudaErrors(cudaFree(ex_gpu));
-        checkCudaErrors(cudaFree(ey_gpu));
-        checkCudaErrors(cudaFree(hz_gpu));
+    // Do nothing
     }
 
     if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise)
     {
-        checkCudaErrors(cudaMemAdvise(hz_outputFromGpu, sizeof(DATA_TYPE) * NX * NY, cudaMemAdviseSetReadMostly, cudaCpuDeviceId));
-        checkCudaErrors(cudaMemAdvise(hz_outputFromGpu, sizeof(DATA_TYPE) * NX * NY, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
-        checkCudaErrors(cudaMemAdvise(hz_outputFromGpu, sizeof(DATA_TYPE) * NX * NY, cudaMemAdviseSetAccessedBy, cudaCpuDeviceId));
-        checkCudaErrors(cudaMemPrefetchAsync(hz_outputFromGpu, sizeof(DATA_TYPE) * NX * NY, cudaCpuDeviceId));
-        // checkCudaErrors(cudaThreadSynchronize());
+        checkCudaErrors(cudaMemAdvise(hz_gpu, sizeof(DATA_TYPE) * NX * NY, cudaMemAdviseSetReadMostly, cudaCpuDeviceId));
+        checkCudaErrors(cudaMemAdvise(hz_gpu, sizeof(DATA_TYPE) * NX * NY, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));
+        checkCudaErrors(cudaMemAdvise(hz_gpu, sizeof(DATA_TYPE) * NX * NY, cudaMemAdviseSetAccessedBy, cudaCpuDeviceId));
+        checkCudaErrors(cudaMemPrefetchAsync(hz_gpu, sizeof(DATA_TYPE) * NX * NY, cudaCpuDeviceId));
+        checkCudaErrors(cudaThreadSynchronize());
     }
 }
 
@@ -302,6 +328,7 @@ void addBenchmarkSpecOptions(OptionParser &op)
     op.addOption("uvm-prefetch", OPT_BOOL, "0", "prefetch memory the specified destination device");
     op.addOption("uvm-prefetch-advise", OPT_BOOL, "0", "prefetch memory the specified destination device with memory guidance on");
     op.addOption("graph", OPT_BOOL, "0", "enable CUDA Graphs");
+    op.addOption("compare", OPT_BOOL, "0", "compare GPU output with CPU output");
 }
 
 void RunBenchmark(ResultDatabase &DB, OptionParser &op)
@@ -310,10 +337,12 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op)
     const bool uvm_advise = op.getOptionBool("uvm-advise");
     const bool uvm_prefetch = op.getOptionBool("uvm-prefetch");
     const bool uvm_prefetch_advise = op.getOptionBool("uvm-prefetch-advise");
+    const bool compare = op.getOptionBool("compare");
 
-    size_t NX_sizes[5] = {20, 60, 200, 1000, 2000};
-    size_t NY_sizes[5] = {30, 80, 240, 1200, 2600};
-    size_t tmax_sizes[5] =  {20, 40, 100, 500, 1000};
+    const size_t s = 5;
+    size_t NX_sizes[s] = {200, 1000, 2000, 8000, 16000};
+    size_t NY_sizes[s] = {240, 1200, 2600, 9600, 20000};
+    size_t tmax_sizes[s] =  {100, 500, 1000, 4000, 8000};
 
     size_t NX = NX_sizes[op.getOptionInt("size") - 1];
     size_t NY = NY_sizes[op.getOptionInt("size") - 1];
@@ -327,21 +356,8 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op)
     DATA_TYPE* hz;
     DATA_TYPE* hz_outputFromGpu;
 
-    if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) {
-        checkCudaErrors(cudaMallocManaged(&_fict_, tmax*sizeof(DATA_TYPE)));
-        checkCudaErrors(cudaMallocManaged(&ex, NX*(NY+1)*sizeof(DATA_TYPE)));
-        checkCudaErrors(cudaMallocManaged(&ey, (NX+1)*NY*sizeof(DATA_TYPE)));
-        checkCudaErrors(cudaMallocManaged(&hz, NX*NY*sizeof(DATA_TYPE)));
-        // hz = (DATA_TYPE*)malloc(NX*NY*sizeof(DATA_TYPE));
-        // assert(hz);
-        checkCudaErrors(cudaMallocManaged(&hz_outputFromGpu, NX*NY*sizeof(DATA_TYPE)));
-
-        init_arrays(NX, NY, tmax, _fict_, ex, ey, hz);
-        // memcpy(hz_outputFromGpu, hz, NX*NY*sizeof(DATA_TYPE));
-        checkCudaErrors(cudaMemcpy(hz_outputFromGpu, hz, NX*NY*sizeof(DATA_TYPE), cudaMemcpyHostToHost));
-        fdtdCuda(NX, NY, tmax, _fict_, ex, ey, hz_outputFromGpu, hz_outputFromGpu, DB, op);
-
-    } else {
+    if (compare)
+    {
         _fict_ = (DATA_TYPE*)malloc(tmax*sizeof(DATA_TYPE));
         assert(_fict_);
         ex = (DATA_TYPE*)malloc(NX*(NY+1)*sizeof(DATA_TYPE));
@@ -352,23 +368,62 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op)
         assert(hz);
         hz_outputFromGpu = (DATA_TYPE*)malloc(NX*NY*sizeof(DATA_TYPE));
         assert(hz_outputFromGpu);
+    }
+    else
+    {
+        if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise)
+        {
+            checkCudaErrors(cudaMallocManaged(&_fict_, tmax*sizeof(DATA_TYPE)));
+            checkCudaErrors(cudaMallocManaged(&ex, NX*(NY+1)*sizeof(DATA_TYPE)));
+            checkCudaErrors(cudaMallocManaged(&ey, (NX+1)*NY*sizeof(DATA_TYPE)));
+            checkCudaErrors(cudaMallocManaged(&hz, NX*NY*sizeof(DATA_TYPE)));
+            checkCudaErrors(cudaMallocManaged(&hz_outputFromGpu, NX*NY*sizeof(DATA_TYPE)));
+        }
+        else
+        {
+            _fict_ = (DATA_TYPE*)malloc(tmax*sizeof(DATA_TYPE));
+            assert(_fict_);
+            ex = (DATA_TYPE*)malloc(NX*(NY+1)*sizeof(DATA_TYPE));
+            assert(ex);
+            ey = (DATA_TYPE*)malloc((NX+1)*NY*sizeof(DATA_TYPE));
+            assert(ey);
+            hz = (DATA_TYPE*)malloc(NX*NY*sizeof(DATA_TYPE));
+            assert(hz);
+            hz_outputFromGpu = (DATA_TYPE*)malloc(NX*NY*sizeof(DATA_TYPE));
+            assert(hz_outputFromGpu);
+        }
+    }
 
-        init_arrays(NX, NY, tmax, _fict_, ex, ey, hz);
+    init_arrays(NX, NY, tmax, _fict_, ex, ey, hz);
+
+    if (compare)
+    {
         fdtdCuda(NX, NY, tmax, _fict_, ex, ey, hz, hz_outputFromGpu, DB, op);
-
+    }
+    else
+    {
+        if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise)
+        {
+            fdtdCudaUnifiedMemory(NX, NY, tmax, _fict_, ex, ey, hz, DB, op);
+        }
+        else
+        {
+            fdtdCuda(NX, NY, tmax, _fict_, ex, ey, hz, hz_outputFromGpu, DB, op);
+        }
     }
 
     // GPU_argv_init();
 
-    t_start = rtclock();
-    runFdtd(NX, NY, tmax, _fict_, ex, ey, hz);
-    t_end = rtclock();
-    
-    fprintf(stdout, "CPU Runtime: %0.6lfs\n", t_end - t_start);
-    
-    compareResults(NX, NY, hz, hz_outputFromGpu);
+    if (op.getOptionBool("compare") && (!uvm && !uvm_advise && !uvm_prefetch && !uvm_prefetch_advise))
+    {
+        t_start = rtclock();
+        runFdtd(NX, NY, tmax, _fict_, ex, ey, hz);
+        t_end = rtclock();
+        fprintf(stdout, "CPU Runtime: %0.6lfs\n", t_end - t_start);
+        compareResults(NX, NY, hz, hz_outputFromGpu);
+    }
 
-    if (uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise)
+    if ((uvm || uvm_advise || uvm_prefetch || uvm_prefetch_advise) && !compare)
     {
         checkCudaErrors(cudaFree(_fict_));
         checkCudaErrors(cudaFree(ex));
