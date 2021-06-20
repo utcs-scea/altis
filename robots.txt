@@ -1,0 +1,2 @@
+User-agent: *
+Sitemap: https://utcs-scea.github.io/altis/sitemap.xml
