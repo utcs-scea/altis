@@ -4,10 +4,14 @@ steps:
   with:
     cuda: '11.2.2'
 
-- run: echo "Installed cuda version is: ${{steps.cuda-toolkit.outputs.cuda}}"
+- name: Show CUDA version
+  run: echo "Installed cuda version is: ${{steps.cuda-toolkit.outputs.cuda}}"
 
-- run: echo "Cuda install location: ${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
+- name: CUDA install location
+  run: echo "Cuda install location: ${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
 
-- run: nvcc -V
+- mame: test nvcc command
+  run: nvcc -V
 
-- run: cmake --version
+- name: show cmake version
+  run: cmake --version
