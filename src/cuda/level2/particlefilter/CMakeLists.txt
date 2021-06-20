@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.18)
 
 add_library(particlefilterLib ex_particle_CUDA_naive_seq.cu)
 target_link_libraries(particlefilterLib -lm)
