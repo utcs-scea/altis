@@ -16,7 +16,7 @@ git clone https://github.com/utcs-scea/altis.git
 
 ## Setup
 
-Altis relies on the avaialbility of CUDA, cuDNN, and OptiX (OptiX version 7 and beyond is not supported yet since it breaks bakcward compatibility with previous versions) and few other packages. Please refer to [Environment Setup](https://github.com/utcs-scea/altis/wiki/Environment-Setup) for how to set up Altis.
+Altis relies on the avaialbility of CUDA and CMake (>= 3.8). Please refer to [Environment Setup](https://github.com/utcs-scea/altis/wiki/Environment-Setup) for how to set up Altis.
 
 ## Build:
 
