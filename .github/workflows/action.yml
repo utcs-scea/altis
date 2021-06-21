@@ -23,3 +23,7 @@ jobs:
         cd altis/tools
         chmod +x github-action-setup.sh
         ./github-action-setup.sh
+      shell: bash
+      env:
+        CC:   gcc-8
+        CXX:  g++-8
