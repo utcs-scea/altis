@@ -43,4 +43,4 @@ cd $SCRIPTPATH
 mkdir build
 cd build
 cmake -DCMAKE_CUDA_ARCHITECTURES=$($SCRIPTPATH/config/get_cuda_sm.sh) ..
-make -j6
+make -j`nproc`
