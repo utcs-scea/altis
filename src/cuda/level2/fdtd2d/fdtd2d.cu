@@ -7,7 +7,7 @@
  * Web address: http://www.cse.ohio-state.edu/~pouchet/software/polybench/GPU
  *
  * Modfified by Bodun Hu <bodunhu@utexas.edu>
- * Added: UVM, coop, CUDA graph support
+ * Added: UVM and coop support
  *
  */
 
@@ -265,12 +265,17 @@ void fdtdCuda(size_t NX, size_t NY, size_t tmax, DATA_TYPE* _fict_, DATA_TYPE* e
     }
     else
     {
+        cudaStream_t stream1, stream2;
+        checkCudaErrors(cudaStreamCreate(&stream1));
+        checkCudaErrors(cudaStreamCreate(&stream2));
         for (int t = 0; t < tmax; t++)
         {
-            fdtd_step1_kernel<<<grid,block>>>(NX, NY, _fict_gpu, ex_gpu, ey_gpu, hz_gpu, t);
-            fdtd_step2_kernel<<<grid,block>>>(NX, NY, ex_gpu, ey_gpu, hz_gpu, t);
+            fdtd_step1_kernel<<<grid,block,0,stream1>>>(NX, NY, _fict_gpu, ex_gpu, ey_gpu, hz_gpu, t);
+            fdtd_step2_kernel<<<grid,block,0,stream2>>>(NX, NY, ex_gpu, ey_gpu, hz_gpu, t);
             fdtd_step3_kernel<<<grid,block>>>(NX, NY, ex_gpu, ey_gpu, hz_gpu, t);
         }
+        checkCudaErrors(cudaStreamDestroy(stream1));
+        checkCudaErrors(cudaStreamDestroy(stream2));
     }
     t_end = rtclock();
     fprintf(stdout, "GPU Runtime: %0.6lfs\n", t_end - t_start);
@@ -383,12 +388,17 @@ void fdtdCudaUnifiedMemory(size_t NX, size_t NY, size_t tmax, DATA_TYPE* _fict_,
     }
     else
     {
+        cudaStream_t stream1, stream2;
+        checkCudaErrors(cudaStreamCreate(&stream1));
+        checkCudaErrors(cudaStreamCreate(&stream2));
         for (int t = 0; t < tmax; t++)
         {
-            fdtd_step1_kernel<<<grid,block>>>(NX, NY, _fict_gpu, ex_gpu, ey_gpu, hz_gpu, t);
-            fdtd_step2_kernel<<<grid,block>>>(NX, NY, ex_gpu, ey_gpu, hz_gpu, t);
+            fdtd_step1_kernel<<<grid,block,0,stream1>>>(NX, NY, _fict_gpu, ex_gpu, ey_gpu, hz_gpu, t);
+            fdtd_step2_kernel<<<grid,block,0,stream1>>>(NX, NY, ex_gpu, ey_gpu, hz_gpu, t);
             fdtd_step3_kernel<<<grid,block>>>(NX, NY, ex_gpu, ey_gpu, hz_gpu, t);
         }
+        checkCudaErrors(cudaStreamDestroy(stream1));
+        checkCudaErrors(cudaStreamDestroy(stream2));
     }
 
     t_end = rtclock();
@@ -415,7 +425,6 @@ void addBenchmarkSpecOptions(OptionParser &op)
     op.addOption("uvm-advise", OPT_BOOL, "0", "guide the driver about memory usage patterns");
     op.addOption("uvm-prefetch", OPT_BOOL, "0", "prefetch memory the specified destination device");
     op.addOption("uvm-prefetch-advise", OPT_BOOL, "0", "prefetch memory the specified destination device with memory guidance on");
-    op.addOption("graph", OPT_BOOL, "0", "enable CUDA Graphs");
     op.addOption("coop", OPT_BOOL, "0", "use cooperative kernel instead normal kernels");
     op.addOption("compare", OPT_BOOL, "0", "compare GPU output with CPU output");
 }
@@ -429,9 +438,9 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op)
     const bool compare = op.getOptionBool("compare");
 
     const size_t s = 5;
-    size_t NX_sizes[s] = {200, 1000, 2000, 8000, 16000};
-    size_t NY_sizes[s] = {240, 1200, 2600, 9600, 20000};
-    size_t tmax_sizes[s] =  {100, 500, 1000, 4000, 8000};
+    size_t NX_sizes[s] = {100, 1000, 2000, 8000, 16000};
+    size_t NY_sizes[s] = {200, 1200, 2600, 9600, 20000};
+    size_t tmax_sizes[s] =  {240, 500, 1000, 4000, 8000};
 
     size_t NX = NX_sizes[op.getOptionInt("size") - 1];
     size_t NY = NY_sizes[op.getOptionInt("size") - 1];
