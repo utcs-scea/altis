@@ -36,5 +36,5 @@ fi
 cd $SCRIPTPATH
 mkdir build
 cd build
-cmake -DCMAKE_CUDA_ARCHITECTURES=60\;61\;80 ..
+cmake -DCMAKE_CUDA_ARCHITECTURES=50\;52\;60\;61\;70\;72\;75\;80\;86 ..
 make -j`nproc`
