@@ -14,12 +14,9 @@ jobs:
       run: nvcc -V
     - name: show cmake version
       run: cmake --version
-    - name: prepare
+    - name: test build
       run: |
-        echo "${GITHUB_WORKSPACE}"
-        pwd
-        ls -a ${GITHUB_WORKSPACE}
-        ls -a ${GITHUB_WORKSPACE}/..
-        chmod +x "${GITHUB_WORKSPACE}/.github./github-action-setup.sh"
-    - name: Altis test build
-      run: ${GITHUB_WORKSPACE}/.github./github-action-setup.sh
+        git clone https://github.com/utcs-scea/altis.git
+        cd altis/tools
+        chmod +x github-action-setup.sh
+        ./github-action-setup.sh
