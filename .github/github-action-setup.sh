@@ -24,7 +24,8 @@ function die(){
 }
 
 # generate device-specific parameter header
-SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/.."
+echo $SCRIPTPATH
 
 cd $SCRIPTPATH/src/cuda/common
 if [[ ! -f "cuda_device_attr.h" ]]; then

@@ -15,6 +15,9 @@ jobs:
     - name: show cmake version
       run: cmake --version
     - name: prepare
-      run: chmod +x ./github-action-setup.sh
+      run: |
+        chmod +x "${GITHUB_WORKSPACE}/.github./github-action-setup.sh"
+        echo "${GITHUB_WORKSPACE}"
+        pwd
     - name: Altis test build
-      run: ./github-action-setup.sh
+      run: ${GITHUB_WORKSPACE}/.github./github-action-setup.sh
