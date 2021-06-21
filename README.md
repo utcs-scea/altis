@@ -2,6 +2,8 @@
 
 [![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)](LICENSE)
 ![CI](https://github.com/utcs-scea/altis/actions/workflows/action.yml/badge.svg)
+[![DOI:10.1109/ISPASS48437.2020.00011](https://zenodo.org/badge/DOI/10.1109/ISPASS48437.2020.00011.svg)](https://doi.org/10.1109/ISPASS48437.2020.00011)
+
 
 Altis is a benchmark suite to test the performance and other aspects of systems with Graphics Processing Units (GPUs), developed in [SCEA](https://github.com/utcs-scea) lab at University of Texas at Austin. Altis consists of a collection of GPU applications with differnt performance implications. Altis focuses primarily on [Compute Unified Device Architecture](https://developer.nvidia.com/cuda-toolkit) (CUDA) computing platform.
 
