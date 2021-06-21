@@ -11,6 +11,7 @@ add_subdirectory(particlefilter)
 add_subdirectory(raytracing)
 add_subdirectory(srad)
 add_subdirectory(where)
+add_subdirectory(yolo)
 
 add_executable(cfd ${exe_files})
 target_link_libraries(cfd AltisCommon cfdLib)
