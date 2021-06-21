@@ -1,9 +1,16 @@
-steps:
-- uses: Jimver/cuda-toolkit@v0.2.2
-  id: cuda-toolkit
-  with:
-    cuda: '11.2.2'
-- name: test nvcc command
-  run: nvcc -V
-- name: show cmake version
-  run: cmake --version
+name: action
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: Jimver/cuda-toolkit@v0.2.2
+      id: cuda-toolkit
+      with:
+        cuda: '11.2.2'
+    - name: test nvcc command
+      run: nvcc -V
+    - name: show cmake version
+      run: cmake --version
