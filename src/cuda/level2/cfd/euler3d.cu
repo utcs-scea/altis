@@ -1224,14 +1224,14 @@ void cfd(ResultDatabase &resultDB, OptionParser &op)
 	checkCudaErrors(cudaEventRecord(exec_event, streams[0]));
 	for (int i = 0; i < iterations; i++) {
         // Time will need to be recomputed, more aggressive optimization TODO
-		checkCudaErrors(cudaStreamWaitEvent(streams[1], exec_event));
+		checkCudaErrors(cudaStreamWaitEvent(streams[1], exec_event, 0));
 		copy<float>(old_variables, variables, nelr*NVAR, &streams[1]);
 		checkCudaErrors(cudaEventRecord(copy_event, streams[1]));
 	
 		// for the first iteration we compute the time step
 		compute_step_factor(nelr, variables, areas, step_factors, &streams[0]);
         CHECK_CUDA_ERROR();
-		checkCudaErrors(cudaStreamWaitEvent(streams[0], copy_event));
+		checkCudaErrors(cudaStreamWaitEvent(streams[0], copy_event, 0));
 		
 		for(int j = 0; j < RK; j++)
 		{

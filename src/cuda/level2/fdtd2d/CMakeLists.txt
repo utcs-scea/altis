@@ -1,4 +1,10 @@
 cmake_minimum_required(VERSION 3.8)
 
 add_library(fdtd2dLib fdtd2d.cu)
+if(${CMAKE_VERSION} VERSION_LESS "3.18.0")
+    target_compile_options(fdtd2dLib PRIVATE $<$<COMPILE_LANGUAGE:CUDA>: ${ARCH_FLAGS} -rdc=true>)
+else()
+    target_compile_options(fdtd2dLib PRIVATE $<$<COMPILE_LANGUAGE:CUDA>: -rdc=true>)
+endif()
 target_link_libraries(fdtd2dLib)
+set_target_properties(fdtd2dLib PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
