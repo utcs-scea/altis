@@ -13,17 +13,20 @@ set(darketSources
     ${darknetSourceDir}/blas.c
     ${darknetSourceDir}/blas_kernels.cu
     ${darknetSourceDir}/box.c
+    ${darknetSourceDir}/classifier.c
     ${darknetSourceDir}/col2im.c
     ${darknetSourceDir}/col2im_kernels.cu
     ${darknetSourceDir}/compare.c
     ${darknetSourceDir}/connected_layer.c
+    ${darknetSourceDir}/conv_lstm_layer.c
     ${darknetSourceDir}/convolutional_kernels.cu
     ${darknetSourceDir}/convolutional_layer.c
     ${darknetSourceDir}/cost_layer.c
     ${darknetSourceDir}/crnn_layer.c
     ${darknetSourceDir}/crop_layer.c
     ${darknetSourceDir}/crop_layer_kernels.cu
-    ${darknetSourceDir}/cuda.c
+    ${darknetSourceDir}/dark_cuda.c
+    ${darknetSourceDir}/darknet.c
     ${darknetSourceDir}/data.c
     ${darknetSourceDir}/deconvolutional_kernels.cu
     ${darknetSourceDir}/deconvolutional_layer.c
@@ -31,22 +34,23 @@ set(darketSources
     ${darknetSourceDir}/detection_layer.c
     ${darknetSourceDir}/dropout_layer.c
     ${darknetSourceDir}/dropout_layer_kernels.cu
+    ${darknetSourceDir}/gaussian_yolo_layer.c
     ${darknetSourceDir}/gemm.c
+    ${darknetSourceDir}/getopt.c
+    ${darknetSourceDir}/gettimeofday.c
     ${darknetSourceDir}/gru_layer.c
     ${darknetSourceDir}/im2col.c
     ${darknetSourceDir}/im2col_kernels.cu
     ${darknetSourceDir}/image.c
-    ${darknetSourceDir}/iseg_layer.c
-    ${darknetSourceDir}/l2norm_layer.c
     ${darknetSourceDir}/layer.c
     ${darknetSourceDir}/list.c
     ${darknetSourceDir}/local_layer.c
-    ${darknetSourceDir}/logistic_layer.c
     ${darknetSourceDir}/lstm_layer.c
     ${darknetSourceDir}/matrix.c
     ${darknetSourceDir}/maxpool_layer.c
     ${darknetSourceDir}/maxpool_layer_kernels.cu
     ${darknetSourceDir}/network.c
+    ${darknetSourceDir}/network_kernels.cu
     ${darknetSourceDir}/normalization_layer.c
     ${darknetSourceDir}/option_list.c
     ${darknetSourceDir}/parser.c
@@ -59,7 +63,9 @@ set(darketSources
     ${darknetSourceDir}/tree.c
     ${darknetSourceDir}/upsample_layer.c
     ${darknetSourceDir}/utils.c
+    ${darknetSourceDir}/yolo.c
     ${darknetSourceDir}/yolo_layer.c
+    # ${darknetSourceDir}/yolo_v2_class.cpp
 )
 
 add_library(darknetLib ${darketSources})
