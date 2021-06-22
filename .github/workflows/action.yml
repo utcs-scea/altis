@@ -26,3 +26,24 @@ jobs:
         chmod +x github-action-setup.sh
         ./github-action-setup.sh
       shell: bash
+  build-apt:
+    runs-on: ubuntu-latest
+    steps:
+    - name: install cuda with apt
+      run: |
+        sudo apt update
+        sudo apt install nvidia-cuda-toolkit
+      shell: bash
+    - name: test nvcc command
+      run: nvcc -V
+    - name: show cmake version
+      run: cmake --version
+    - name: show gcc version
+      run: gcc --version
+    - name: test build
+      run: |
+        git clone https://github.com/utcs-scea/altis.git
+        cd altis/tools
+        chmod +x github-action-setup.sh
+        ./github-action-setup.sh
+      shell: bash
