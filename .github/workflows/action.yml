@@ -19,10 +19,12 @@ jobs:
       run: cmake --version
     - name: show gcc version
       run: gcc --version
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: test build
       run: |
-        git clone https://github.com/utcs-scea/altis.git
-        cd altis/tools
+        cd tools
         chmod +x github-action-setup.sh
         ./github-action-setup.sh
       shell: bash
@@ -40,10 +42,12 @@ jobs:
       run: cmake --version
     - name: show gcc version
       run: gcc --version
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: test build
       run: |
-        git clone https://github.com/utcs-scea/altis.git
-        cd altis/tools
+        cd tools
         chmod +x github-action-setup-old.sh
         ./github-action-setup-old.sh
       shell: bash
