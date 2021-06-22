@@ -34,6 +34,7 @@ fi
 
 
 cd $SCRIPTPATH
+git checkout yolo
 mkdir build
 cd build
 cmake -DCMAKE_CUDA_ARCHITECTURES=60\;61\;70\;75 ..
