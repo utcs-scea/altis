@@ -44,6 +44,9 @@ jobs:
       run: |
         git clone https://github.com/utcs-scea/altis.git
         cd altis/tools
-        chmod +x github-action-setup.sh
-        ./github-action-setup.sh
+        chmod +x github-action-setup-old.sh
+        ./github-action-setup-old.sh
       shell: bash
+      env:
+        CC:   gcc-8
+        CXX:  g++-8
