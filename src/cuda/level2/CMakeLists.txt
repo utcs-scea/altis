@@ -133,3 +133,17 @@ set_target_properties(where
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/level2"
 )
+
+set_source_files_properties(yolo/src/darknet.c PROPERTIES LANGUAGE CUDA)
+add_executable(darknet yolo/src/darknet.c)
+target_include_directories(darknet PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/yolo/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/yolo/src
+)
+target_link_libraries(darknet darknetLib)
+set_target_properties(darknet
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/level2"
+)
