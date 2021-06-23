@@ -42,5 +42,5 @@ fi
 cd $SCRIPTPATH
 mkdir build
 cd build
-cmake -DCMAKE_CUDA_ARCHITECTURES=$($SCRIPTPATH/config/get_cuda_sm.sh) ..
+cmake -DCMAKE_CUDA_ARCHITECTURES=$($SCRIPTPATH/config/get_cuda_sm.sh) -DCMAKE_CUDA_FLAGS="--cudart shared" ..
 make -j`nproc`

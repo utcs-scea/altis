@@ -98,7 +98,7 @@ set(darketCXXSources
 )
 set_source_files_properties(${darketCXXSources} PROPERTIES LANGUAGE CUDA)
 
-add_library(darknetLib SHARED ${darketSources} ${darketCudaSources} ${darketCXXSources})
+add_library(darknetLib ${darketSources} ${darketCudaSources} ${darketCXXSources})
 target_include_directories(darknetLib PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/src
