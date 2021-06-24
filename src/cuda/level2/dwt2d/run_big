@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-set -ue
-
-sudo /usr/local/cuda-10.0/bin/nvprof -m all --csv --log-file metrics_big_zemaitis.csv ./dwt2d -s 4 -n 1
