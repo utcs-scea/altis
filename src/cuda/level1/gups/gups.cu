@@ -340,16 +340,7 @@ void RunBenchmark(ResultDatabase &DB, OptionParser &op) {
   checkCudaErrors(cudaGetDevice(&device));
 
   // Specify table size
-  int problemSizes[5] = {20, 22, 24, 26, 32}; // size 5 might be extremely long!
-  int toShifts = problemSizes[op.getOptionInt("size") - 1];
-
-  int logn = op.getOptionInt("shifts");
-  // TODO: watch out size
-  if (logn > 0 && logn != 20) {
-    n = (size_t) 1 << logn;
-  } else {
-    n = (size_t) 1 << toShifts;
-  }
+  n = op.getOptionInt("size");
 
   std::cout << "Total table size = " << n << " (" << n*sizeof(uint64_t) << " bytes.)" << std::endl;
 
