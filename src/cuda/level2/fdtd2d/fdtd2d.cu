@@ -277,6 +277,7 @@ void fdtdCuda(size_t NX, size_t NY, size_t tmax, DATA_TYPE* _fict_, DATA_TYPE* e
         checkCudaErrors(cudaStreamDestroy(stream1));
         checkCudaErrors(cudaStreamDestroy(stream2));
     }
+    cudaDeviceSynchronize();
     t_end = rtclock();
     fprintf(stdout, "GPU Runtime: %0.6lfs\n", t_end - t_start);
 
@@ -401,6 +402,7 @@ void fdtdCudaUnifiedMemory(size_t NX, size_t NY, size_t tmax, DATA_TYPE* _fict_,
         checkCudaErrors(cudaStreamDestroy(stream2));
     }
 
+    cudaDeviceSynchronize();
     t_end = rtclock();
     fprintf(stdout, "GPU Runtime: %0.6lfs\n", t_end - t_start);
 
