@@ -73,3 +73,7 @@ src/cuda/level2/dwt2d/input.bmp.dwt.r
 build-aux
 configure
 *m4
+
+# CLion
+cmake-build-*/
+.idea/*
